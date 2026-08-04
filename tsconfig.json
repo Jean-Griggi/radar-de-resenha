@@ -1,7 +1,7 @@
 {
-  "extends": "@resenhometro/config/typescript/base.json",
+  "extends": "./packages/config/typescript/base.json",
   "compilerOptions": {
-    "baseUrl": "."
+    "noEmit": true
   },
   "exclude": ["node_modules", "dist", ".next", "build"]
 }

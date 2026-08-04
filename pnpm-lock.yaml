@@ -11,6 +11,9 @@ importers:
       '@eslint/js':
         specifier: ^9.28.0
         version: 9.39.5
+      '@resenhometro/config':
+        specifier: workspace:*
+        version: link:packages/config
       eslint:
         specifier: ^9.28.0
         version: 9.39.5
