@@ -1,0 +1,15 @@
+{
+  "name": "@resenhometro/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Mobile app — em breve\"",
+    "build": "echo \"Mobile app — em breve\"",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@resenhometro/config": "workspace:*",
+    "typescript": "^5.8.3"
+  }
+}

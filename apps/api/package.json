@@ -1,0 +1,23 @@
+{
+  "name": "@resenhometro/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@resenhometro/shared": "workspace:*",
+    "fastify": "^5.3.3"
+  },
+  "devDependencies": {
+    "@resenhometro/config": "workspace:*",
+    "@types/node": "^22.15.29",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

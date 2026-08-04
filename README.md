@@ -132,29 +132,29 @@ E --> E4[VS Code]
 
 ## 🌐 Front-end
 
-| Tecnologia | Utilização |
-|------------|------------|
-| Next.js | Framework React |
-| React | Interface da aplicação |
-| TypeScript | Tipagem |
-| Tailwind CSS | Estilização |
-| shadcn/ui | Componentes |
-| React Hook Form | Formulários |
-| Zod | Validação |
-| Axios | Comunicação com API |
+| Tecnologia      | Utilização             |
+| --------------- | ---------------------- |
+| Next.js         | Framework React        |
+| React           | Interface da aplicação |
+| TypeScript      | Tipagem                |
+| Tailwind CSS    | Estilização            |
+| shadcn/ui       | Componentes            |
+| React Hook Form | Formulários            |
+| Zod             | Validação              |
+| Axios           | Comunicação com API    |
 
 ---
 
 ## ⚡ Back-end
 
-| Tecnologia | Utilização |
-|------------|------------|
-| Node.js | Ambiente JavaScript |
-| Fastify | Framework da API |
-| TypeScript | Tipagem |
-| Drizzle ORM | ORM |
-| JWT | Autenticação |
-| bcrypt | Criptografia de senha |
+| Tecnologia  | Utilização            |
+| ----------- | --------------------- |
+| Node.js     | Ambiente JavaScript   |
+| Fastify     | Framework da API      |
+| TypeScript  | Tipagem               |
+| Drizzle ORM | ORM                   |
+| JWT         | Autenticação          |
+| bcrypt      | Criptografia de senha |
 
 ---
 
@@ -182,6 +182,175 @@ E --> E4[VS Code]
 
 - Docker
 - Docker Compose
+
+---
+
+# 💻 Pré-requisitos
+
+Antes de clonar o repositório, instale estas ferramentas na sua máquina:
+
+| Ferramenta | Para quê? | Versão mínima |
+| ---------- | --------- | ------------- |
+| [Git](https://git-scm.com/downloads) | Clonar e versionar o código | Qualquer recente |
+| [Node.js](https://nodejs.org/) | Rodar JavaScript/TypeScript | 20 ou superior |
+| [pnpm](https://pnpm.io/installation) | Gerenciar dependências do monorepo | 10 ou superior |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Subir o PostgreSQL localmente | Qualquer recente |
+
+> **Opcional:** [VS Code](https://code.visualstudio.com/) ou [Cursor](https://cursor.com/) como editor, e [Bruno](https://www.usebruno.com/) para testar a API.
+
+---
+
+# 🛠️ Instalação das ferramentas
+
+Siga os passos abaixo **uma única vez** por máquina.
+
+## 1. Git
+
+**Windows:** baixe em [git-scm.com/downloads](https://git-scm.com/downloads) e instale com as opções padrão.
+
+Verifique no terminal:
+
+```bash
+git --version
+```
+
+## 2. Node.js
+
+Baixe a versão **LTS (20 ou superior)** em [nodejs.org](https://nodejs.org/).
+
+Verifique:
+
+```bash
+node --version
+npm --version
+```
+
+Deve aparecer algo como `v20.x.x` ou `v22.x.x`.
+
+## 3. pnpm
+
+O pnpm é o gerenciador de pacotes do projeto. Instale globalmente:
+
+```bash
+npm install -g pnpm
+```
+
+Verifique:
+
+```bash
+pnpm --version
+```
+
+> **Alternativa:** se preferir, ative o Corepack (já vem com o Node):
+>
+> ```bash
+> corepack enable
+> corepack prepare pnpm@10.11.0 --activate
+> ```
+
+## 4. Docker Desktop
+
+Baixe em [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/), instale e **inicie o Docker** antes de rodar o banco.
+
+Verifique:
+
+```bash
+docker --version
+docker compose version
+```
+
+---
+
+# 🚀 Como rodar o projeto
+
+Depois de instalar os pré-requisitos, siga estes passos toda vez que for trabalhar no projeto (ou na primeira vez após clonar).
+
+## 1. Clonar o repositório
+
+```bash
+git clone https://github.com/SEU-USUARIO/radar-de-resenha.git
+cd radar-de-resenha
+```
+
+> Troque a URL pelo link real do repositório no GitHub.
+
+## 2. Instalar as dependências
+
+Na **raiz do projeto**, rode:
+
+```bash
+pnpm install
+```
+
+Esse comando baixa automaticamente todas as bibliotecas do monorepo (Next.js, Fastify, React, TypeScript, etc.) — **não precisa instalar cada uma manualmente**.
+
+## 3. Configurar variáveis de ambiente
+
+Copie o arquivo de exemplo:
+
+```bash
+# Windows (PowerShell)
+Copy-Item .env.example .env
+
+# Linux / macOS
+cp .env.example .env
+```
+
+Edite o `.env` se precisar alterar algo (por padrão já funciona com o Docker local).
+
+## 4. Subir o banco de dados
+
+Com o Docker Desktop aberto:
+
+```bash
+docker compose -f docker/docker-compose.yml up -d
+```
+
+Isso sobe o PostgreSQL na porta `5432`.
+
+## 5. Rodar o projeto
+
+```bash
+pnpm dev
+```
+
+| App | URL |
+| --- | --- |
+| Web (Next.js) | http://localhost:3000 |
+| API (Fastify) | http://localhost:3333 |
+
+Teste a API:
+
+```bash
+curl http://localhost:3333/health
+```
+
+Resposta esperada: `{"status":"ok"}`
+
+---
+
+# 📋 Comandos úteis
+
+| Comando | O que faz |
+| ------- | --------- |
+| `pnpm install` | Instala/atualiza dependências |
+| `pnpm dev` | Sobe web + api em modo desenvolvimento |
+| `pnpm build` | Gera build de produção |
+| `pnpm lint` | Verifica qualidade do código |
+| `pnpm typecheck` | Verifica erros de TypeScript |
+| `pnpm format` | Formata o código com Prettier |
+
+---
+
+# ❓ Problemas comuns
+
+| Problema | Solução |
+| -------- | ------- |
+| `pnpm: command not found` | Instale o pnpm (`npm install -g pnpm`) |
+| `node: command not found` | Instale o Node.js 20+ |
+| Erro ao conectar no banco | Verifique se o Docker está rodando |
+| Porta 3000 ou 3333 em uso | Feche o processo que está usando a porta ou mude no `.env` |
+| Erro no `pnpm install` | Use Node 20+ e pnpm 10+ |
 
 ---
 
@@ -243,17 +412,17 @@ PACKAGES --> CONFIG[config]
 
 # 📖 O que é cada pasta?
 
-| Pasta | Objetivo |
-|--------|----------|
-| apps/api | API Backend |
-| apps/web | Aplicação Web |
-| apps/mobile | Aplicativo Mobile (futuro) |
-| apps/desktop | Aplicativo Desktop (futuro) |
-| packages/ui | Componentes reutilizáveis |
-| packages/shared | Código compartilhado |
-| packages/config | Configurações compartilhadas |
-| docs | Documentação |
-| docker | Arquivos Docker |
+| Pasta           | Objetivo                          |
+| --------------- | --------------------------------- |
+| apps/api        | API Backend                       |
+| apps/web        | Aplicação Web                     |
+| apps/mobile     | Aplicativo Mobile (futuro)        |
+| apps/desktop    | Aplicativo Desktop (futuro)       |
+| packages/ui     | Componentes reutilizáveis         |
+| packages/shared | Código compartilhado              |
+| packages/config | Configurações compartilhadas      |
+| docs            | Documentação                      |
+| docker          | Arquivos Docker                   |
 
 ---
 
