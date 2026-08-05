@@ -1,9 +1,18 @@
 # API — Resenhômetro
 
-Backend Fastify do projeto.
+Backend Fastify. **Dados em memória** (sem banco por enquanto — reinicia ao parar o servidor).
 
-## Scripts
+## Rodar
 
-- `pnpm dev` — inicia em modo desenvolvimento
-- `pnpm build` — compila TypeScript
-- `pnpm start` — inicia produção
+```bash
+pnpm dev
+```
+
+## Rotas
+
+- `GET /health`
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /roles`
+- `GET /roles/:id`
+- `POST /roles` (JWT)

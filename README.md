@@ -194,7 +194,6 @@ Antes de clonar o repositório, instale estas ferramentas na sua máquina:
 | [Git](https://git-scm.com/downloads) | Clonar e versionar o código | Qualquer recente |
 | [Node.js](https://nodejs.org/) | Rodar JavaScript/TypeScript | 20 ou superior |
 | [pnpm](https://pnpm.io/installation) | Gerenciar dependências do monorepo | 10 ou superior |
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Subir o PostgreSQL localmente | Qualquer recente |
 
 > **Opcional:** [VS Code](https://code.visualstudio.com/) ou [Cursor](https://cursor.com/) como editor, e [Bruno](https://www.usebruno.com/) para testar a API.
 
@@ -248,17 +247,6 @@ pnpm --version
 > corepack prepare pnpm@10.11.0 --activate
 > ```
 
-## 4. Docker Desktop
-
-Baixe em [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/), instale e **inicie o Docker** antes de rodar o banco.
-
-Verifique:
-
-```bash
-docker --version
-docker compose version
-```
-
 ---
 
 # 🚀 Como rodar o projeto
@@ -296,19 +284,9 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-Edite o `.env` se precisar alterar algo (por padrão já funciona com o Docker local).
+Edite o `.env` se precisar alterar algo.
 
-## 4. Subir o banco de dados
-
-Com o Docker Desktop aberto:
-
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
-
-Isso sobe o PostgreSQL na porta `5432`.
-
-## 5. Rodar o projeto
+## 4. Rodar o projeto
 
 ```bash
 pnpm dev
@@ -348,7 +326,6 @@ Resposta esperada: `{"status":"ok"}`
 | -------- | ------- |
 | `pnpm: command not found` | Instale o pnpm (`npm install -g pnpm`) |
 | `node: command not found` | Instale o Node.js 20+ |
-| Erro ao conectar no banco | Verifique se o Docker está rodando |
 | Porta 3000 ou 3333 em uso | Feche o processo que está usando a porta ou mude no `.env` |
 | Erro no `pnpm install` | Use Node 20+ e pnpm 10+ |
 
