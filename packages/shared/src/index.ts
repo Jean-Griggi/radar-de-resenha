@@ -1,3 +1,3 @@
-export const APP_NAME = 'Resenhômetro';
-
-export type { User, Role } from './types';
+export { APP_NAME } from './constants';
+export * from './constants';
+export type * from './types';

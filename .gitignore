@@ -35,6 +35,9 @@ Thumbs.db
 # Testing
 coverage/
 
+# Data / uploads
+apps/api/data/
+
 # Misc
 *.tsbuildinfo
 .vercel

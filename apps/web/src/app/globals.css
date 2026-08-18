@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+:root,
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #070b14;
+  --bg-elevated: #0c1220;
+  --card: rgba(17, 24, 39, 0.72);
+  --card-2: #151d2e;
+  --line: rgba(148, 163, 184, 0.16);
+  --text: #f4f7fb;
+  --muted: #94a3b8;
+  --accent: #8b5cf6;
+  --accent-2: #38bdf8;
+  --pink: #d946ef;
+  --overlay: rgba(255, 255, 255, 0.06);
+  --glow: 0 0 24px rgba(139, 92, 246, 0.28);
+  --wave-sky-start: #5eead4;
+  --wave-sky-end: #fecaca;
+  --wave-1: #071018;
+  --wave-2: #0b1a2b;
+  --wave-3: #10243a;
+  --wave-4: #16324c;
+  --wave-5: #1c3f5a;
+  --wave-line: rgba(186, 230, 253, 0.16);
+  --wave-shine: #a5f3fc;
+  --header: rgba(7, 11, 20, 0.72);
+  --input: #0c1220;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef7fb;
+  --bg-elevated: #ffffff;
+  --card: rgba(255, 255, 255, 0.78);
+  --card-2: #f8fafc;
+  --line: rgba(15, 23, 42, 0.1);
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #7c3aed;
+  --accent-2: #0284c7;
+  --pink: #c026d3;
+  --overlay: rgba(15, 23, 42, 0.05);
+  --glow: 0 0 20px rgba(124, 58, 237, 0.2);
+  --wave-sky-start: #7dd3fc;
+  --wave-sky-end: #fed7aa;
+  --wave-1: #dbeafe;
+  --wave-2: #bfdbfe;
+  --wave-3: #93c5fd;
+  --wave-4: #7dd3fc;
+  --wave-5: #67e8f9;
+  --wave-line: rgba(15, 23, 42, 0.12);
+  --wave-shine: #ffffff;
+  --header: rgba(255, 255, 255, 0.7);
+  --input: #ffffff;
+}
+
+@theme inline {
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-fg: var(--text);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-overlay: var(--overlay);
+  --color-input: var(--input);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 50%, transparent) transparent;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  @apply antialiased;
+}
+
+a {
+  @apply transition-colors;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+.glow-btn {
+  box-shadow: var(--glow);
+}
+
+.nav-active {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent), transparent);
+  box-shadow: inset 3px 0 0 var(--accent);
+  color: var(--text);
+}
+
+input,
+textarea,
+select {
+  color-scheme: inherit;
+}
