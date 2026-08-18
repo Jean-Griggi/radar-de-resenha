@@ -17,6 +17,7 @@
 - [ ] Commits seguem Conventional Commits
 - [ ] Testes passam localmente (se aplicável)
 - [ ] Documentação atualizada (se necessário)
+- [ ] PR aponta para `main`
 
 ## Screenshots
 

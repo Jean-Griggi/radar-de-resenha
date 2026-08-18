@@ -2,321 +2,142 @@
 
 > É os mais bigodes da capital krai.
 
+Rede social de experiências, rolês e memórias. As pessoas registram os encontros que viveram, com quem estavam, as músicas, as fotos, os áudios e as histórias que ficaram.
+
+Repositório: [github.com/Jean-Griggi/radar-de-resenha](https://github.com/Jean-Griggi/radar-de-resenha)
+
 ---
 
 # 📖 Sobre
 
-O **Resenhômetro** é uma plataforma desenvolvida para facilitar a organização de encontros entre amigos.
+O **Resenhômetro** não é só um cadastro de rolês. É um diário social: feed, perfil, calendário, estatísticas, resenhas e música.
 
-O sistema permitirá criar rolês, confirmar presença, compartilhar localização, comentar, avaliar encontros e centralizar todas as informações importantes em um único lugar.
-
-Nosso objetivo é tornar a organização de rolês mais simples, rápida e divertida.
+A branch única do projeto é a **`main`**.
 
 ---
 
-# ✨ Funcionalidades
+# ✨ O que já existe
 
-- 👤 Cadastro e Login
-- 🧑 Perfil de usuário
-- 🎉 Criar rolês
-- ✏️ Editar rolês
-- 🗑️ Excluir rolês
-- 📍 Localização do encontro
-- 💬 Comentários
-- ⭐ Avaliação dos rolês
-- ✅ Confirmar presença
-- ❌ Informar ausência
-- 💰 Informar gastos
-- 📷 Fotos (futuro)
-- 🔔 Notificações (futuro)
+- Cadastro, login, sessão JWT e perfil (`/perfil/[username]`)
+- Foto de perfil e capa
+- Rolês: criar, listar, editar, excluir, presença (vou / talvez / não vou)
+- Feed, comentários com respostas e reações
+- Amigos, seguir, explorar e busca
+- Resenhas com nota 1–5 e tags
+- Fotos, álbuns e áudios
+- Calendário, estatísticas, retrospectiva e conquistas
+- Notificações dentro do app
+- Spotify (OAuth no backend; precisa das variáveis de ambiente)
+- Tema claro e tema escuro, com fundo de waves
+- Persistência local (PGlite) ou PostgreSQL via `DATABASE_URL`
+
+Fora do escopo agora: app mobile, app desktop, mapa, chat em tempo real e push.
 
 ---
 
-# 🏛️ Arquitetura Geral
+# 🏛️ Arquitetura
 
 ```mermaid
 flowchart LR
-
-U[👤 Usuário]
-
-U --> WEB[🌐 Front-end<br/>Next.js]
-
-WEB --> API[⚡ API<br/>Fastify]
-
-API --> DB[(🐘 PostgreSQL)]
-
-API --> MAPS[🗺️ OpenStreetMap]
-
-API --> AUTH[🔐 JWT]
+  U[Usuário] --> WEB[Web Next.js]
+  WEB --> API[API Fastify]
+  API --> DB[(PGlite ou PostgreSQL)]
+  API --> FILES[Arquivos /uploads]
+  API --> AUTH[JWT]
+  API --> SPOTIFY[Spotify OAuth]
 ```
 
----
-
-# 🚀 Fluxo do Usuário
-
-```mermaid
-flowchart LR
-
-Login --> Home
-
-Home --> CriarRolê
-
-CriarRolê --> Amigos
-
-Amigos --> Comentários
-
-Comentários --> ConfirmarPresença
-
-ConfirmarPresença --> Finalizado
-```
+Backend: `routes` → `service` → banco/arquivos.
 
 ---
 
-# ⚙️ Fluxo do Backend
+# 🛠️ Stack
 
-```mermaid
-flowchart LR
-
-Request --> Controller
-
-Controller --> Service
-
-Service --> Repository
-
-Repository --> Database
-
-Database --> Repository
-
-Repository --> Service
-
-Service --> Controller
-
-Controller --> Response
-```
-
----
-
-# 🛠️ Stack de Tecnologias
-
-```mermaid
-flowchart TD
-
-A[Resenhômetro]
-
-A --> B[Frontend]
-B --> B1[Next.js]
-B --> B2[React]
-B --> B3[TypeScript]
-B --> B4[Tailwind CSS]
-B --> B5[shadcn/ui]
-
-A --> C[Backend]
-C --> C1[Node.js]
-C --> C2[Fastify]
-C --> C3[Drizzle ORM]
-C --> C4[JWT]
-
-A --> D[Banco de Dados]
-D --> D1[PostgreSQL]
-
-A --> E[Ferramentas]
-E --> E1[Docker]
-E --> E2[GitHub]
-E --> E3[Bruno]
-E --> E4[VS Code]
-```
-
----
-
-# 📚 Tecnologias
-
-## 🌐 Front-end
-
-| Tecnologia      | Utilização             |
-| --------------- | ---------------------- |
-| Next.js         | Framework React        |
-| React           | Interface da aplicação |
-| TypeScript      | Tipagem                |
-| Tailwind CSS    | Estilização            |
-| shadcn/ui       | Componentes            |
-| React Hook Form | Formulários            |
-| Zod             | Validação              |
-| Axios           | Comunicação com API    |
-
----
-
-## ⚡ Back-end
-
-| Tecnologia  | Utilização            |
-| ----------- | --------------------- |
-| Node.js     | Ambiente JavaScript   |
-| Fastify     | Framework da API      |
-| TypeScript  | Tipagem               |
-| Drizzle ORM | ORM                   |
-| JWT         | Autenticação          |
-| bcrypt      | Criptografia de senha |
-
----
-
-## 🐘 Banco de Dados
-
-- PostgreSQL
-
----
-
-## 🗺️ Mapas
-
-- OpenStreetMap
-- Leaflet
-
----
-
-## 🧪 Testes
-
-- Vitest
-- Bruno
-
----
-
-## 🐳 Infraestrutura
-
-- Docker
-- Docker Compose
+| Camada | Tecnologia |
+| ------ | ---------- |
+| Web | Next.js, React, TypeScript, Tailwind CSS |
+| API | Fastify, TypeScript, JWT, bcrypt, Zod |
+| Tipos | `packages/shared` |
+| Banco | PGlite (padrão local) ou PostgreSQL |
+| Mídia | Disco em `apps/api/data/uploads` |
+| Testes | Vitest na API |
 
 ---
 
 # 💻 Pré-requisitos
 
-Antes de clonar o repositório, instale estas ferramentas na sua máquina:
+| Ferramenta | Versão |
+| ---------- | ------ |
+| [Git](https://git-scm.com/downloads) | recente |
+| [Node.js](https://nodejs.org/) | 20+ |
+| [pnpm](https://pnpm.io/installation) | 10+ |
 
-| Ferramenta | Para quê? | Versão mínima |
-| ---------- | --------- | ------------- |
-| [Git](https://git-scm.com/downloads) | Clonar e versionar o código | Qualquer recente |
-| [Node.js](https://nodejs.org/) | Rodar JavaScript/TypeScript | 20 ou superior |
-| [pnpm](https://pnpm.io/installation) | Gerenciar dependências do monorepo | 10 ou superior |
-
-> **Opcional:** [VS Code](https://code.visualstudio.com/) ou [Cursor](https://cursor.com/) como editor, e [Bruno](https://www.usebruno.com/) para testar a API.
+Docker é opcional (só se quiser PostgreSQL de verdade). Sem Docker a API já persiste os dados.
 
 ---
 
-# 🛠️ Instalação das ferramentas
-
-Siga os passos abaixo **uma única vez** por máquina.
-
-## 1. Git
-
-**Windows:** baixe em [git-scm.com/downloads](https://git-scm.com/downloads) e instale com as opções padrão.
-
-Verifique no terminal:
+# 🚀 Como rodar
 
 ```bash
-git --version
-```
-
-## 2. Node.js
-
-Baixe a versão **LTS (20 ou superior)** em [nodejs.org](https://nodejs.org/).
-
-Verifique:
-
-```bash
-node --version
-npm --version
-```
-
-Deve aparecer algo como `v20.x.x` ou `v22.x.x`.
-
-## 3. pnpm
-
-O pnpm é o gerenciador de pacotes do projeto. Instale globalmente:
-
-```bash
-npm install -g pnpm
-```
-
-Verifique:
-
-```bash
-pnpm --version
-```
-
-> **Alternativa:** se preferir, ative o Corepack (já vem com o Node):
->
-> ```bash
-> corepack enable
-> corepack prepare pnpm@10.11.0 --activate
-> ```
-
----
-
-# 🚀 Como rodar o projeto
-
-Depois de instalar os pré-requisitos, siga estes passos toda vez que for trabalhar no projeto (ou na primeira vez após clonar).
-
-## 1. Clonar o repositório
-
-```bash
-git clone https://github.com/SEU-USUARIO/radar-de-resenha.git
+git clone https://github.com/Jean-Griggi/radar-de-resenha.git
 cd radar-de-resenha
-```
-
-> Troque a URL pelo link real do repositório no GitHub.
-
-## 2. Instalar as dependências
-
-Na **raiz do projeto**, rode:
-
-```bash
 pnpm install
 ```
 
-Esse comando baixa automaticamente todas as bibliotecas do monorepo (Next.js, Fastify, React, TypeScript, etc.) — **não precisa instalar cada uma manualmente**.
+**Windows (PowerShell):**
 
-## 3. Configurar variáveis de ambiente
-
-Copie o arquivo de exemplo:
-
-```bash
-# Windows (PowerShell)
+```powershell
 Copy-Item .env.example .env
-
-# Linux / macOS
-cp .env.example .env
+Copy-Item .env.example apps/web/.env.local
 ```
 
-Edite o `.env` se precisar alterar algo.
-
-## 4. Rodar o projeto
+**Linux / macOS:**
 
 ```bash
-pnpm dev
+cp .env.example .env
+cp .env.example apps/web/.env.local
 ```
+
+No `apps/web/.env.local` deixe só (ou pelo menos):
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:3333
+```
+
+Dois terminais:
+
+```bash
+pnpm --filter @resenhometro/api dev
+pnpm --filter @resenhometro/web dev
+```
+
+Ou, na raiz, `pnpm dev` (sobe os apps do monorepo).
 
 | App | URL |
 | --- | --- |
-| Web (Next.js) | http://localhost:3000 |
-| API (Fastify) | http://localhost:3333 |
-
-Teste a API:
+| Web | http://localhost:3000 |
+| API | http://localhost:3333 |
 
 ```bash
 curl http://localhost:3333/health
 ```
 
-Resposta esperada: `{"status":"ok"}`
+Resposta: `{"status":"ok"}`. Cadastre uma conta no navegador e entre.
 
 ---
 
-# 📋 Comandos úteis
+# 📋 Comandos
 
 | Comando | O que faz |
 | ------- | --------- |
-| `pnpm install` | Instala/atualiza dependências |
-| `pnpm dev` | Sobe web + api em modo desenvolvimento |
-| `pnpm build` | Gera build de produção |
-| `pnpm lint` | Verifica qualidade do código |
-| `pnpm typecheck` | Verifica erros de TypeScript |
-| `pnpm format` | Formata o código com Prettier |
+| `pnpm install` | Dependências |
+| `pnpm --filter @resenhometro/api dev` | API |
+| `pnpm --filter @resenhometro/web dev` | Web |
+| `pnpm build` | Build |
+| `pnpm lint` | Lint |
+| `pnpm typecheck` | TypeScript |
+| `pnpm test` | Testes da API |
+| `pnpm format` | Prettier |
 
 ---
 
@@ -324,198 +145,54 @@ Resposta esperada: `{"status":"ok"}`
 
 | Problema | Solução |
 | -------- | ------- |
-| `pnpm: command not found` | Instale o pnpm (`npm install -g pnpm`) |
-| `node: command not found` | Instale o Node.js 20+ |
-| Porta 3000 ou 3333 em uso | Feche o processo que está usando a porta ou mude no `.env` |
-| Erro no `pnpm install` | Use Node 20+ e pnpm 10+ |
+| `pnpm` não encontrado | `npm install -g pnpm` |
+| Login antigo não entra | Banco local foi zerado — cadastre de novo |
+| Porta 3000 ou 3333 em uso | Feche o processo ou mude `API_PORT` |
+| Spotify não conecta | Preencha `SPOTIFY_*` no `.env` |
 
 ---
 
-# 📂 Estrutura do Projeto
+# 📂 Estrutura
 
 ```text
-resenhometro/
-│
-├── apps/
-│   ├── api/
-│   ├── web/
-│   ├── mobile/
-│   └── desktop/
-│
-├── packages/
-│   ├── ui/
-│   ├── shared/
-│   └── config/
-│
-├── docs/
-│
-├── docker/
-│
-├── .github/
-│
+radar-de-resenha/
+├── apps/api/          Backend Fastify
+├── apps/web/          Frontend Next.js
+├── apps/mobile/       Reservado (não usar agora)
+├── apps/desktop/      Reservado (não usar agora)
+├── packages/shared/   Tipos e constantes
+├── packages/ui/       Componentes (mínimo)
+├── packages/config/   TSConfig compartilhado
+├── docs/              Documentação
+├── docker-compose.yml PostgreSQL opcional
 └── README.md
 ```
 
 ---
 
-# 🗂️ Organização do Monorepo
+# 🌿 Git
 
-```mermaid
-flowchart TD
+A branch de trabalho é a **`main`**. Não há `develop` nem branches de feature ativas.
 
-ROOT[Resenhômetro]
-
-ROOT --> APPS[apps]
-ROOT --> PACKAGES[packages]
-ROOT --> DOCS[docs]
-ROOT --> DOCKER[docker]
-
-APPS --> WEB[web]
-
-APPS --> API[api]
-
-APPS --> MOBILE[mobile]
-
-APPS --> DESKTOP[desktop]
-
-PACKAGES --> UI[ui]
-
-PACKAGES --> SHARED[shared]
-
-PACKAGES --> CONFIG[config]
-```
+Commits no padrão Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`.
 
 ---
 
-# 📖 O que é cada pasta?
+# ☁️ Publicar
 
-| Pasta           | Objetivo                          |
-| --------------- | --------------------------------- |
-| apps/api        | API Backend                       |
-| apps/web        | Aplicação Web                     |
-| apps/mobile     | Aplicativo Mobile (futuro)        |
-| apps/desktop    | Aplicativo Desktop (futuro)       |
-| packages/ui     | Componentes reutilizáveis         |
-| packages/shared | Código compartilhado              |
-| packages/config | Configurações compartilhadas      |
-| docs            | Documentação                      |
-| docker          | Arquivos Docker                   |
+O GitHub guarda o código. Para o site ficar na internet:
+
+1. **Front (Vercel)** — root `apps/web`, variável `NEXT_PUBLIC_API_URL`
+2. **API (Render ou Railway)** — `JWT_SECRET`, `PUBLIC_API_URL`, `WEB_ORIGIN`, `CORS_ORIGINS`, opcionalmente `DATABASE_URL` e `SPOTIFY_*`
 
 ---
 
-# 🌱 Git Flow
+# 👥 Equipe
 
-```text
-main
- │
- ├── develop
- │
- ├── feature/login
- ├── feature/roles
- ├── feature/usuarios
- ├── fix/login
- └── hotfix/producao
-```
-
----
-
-# 🌿 Padrão de Branches
-
-```
-feature/nome-da-feature
-fix/nome-do-bug
-hotfix/nome-do-hotfix
-docs/documentacao
-refactor/refatoracao
-```
-
----
-
-# 📝 Padrão de Commits
-
-```
-feat:
-fix:
-docs:
-style:
-refactor:
-test:
-chore:
-```
-
-Exemplo:
-
-```
-feat: cria sistema de login
-
-fix: corrige autenticação JWT
-
-docs: atualiza README
-
-refactor: reorganiza estrutura da API
-```
-
----
-
-# 📅 Roadmap
-
-```mermaid
-journey
-title Desenvolvimento do Resenhômetro
-
-section Planejamento
-
-Criar Repositório: 5: Jean
-
-README: 5: Jean
-
-Arquitetura: 5: Jean
-
-Tecnologias: 5: Equipe
-
-section Desenvolvimento
-
-Backend: 1: Equipe
-
-Frontend: 1: Equipe
-
-Banco de Dados: 1: Equipe
-
-Testes: 1: Equipe
-
-section Futuro
-
-Mobile: 0: Equipe
-
-Desktop: 0: Equipe
-```
-
----
-
-# 👥 Equipe/Usuarios
-
-- Jean
-- João
-- Adryan
-- Rafael
-- Lucas
-- Niel
-- Davi
-- Gabriel
-
----
-
-# 🎯 Objetivos do Projeto
-
-- Aprender novas tecnologias
-- Praticar desenvolvimento em equipe
-- Criar um projeto real
-- Melhorar conhecimentos em arquitetura
-- Evoluir em Git e GitHub
-- Desenvolver um sistema útil para o grupo
+Jean, João, Adryan, Rafael, Lucas, Niel, Davi, Gabriel
 
 ---
 
 # 📄 Licença
 
-Este projeto é privado e foi desenvolvido para uso interno entre os guri.
+Projeto privado, uso interno da equipe.

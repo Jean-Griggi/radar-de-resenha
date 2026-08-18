@@ -2,71 +2,42 @@
 
 > É os mais bigodes da capital krai.
 
-**Documento para onboarding da equipe** — README do projeto + instalação + Git básico.
+Onboarding: o que é o projeto, como instalar e o Git do dia a dia.
 
 ---
 
 ## Sobre o projeto
 
-O **Resenhômetro** é uma plataforma para facilitar a organização de encontros entre amigos.
+O **Resenhômetro** é uma rede social de rolês e memórias. Dá para criar perfil, registrar encontros, confirmar presença, comentar, reagir, postar resenhas, fotos, áudios, ver calendário, estatísticas e (se configurado) ligar o Spotify.
 
-O sistema permitirá criar rolês, confirmar presença, compartilhar localização, comentar, avaliar encontros e centralizar todas as informações importantes em um único lugar.
+Repositório: https://github.com/Jean-Griggi/radar-de-resenha
 
----
-
-## Funcionalidades
-
-- Cadastro e Login
-- Perfil de usuário
-- Criar, editar e excluir rolês
-- Localização do encontro
-- Comentários e avaliações
-- Confirmar presença / informar ausência
-- Informar gastos
-- Fotos e notificações (futuro)
+A única branch é a **`main`**.
 
 ---
 
-## Arquitetura
+## Stack
+
+**Front:** Next.js, React, TypeScript, Tailwind CSS, Axios  
+**Back:** Fastify, TypeScript, JWT, bcrypt, Zod  
+**Banco:** PGlite no disco (padrão) ou PostgreSQL  
+**Repo:** GitHub, pnpm, Turbo
+
+Mobile e desktop estão reservados — não mexer.
+
+---
+
+## Estrutura
 
 ```
-Usuário → Web (Next.js) → API (Fastify) → PostgreSQL
-                              ↓
-                         OpenStreetMap / JWT
-```
-
-**Fluxo do backend:** Request → Controller → Service → Repository → Database → Response
-
----
-
-## Stack de tecnologias
-
-**Front-end:** Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, React Hook Form, Zod, Axios
-
-**Back-end:** Node.js, Fastify, TypeScript, Drizzle ORM, JWT, bcrypt
-
-**Banco:** PostgreSQL
-
-**Ferramentas:** Docker, GitHub, Bruno, VS Code / Cursor
-
----
-
-## Estrutura do projeto
-
-```
-resenhometro/
-├── apps/
-│   ├── api/       → Backend (Fastify)
-│   ├── web/       → Frontend (Next.js)
-│   ├── mobile/    → Futuro
-│   └── desktop/   → Futuro
-├── packages/
-│   ├── ui/        → Componentes reutilizáveis
-│   ├── shared/    → Código compartilhado
-│   └── config/    → Configurações
+radar-de-resenha/
+├── apps/api/        Backend
+├── apps/web/        Frontend
+├── packages/shared/ Tipos e constantes
+├── packages/ui/
+├── packages/config/
 ├── docs/
-├── docker/
-└── .github/
+└── docker-compose.yml   (PostgreSQL opcional)
 ```
 
 ---
@@ -77,73 +48,46 @@ Jean, João, Adryan, Rafael, Lucas, Niel, Davi, Gabriel
 
 ---
 
-# PARTE 1 — Instalação das ferramentas
+# PARTE 1 — Instalação (uma vez na máquina)
 
-Instale **uma única vez** na sua máquina:
-
-| Ferramenta | Para quê? | Link |
-|------------|-----------|------|
-| Git | Clonar e versionar código | git-scm.com/downloads |
-| Node.js 20+ | Rodar JavaScript/TypeScript | nodejs.org |
-| pnpm 10+ | Dependências do monorepo | pnpm.io/installation |
-| Docker Desktop | PostgreSQL local | docker.com/products/docker-desktop |
-
-### Verificar instalação
+| Ferramenta | Link |
+|------------|------|
+| Git | git-scm.com/downloads |
+| Node.js 20+ | nodejs.org |
+| pnpm 10+ | `npm install -g pnpm` |
 
 ```bash
 git --version
 node --version
 pnpm --version
-docker --version
 ```
 
-### Instalar pnpm
-
-```bash
-npm install -g pnpm
-```
+Docker só se quiser PostgreSQL separado. Sem Docker o app já guarda dados.
 
 ---
 
-# PARTE 2 — Clonar e rodar o projeto
-
-## 1. Clonar o repositório
+# PARTE 2 — Clonar e rodar
 
 ```bash
 git clone https://github.com/Jean-Griggi/radar-de-resenha.git
 cd radar-de-resenha
-```
-
-## 2. Instalar dependências
-
-```bash
 pnpm install
 ```
 
-> Baixa automaticamente Next.js, Fastify, React, TypeScript, etc.
+**Windows:**
 
-## 3. Configurar ambiente
-
-**Windows (PowerShell):**
 ```powershell
 Copy-Item .env.example .env
+Copy-Item .env.example apps/web/.env.local
 ```
 
-**Linux / macOS:**
-```bash
-cp .env.example .env
-```
+No `.env.local` do web, o essencial é `NEXT_PUBLIC_API_URL=http://localhost:3333`.
 
-## 4. Subir o banco (Docker aberto)
+Dois terminais:
 
 ```bash
-docker compose -f docker/docker-compose.yml up -d
-```
-
-## 5. Rodar o projeto
-
-```bash
-pnpm dev
+pnpm --filter @resenhometro/api dev
+pnpm --filter @resenhometro/web dev
 ```
 
 | App | URL |
@@ -151,216 +95,61 @@ pnpm dev
 | Web | http://localhost:3000 |
 | API | http://localhost:3333 |
 
-Testar API: `curl http://localhost:3333/health`
+Teste: `GET http://localhost:3333/health` → `{"status":"ok"}`.
 
----
+Depois cadastre uma conta no navegador.
 
-## Comandos do projeto
+### Comandos
 
 | Comando | O que faz |
 |---------|-----------|
-| `pnpm install` | Instala dependências |
-| `pnpm dev` | Sobe web + api |
-| `pnpm build` | Build de produção |
-| `pnpm lint` | Verifica código |
-| `pnpm typecheck` | Verifica TypeScript |
-| `pnpm format` | Formata com Prettier |
+| `pnpm install` | Dependências |
+| `pnpm --filter @resenhometro/api dev` | API |
+| `pnpm --filter @resenhometro/web dev` | Web |
+| `pnpm test` | Testes da API |
+| `pnpm build` / `pnpm lint` / `pnpm typecheck` | Qualidade |
 
----
-
-## Problemas comuns
+### Problemas comuns
 
 | Problema | Solução |
 |----------|---------|
 | `pnpm` não encontrado | `npm install -g pnpm` |
-| `node` não encontrado | Instale Node.js 20+ |
-| Erro no banco | Verifique se o Docker está rodando |
-| Porta em uso | Feche o processo ou mude no `.env` |
+| Login antigo falha | Banco local vazio — cadastre de novo |
+| Porta em uso | Feche o processo |
 
 ---
 
-# PARTE 3 — Git e GitHub (tutorial básico)
+# PARTE 3 — Git
 
-## O que é Git?
-
-Git é um sistema de **controle de versão**. Ele guarda o histórico do código e permite várias pessoas trabalharem juntas sem sobrescrever o trabalho uma da outra.
-
-## O que é GitHub?
-
-GitHub é onde o repositório fica ** hospedado na nuvem**. Vocês clonam de lá, fazem push das alterações e abrem Pull Requests.
-
----
-
-## Configuração inicial (fazer uma vez)
+Git guarda o histórico. GitHub hospeda o repositório.
 
 ```bash
-git config --global user.name "Seu Nome"
-git config --global user.email "seu-email@gmail.com"
-```
-
----
-
-## Comandos Git essenciais
-
-| Comando | O que faz |
-|---------|-----------|
-| `git status` | Mostra arquivos alterados |
-| `git add .` | Prepara todos os arquivos para commit |
-| `git add arquivo.ts` | Prepara um arquivo específico |
-| `git commit -m "mensagem"` | Salva um snapshot das alterações |
-| `git push` | Envia commits para o GitHub |
-| `git pull` | Baixa atualizações do GitHub |
-| `git log --oneline` | Mostra histórico de commits |
-| `git diff` | Mostra o que mudou |
-
----
-
-## Fluxo do dia a dia
-
-```bash
-# 1. Atualizar sua branch
-git pull
-
-# 2. Trabalhar no código...
-
-# 3. Ver o que mudou
 git status
-
-# 4. Adicionar e commitar
 git add .
 git commit -m "feat: descreva o que fez"
-
-# 5. Enviar para o GitHub
+git pull
 git push
 ```
 
----
+Trabalhamos na **`main`**. Puxe antes de começar (`git pull`) e empurre quando terminar (`git push`).
 
-## Branches (ramificações)
+### Commits (Conventional Commits)
 
-Branch = linha de desenvolvimento separada. Evita que todo mundo mexa direto na `main`.
-
-### Estrutura do projeto
-
-```
-main
- └── develop
-      ├── feature/login
-      ├── feature/roles
-      └── fix/bug-x
-```
-
-### Criar e usar uma branch
-
-```bash
-# Ver branch atual
-git branch
-
-# Criar branch nova
-git checkout -b feature/nome-da-feature
-
-# Exemplo
-git checkout -b feature/login
-
-# Enviar branch para o GitHub (primeira vez)
-git push -u origin feature/login
-```
-
-### Voltar para outra branch
-
-```bash
-git checkout develop
-git checkout main
-```
-
-### Atualizar sua branch com a develop
-
-```bash
-git checkout feature/sua-feature
-git pull origin develop
-```
-
----
-
-## Padrão de nomes de branch
-
-```
-feature/nome-da-feature   → nova funcionalidade
-fix/nome-do-bug           → correção de bug
-hotfix/nome               → correção urgente em produção
-docs/documentacao         → documentação
-refactor/refatoracao      → refatoração de código
-```
-
-**Exemplos:**
-- `feature/login`
-- `feature/criar-roles`
-- `fix/autenticacao-jwt`
-
----
-
-## Padrão de commits (Conventional Commits)
-
-| Prefixo | Quando usar |
-|---------|-------------|
-| `feat:` | Nova funcionalidade |
-| `fix:` | Correção de bug |
+| Prefixo | Uso |
+|---------|-----|
+| `feat:` | Funcionalidade |
+| `fix:` | Bug |
 | `docs:` | Documentação |
-| `style:` | Formatação (sem mudar lógica) |
 | `refactor:` | Refatoração |
 | `test:` | Testes |
-| `chore:` | Manutenção, configs |
+| `chore:` | Manutenção |
 
-**Exemplos:**
-```
-feat: cria sistema de login
-fix: corrige autenticação JWT
-docs: atualiza README
-refactor: reorganiza estrutura da API
-```
+Exemplos: `feat: cria filtro de rolês` · `fix: corrige JWT` · `docs: atualiza README`
 
 ---
 
-## Pull Request (PR)
+## Objetivos
 
-Depois de terminar uma feature:
+Aprender stack moderna, trabalhar em equipe e manter um produto real de rolês.
 
-1. Faça push da sua branch
-2. No GitHub, clique em **"Compare & pull request"**
-3. Descreva o que foi feito
-4. Peça review de um colega
-5. Após aprovação, faça merge na `develop`
-
----
-
-## Fluxo recomendado para a equipe
-
-```
-1. git checkout develop
-2. git pull
-3. git checkout -b feature/minha-task
-4. (codar...)
-5. git add .
-6. git commit -m "feat: minha alteração"
-7. git push -u origin feature/minha-task
-8. Abrir Pull Request no GitHub → develop
-```
-
-> **Importante:** evitem commitar direto na `main`. Usem branches e PRs.
-
----
-
-## Objetivos do projeto
-
-- Aprender novas tecnologias
-- Praticar desenvolvimento em equipe
-- Criar um projeto real
-- Melhorar conhecimentos em arquitetura
-- Evoluir em Git e GitHub
-- Desenvolver um sistema útil para o grupo
-
----
-
-**Licença:** Projeto privado — uso interno da equipe.
-
-*Gerado para a equipe Resenhômetro — 2026*
+**Licença:** privado — uso interno da equipe.

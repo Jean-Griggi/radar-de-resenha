@@ -26,7 +26,7 @@ O que está acontecendo?
 
 ## Ambiente
 
-- App: [web / api / mobile / desktop]
+- App: [web / api]
 - SO:
 - Versão:
 
