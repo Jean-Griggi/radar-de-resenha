@@ -35,12 +35,12 @@ export default function RolesPage() {
 
   return (
     <RequireAuth>
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold">Rolês</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">Rolês</h1>
           <p className="text-sm text-slate-400">Os encontros, as memórias e o que vem aí.</p>
         </div>
-        <Link href="/roles/new" className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2 text-sm font-medium glow-btn">
+        <Link href="/roles/new" className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2 text-center text-sm font-medium glow-btn sm:shrink-0">
           Novo rolê
         </Link>
       </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Outfit } from 'next/font/google';
 import { PlayerProvider } from '@/components/Player';
@@ -11,6 +11,12 @@ const outfit = Outfit({
   subsets: ['latin'],
   variable: '--font-outfit',
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 export const metadata: Metadata = {
   title: 'Resenhômetro',

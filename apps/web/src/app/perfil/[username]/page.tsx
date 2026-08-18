@@ -69,24 +69,24 @@ export default function ProfilePage() {
   return (
     <RequireAuth>
       <div className="overflow-hidden rounded-3xl border border-white/10">
-        <div className="relative h-48 bg-[#151d2e]">
+        <div className="relative h-32 bg-[#151d2e] sm:h-48">
           {profile.cover ? (
             <img src={profile.cover} alt="" className="h-full w-full object-cover" />
           ) : (
             <div className="h-full w-full bg-[linear-gradient(120deg,#4c1d95,#db2777,#38bdf8)]" />
           )}
         </div>
-        <div className="bg-[#10182c] px-6 pb-6">
-          <div className="-mt-12 flex flex-wrap items-end justify-between gap-4">
-            <div className="flex items-end gap-4">
+        <div className="bg-[#10182c] px-4 pb-5 sm:px-6 sm:pb-6">
+          <div className="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+            <div className="flex items-end gap-3 sm:gap-4">
               <Avatar src={profile.avatar} name={profile.name} size="xl" glow />
-              <div>
-                <h1 className="text-3xl font-semibold">{profile.name}</h1>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-semibold sm:text-3xl">{profile.name}</h1>
                 <p className="text-slate-400">@{profile.username}</p>
                 {profile.city ? <p className="text-sm text-slate-400">{profile.city}</p> : null}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {profile.isMe ? (
                 <Link href="/settings" className="rounded-xl border border-white/10 px-4 py-2 text-sm">
                   Editar perfil
@@ -123,13 +123,13 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2 overflow-x-auto">
+      <div className="mt-4 -mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:px-0">
         {TABS.map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setTab(item)}
-            className={`rounded-full px-4 py-2 text-sm ${tab === item ? 'bg-violet-500 text-white' : 'bg-white/5 text-slate-300'}`}
+            className={`shrink-0 rounded-full px-4 py-2 text-sm ${tab === item ? 'bg-violet-500 text-white' : 'bg-white/5 text-slate-300'}`}
           >
             {item}
           </button>

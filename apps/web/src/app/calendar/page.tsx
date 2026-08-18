@@ -38,13 +38,13 @@ export default function CalendarPage() {
 
   return (
     <RequireAuth>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-semibold">Calendário</h1>
-        <div className="flex gap-2">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-semibold sm:text-3xl">Calendário</h1>
+        <div className="flex items-center gap-2">
           <button type="button" className="rounded-lg bg-white/5 px-3 py-1" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}>
             ←
           </button>
-          <p className="px-2 py-1 capitalize">
+          <p className="min-w-0 flex-1 px-2 py-1 text-center capitalize sm:flex-none">
             {cursor.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
           </p>
           <button type="button" className="rounded-lg bg-white/5 px-3 py-1" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}>
@@ -52,13 +52,13 @@ export default function CalendarPage() {
           </button>
         </div>
       </div>
-      <div className="card p-4">
-        <div className="grid grid-cols-7 gap-2 text-center text-xs text-slate-400">
-          {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((d) => (
-            <span key={d}>{d}</span>
+      <div className="card p-2 sm:p-4">
+        <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-slate-400 sm:gap-2 sm:text-xs">
+          {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((d, index) => (
+            <span key={`${d}-${index}`}>{d}</span>
           ))}
         </div>
-        <div className="mt-2 grid grid-cols-7 gap-2">
+        <div className="mt-2 grid grid-cols-7 gap-1 sm:gap-2">
           {days.map((day, index) => {
             const date = day ? `${month}-${String(day).padStart(2, '0')}` : '';
             const has = events.some((event) => event.date === date);
@@ -68,10 +68,10 @@ export default function CalendarPage() {
                 type="button"
                 disabled={!day}
                 onClick={() => setSelected(date)}
-                className={`relative min-h-16 rounded-xl p-2 text-left text-sm ${selected === date ? 'bg-violet-500/30' : 'bg-white/5'} ${!day ? 'opacity-0' : ''}`}
+                className={`relative min-h-10 rounded-lg p-1 text-left text-xs sm:min-h-16 sm:rounded-xl sm:p-2 sm:text-sm ${selected === date ? 'bg-violet-500/30' : 'bg-white/5'} ${!day ? 'opacity-0' : ''}`}
               >
                 {day}
-                {has ? <span className="absolute right-2 bottom-2 h-2 w-2 rounded-full bg-fuchsia-400" /> : null}
+                {has ? <span className="absolute right-1 bottom-1 h-1.5 w-1.5 rounded-full bg-fuchsia-400 sm:right-2 sm:bottom-2 sm:h-2 sm:w-2" /> : null}
               </button>
             );
           })}

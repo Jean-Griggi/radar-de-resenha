@@ -56,8 +56,8 @@ export default function EditRolePage() {
 
   return (
     <RequireAuth>
-      <h1 className="mb-6 text-3xl font-semibold">Editar rolê</h1>
-      <form onSubmit={onSubmit} className="card max-w-2xl space-y-4 p-6">
+      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Editar rolê</h1>
+      <form onSubmit={onSubmit} className="card max-w-2xl space-y-4 p-4 sm:p-6">
         <Field label="Nome">
           <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
         </Field>

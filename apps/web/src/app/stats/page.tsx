@@ -12,7 +12,7 @@ function Bars({ items, label }: { items: { label: string; count: number }[]; lab
       <h2 className="mb-4 font-medium">{label}</h2>
       <ul className="space-y-2">
         {items.map((item) => (
-          <li key={item.label} className="grid grid-cols-[8rem_1fr_2rem] items-center gap-2 text-sm">
+          <li key={item.label} className="grid grid-cols-[minmax(0,4.5rem)_minmax(0,1fr)_1.5rem] items-center gap-2 text-xs sm:grid-cols-[8rem_1fr_2rem] sm:text-sm">
             <span className="truncate text-slate-300">{item.label}</span>
             <div className="h-3 overflow-hidden rounded-full bg-white/5">
               <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-sky-400" style={{ width: `${(item.count / max) * 100}%` }} />
@@ -42,14 +42,14 @@ export default function StatsPage() {
 
   return (
     <RequireAuth>
-      <div className="overflow-hidden rounded-3xl border border-white/10 bg-[linear-gradient(120deg,#1e1b4b,#4c1d95,#0ea5e9)] p-8">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(120deg,#1e1b4b,#4c1d95,#0ea5e9)] p-5 sm:rounded-3xl sm:p-8">
         <p className="text-sm text-white/80">Dashboard</p>
-        <h1 className="text-3xl font-semibold">Sua vida social em números</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">Sua vida social em números</h1>
         <a href="/year-review" className="mt-3 inline-block text-sm text-white/80 underline">
           Ver retrospectiva anual
         </a>
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-5">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {[
           ['Rolês', stats.totalRoles],
           ['Resenhas', stats.totalReviews],

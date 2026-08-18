@@ -76,8 +76,25 @@ html[data-theme="light"] {
 html,
 body {
   min-height: 100%;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
+}
+
+img,
+video,
+audio {
+  max-width: 100%;
+}
+
+audio {
+  height: 2.5rem;
+}
+
+@media (max-width: 640px) {
+  .card {
+    border-radius: 0.9rem;
+  }
 }
 
 body {

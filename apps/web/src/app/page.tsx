@@ -63,9 +63,9 @@ export default function HomePage() {
   return (
     <RequireAuth>
       <div className="space-y-5">
-        <section className="overflow-hidden rounded-3xl border border-white/10 bg-[linear-gradient(120deg,#4c1d95,#6d28d9,#0ea5e9)] p-8">
+        <section className="overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(120deg,#4c1d95,#6d28d9,#0ea5e9)] p-5 sm:rounded-3xl sm:p-8">
           <p className="text-sm text-white/80">Sua timeline</p>
-          <h1 className="mt-1 text-3xl font-semibold">O que está acontecendo?</h1>
+          <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">O que está acontecendo?</h1>
         </section>
 
         <form onSubmit={publish} className="card p-4">
@@ -75,7 +75,7 @@ export default function HomePage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="O que está acontecendo?"
-              className="min-h-20 flex-1 bg-transparent text-sm outline-none"
+              className="min-h-20 min-w-0 flex-1 bg-transparent text-sm outline-none"
             />
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3">

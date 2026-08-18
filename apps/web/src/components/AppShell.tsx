@@ -35,6 +35,24 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
   const { setTrack } = usePlayer();
 
   useEffect(() => {
+    setOpen(false);
+    setMenu(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
+  useEffect(() => {
     setUserState(getUser());
     api.get<{ count: number }>('/notifications/unread-count').then(({ data }) => setUnread(data.count)).catch(() => undefined);
     api
@@ -61,15 +79,23 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-30 border-b border-line bg-[var(--header)] backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
-          <button type="button" className="rounded-lg p-2 text-muted lg:hidden" onClick={() => setOpen((v) => !v)} aria-label="Abrir menu">
-            ☰
+      <header className="sticky top-0 z-40 border-b border-line bg-[var(--header)] backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:gap-4 sm:px-4">
+          <button
+            type="button"
+            className="shrink-0 rounded-lg p-2 text-muted lg:hidden"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="sidebar-nav"
+            aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+          >
+            {open ? '✕' : '☰'}
           </button>
-          <Link href="/" className="hidden text-lg font-bold tracking-[0.2em] text-fg sm:block">
-            RESENHÔMETRO
+          <Link href="/" className="shrink-0 text-sm font-bold tracking-[0.18em] text-fg sm:text-lg sm:tracking-[0.2em]">
+            <span className="sm:hidden">RESENHA</span>
+            <span className="hidden sm:inline">RESENHÔMETRO</span>
           </Link>
-          <form onSubmit={search} className="flex-1">
+          <form onSubmit={search} className="min-w-0 flex-1">
             <label className="sr-only" htmlFor="search">
               Buscar
             </label>
@@ -77,28 +103,26 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
               id="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar pessoas, rolês, resenhas, tags..."
-              className="w-full rounded-full border border-line bg-overlay px-4 py-2 text-sm text-fg outline-none focus:ring-2 focus:ring-violet-500/40"
+              placeholder="Buscar pessoas, rolês e tags"
+              className="w-full rounded-full border border-line bg-overlay px-3 py-2 text-sm text-fg outline-none focus:ring-2 focus:ring-violet-500/40 sm:px-4"
             />
           </form>
           <ThemeToggle />
-          <Link href="/notifications" className="relative rounded-full p-2 text-muted hover:bg-overlay" aria-label="Notificações">
+          <Link href="/notifications" className="relative shrink-0 rounded-full p-2 text-muted hover:bg-overlay" aria-label="Notificações">
             🔔
-            {unread > 0 ? (
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-fuchsia-400" />
-            ) : null}
+            {unread > 0 ? <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-fuchsia-400" /> : null}
           </Link>
-          <div className="relative">
+          <div className="relative shrink-0">
             <button type="button" onClick={() => setMenu((v) => !v)} className="flex items-center gap-2 rounded-full p-1 hover:bg-overlay">
               <Avatar src={user?.avatar} name={user?.name} size="sm" glow />
-              <span className="hidden text-sm md:block">{user?.name}</span>
+              <span className="hidden max-w-28 truncate text-sm lg:block">{user?.name}</span>
             </button>
             {menu ? (
               <div className="absolute right-0 mt-2 w-48 rounded-xl border border-line bg-card p-2 text-sm shadow-xl">
-                <Link href={profileHref} className="block rounded-lg px-3 py-2 hover:bg-overlay">
+                <Link href={profileHref} className="block rounded-lg px-3 py-2 hover:bg-overlay" onClick={() => setMenu(false)}>
                   Perfil
                 </Link>
-                <Link href="/settings" className="block rounded-lg px-3 py-2 hover:bg-overlay">
+                <Link href="/settings" className="block rounded-lg px-3 py-2 hover:bg-overlay" onClick={() => setMenu(false)}>
                   Configurações
                 </Link>
                 <button type="button" onClick={logout} className="block w-full rounded-lg px-3 py-2 text-left text-rose-400 hover:bg-overlay">
@@ -110,54 +134,90 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[230px_minmax(0,1fr)] xl:grid-cols-[230px_minmax(0,1fr)_280px]">
-        <aside className={`${open ? 'block' : 'hidden'} lg:block`}>
-          <div className="card sticky top-24 p-3">
-            <p className="px-3 pb-3 text-xs tracking-[0.25em] text-slate-500 lg:hidden">RESENHÔMETRO</p>
-            <nav className="space-y-1">
-              {NAV.map((item) => {
-                const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${active ? 'nav-active text-fg' : 'text-muted hover:bg-overlay'}`}
-                    onClick={() => setOpen(false)}
-                  >
-                    <span className="w-5 text-center text-violet-300">{item.icon}</span>
-                    {item.label}
-                  </Link>
-                );
-              })}
-              <Link
-                href={profileHref}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${pathname.startsWith('/perfil') ? 'nav-active text-fg' : 'text-muted hover:bg-overlay'}`}
-              >
-                <span className="w-5 text-center text-violet-300">◉</span>
-                Perfil
-              </Link>
-            </nav>
-            <div className="mt-6 border-t border-line pt-3">
-              <Link href="/settings" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted hover:bg-overlay">
-                <span className="w-5 text-center">⚙</span>
-                Configurações
-              </Link>
-              <button type="button" onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted hover:bg-overlay">
-                <span className="w-5 text-center">→</span>
-                Sair
-              </button>
-            </div>
+      {open ? (
+        <button
+          type="button"
+          className="fixed inset-x-0 top-14 bottom-0 z-40 bg-black/50 lg:hidden"
+          aria-label="Fechar menu"
+          onClick={() => setOpen(false)}
+        />
+      ) : null}
+
+      <aside
+        id="sidebar-nav"
+        className={`fixed top-14 bottom-0 left-0 z-50 w-[min(18rem,86vw)] overflow-y-auto p-3 transition-transform duration-200 lg:hidden ${open ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="card h-full p-3">
+          <SidebarNav pathname={pathname} profileHref={profileHref} onNavigate={() => setOpen(false)} onLogout={logout} />
+        </div>
+      </aside>
+
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 sm:px-4 sm:py-6 lg:grid-cols-[230px_minmax(0,1fr)] xl:grid-cols-[230px_minmax(0,1fr)_280px]">
+        <aside className="hidden lg:sticky lg:top-24 lg:block lg:self-start">
+          <div className="card p-3">
+            <SidebarNav pathname={pathname} profileHref={profileHref} onNavigate={() => setOpen(false)} onLogout={logout} />
           </div>
         </aside>
 
-        <main className="min-w-0 pb-24">{children}</main>
+        <main className="min-w-0">{children}</main>
 
-        <aside className="hidden xl:block">
-          <div className="sticky top-24 space-y-4">{right ?? <DefaultRail />}</div>
+        <aside className="min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:col-span-2 xl:col-span-1 xl:pb-0">
+          <div className="space-y-4 xl:sticky xl:top-24">{right ?? <DefaultRail />}</div>
         </aside>
       </div>
       <MiniPlayer />
     </div>
+  );
+}
+
+function SidebarNav({
+  pathname,
+  profileHref,
+  onNavigate,
+  onLogout,
+}: {
+  pathname: string;
+  profileHref: string;
+  onNavigate: () => void;
+  onLogout: () => void;
+}) {
+  return (
+    <>
+      <nav className="space-y-1">
+        {NAV.map((item) => {
+          const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${active ? 'nav-active text-fg' : 'text-muted hover:bg-overlay'}`}
+              onClick={onNavigate}
+            >
+              <span className="w-5 text-center text-violet-300">{item.icon}</span>
+              {item.label}
+            </Link>
+          );
+        })}
+        <Link
+          href={profileHref}
+          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${pathname.startsWith('/perfil') ? 'nav-active text-fg' : 'text-muted hover:bg-overlay'}`}
+          onClick={onNavigate}
+        >
+          <span className="w-5 text-center text-violet-300">◉</span>
+          Perfil
+        </Link>
+      </nav>
+      <div className="mt-6 border-t border-line pt-3">
+        <Link href="/settings" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted hover:bg-overlay" onClick={onNavigate}>
+          <span className="w-5 text-center">⚙</span>
+          Configurações
+        </Link>
+        <button type="button" onClick={onLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted hover:bg-overlay">
+          <span className="w-5 text-center">→</span>
+          Sair
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -171,7 +231,7 @@ function DefaultRail() {
   }, []);
 
   return (
-    <>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
       <div className="card p-4">
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-muted">PRÓXIMOS ROLÊS</h2>
         <ul className="space-y-3">
@@ -202,6 +262,6 @@ function DefaultRail() {
           ))}
         </ul>
       </div>
-    </>
+    </div>
   );
 }

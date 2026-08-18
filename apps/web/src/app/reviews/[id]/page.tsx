@@ -35,7 +35,7 @@ export default function ReviewPage() {
     <RequireAuth>
       <article className="card space-y-4 p-6">
         <p className="text-amber-300">{'★'.repeat(review.rating)}</p>
-        <h1 className="text-3xl font-semibold">{review.title}</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">{review.title}</h1>
         <p className="text-slate-300">{review.content}</p>
         <div className="flex flex-wrap gap-2">
           {review.tags?.map((tag) => (

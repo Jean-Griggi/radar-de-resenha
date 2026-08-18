@@ -34,7 +34,7 @@ export function Comments({
     <section className="space-y-4">
       <form onSubmit={(event) => submit(event, replyTo ?? undefined)} className="flex gap-3">
         <Avatar src={me?.avatar} name={me?.name} size="sm" />
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <label className="sr-only" htmlFor="comment">
             Comentário
           </label>
@@ -60,7 +60,7 @@ export function Comments({
           <li key={comment.id} className="space-y-3">
             <CommentItem comment={comment} onReply={() => setReplyTo(comment.id)} onChanged={onChanged} />
             {comment.replies?.length ? (
-              <ul className="ml-8 space-y-3 border-l border-line pl-4">
+              <ul className="ml-4 space-y-3 border-l border-line pl-3 sm:ml-8 sm:pl-4">
                 {comment.replies.map((reply) => (
                   <li key={reply.id}>
                     <CommentItem comment={reply} onReply={() => setReplyTo(reply.id)} onChanged={onChanged} />

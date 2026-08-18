@@ -63,7 +63,7 @@ export default function SettingsPage() {
 
   return (
     <RequireAuth>
-      <h1 className="mb-6 text-3xl font-semibold">Configurações</h1>
+      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Configurações</h1>
       <div className="grid gap-5">
         <form onSubmit={save} className="card space-y-4 p-6">
           <h2 className="text-lg font-medium">Conta</h2>

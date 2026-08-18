@@ -24,8 +24,8 @@ export default function NotificationsPage() {
 
   return (
     <RequireAuth>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-semibold">Notificações</h1>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-semibold sm:text-3xl">Notificações</h1>
         <Button variant="secondary" onClick={() => api.put('/notifications/read-all').then(load)}>
           Marcar todas como lidas
         </Button>

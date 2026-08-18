@@ -85,12 +85,12 @@ export default function RoleDetailPage() {
     <RequireAuth>
       <div className="space-y-5">
         <div className="overflow-hidden rounded-3xl border border-white/10">
-          <div className="h-40 bg-[linear-gradient(120deg,#6d28d9,#db2777,#38bdf8)]" />
-          <div className="bg-[#10182c] p-6">
+          <div className="h-32 bg-[linear-gradient(120deg,#6d28d9,#db2777,#38bdf8)] sm:h-40" />
+          <div className="bg-[#10182c] p-4 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs text-violet-200">{role.category}</span>
-                <h1 className="mt-2 text-3xl font-semibold">{role.title}</h1>
+                <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">{role.title}</h1>
                 <p className="text-slate-400">
                   {formatDate(role.date)} {role.time ? `· ${role.time}` : ''} · {role.location || 'Local a combinar'}
                 </p>

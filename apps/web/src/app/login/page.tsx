@@ -41,7 +41,7 @@ export default function LoginPage() {
         <ThemeToggle />
       </div>
       <p className="text-xs tracking-[0.35em] text-violet-400">RESENHÔMETRO</p>
-      <h1 className="mt-2 text-4xl font-semibold text-fg">Sua vida social, em um só lugar.</h1>
+      <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Sua vida social, em um só lugar.</h1>
       <p className="mt-3 mb-8 text-muted">Entre para ver rolês, memórias e a trilha da galera.</p>
       <form onSubmit={onSubmit} className="card space-y-4 p-6">
         <Field label="E-mail">

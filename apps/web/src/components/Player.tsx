@@ -31,8 +31,8 @@ export function MiniPlayer() {
   if (!track) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[var(--header)] px-4 py-3 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-4">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[var(--header)] px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:px-4">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 sm:gap-4">
         {track.cover ? (
           <img src={track.cover} alt="" className="h-10 w-10 rounded-lg object-cover" />
         ) : (
@@ -47,9 +47,10 @@ export function MiniPlayer() {
             href={track.spotifyUrl}
             target="_blank"
             rel="noreferrer"
-            className="rounded-full bg-[#1DB954] px-3 py-1.5 text-xs font-semibold text-black"
+            className="shrink-0 rounded-full bg-[#1DB954] px-3 py-1.5 text-xs font-semibold text-black"
           >
-            Abrir Spotify
+            <span className="sm:hidden">Spotify</span>
+            <span className="hidden sm:inline">Abrir Spotify</span>
           </a>
         ) : null}
       </div>

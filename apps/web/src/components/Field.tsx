@@ -10,7 +10,7 @@ export function Field({ label, children }: { label: string; children: ReactNode 
 }
 
 const control =
-  'w-full rounded-xl border border-line bg-input px-3 py-2.5 text-sm text-fg outline-none ring-violet-500/40 placeholder:text-muted focus:border-violet-400/40 focus:ring-2';
+  'min-w-0 w-full rounded-xl border border-line bg-input px-3 py-2.5 text-sm text-fg outline-none ring-violet-500/40 placeholder:text-muted focus:border-violet-400/40 focus:ring-2';
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${control} ${props.className ?? ''}`} />;

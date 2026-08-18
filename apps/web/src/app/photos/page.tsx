@@ -80,7 +80,7 @@ export default function PhotosPage() {
 
   return (
     <RequireAuth>
-      <h1 className="mb-6 text-3xl font-semibold">Fotos e áudios</h1>
+      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Fotos e áudios</h1>
       <div className="card mb-5 grid gap-4 p-5 sm:grid-cols-2">
         <Field label="Associar a um rolê (id opcional)">
           <Input value={roleId} onChange={(e) => setRoleId(e.target.value)} placeholder="uuid do rolê" />
@@ -130,7 +130,7 @@ export default function PhotosPage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {photos.map((photo) => (
           <figure key={photo.id} className="relative">
-            <img src={photo.url} alt={photo.caption || 'Foto'} className="h-40 w-full rounded-xl object-cover" />
+            <img src={photo.url} alt={photo.caption || 'Foto'} className="h-28 w-full rounded-xl object-cover sm:h-40" />
             <button
               type="button"
               className="absolute top-2 right-2 rounded-full bg-black/60 px-2 text-xs"

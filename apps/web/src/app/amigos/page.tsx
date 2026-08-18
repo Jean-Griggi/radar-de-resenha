@@ -31,18 +31,18 @@ export default function FriendsPage() {
 
   return (
     <RequireAuth>
-      <h1 className="mb-6 text-3xl font-semibold">Amigos</h1>
+      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Amigos</h1>
       <section className="card mb-5 p-5">
         <h2 className="mb-3 font-medium">Pedidos</h2>
         {requests.length === 0 ? <p className="text-sm text-slate-400">Nenhum pedido pendente.</p> : null}
         <ul className="space-y-3">
           {requests.map((item) => (
-            <li key={item.id} className="flex items-center justify-between">
-              <Link href={`/perfil/${item.requester?.username}`} className="flex items-center gap-2">
+            <li key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Link href={`/perfil/${item.requester?.username}`} className="flex min-w-0 items-center gap-2">
                 <Avatar src={item.requester?.avatar} name={item.requester?.name} size="sm" />
-                {item.requester?.name}
+                <span className="truncate">{item.requester?.name}</span>
               </Link>
-              <div className="flex gap-2">
+              <div className="flex shrink-0 gap-2">
                 <Button onClick={() => api.put(`/friends/requests/${item.id}`, { status: 'accepted' }).then(load)}>Aceitar</Button>
                 <Button variant="secondary" onClick={() => api.put(`/friends/requests/${item.id}`, { status: 'rejected' }).then(load)}>
                   Recusar
@@ -73,10 +73,10 @@ export default function FriendsPage() {
         <h2 className="mb-3 font-medium">Sugestões</h2>
         <ul className="space-y-3">
           {suggestions.map((person) => (
-            <li key={person.id} className="flex items-center justify-between">
-              <Link href={`/perfil/${person.username}`} className="flex items-center gap-2">
+            <li key={person.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Link href={`/perfil/${person.username}`} className="flex min-w-0 items-center gap-2">
                 <Avatar src={person.avatar} name={person.name} size="sm" />
-                {person.name}
+                <span className="truncate">{person.name}</span>
               </Link>
               <Button variant="secondary" onClick={() => api.post('/friends/requests', { userId: person.id }).then(load)}>
                 Adicionar

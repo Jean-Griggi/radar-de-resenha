@@ -35,7 +35,7 @@ function ExploreInner() {
 
   return (
     <RequireAuth>
-      <h1 className="mb-6 text-3xl font-semibold">{q ? `Busca: ${q}` : 'Explorar'}</h1>
+      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">{q ? `Busca: ${q}` : 'Explorar'}</h1>
       {search ? (
         <div className="space-y-6">
           <Section title="Pessoas">

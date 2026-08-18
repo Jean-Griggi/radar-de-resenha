@@ -11,7 +11,12 @@ export function Avatar({
   size?: 'sm' | 'md' | 'lg' | 'xl';
   glow?: boolean;
 }) {
-  const sizes = { sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm', lg: 'h-16 w-16 text-lg', xl: 'h-28 w-28 text-2xl' };
+  const sizes = {
+    sm: 'h-8 w-8 text-xs',
+    md: 'h-10 w-10 text-sm',
+    lg: 'h-14 w-14 text-lg sm:h-16 sm:w-16',
+    xl: 'h-20 w-20 text-xl sm:h-28 sm:w-28 sm:text-2xl',
+  };
   return (
     <div
       className={`overflow-hidden rounded-full bg-gradient-to-br from-violet-500 to-sky-400 ${sizes[size]} ${glow ? 'ring-2 ring-violet-400/70 shadow-[0_0_20px_rgba(139,92,246,0.45)]' : 'ring-2 ring-white/10'}`}
