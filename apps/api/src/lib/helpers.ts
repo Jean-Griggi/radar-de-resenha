@@ -15,7 +15,7 @@ export function toDateKey(value: unknown): string | null {
   }
   const text = String(value);
   const iso = text.match(/^(\d{4}-\d{2}-\d{2})/);
-  if (iso) return iso[1];
+  if (iso?.[1]) return iso[1];
   const parsed = new Date(text);
   if (Number.isNaN(parsed.getTime())) return null;
   return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
