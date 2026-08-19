@@ -6,6 +6,7 @@ config({ path: resolve(process.cwd(), '../../.env') });
 config({ path: resolve(process.cwd(), '.env') });
 
 const envSchema = z.object({
+  PORT: z.coerce.number().optional(),
   API_PORT: z.coerce.number().default(3333),
   JWT_SECRET: z.string().min(8).default('change-me-dev-secret'),
   DATABASE_URL: z.string().optional(),
