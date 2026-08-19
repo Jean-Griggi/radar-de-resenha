@@ -11,6 +11,7 @@ import {
   notify,
   parseJson,
   roleStatus,
+  toDateKey,
 } from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
@@ -65,13 +66,14 @@ async function counts(roleId: string) {
 export async function serializeRole(row: RoleRow, viewerId?: string) {
   const creator = await getUserRow(row.creator_id);
   const extra = await counts(row.id);
-  const status = roleStatus(row.date ? String(row.date).slice(0, 10) : null, row.time, row.status);
+  const date = toDateKey(row.date);
+  const status = roleStatus(date, row.time, row.status);
 
   return {
     id: row.id,
     title: row.title,
     description: row.description,
-    date: row.date ? String(row.date).slice(0, 10) : null,
+    date,
     time: row.time,
     location: row.location,
     category: row.category,

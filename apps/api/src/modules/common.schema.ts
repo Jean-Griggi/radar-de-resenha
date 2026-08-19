@@ -29,6 +29,15 @@ export const changePasswordSchema = z.object({
   newPassword: z.string().min(6).max(72),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(16).max(200),
+  password: z.string().min(6).max(72),
+});
+
 export const createRoleSchema = z.object({
   title: z.string().min(3).max(120),
   description: z.string().max(2000).optional().nullable(),

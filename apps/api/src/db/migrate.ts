@@ -183,6 +183,15 @@ const statements = [
   `CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications (user_id, read)`,
   `CREATE INDEX IF NOT EXISTS idx_photos_author ON photos (author_id)`,
   `CREATE INDEX IF NOT EXISTS idx_follows_following ON follows (following_id)`,
+  `CREATE TABLE IF NOT EXISTS password_resets (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_password_resets_user ON password_resets (user_id)`,
 ];
 
 export async function applyMigrations(query: QueryFn) {

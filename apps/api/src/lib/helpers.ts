@@ -7,6 +7,20 @@ export function nowIso() {
   return new Date().toISOString();
 }
 
+/** DATE do PGlite às vezes vem como Date; String(date).slice(0, 10) vira "Wed Aug 19". */
+export function toDateKey(value: unknown): string | null {
+  if (value == null || value === '') return null;
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+  }
+  const text = String(value);
+  const iso = text.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (iso) return iso[1];
+  const parsed = new Date(text);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
+}
+
 export function parseJson<T>(value: unknown, fallback: T): T {
   if (Array.isArray(value) || (value && typeof value === 'object')) return value as T;
   if (typeof value !== 'string' || !value) return fallback;

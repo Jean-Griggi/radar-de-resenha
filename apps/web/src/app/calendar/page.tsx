@@ -5,6 +5,7 @@ import { useMemo, useState, useEffect } from 'react';
 import type { CalendarEvent } from '@resenhometro/shared';
 import { RequireAuth } from '@/components/RequireAuth';
 import { api } from '@/lib/api';
+import { formatShortDate } from '@/lib/format';
 
 export default function CalendarPage() {
   const now = new Date();
@@ -12,7 +13,9 @@ export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [upcoming, setUpcoming] = useState<CalendarEvent[]>([]);
   const [past, setPast] = useState<CalendarEvent[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(
+    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
+  );
 
   const month = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
 
@@ -34,7 +37,18 @@ export default function CalendarPage() {
     return cells;
   }, [cursor]);
 
-  const selectedEvents = events.filter((event) => event.date === selected);
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, CalendarEvent[]>();
+    for (const event of events) {
+      const list = map.get(event.date) ?? [];
+      list.push(event);
+      map.set(event.date, list);
+    }
+    return map;
+  }, [events]);
+
+  const selectedEvents = selected ? (eventsByDate.get(selected) ?? []) : [];
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   return (
     <RequireAuth>
@@ -61,17 +75,32 @@ export default function CalendarPage() {
         <div className="mt-2 grid grid-cols-7 gap-1 sm:gap-2">
           {days.map((day, index) => {
             const date = day ? `${month}-${String(day).padStart(2, '0')}` : '';
-            const has = events.some((event) => event.date === date);
+            const dayEvents = date ? (eventsByDate.get(date) ?? []) : [];
+            const extra = Math.max(0, dayEvents.length - 2);
+            const isToday = date === today;
             return (
               <button
                 key={index}
                 type="button"
                 disabled={!day}
                 onClick={() => setSelected(date)}
-                className={`relative min-h-10 rounded-lg p-1 text-left text-xs sm:min-h-16 sm:rounded-xl sm:p-2 sm:text-sm ${selected === date ? 'bg-violet-500/30' : 'bg-white/5'} ${!day ? 'opacity-0' : ''}`}
+                className={`relative flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left sm:min-h-24 sm:rounded-xl sm:p-2 lg:min-h-28 ${
+                  selected === date ? 'bg-violet-500/30 ring-1 ring-violet-400/50' : 'bg-white/5'
+                } ${isToday && selected !== date ? 'ring-1 ring-fuchsia-400/60' : ''} ${!day ? 'opacity-0' : ''}`}
               >
-                {day}
-                {has ? <span className="absolute right-1 bottom-1 h-1.5 w-1.5 rounded-full bg-fuchsia-400 sm:right-2 sm:bottom-2 sm:h-2 sm:w-2" /> : null}
+                <span className={`text-xs sm:text-sm ${isToday ? 'font-semibold text-violet-300' : ''}`}>{day}</span>
+                <span className="flex min-h-0 flex-1 flex-col gap-0.5">
+                  {dayEvents.slice(0, 2).map((event) => (
+                    <span
+                      key={event.id}
+                      className="block truncate rounded bg-fuchsia-500/25 px-1 py-0.5 text-[9px] leading-tight text-fg sm:text-[11px]"
+                    >
+                      {event.time ? `${event.time} ` : ''}
+                      {event.title}
+                    </span>
+                  ))}
+                  {extra > 0 ? <span className="px-1 text-[9px] text-violet-300 sm:text-[10px]">+{extra}</span> : null}
+                </span>
               </button>
             );
           })}
@@ -86,7 +115,7 @@ export default function CalendarPage() {
           <ul className="space-y-2">
             {selectedEvents.map((event) => (
               <li key={event.id}>
-                <Link href={`/roles/${event.roleId}`}>
+                <Link href={`/roles/${event.roleId}`} className="hover:text-violet-300">
                   {event.time || '--:--'} — {event.title} · {event.category}
                 </Link>
               </li>
@@ -97,17 +126,19 @@ export default function CalendarPage() {
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <section className="card p-5">
           <h2 className="mb-3 font-medium">Próximos</h2>
+          {upcoming.length === 0 ? <p className="text-sm text-slate-400">Nada marcado ainda.</p> : null}
           {upcoming.map((event) => (
-            <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm">
-              {event.date} {event.time} — {event.title}
+            <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-violet-300">
+              {formatShortDate(event.date)} {event.time ?? ''} — {event.title}
             </Link>
           ))}
         </section>
         <section className="card p-5">
           <h2 className="mb-3 font-medium">Passados</h2>
+          {past.length === 0 ? <p className="text-sm text-slate-400">Nenhum rolê passado.</p> : null}
           {past.map((event) => (
-            <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm">
-              {event.date} — {event.title}
+            <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-violet-300">
+              {formatShortDate(event.date)} — {event.title}
             </Link>
           ))}
         </section>

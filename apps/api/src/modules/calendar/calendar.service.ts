@@ -1,5 +1,5 @@
 import { query } from '../../db/client.js';
-import { roleStatus } from '../../lib/helpers.js';
+import { roleStatus, toDateKey } from '../../lib/helpers.js';
 
 export async function getCalendar(userId: string, month?: string) {
   const rows = await query<{
@@ -22,18 +22,22 @@ export async function getCalendar(userId: string, month?: string) {
   );
 
   const events = rows
-    .filter((row) => row.date)
-    .map((row) => ({
-      id: row.id,
-      roleId: row.id,
-      title: row.title,
-      date: String(row.date).slice(0, 10),
-      time: row.time,
-      status: roleStatus(String(row.date).slice(0, 10), row.time, row.status),
-      category: row.category,
-      location: row.location,
-      attendance: row.att_status,
-    }));
+    .map((row) => {
+      const date = toDateKey(row.date);
+      if (!date) return null;
+      return {
+        id: row.id,
+        roleId: row.id,
+        title: row.title,
+        date,
+        time: row.time,
+        status: roleStatus(date, row.time, row.status),
+        category: row.category,
+        location: row.location,
+        attendance: row.att_status,
+      };
+    })
+    .filter((event): event is NonNullable<typeof event> => Boolean(event));
 
   const filtered = month ? events.filter((event) => event.date.startsWith(month)) : events;
   const upcoming = events.filter((event) => event.status !== 'past').slice(0, 8);

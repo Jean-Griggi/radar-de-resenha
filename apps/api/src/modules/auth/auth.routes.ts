@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
 import { saveUpload } from '../../lib/storage.js';
-import { changePasswordSchema, loginSchema, registerSchema, updateMeSchema } from '../common.schema.js';
-import { changePassword, getMe, loginUser, registerUser, setUserMedia, updateMe } from './auth.service.js';
+import { changePasswordSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, updateMeSchema } from '../common.schema.js';
+import { changePassword, getMe, loginUser, registerUser, requestPasswordReset, resetPassword, setUserMedia, updateMe } from './auth.service.js';
 
 export async function authRoutes(app: FastifyInstance) {
   app.post('/auth/register', async (request, reply) => {
@@ -17,6 +17,17 @@ export async function authRoutes(app: FastifyInstance) {
     const user = await loginUser(body);
     const token = app.jwt.sign({ sub: user.id, email: user.email ?? '' });
     return reply.send({ user, token });
+  });
+
+  app.post('/auth/forgot-password', async (request, reply) => {
+    const body = forgotPasswordSchema.parse(request.body);
+    return reply.send(await requestPasswordReset(body.email));
+  });
+
+  app.post('/auth/reset-password', async (request, reply) => {
+    const body = resetPasswordSchema.parse(request.body);
+    await resetPassword(body.token, body.password);
+    return reply.send({ ok: true });
   });
 
   const meHandler = async (request: { user: { sub: string } }) => getMe(request.user.sub);

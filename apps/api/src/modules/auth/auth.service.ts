@@ -1,8 +1,10 @@
 import bcrypt from 'bcrypt';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { env } from '../../config/env.js';
 import { exec, query, queryOne } from '../../db/client.js';
 import { evaluateAchievements, getUserRow, mapUser, nowIso, uniqueUsername } from '../../lib/helpers.js';
-import { conflict, notFound, unauthorized } from '../../lib/http.js';
+import { badRequest, conflict, notFound, unauthorized } from '../../lib/http.js';
+import { mailConfigured, passwordResetEmail, sendMail } from '../../lib/mail.js';
 import type { ChangePasswordInput } from './auth.types.js';
 import type { LoginInput, RegisterInput, UpdateMeInput } from '../common.schema.js';
 
@@ -100,6 +102,65 @@ export async function changePassword(id: string, input: ChangePasswordInput) {
   if (!valid) throw unauthorized('Senha atual inválida');
   const hash = await bcrypt.hash(input.newPassword, 10);
   await exec(`UPDATE users SET password_hash = $1, updated_at = $2 WHERE id = $3`, [hash, nowIso(), id]);
+}
+
+function hashResetToken(token: string) {
+  return createHash('sha256').update(token).digest('hex');
+}
+
+export async function requestPasswordReset(email: string) {
+  const generic = {
+    ok: true as const,
+    message: 'Se o e-mail existir, enviamos um link para redefinir a senha.',
+  };
+
+  const user = await queryOne<{ id: string; name: string; email: string }>(
+    `SELECT id, name, email FROM users WHERE email = $1`,
+    [email.toLowerCase()],
+  );
+  if (!user) return generic;
+
+  await exec(`DELETE FROM password_resets WHERE user_id = $1 AND used_at IS NULL`, [user.id]);
+
+  const token = randomBytes(32).toString('hex');
+  const stamp = nowIso();
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  await exec(
+    `INSERT INTO password_resets (id, user_id, token_hash, expires_at, created_at)
+     VALUES ($1,$2,$3,$4,$5)`,
+    [randomUUID(), user.id, hashResetToken(token), expiresAt, stamp],
+  );
+
+  const resetUrl = `${env.WEB_ORIGIN}/redefinir-senha?token=${token}`;
+  let emailSent = false;
+  try {
+    emailSent = await sendMail(user.email, 'Redefinir senha — Resenhômetro', passwordResetEmail(user.name, resetUrl));
+  } catch (error) {
+    console.error('Falha ao enviar e-mail de redefinição', error);
+  }
+
+  if (!emailSent) {
+    console.info(`Link de redefinição (SMTP não configurado ou falhou): ${resetUrl}`);
+  }
+
+  return mailConfigured()
+    ? { ...generic, emailSent }
+    : { ...generic, emailSent, resetUrl };
+}
+
+export async function resetPassword(token: string, password: string) {
+  const row = await queryOne<{ id: string; user_id: string }>(
+    `SELECT id, user_id FROM password_resets
+     WHERE token_hash = $1 AND used_at IS NULL AND expires_at > $2`,
+    [hashResetToken(token), nowIso()],
+  );
+  if (!row) throw badRequest('Link inválido ou expirado. Peça outro e-mail.');
+
+  const hash = await bcrypt.hash(password, 10);
+  const stamp = nowIso();
+  await exec(`UPDATE users SET password_hash = $1, updated_at = $2 WHERE id = $3`, [hash, stamp, row.user_id]);
+  await exec(`UPDATE password_resets SET used_at = $1 WHERE id = $2`, [stamp, row.id]);
+  await exec(`DELETE FROM password_resets WHERE user_id = $1 AND used_at IS NULL`, [row.user_id]);
 }
 
 export async function setUserMedia(id: string, field: 'avatar' | 'cover', relative: string | null) {

@@ -1,6 +1,6 @@
 import { ACHIEVEMENT_DEFS } from '@resenhometro/shared';
 import { query, queryOne } from '../../db/client.js';
-import { getUserRow, mapUser, parseJson } from '../../lib/helpers.js';
+import { getUserRow, mapUser, parseJson, toDateKey } from '../../lib/helpers.js';
 import { serializeRole } from '../roles/roles.service.js';
 
 const WEEKDAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -65,7 +65,8 @@ export async function getStats(userId: string) {
   const placeMap = new Map<string, number>();
 
   for (const role of roles) {
-    const date = role.date ? new Date(`${String(role.date).slice(0, 10)}T12:00:00`) : new Date(role.created_at);
+    const dateKey = toDateKey(role.date);
+    const date = dateKey ? new Date(`${dateKey}T12:00:00`) : new Date(role.created_at);
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     monthMap.set(monthKey, (monthMap.get(monthKey) ?? 0) + 1);
     categoryMap.set(role.category, (categoryMap.get(role.category) ?? 0) + 1);

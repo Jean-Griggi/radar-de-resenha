@@ -1,8 +1,19 @@
+function parseDay(value?: string | null) {
+  if (!value) return null;
+  const date = /^\d{4}-\d{2}-\d{2}/.test(value) ? new Date(`${value.slice(0, 10)}T12:00:00`) : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export function formatDate(value?: string | null) {
-  if (!value) return 'Data a combinar';
-  const date = new Date(`${value}T12:00:00`);
-  if (Number.isNaN(date.getTime())) return value;
+  const date = parseDay(value);
+  if (!date) return value ? value : 'Data a combinar';
   return date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+}
+
+export function formatShortDate(value?: string | null) {
+  const date = parseDay(value);
+  if (!date) return value ?? '';
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }
 
 export function formatTimeAgo(value: string) {

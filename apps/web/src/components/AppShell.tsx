@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState, type ReactNode } from 'react';
 import { api } from '@/lib/api';
 import { clearAuth, getUser, type AuthUser } from '@/lib/auth';
+import { formatShortDate } from '@/lib/format';
 import { Avatar } from './Avatar';
 import { MiniPlayer, usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
@@ -241,7 +242,7 @@ function DefaultRail() {
               <Link href={`/roles/${role.id}`} className="block rounded-lg hover:bg-overlay">
                 <p className="text-sm text-fg">{role.title}</p>
                 <p className="text-xs text-muted">
-                  {role.date} {role.time}
+                  {formatShortDate(role.date)} {role.time ?? ''}
                 </p>
               </Link>
             </li>

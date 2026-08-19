@@ -171,4 +171,47 @@ describe('Resenhômetro API', () => {
     });
     expect(res.statusCode).toBe(204);
   });
+
+  it('forgot password + reset', async () => {
+    const email = `qa${suffix}@resenha.test`;
+    const forgotUnknown = await app.inject({
+      method: 'POST',
+      url: '/auth/forgot-password',
+      payload: { email: `missing${suffix}@resenha.test` },
+    });
+    expect(forgotUnknown.statusCode).toBe(200);
+
+    const forgot = await app.inject({
+      method: 'POST',
+      url: '/auth/forgot-password',
+      payload: { email },
+    });
+    expect(forgot.statusCode).toBe(200);
+    const resetUrl = forgot.json().resetUrl as string;
+    expect(resetUrl).toContain('token=');
+    const resetToken = new URL(resetUrl).searchParams.get('token');
+    expect(resetToken).toBeTruthy();
+
+    const reset = await app.inject({
+      method: 'POST',
+      url: '/auth/reset-password',
+      payload: { token: resetToken, password: 'novaSenha9' },
+    });
+    expect(reset.statusCode).toBe(200);
+
+    const oldLogin = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email, password: 'secret12' },
+    });
+    expect(oldLogin.statusCode).toBe(401);
+
+    const newLogin = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email, password: 'novaSenha9' },
+    });
+    expect(newLogin.statusCode).toBe(200);
+    expect(newLogin.json().token).toBeTruthy();
+  });
 });
