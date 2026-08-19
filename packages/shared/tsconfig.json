@@ -1,8 +1,10 @@
 {
-  "extends": "@resenhometro/config/typescript/base.json",
+  "extends": "@resenhometro/config/typescript/node.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   },
   "include": ["src"]
 }

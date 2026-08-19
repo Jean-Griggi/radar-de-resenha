@@ -10,7 +10,7 @@ import type {
   REVIEW_RATING_CATEGORIES,
   ROLE_CATEGORIES,
   ROLE_STATUSES,
-} from './constants';
+} from './constants.js';
 
 export type RoleCategory = (typeof ROLE_CATEGORIES)[number];
 export type AttendanceStatus = (typeof ATTENDANCE_STATUSES)[number];

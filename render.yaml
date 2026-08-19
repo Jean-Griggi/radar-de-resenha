@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     branch: main
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @resenhometro/api build
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm exec turbo run build --filter=@resenhometro/api
     startCommand: pnpm --filter @resenhometro/api start
     healthCheckPath: /health
     envVars:
