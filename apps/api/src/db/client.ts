@@ -14,7 +14,11 @@ export async function initDb() {
   if (ready) return;
 
   if (env.DATABASE_URL) {
-    const sql = postgres(env.DATABASE_URL, { max: 10 });
+    const sql = postgres(env.DATABASE_URL, {
+      max: 10,
+      ssl: 'require',
+      connect_timeout: 15,
+    });
     runQuery = async (text, params = []) => {
       const rows = await sql.unsafe(text, params as never[]);
       return { rows: rows as unknown as Record<string, unknown>[] };
