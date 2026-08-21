@@ -4,6 +4,16 @@ import { exec, query, queryOne } from '../../db/client.js';
 import { addFeedEvent, nowIso } from '../../lib/helpers.js';
 import { badRequest, notFound } from '../../lib/http.js';
 
+type HttpResponse = {
+  ok: boolean;
+  status: number;
+  json: () => Promise<unknown>;
+};
+
+function asHttp(response: unknown): HttpResponse {
+  return response as HttpResponse;
+}
+
 type SpotifyTokens = {
   user_id: string;
   access_token: string;
@@ -32,14 +42,16 @@ export function spotifyAuthUrl(state: string) {
 
 async function tokenRequest(body: Record<string, string>) {
   const credentials = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString('base64');
-  const response = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams(body),
-  });
+  const response = asHttp(
+    await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(body),
+    }),
+  );
   if (!response.ok) throw badRequest('Falha ao conectar com o Spotify');
   return response.json() as Promise<{ access_token: string; refresh_token?: string; expires_in: number }>;
 }
@@ -65,9 +77,12 @@ export async function completeSpotifyAuth(userId: string, code: string) {
     code,
     redirect_uri: env.SPOTIFY_REDIRECT_URI!,
   });
-  const me = await fetch('https://api.spotify.com/v1/me', {
-    headers: { Authorization: `Bearer ${tokens.access_token}` },
-  }).then((res) => res.json() as Promise<{ id: string; display_name: string; product?: string }>);
+  const me = asHttp(
+    await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+    }),
+  ).json() as Promise<{ id: string; display_name: string; product?: string }>;
+  const profile = await me;
 
   const stamp = nowIso();
   const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
@@ -82,7 +97,7 @@ export async function completeSpotifyAuth(userId: string, code: string) {
        refresh_token = COALESCE(EXCLUDED.refresh_token, spotify_connections.refresh_token),
        expires_at = EXCLUDED.expires_at,
        updated_at = EXCLUDED.updated_at`,
-    [userId, me.id, me.display_name, me.product ?? null, tokens.access_token, tokens.refresh_token ?? null, expiresAt, stamp, stamp],
+    [userId, profile.id, profile.display_name, profile.product ?? null, tokens.access_token, tokens.refresh_token ?? null, expiresAt, stamp, stamp],
   );
 }
 
@@ -98,9 +113,11 @@ export async function getSpotifyAccount(userId: string) {
 
   let nowPlaying = null;
   try {
-    const response = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
-      headers: { Authorization: `Bearer ${row.access_token}` },
-    });
+    const response = asHttp(
+      await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+        headers: { Authorization: `Bearer ${row.access_token}` },
+      }),
+    );
     if (response.status === 200) {
       const data = (await response.json()) as {
         is_playing: boolean;
@@ -139,9 +156,11 @@ export async function getSpotifyAccount(userId: string) {
 export async function getPlaylists(userId: string) {
   const row = await ensureAccessToken(userId);
   if (!row) return [];
-  const response = await fetch('https://api.spotify.com/v1/me/playlists?limit=20', {
-    headers: { Authorization: `Bearer ${row.access_token}` },
-  });
+  const response = asHttp(
+    await fetch('https://api.spotify.com/v1/me/playlists?limit=20', {
+      headers: { Authorization: `Bearer ${row.access_token}` },
+    }),
+  );
   if (!response.ok) return [];
   const data = (await response.json()) as {
     items: { id: string; name: string; images?: { url: string }[]; tracks?: { total: number }; external_urls?: { spotify: string } }[];

@@ -57,7 +57,7 @@ export function storageRoot() {
 export async function ensureStorage() {
   if (useSupabase) {
     const { data: buckets } = await supabase!.storage.listBuckets();
-    const exists = buckets?.some((bucket) => bucket.name === env.SUPABASE_STORAGE_BUCKET);
+    const exists = buckets?.some((bucket: { name: string }) => bucket.name === env.SUPABASE_STORAGE_BUCKET);
     if (!exists) {
       await supabase!.storage
         .createBucket(env.SUPABASE_STORAGE_BUCKET, {
