@@ -22,7 +22,21 @@ export const config = {
   maxDuration: 30,
 };
 
+function restoreOriginalUrl(req: IncomingMessage) {
+  const raw = req.url || '/';
+  const q = raw.indexOf('?');
+  const path = q === -1 ? raw : raw.slice(0, q);
+  const search = q === -1 ? '' : raw.slice(q);
+
+  let next = path;
+  if (next === '/api' || next === '/api/index') next = '/';
+  else if (next.startsWith('/api/')) next = next.slice(4);
+
+  req.url = `${next}${search}` || '/';
+}
+
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  restoreOriginalUrl(req);
   const app = await getApp();
   await app.ready();
   app.server.emit('request', req, res);

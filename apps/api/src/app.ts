@@ -70,6 +70,7 @@ export async function buildApp() {
     return reply.status(500).send({ message: 'Erro interno' });
   });
 
+  app.get('/', async () => ({ status: 'ok' }));
   app.get('/health', async () => ({ status: 'ok' }));
 
   await app.register(authRoutes);
