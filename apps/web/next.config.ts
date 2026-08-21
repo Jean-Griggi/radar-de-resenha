@@ -1,12 +1,7 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import type { NextConfig } from 'next';
 
-const projectRoot = path.join(fileURLToPath(new URL('.', import.meta.url)), '../..');
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   transpilePackages: ['@resenhometro/ui', '@resenhometro/shared'],
-  outputFileTracingRoot: projectRoot,
   devIndicators: false,
 };
 

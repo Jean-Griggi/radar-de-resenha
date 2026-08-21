@@ -10,13 +10,15 @@
     "PUBLIC_API_URL",
     "WEB_ORIGIN",
     "CORS_ORIGINS",
+    "NEXT_PUBLIC_API_URL",
     "VERCEL",
     "VERCEL_URL"
   ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": ["NEXT_PUBLIC_API_URL"]
     },
     "dev": {
       "cache": false,
