@@ -1,16 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { Outfit } from 'next/font/google';
 import { PlayerProvider } from '@/components/Player';
 import { ThemeProvider } from '@/components/Theme';
 import { ToastProvider } from '@/components/Toast';
 import { WaveBackground } from '@/components/WaveBackground';
 import './globals.css';
-
-const outfit = Outfit({
-  subsets: ['latin'],
-  variable: '--font-outfit',
-});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -31,7 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={`${outfit.className} min-h-screen`}>
+      <body className="min-h-screen antialiased">
         <ThemeProvider>
           <WaveBackground />
           <ToastProvider>
@@ -42,3 +36,4 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
+
