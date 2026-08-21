@@ -2,6 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @resenhometro/shared build",
+  "buildCommand": "mkdir -p public",
+  "outputDirectory": "public",
   "functions": {
     "api/index.ts": {
       "maxDuration": 30
