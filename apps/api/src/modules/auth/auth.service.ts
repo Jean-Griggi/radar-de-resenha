@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { env } from '../../config/env.js';
 import { exec, query, queryOne } from '../../db/client.js';

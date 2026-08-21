@@ -7,9 +7,10 @@ import { ZodError } from 'zod';
 import { corsOrigins, env } from './config/env.js';
 import { initDb } from './db/client.js';
 import { HttpError } from './lib/http.js';
-import { ensureStorage, storageRoot } from './lib/storage.js';
+import { ensureStorage, storageRoot, isSupabaseStorage } from './lib/storage.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { mediaRoutes } from './modules/media/media.routes.js';
+import { storageRoutes } from './modules/storage/storage.routes.js';
 import { musicRoutes } from './modules/music/music.routes.js';
 import { reviewsRoutes } from './modules/reviews/reviews.routes.js';
 import { rolesRoutes } from './modules/roles/roles.routes.js';
@@ -31,10 +32,14 @@ export async function buildApp() {
   await app.register(multipart, {
     limits: { fileSize: 12 * 1024 * 1024 },
   });
-  await app.register(staticFiles, {
-    root: storageRoot(),
-    prefix: '/uploads/',
-  });
+  // Em produção (Vercel) os uploads vão para o Supabase Storage, então não
+  // precisamos (nem podemos) servir arquivos de um disco local efêmero.
+  if (!isSupabaseStorage()) {
+    await app.register(staticFiles, {
+      root: storageRoot(),
+      prefix: '/uploads/',
+    });
+  }
 
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof ZodError) {
@@ -49,6 +54,15 @@ export async function buildApp() {
     if (error instanceof Error && error.message === 'FILE_TOO_LARGE') {
       return reply.status(400).send({ message: 'Arquivo muito grande' });
     }
+    if (error instanceof Error && error.message === 'NO_FILE') {
+      return reply.status(400).send({ message: 'Arquivo obrigatório' });
+    }
+    if (error instanceof Error && error.message === 'INVALID_UPLOAD_TOKEN') {
+      return reply.status(400).send({ message: 'Upload expirado ou inválido' });
+    }
+    if (error instanceof Error && error.message.startsWith('UPLOAD_FAILED')) {
+      return reply.status(502).send({ message: 'Falha ao enviar arquivo' });
+    }
     if (error instanceof Error && error.message === 'AUDIO_TOO_LONG') {
       return reply.status(400).send({ message: 'Áudio deve ter no máximo 5 minutos' });
     }
@@ -59,6 +73,7 @@ export async function buildApp() {
   app.get('/health', async () => ({ status: 'ok' }));
 
   await app.register(authRoutes);
+  await app.register(storageRoutes);
   await app.register(usersRoutes);
   await app.register(rolesRoutes);
   await app.register(reviewsRoutes);

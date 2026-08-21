@@ -36,6 +36,7 @@ export function apiErrorMessage(error: unknown, fallback = 'Algo deu errado') {
     const message = error.response?.data?.message;
     if (typeof message === 'string') return message;
   }
+  if (error instanceof Error && error.message) return error.message;
 
   return fallback;
 }

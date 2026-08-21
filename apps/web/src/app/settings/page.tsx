@@ -6,6 +6,7 @@ import { Field, Input, Textarea } from '@/components/Field';
 import { RequireAuth } from '@/components/RequireAuth';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage } from '@/lib/api';
+import { postFile } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
 
 export default function SettingsPage() {
@@ -34,12 +35,14 @@ export default function SettingsPage() {
   }
 
   async function upload(kind: 'avatar' | 'cover', file: File) {
-    const body = new FormData();
-    body.append('file', file);
-    const { data } = await api.post<AuthUser>(`/users/me/${kind}`, body);
-    setMe(data);
-    setUser(data);
-    toast.push(kind === 'avatar' ? 'Foto de perfil salva' : 'Capa salva');
+    try {
+      const data = await postFile<AuthUser>(`/users/me/${kind}`, kind, file);
+      setMe(data);
+      setUser(data);
+      toast.push(kind === 'avatar' ? 'Foto de perfil salva' : 'Capa salva');
+    } catch (err) {
+      toast.push(apiErrorMessage(err, 'Falha no envio do arquivo'), 'error');
+    }
   }
 
   async function changePassword(event: FormEvent) {

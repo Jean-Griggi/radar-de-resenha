@@ -12,7 +12,12 @@ const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
   CORS_ORIGINS: z.string().optional(),
   STORAGE_DIR: z.string().optional(),
-  PUBLIC_API_URL: z.string().default('http://localhost:3333'),
+  SUPABASE_URL: z.string().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  SUPABASE_STORAGE_BUCKET: z.string().default('resenhometro-uploads'),
+  PUBLIC_API_URL: z.string().default(
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3333',
+  ),
   WEB_ORIGIN: z.string().default('http://localhost:3000'),
   SPOTIFY_CLIENT_ID: z.string().optional(),
   SPOTIFY_CLIENT_SECRET: z.string().optional(),

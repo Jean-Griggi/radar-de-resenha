@@ -8,6 +8,7 @@ import { Field, Input } from '@/components/Field';
 import { RequireAuth } from '@/components/RequireAuth';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage } from '@/lib/api';
+import { postFile } from '@/lib/upload';
 
 export default function PhotosPage() {
   const toast = useToast();
@@ -32,23 +33,27 @@ export default function PhotosPage() {
   }, []);
 
   async function uploadPhoto(file: File) {
-    const body = new FormData();
-    body.append('file', file);
-    if (roleId) body.append('roleId', roleId);
-    await api.post('/photos', body);
-    toast.push('Foto adicionada');
-    load();
+    try {
+      await postFile('/photos', 'photo', file, { roleId: roleId || undefined });
+      toast.push('Foto adicionada');
+      load();
+    } catch (err) {
+      toast.push(apiErrorMessage(err, 'Falha no envio da foto'), 'error');
+    }
   }
 
   async function uploadAudio(file: File, name = file.name, duration?: number) {
-    const body = new FormData();
-    body.append('file', file);
-    body.append('name', name);
-    if (duration) body.append('duration', String(Math.min(duration, 300)));
-    if (roleId) body.append('roleId', roleId);
-    await api.post('/audios', body);
-    toast.push('Áudio salvo');
-    load();
+    try {
+      await postFile('/audios', 'audio', file, {
+        name,
+        duration: duration ? String(Math.min(duration, 300)) : undefined,
+        roleId: roleId || undefined,
+      });
+      toast.push('Áudio salvo');
+      load();
+    } catch (err) {
+      toast.push(apiErrorMessage(err, 'Falha no envio do áudio'), 'error');
+    }
   }
 
   async function createAlbum(event: FormEvent) {

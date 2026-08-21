@@ -1,6 +1,5 @@
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { PGlite } from '@electric-sql/pglite';
 import postgres from 'postgres';
 import { env } from '../config/env.js';
 import { applyMigrations } from './migrate.js';
@@ -15,15 +14,20 @@ export async function initDb() {
 
   if (env.DATABASE_URL) {
     const sql = postgres(env.DATABASE_URL, {
-      max: 10,
+      max: 1,
       ssl: 'require',
-      connect_timeout: 15,
+      prepare: false,
+      idle_timeout: 20,
+      connect_timeout: 10,
     });
     runQuery = async (text, params = []) => {
       const rows = await sql.unsafe(text, params as never[]);
       return { rows: rows as unknown as Record<string, unknown>[] };
     };
+  } else if (process.env.VERCEL) {
+    throw new Error('DATABASE_URL is required on Vercel');
   } else {
+    const { PGlite } = await import('@electric-sql/pglite');
     const dataDir = resolve(process.cwd(), 'data', 'pglite');
     await mkdir(dataDir, { recursive: true });
     const client = new PGlite(dataDir);

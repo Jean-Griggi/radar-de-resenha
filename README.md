@@ -39,10 +39,10 @@ Fora do escopo agora: app mobile, app desktop, mapa, chat em tempo real e push.
 
 ```mermaid
 flowchart LR
-  U[Usuário] --> WEB[Web Next.js]
-  WEB --> API[API Fastify]
-  API --> DB[(PGlite ou PostgreSQL)]
-  API --> FILES[Arquivos /uploads]
+  U[Usuário] --> WEB[Web Next.js / Vercel]
+  WEB --> API[API Fastify serverless / Vercel]
+  API --> DB[(Supabase Postgres)]
+  API --> FILES[Supabase Storage]
   API --> AUTH[JWT]
   API --> SPOTIFY[Spotify OAuth]
 ```
@@ -56,10 +56,10 @@ Backend: `routes` → `service` → banco/arquivos.
 | Camada | Tecnologia |
 | ------ | ---------- |
 | Web | Next.js, React, TypeScript, Tailwind CSS |
-| API | Fastify, TypeScript, JWT, bcrypt, Zod |
+| API | Fastify, TypeScript, JWT, bcryptjs, Zod |
 | Tipos | `packages/shared` |
-| Banco | PGlite (padrão local) ou PostgreSQL |
-| Mídia | Disco em `apps/api/data/uploads` |
+| Banco | PGlite (dev local) ou PostgreSQL (Supabase em produção) |
+| Mídia | Disco local em dev; Supabase Storage na Vercel |
 | Testes | Vitest na API |
 
 ---
@@ -180,10 +180,11 @@ Commits no padrão Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, 
 
 # ☁️ Publicar
 
-O GitHub guarda o código. Para o site ficar na internet:
+Frontend e API na **Vercel**, banco e arquivos no **Supabase**. Passo a passo completo em [`DEPLOY.md`](./DEPLOY.md).
 
-1. **Front (Vercel)** — root `apps/web`, variável `NEXT_PUBLIC_API_URL`
-2. **API (Render ou Railway)** — `JWT_SECRET`, `PUBLIC_API_URL`, `WEB_ORIGIN`, `CORS_ORIGINS`, opcionalmente `DATABASE_URL` e `SPOTIFY_*`
+1. **API (Vercel)** — root `apps/api`
+2. **Front (Vercel)** — root `apps/web`, variável `NEXT_PUBLIC_API_URL`
+3. **Banco + Storage (Supabase)** — `DATABASE_URL` (pooler 6543), `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
 ---
 

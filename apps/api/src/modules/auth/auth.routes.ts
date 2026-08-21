@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
-import { saveUpload } from '../../lib/storage.js';
+import { takeUpload } from '../../lib/storage.js';
 import { changePasswordSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, updateMeSchema } from '../common.schema.js';
 import { changePassword, getMe, loginUser, registerUser, requestPasswordReset, resetPassword, setUserMedia, updateMe } from './auth.service.js';
 
@@ -52,9 +52,7 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/users/me/avatar', { preHandler: [authenticate] }, async (request) => {
-    const file = await request.file();
-    if (!file) throw new Error('NO_FILE');
-    const saved = await saveUpload(file, 'avatar');
+    const saved = await takeUpload(request, 'avatar');
     return setUserMedia(request.user.sub, 'avatar', saved.relative);
   });
 
@@ -63,9 +61,7 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/users/me/cover', { preHandler: [authenticate] }, async (request) => {
-    const file = await request.file();
-    if (!file) throw new Error('NO_FILE');
-    const saved = await saveUpload(file, 'cover');
+    const saved = await takeUpload(request, 'cover');
     return setUserMedia(request.user.sub, 'cover', saved.relative);
   });
 

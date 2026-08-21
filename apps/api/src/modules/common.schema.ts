@@ -90,6 +90,12 @@ export const friendRequestSchema = z.object({
   userId: z.string().min(1),
 });
 
+export const signUploadSchema = z.object({
+  kind: z.enum(['avatar', 'cover', 'photo', 'audio']),
+  contentType: z.string().min(1).max(120),
+  filename: z.string().max(180).optional(),
+});
+
 export const albumSchema = z.object({
   name: z.string().min(2).max(80),
   description: z.string().max(400).optional().nullable(),

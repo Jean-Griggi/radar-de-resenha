@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
-import { saveUpload } from '../../lib/storage.js';
+import { takeUpload } from '../../lib/storage.js';
 import { albumSchema } from '../common.schema.js';
 import {
   addAudio,
@@ -37,13 +37,15 @@ export async function mediaRoutes(app: FastifyInstance) {
   });
 
   app.post('/photos', { preHandler: [authenticate] }, async (request, reply) => {
-    const file = await request.file();
-    if (!file) return reply.status(400).send({ message: 'Arquivo obrigatório' });
-    const saved = await saveUpload(file, 'photo');
-    const caption = (file.fields.caption as { value?: string } | undefined)?.value;
-    const albumId = (file.fields.albumId as { value?: string } | undefined)?.value;
-    const roleId = (file.fields.roleId as { value?: string } | undefined)?.value;
-    return reply.status(201).send(await addPhoto(request.user.sub, { url: saved.relative, caption, albumId, roleId }));
+    const saved = await takeUpload(request, 'photo');
+    return reply.status(201).send(
+      await addPhoto(request.user.sub, {
+        url: saved.relative,
+        caption: saved.fields.caption,
+        albumId: saved.fields.albumId,
+        roleId: saved.fields.roleId,
+      }),
+    );
   });
 
   app.delete('/photos/:id', { preHandler: [authenticate] }, async (request, reply) => {
@@ -53,20 +55,15 @@ export async function mediaRoutes(app: FastifyInstance) {
   });
 
   app.post('/audios', { preHandler: [authenticate] }, async (request, reply) => {
-    const file = await request.file();
-    if (!file) return reply.status(400).send({ message: 'Arquivo obrigatório' });
-    const saved = await saveUpload(file, 'audio');
-    const name = (file.fields.name as { value?: string } | undefined)?.value || file.filename || 'Áudio';
-    const duration = Number((file.fields.duration as { value?: string } | undefined)?.value ?? 0);
-    const roleId = (file.fields.roleId as { value?: string } | undefined)?.value;
-    const reviewId = (file.fields.reviewId as { value?: string } | undefined)?.value;
+    const saved = await takeUpload(request, 'audio');
+    const duration = Number(saved.fields.duration ?? 0);
     return reply.status(201).send(
       await addAudio(request.user.sub, {
         url: saved.relative,
-        name,
+        name: saved.fields.name || 'Áudio',
         duration: duration || null,
-        roleId,
-        reviewId,
+        roleId: saved.fields.roleId,
+        reviewId: saved.fields.reviewId,
       }),
     );
   });
