@@ -1,8 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { buildApp } from '../src/app.js';
 
-// Reaproveita a mesma instância do Fastify entre invocações "quentes" da
-// função serverless (evita reconectar no banco/refazer setup a cada request).
 let appPromise: ReturnType<typeof buildApp> | null = null;
 
 async function getApp() {
@@ -24,15 +22,21 @@ export const config = {
 
 function restoreOriginalUrl(req: IncomingMessage) {
   const raw = req.url || '/';
-  const q = raw.indexOf('?');
-  const path = q === -1 ? raw : raw.slice(0, q);
-  const search = q === -1 ? '' : raw.slice(q);
+  const url = new URL(raw, 'http://localhost');
+  const forwarded = url.searchParams.get('__p');
+  if (forwarded) {
+    url.searchParams.delete('__p');
+    url.searchParams.delete('path');
+    const search = url.searchParams.toString();
+    req.url = search ? `${forwarded}?${search}` : forwarded;
+    return;
+  }
 
-  let next = path;
+  let next = url.pathname;
   if (next === '/api' || next === '/api/index') next = '/';
   else if (next.startsWith('/api/')) next = next.slice(4);
-
-  req.url = `${next}${search}` || '/';
+  const search = url.searchParams.toString();
+  req.url = search ? `${next}?${search}` : next || '/';
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {

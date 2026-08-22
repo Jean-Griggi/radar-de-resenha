@@ -38,6 +38,13 @@ export function corsOrigins() {
     'http://127.0.0.1:3000',
     'http://localhost:3001',
     env.WEB_ORIGIN,
+    'https://radar-de-resenha-web.vercel.app',
     ...extra,
   ];
+}
+
+export function isAllowedOrigin(origin: string | undefined) {
+  if (!origin) return true;
+  if (corsOrigins().includes(origin)) return true;
+  return origin.endsWith('.vercel.app');
 }

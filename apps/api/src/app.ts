@@ -4,7 +4,7 @@ import jwt from '@fastify/jwt';
 import multipart from '@fastify/multipart';
 import staticFiles from '@fastify/static';
 import { ZodError } from 'zod';
-import { corsOrigins, env } from './config/env.js';
+import { env, isAllowedOrigin } from './config/env.js';
 import { initDb } from './db/client.js';
 import { HttpError } from './lib/http.js';
 import { ensureStorage, storageRoot, isSupabaseStorage } from './lib/storage.js';
@@ -24,7 +24,9 @@ export async function buildApp() {
   const app = Fastify({ logger: true });
 
   await app.register(cors, {
-    origin: corsOrigins(),
+    origin: (origin, callback) => {
+      callback(null, isAllowedOrigin(origin));
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
