@@ -54,18 +54,22 @@ export function storageRoot() {
   return resolve(env.STORAGE_DIR ?? join(process.cwd(), 'data', 'uploads'));
 }
 
+function assertSupabaseEnv() {
+  const url = env.SUPABASE_URL?.trim();
+  const key = env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!url && !key) return;
+  if (!url || !key) {
+    throw new Error(
+      'Supabase Storage incompleto: defina SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY juntos.',
+    );
+  }
+}
+
 export async function ensureStorage() {
+  assertSupabaseEnv();
   if (useSupabase) {
-    const { data: buckets } = await supabase!.storage.listBuckets();
-    const exists = buckets?.some((bucket: { name: string }) => bucket.name === env.SUPABASE_STORAGE_BUCKET);
-    if (!exists) {
-      await supabase!.storage
-        .createBucket(env.SUPABASE_STORAGE_BUCKET, {
-          public: true,
-          fileSizeLimit: '15MB',
-        })
-        .catch(() => undefined);
-    }
+    // Bucket já deve existir no dashboard. listBuckets/createBucket no boot
+    // atrasava todo cold start e falhava em silêncio se o env estivesse errado.
     return;
   }
 

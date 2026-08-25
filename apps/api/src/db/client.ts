@@ -14,7 +14,8 @@ export async function initDb() {
 
   if (env.DATABASE_URL) {
     const sql = postgres(env.DATABASE_URL, {
-      max: 1,
+      // Serverless: poucas conexões por isolate. Processo longo (Render/local): um pouco mais.
+      max: process.env.VERCEL ? 5 : 10,
       ssl: 'require',
       prepare: false,
       idle_timeout: 20,

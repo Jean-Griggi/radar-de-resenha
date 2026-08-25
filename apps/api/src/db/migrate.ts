@@ -1,7 +1,11 @@
 type QueryFn = (sql: string, params?: unknown[]) => Promise<Record<string, unknown>[]>;
 
-const statements = [
-  `CREATE TABLE IF NOT EXISTS users (
+type Migration = { id: string; sql: string };
+
+const migrations: Migration[] = [
+  {
+    id: '001_users',
+    sql: `CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     username TEXT NOT NULL UNIQUE,
@@ -17,7 +21,10 @@ const statements = [
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS roles (
+  },
+  {
+    id: '002_roles',
+    sql: `CREATE TABLE IF NOT EXISTS roles (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT,
@@ -32,7 +39,10 @@ const statements = [
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS attendances (
+  },
+  {
+    id: '003_attendances',
+    sql: `CREATE TABLE IF NOT EXISTS attendances (
     id TEXT PRIMARY KEY,
     role_id TEXT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -40,7 +50,10 @@ const statements = [
     created_at TIMESTAMPTZ NOT NULL,
     UNIQUE (role_id, user_id)
   )`,
-  `CREATE TABLE IF NOT EXISTS reviews (
+  },
+  {
+    id: '004_reviews',
+    sql: `CREATE TABLE IF NOT EXISTS reviews (
     id TEXT PRIMARY KEY,
     role_id TEXT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -53,7 +66,10 @@ const statements = [
     updated_at TIMESTAMPTZ NOT NULL,
     UNIQUE (role_id, author_id)
   )`,
-  `CREATE TABLE IF NOT EXISTS comments (
+  },
+  {
+    id: '005_comments',
+    sql: `CREATE TABLE IF NOT EXISTS comments (
     id TEXT PRIMARY KEY,
     author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     target_type TEXT NOT NULL,
@@ -63,7 +79,10 @@ const statements = [
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS reactions (
+  },
+  {
+    id: '006_reactions',
+    sql: `CREATE TABLE IF NOT EXISTS reactions (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     target_type TEXT NOT NULL,
@@ -72,7 +91,10 @@ const statements = [
     created_at TIMESTAMPTZ NOT NULL,
     UNIQUE (user_id, target_type, target_id)
   )`,
-  `CREATE TABLE IF NOT EXISTS friendships (
+  },
+  {
+    id: '007_friendships',
+    sql: `CREATE TABLE IF NOT EXISTS friendships (
     id TEXT PRIMARY KEY,
     requester_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     receiver_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -80,14 +102,20 @@ const statements = [
     created_at TIMESTAMPTZ NOT NULL,
     UNIQUE (requester_id, receiver_id)
   )`,
-  `CREATE TABLE IF NOT EXISTS follows (
+  },
+  {
+    id: '008_follows',
+    sql: `CREATE TABLE IF NOT EXISTS follows (
     id TEXT PRIMARY KEY,
     follower_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     following_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL,
     UNIQUE (follower_id, following_id)
   )`,
-  `CREATE TABLE IF NOT EXISTS albums (
+  },
+  {
+    id: '009_albums',
+    sql: `CREATE TABLE IF NOT EXISTS albums (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
@@ -96,7 +124,10 @@ const statements = [
     author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS photos (
+  },
+  {
+    id: '010_photos',
+    sql: `CREATE TABLE IF NOT EXISTS photos (
     id TEXT PRIMARY KEY,
     url TEXT NOT NULL,
     caption TEXT,
@@ -105,7 +136,10 @@ const statements = [
     author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS audios (
+  },
+  {
+    id: '011_audios',
+    sql: `CREATE TABLE IF NOT EXISTS audios (
     id TEXT PRIMARY KEY,
     url TEXT NOT NULL,
     name TEXT NOT NULL,
@@ -115,7 +149,10 @@ const statements = [
     author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS music (
+  },
+  {
+    id: '012_music',
+    sql: `CREATE TABLE IF NOT EXISTS music (
     id TEXT PRIMARY KEY,
     role_id TEXT REFERENCES roles(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
@@ -127,7 +164,10 @@ const statements = [
     added_by TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS spotify_connections (
+  },
+  {
+    id: '013_spotify_connections',
+    sql: `CREATE TABLE IF NOT EXISTS spotify_connections (
     user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     spotify_id TEXT,
     display_name TEXT,
@@ -138,13 +178,19 @@ const statements = [
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS posts (
+  },
+  {
+    id: '014_posts',
+    sql: `CREATE TABLE IF NOT EXISTS posts (
     id TEXT PRIMARY KEY,
     author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS feed_events (
+  },
+  {
+    id: '015_feed_events',
+    sql: `CREATE TABLE IF NOT EXISTS feed_events (
     id TEXT PRIMARY KEY,
     type TEXT NOT NULL,
     actor_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -157,7 +203,10 @@ const statements = [
     achievement_slug TEXT,
     created_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS notifications (
+  },
+  {
+    id: '016_notifications',
+    sql: `CREATE TABLE IF NOT EXISTS notifications (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     actor_id TEXT REFERENCES users(id) ON DELETE SET NULL,
@@ -167,23 +216,56 @@ const statements = [
     read BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS user_achievements (
+  },
+  {
+    id: '017_user_achievements',
+    sql: `CREATE TABLE IF NOT EXISTS user_achievements (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     slug TEXT NOT NULL,
     unlocked_at TIMESTAMPTZ NOT NULL,
     UNIQUE (user_id, slug)
   )`,
-  `CREATE INDEX IF NOT EXISTS idx_roles_creator ON roles (creator_id)`,
-  `CREATE INDEX IF NOT EXISTS idx_roles_date ON roles (date)`,
-  `CREATE INDEX IF NOT EXISTS idx_attendances_user ON attendances (user_id)`,
-  `CREATE INDEX IF NOT EXISTS idx_comments_target ON comments (target_type, target_id)`,
-  `CREATE INDEX IF NOT EXISTS idx_reactions_target ON reactions (target_type, target_id)`,
-  `CREATE INDEX IF NOT EXISTS idx_feed_created ON feed_events (created_at DESC)`,
-  `CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications (user_id, read)`,
-  `CREATE INDEX IF NOT EXISTS idx_photos_author ON photos (author_id)`,
-  `CREATE INDEX IF NOT EXISTS idx_follows_following ON follows (following_id)`,
-  `CREATE TABLE IF NOT EXISTS password_resets (
+  },
+  {
+    id: '018_idx_roles_creator',
+    sql: `CREATE INDEX IF NOT EXISTS idx_roles_creator ON roles (creator_id)`,
+  },
+  {
+    id: '019_idx_roles_date',
+    sql: `CREATE INDEX IF NOT EXISTS idx_roles_date ON roles (date)`,
+  },
+  {
+    id: '020_idx_attendances_user',
+    sql: `CREATE INDEX IF NOT EXISTS idx_attendances_user ON attendances (user_id)`,
+  },
+  {
+    id: '021_idx_comments_target',
+    sql: `CREATE INDEX IF NOT EXISTS idx_comments_target ON comments (target_type, target_id)`,
+  },
+  {
+    id: '022_idx_reactions_target',
+    sql: `CREATE INDEX IF NOT EXISTS idx_reactions_target ON reactions (target_type, target_id)`,
+  },
+  {
+    id: '023_idx_feed_created',
+    sql: `CREATE INDEX IF NOT EXISTS idx_feed_created ON feed_events (created_at DESC)`,
+  },
+  {
+    id: '024_idx_notifications_user',
+    sql: `CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications (user_id, read)`,
+  },
+  {
+    id: '025_idx_photos_author',
+    sql: `CREATE INDEX IF NOT EXISTS idx_photos_author ON photos (author_id)`,
+  },
+  {
+    id: '026_idx_follows_following',
+    sql: `CREATE INDEX IF NOT EXISTS idx_follows_following ON follows (following_id)`,
+  },
+  {
+    id: '027_password_resets',
+    sql: `CREATE TABLE IF NOT EXISTS password_resets (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token_hash TEXT NOT NULL UNIQUE,
@@ -191,11 +273,48 @@ const statements = [
     used_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL
   )`,
-  `CREATE INDEX IF NOT EXISTS idx_password_resets_user ON password_resets (user_id)`,
+  },
+  {
+    id: '028_idx_password_resets_user',
+    sql: `CREATE INDEX IF NOT EXISTS idx_password_resets_user ON password_resets (user_id)`,
+  },
+  {
+    id: '029_idx_friendships_receiver_status',
+    sql: `CREATE INDEX IF NOT EXISTS idx_friendships_receiver_status ON friendships (receiver_id, status)`,
+  },
+  {
+    id: '030_idx_friendships_requester_status',
+    sql: `CREATE INDEX IF NOT EXISTS idx_friendships_requester_status ON friendships (requester_id, status)`,
+  },
+  {
+    id: '031_idx_photos_role',
+    sql: `CREATE INDEX IF NOT EXISTS idx_photos_role ON photos (role_id)`,
+  },
+  {
+    id: '032_idx_feed_events_actor',
+    sql: `CREATE INDEX IF NOT EXISTS idx_feed_events_actor ON feed_events (actor_id)`,
+  },
+  {
+    id: '033_idx_attendances_role',
+    sql: `CREATE INDEX IF NOT EXISTS idx_attendances_role ON attendances (role_id)`,
+  },
 ];
 
 export async function applyMigrations(query: QueryFn) {
-  for (const statement of statements) {
-    await query(statement);
+  await query(`CREATE TABLE IF NOT EXISTS schema_migrations (
+    id TEXT PRIMARY KEY,
+    applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`);
+
+  const applied = await query(`SELECT id FROM schema_migrations`);
+  const done = new Set(applied.map((row) => String(row.id)));
+
+  for (const migration of migrations) {
+    if (done.has(migration.id)) continue;
+    await query(migration.sql);
+    await query(
+      `INSERT INTO schema_migrations (id, applied_at) VALUES ($1, NOW()) ON CONFLICT (id) DO NOTHING`,
+      [migration.id],
+    );
   }
 }

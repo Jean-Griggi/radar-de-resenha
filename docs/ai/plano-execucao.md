@@ -47,5 +47,6 @@ Web: http://localhost:3000 · API: http://localhost:3333
 
 ## Pendências reais
 
+- Bugs de produção (lentidão, amigos, rolês, fotos, front): seguir [docs/plano-correcao.md](../plano-correcao.md). Para a IA executar um passo, colar o prompt em [docs/prompts-correcao.md](../prompts-correcao.md). Stories só depois desses passos.
 - Spotify só conecta com credenciais no `.env`
 - Site público depende de Vercel (front) e Render/Railway (API)
