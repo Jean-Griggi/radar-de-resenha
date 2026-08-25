@@ -210,21 +210,21 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 **O que fazer:**
 
-- [ ] `serializeRole` / `counts`: **não** consultar por item. Batch:
+- [x] `serializeRole` / `counts`: **não** consultar por item. Batch:
   - creators `IN (...)`
   - `attendances` agrupado por `role_id`
   - `comments` count agrupado
   - `reviews` avg agrupado
   - última foto por rolê
   - `myAttendance` em um `IN`
-- [ ] `listRoles`: paginar (`limit` 30, `cursor` ou `offset`). Filtros `proximos`/`passados` **no SQL** (com a regra de data combinada no passo 4, se ainda não estiver pronta, filtrar por `date` no banco e ajustar status no passo 4).
-- [ ] `getFeed`:
+- [x] `listRoles`: paginar (`limit` 30, `cursor` ou `offset`). Filtros `proximos`/`passados` **no SQL** (com a regra de data combinada no passo 4, se ainda não estiver pronta, filtrar por `date` no banco e ajustar status no passo 4).
+- [x] `getFeed`:
   - 1 query dos eventos
   - 1 query dos actors
   - 1 batch dos rolês / reviews / posts referenciados
   - 1 batch de reações (`WHERE (target_type, target_id) IN ...`)
   - Não chamar `serializeRole` completo (comentários, fotos, áudios) no feed — só o card.
-- [ ] Isolar falha: se um item do feed estiver órfão (rolê apagado), **pular o item**, não derrubar o array inteiro.
+- [x] Isolar falha: se um item do feed estiver órfão (rolê apagado), **pular o item**, não derrubar o array inteiro.
 
 **Como validar:**
 
@@ -442,7 +442,7 @@ apps/web/src/lib/api.ts                   passo 6
 |------|------|------|--------|
 | 0 | | | |
 | 1 | 2026-08-25 | agente | pool 5 (Vercel) / 10 (longo); schema_migrations; sem listBuckets no boot; índices friendships/photos/feed/attendances |
-| 2 | | | |
+| 2 | 2026-08-25 | agente | serializeRoles em batch; GET /roles limit 30 + offset; proximos/passados no SQL por date; getFeed batch + pula órfãos |
 | 3 | | | |
 | 4 | | | |
 | 5 | | | |

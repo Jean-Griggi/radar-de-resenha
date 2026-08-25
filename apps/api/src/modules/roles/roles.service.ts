@@ -11,13 +11,14 @@ import {
   notify,
   parseJson,
   roleStatus,
+  sqlPlaceholders,
   toDateKey,
 } from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
 import type { CreateRoleInput, UpdateRoleInput } from '../common.schema.js';
 
-type RoleRow = {
+export type RoleRow = {
   id: string;
   title: string;
   description: string | null;
@@ -33,41 +34,90 @@ type RoleRow = {
   updated_at: string;
 };
 
-async function counts(roleId: string) {
-  const attendance = await query<{ status: string; count: string }>(
-    `SELECT status, COUNT(*)::text AS count FROM attendances WHERE role_id = $1 GROUP BY status`,
-    [roleId],
-  );
-  const comments = await queryOne<{ count: string }>(
-    `SELECT COUNT(*)::text AS count FROM comments WHERE target_type = 'role' AND target_id = $1`,
-    [roleId],
-  );
-  const rating = await queryOne<{ avg: string | null }>(
-    `SELECT AVG(rating)::text AS avg FROM reviews WHERE role_id = $1`,
-    [roleId],
-  );
-  const cover = await queryOne<{ url: string }>(
-    `SELECT url FROM photos WHERE role_id = $1 ORDER BY created_at DESC LIMIT 1`,
-    [roleId],
-  );
+type RoleExtras = {
+  attendance: Map<string, Map<string, number>>;
+  comments: Map<string, number>;
+  ratings: Map<string, number | null>;
+  covers: Map<string, string | null>;
+  myAttendance: Map<string, string>;
+};
 
-  const pick = (status: string) => Number(attendance.find((row) => row.status === status)?.count ?? 0);
+const FALLBACK_CREATOR = {
+  name: 'Usuário',
+  username: 'user',
+  avatar: null,
+  cover: null,
+  bio: null,
+  city: null,
+  isPublic: true,
+};
 
-  return {
-    goingCount: pick('going'),
-    maybeCount: pick('maybe'),
-    notGoingCount: pick('not_going'),
-    commentCount: Number(comments?.count ?? 0),
-    averageRating: rating?.avg ? Math.round(Number(rating.avg) * 10) / 10 : null,
-    coverPhoto: publicUrl(cover?.url ?? null),
-  };
+async function loadRoleExtras(roleIds: string[], viewerId?: string): Promise<RoleExtras> {
+  const attendance = new Map<string, Map<string, number>>();
+  const comments = new Map<string, number>();
+  const ratings = new Map<string, number | null>();
+  const covers = new Map<string, string | null>();
+  const myAttendance = new Map<string, string>();
+
+  if (roleIds.length === 0) {
+    return { attendance, comments, ratings, covers, myAttendance };
+  }
+
+  const inList = sqlPlaceholders(roleIds.length);
+
+  const [attendanceRows, commentRows, ratingRows, coverRows, mineRows] = await Promise.all([
+    query<{ role_id: string; status: string; count: string }>(
+      `SELECT role_id, status, COUNT(*)::text AS count FROM attendances WHERE role_id IN (${inList}) GROUP BY role_id, status`,
+      roleIds,
+    ),
+    query<{ target_id: string; count: string }>(
+      `SELECT target_id, COUNT(*)::text AS count FROM comments WHERE target_type = 'role' AND target_id IN (${inList}) GROUP BY target_id`,
+      roleIds,
+    ),
+    query<{ role_id: string; avg: string | null }>(
+      `SELECT role_id, AVG(rating)::text AS avg FROM reviews WHERE role_id IN (${inList}) GROUP BY role_id`,
+      roleIds,
+    ),
+    query<{ role_id: string; url: string }>(
+      `SELECT DISTINCT ON (role_id) role_id, url FROM photos WHERE role_id IN (${inList}) ORDER BY role_id, created_at DESC`,
+      roleIds,
+    ),
+    viewerId
+      ? query<{ role_id: string; status: string }>(
+          `SELECT role_id, status FROM attendances WHERE user_id = $${roleIds.length + 1} AND role_id IN (${inList})`,
+          [...roleIds, viewerId],
+        )
+      : Promise.resolve([] as { role_id: string; status: string }[]),
+  ]);
+
+  for (const row of attendanceRows) {
+    let byStatus = attendance.get(row.role_id);
+    if (!byStatus) {
+      byStatus = new Map();
+      attendance.set(row.role_id, byStatus);
+    }
+    byStatus.set(row.status, Number(row.count));
+  }
+  for (const row of commentRows) comments.set(row.target_id, Number(row.count));
+  for (const row of ratingRows) {
+    ratings.set(row.role_id, row.avg ? Math.round(Number(row.avg) * 10) / 10 : null);
+  }
+  for (const row of coverRows) covers.set(row.role_id, publicUrl(row.url));
+  for (const row of mineRows) myAttendance.set(row.role_id, row.status);
+
+  return { attendance, comments, ratings, covers, myAttendance };
 }
 
-export async function serializeRole(row: RoleRow, viewerId?: string) {
-  const creator = await getUserRow(row.creator_id);
-  const extra = await counts(row.id);
+function mapSerializedRole(
+  row: RoleRow,
+  creatorMap: Map<string, ReturnType<typeof mapUser>>,
+  extras: RoleExtras,
+  viewerId?: string,
+) {
   const date = toDateKey(row.date);
-  const status = roleStatus(date, row.time, row.status);
+  const byStatus = extras.attendance.get(row.id);
+  const pick = (status: string) => byStatus?.get(status) ?? 0;
+  const creator = creatorMap.get(row.creator_id);
 
   return {
     id: row.id,
@@ -80,15 +130,47 @@ export async function serializeRole(row: RoleRow, viewerId?: string) {
     estimatedCost: row.estimated_cost,
     tags: parseJson<string[]>(row.tags, []),
     creatorId: row.creator_id,
-    creator: creator ? mapUser(creator) : { id: row.creator_id, name: 'Usuário', username: 'user', avatar: null, cover: null, bio: null, city: null, isPublic: true, createdAt: row.created_at, updatedAt: row.updated_at },
-    status,
+    creator: creator ?? { id: row.creator_id, ...FALLBACK_CREATOR, createdAt: row.created_at, updatedAt: row.updated_at },
+    status: roleStatus(date, row.time, row.status),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
-    ...extra,
-    myAttendance: viewerId
-      ? ((await queryOne<{ status: string }>(`SELECT status FROM attendances WHERE role_id = $1 AND user_id = $2`, [row.id, viewerId]))?.status ?? null)
-      : null,
+    goingCount: pick('going'),
+    maybeCount: pick('maybe'),
+    notGoingCount: pick('not_going'),
+    commentCount: extras.comments.get(row.id) ?? 0,
+    averageRating: extras.ratings.get(row.id) ?? null,
+    coverPhoto: extras.covers.get(row.id) ?? null,
+    myAttendance: viewerId ? (extras.myAttendance.get(row.id) ?? null) : null,
   };
+}
+
+export type SerializedRole = ReturnType<typeof mapSerializedRole>;
+
+export async function serializeRoles(rows: RoleRow[], viewerId?: string, options?: { skipFailures?: boolean }) {
+  if (rows.length === 0) return [] as SerializedRole[];
+
+  const skipFailures = options?.skipFailures ?? true;
+  const [creators, extras] = await Promise.all([
+    getUsersByIds([...new Set(rows.map((row) => row.creator_id))]),
+    loadRoleExtras(rows.map((row) => row.id), viewerId),
+  ]);
+  const creatorMap = new Map(creators.map((row) => [row.id, mapUser(row)]));
+
+  const items: SerializedRole[] = [];
+  for (const row of rows) {
+    try {
+      items.push(mapSerializedRole(row, creatorMap, extras, viewerId));
+    } catch (error) {
+      if (!skipFailures) throw error;
+    }
+  }
+  return items;
+}
+
+export async function serializeRole(row: RoleRow, viewerId?: string) {
+  const [item] = await serializeRoles([row], viewerId, { skipFailures: false });
+  if (!item) throw new Error('Falha ao serializar rolê');
+  return item;
 }
 
 async function nestComments(targetType: string, targetId: string, viewerId?: string) {
@@ -209,25 +291,38 @@ export async function serializeRoleDetail(id: string, viewerId?: string) {
   };
 }
 
-export async function listRoles(filter: string | undefined, userId?: string) {
-  let sql = `SELECT * FROM roles`;
+export async function listRoles(
+  filter: string | undefined,
+  userId?: string,
+  page?: { limit?: number; offset?: number },
+) {
+  const limit = Math.min(Math.max(Number.isFinite(page?.limit) ? Number(page?.limit) : 30, 1), 50);
+  const offset = Math.max(Number.isFinite(page?.offset) ? Number(page?.offset) : 0, 0);
+
+  const conditions: string[] = [];
   const params: unknown[] = [];
+  let i = 1;
 
   if (filter === 'meus' && userId) {
-    sql += ` WHERE creator_id = $1`;
+    conditions.push(`creator_id = $${i++}`);
     params.push(userId);
   } else if ((filter === 'participando' || filter === 'talvez') && userId) {
-    sql += ` WHERE id IN (SELECT role_id FROM attendances WHERE user_id = $1 AND status = $2)`;
+    conditions.push(`id IN (SELECT role_id FROM attendances WHERE user_id = $${i++} AND status = $${i++})`);
     params.push(userId, filter === 'talvez' ? 'maybe' : 'going');
+  } else if (filter === 'proximos') {
+    conditions.push(`(date IS NULL OR date >= CURRENT_DATE)`);
+  } else if (filter === 'passados') {
+    conditions.push(`date IS NOT NULL AND date < CURRENT_DATE`);
   }
 
+  let sql = `SELECT * FROM roles`;
+  if (conditions.length > 0) sql += ` WHERE ${conditions.join(' AND ')}`;
   sql += ` ORDER BY COALESCE(date, created_at::date) DESC, created_at DESC`;
-  const rows = await query<RoleRow>(sql, params);
-  const items = await Promise.all(rows.map((row) => serializeRole(row, userId)));
+  sql += ` LIMIT $${i++} OFFSET $${i++}`;
+  params.push(limit, offset);
 
-  if (filter === 'proximos') return items.filter((item) => item.status !== 'past');
-  if (filter === 'passados') return items.filter((item) => item.status === 'past');
-  return items;
+  const rows = await query<RoleRow>(sql, params);
+  return serializeRoles(rows, userId);
 }
 
 export async function createRole(userId: string, input: CreateRoleInput) {

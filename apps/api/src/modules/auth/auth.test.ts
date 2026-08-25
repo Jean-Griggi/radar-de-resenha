@@ -143,6 +143,11 @@ describe('Resenhômetro API', () => {
     expect(feed.statusCode).toBe(200);
     expect(Array.isArray(feed.json())).toBe(true);
 
+    const roles = await app.inject({ method: 'GET', url: '/roles', headers: await authHeaders() });
+    expect(roles.statusCode).toBe(200);
+    expect(Array.isArray(roles.json())).toBe(true);
+    expect(roles.json().some((item: { id: string }) => item.id === roleId)).toBe(true);
+
     const stats = await app.inject({ method: 'GET', url: '/stats', headers: await authHeaders() });
     expect(stats.statusCode).toBe(200);
     expect(stats.json().totalRoles).toBeGreaterThan(0);
@@ -170,6 +175,10 @@ describe('Resenhômetro API', () => {
       headers: await authHeaders(),
     });
     expect(res.statusCode).toBe(204);
+
+    const feed = await app.inject({ method: 'GET', url: '/feed', headers: await authHeaders() });
+    expect(feed.statusCode).toBe(200);
+    expect(Array.isArray(feed.json())).toBe(true);
   });
 
   it('forgot password + reset', async () => {

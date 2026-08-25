@@ -3,6 +3,7 @@ import { exec, query, queryOne } from '../../db/client.js';
 import {
   addFeedEvent,
   evaluateAchievements,
+  getReactionSummaries,
   getReactionSummary,
   getUserRow,
   getUsersByIds,
@@ -10,9 +11,10 @@ import {
   nowIso,
   notify,
   parseJson,
+  sqlPlaceholders,
 } from '../../lib/helpers.js';
 import { badRequest, forbidden, notFound } from '../../lib/http.js';
-import { nestComments } from '../roles/roles.service.js';
+import { nestComments, serializeRoles, type RoleRow } from '../roles/roles.service.js';
 
 export async function addComment(
   userId: string,
@@ -142,86 +144,144 @@ export async function createPost(userId: string, content: string) {
   return id;
 }
 
-export async function getFeed(userId: string) {
-  const rows = await query<{
-    id: string;
-    type: string;
-    actor_id: string;
-    role_id: string | null;
-    review_id: string | null;
-    photo_id: string | null;
-    audio_id: string | null;
-    music_id: string | null;
-    post_id: string | null;
-    achievement_slug: string | null;
-    created_at: string;
-  }>(`SELECT * FROM feed_events ORDER BY created_at DESC LIMIT 40`);
+type FeedEventRow = {
+  id: string;
+  type: string;
+  actor_id: string;
+  role_id: string | null;
+  review_id: string | null;
+  photo_id: string | null;
+  audio_id: string | null;
+  music_id: string | null;
+  post_id: string | null;
+  achievement_slug: string | null;
+  created_at: string;
+};
 
-  const actors = await getUsersByIds([...new Set(rows.map((row) => row.actor_id))]);
-  const actorMap = new Map(actors.map((row) => [row.id, mapUser(row)]));
+function feedReactionTarget(row: FeedEventRow) {
+  if (row.role_id) return { targetType: 'role', targetId: row.role_id };
+  if (row.review_id) return { targetType: 'review', targetId: row.review_id };
+  if (row.post_id) return { targetType: 'post', targetId: row.post_id };
+  if (row.photo_id) return { targetType: 'photo', targetId: row.photo_id };
+  return { targetType: 'post', targetId: row.id };
+}
+
+export async function getFeed(userId: string) {
+  const rows = await query<FeedEventRow>(`SELECT * FROM feed_events ORDER BY created_at DESC LIMIT 40`);
+  if (rows.length === 0) return [];
+
+  const roleIds = [...new Set(rows.map((row) => row.role_id).filter((id): id is string => Boolean(id)))];
+  const reviewIds = [...new Set(rows.map((row) => row.review_id).filter((id): id is string => Boolean(id)))];
+  const postIds = [...new Set(rows.map((row) => row.post_id).filter((id): id is string => Boolean(id)))];
+
+  const [roleRows, reviewRows, postRows] = await Promise.all([
+    roleIds.length ? query<RoleRow>(`SELECT * FROM roles WHERE id IN (${sqlPlaceholders(roleIds.length)})`, roleIds) : [],
+    reviewIds.length
+      ? query<{
+          id: string;
+          role_id: string;
+          author_id: string;
+          title: string;
+          content: string;
+          rating: number;
+          ratings: unknown;
+          tags: unknown;
+          created_at: string;
+          updated_at: string;
+        }>(`SELECT * FROM reviews WHERE id IN (${sqlPlaceholders(reviewIds.length)})`, reviewIds)
+      : [],
+    postIds.length
+      ? query<{ id: string; author_id: string; content: string; created_at: string }>(
+          `SELECT * FROM posts WHERE id IN (${sqlPlaceholders(postIds.length)})`,
+          postIds,
+        )
+      : [],
+  ]);
+
+  const userIds = [
+    ...new Set([
+      ...rows.map((row) => row.actor_id),
+      ...reviewRows.map((row) => row.author_id),
+      ...postRows.map((row) => row.author_id),
+    ]),
+  ];
+
+  const [users, serializedRoles, reactionsMap] = await Promise.all([
+    getUsersByIds(userIds),
+    serializeRoles(roleRows, userId),
+    getReactionSummaries(rows.map(feedReactionTarget), userId),
+  ]);
+
+  const userMap = new Map(users.map((row) => [row.id, mapUser(row)]));
+  const roleMap = new Map(serializedRoles.map((role) => [role.id, role]));
+  const reviewMap = new Map(reviewRows.map((row) => [row.id, row]));
+  const postMap = new Map(postRows.map((row) => [row.id, row]));
 
   const items = [];
   for (const row of rows) {
-    const item: Record<string, unknown> = {
-      id: row.id,
-      type: row.type,
-      actor: actorMap.get(row.actor_id),
-      createdAt: String(row.created_at),
-      reactions: await getReactionSummary(
-        row.role_id ? 'role' : row.review_id ? 'review' : row.post_id ? 'post' : row.photo_id ? 'photo' : 'post',
-        row.role_id || row.review_id || row.post_id || row.photo_id || row.id,
-        userId,
-      ),
-      commentCount: 0,
-    };
+    try {
+      if (row.role_id && !roleMap.has(row.role_id)) continue;
+      if (row.review_id && !reviewMap.has(row.review_id)) continue;
+      if (row.post_id && !postMap.has(row.post_id)) continue;
 
-    if (row.role_id) {
-      const role = await queryOne(`SELECT * FROM roles WHERE id = $1`, [row.role_id]);
-      if (role) {
-        const { serializeRole } = await import('../roles/roles.service.js');
-        item.role = await serializeRole(role as never, userId);
-        item.commentCount = (item.role as { commentCount: number }).commentCount;
-      }
+      const actor = userMap.get(row.actor_id);
+      if (!actor) continue;
+
+      const role = row.role_id ? roleMap.get(row.role_id) : undefined;
+      const reviewRow = row.review_id ? reviewMap.get(row.review_id) : undefined;
+      const postRow = row.post_id ? postMap.get(row.post_id) : undefined;
+      const target = feedReactionTarget(row);
+
+      items.push({
+        id: row.id,
+        type: row.type,
+        actor,
+        createdAt: String(row.created_at),
+        reactions: reactionsMap.get(`${target.targetType}:${target.targetId}`) ?? [],
+        commentCount: role?.commentCount ?? 0,
+        ...(role ? { role } : {}),
+        ...(reviewRow
+          ? {
+              review: {
+                id: reviewRow.id,
+                roleId: reviewRow.role_id,
+                authorId: reviewRow.author_id,
+                author: userMap.get(reviewRow.author_id),
+                title: reviewRow.title,
+                content: reviewRow.content,
+                rating: reviewRow.rating,
+                ratings: parseJson(reviewRow.ratings, {}),
+                tags: parseJson(reviewRow.tags, []),
+                createdAt: String(reviewRow.created_at),
+                updatedAt: String(reviewRow.updated_at),
+              },
+            }
+          : {}),
+        ...(postRow
+          ? {
+              post: {
+                id: postRow.id,
+                authorId: postRow.author_id,
+                author: userMap.get(postRow.author_id),
+                content: postRow.content,
+                createdAt: String(postRow.created_at),
+              },
+            }
+          : {}),
+        ...(row.achievement_slug
+          ? {
+              achievement: {
+                slug: row.achievement_slug,
+                name: row.achievement_slug,
+                description: '',
+                unlockedAt: String(row.created_at),
+              },
+            }
+          : {}),
+      });
+    } catch {
+      // item órfão ou inválido: pular, não derrubar o feed
     }
-    if (row.review_id) {
-      const review = await queryOne(`SELECT * FROM reviews WHERE id = $1`, [row.review_id]);
-      if (review) {
-        item.review = {
-          id: review.id,
-          roleId: review.role_id,
-          authorId: review.author_id,
-          author: actorMap.get(review.author_id as string),
-          title: review.title,
-          content: review.content,
-          rating: review.rating,
-          ratings: parseJson(review.ratings, {}),
-          tags: parseJson(review.tags, []),
-          createdAt: String(review.created_at),
-          updatedAt: String(review.updated_at),
-        };
-      }
-    }
-    if (row.post_id) {
-      const post = await queryOne(`SELECT * FROM posts WHERE id = $1`, [row.post_id]);
-      if (post) {
-        item.post = {
-          id: post.id,
-          authorId: post.author_id,
-          author: actorMap.get(post.author_id as string),
-          content: post.content,
-          createdAt: String(post.created_at),
-        };
-      }
-    }
-    if (row.achievement_slug) {
-      item.achievement = {
-        slug: row.achievement_slug,
-        name: row.achievement_slug,
-        description: '',
-        unlockedAt: String(row.created_at),
-      };
-    }
-    items.push(item);
   }
 
   return items;

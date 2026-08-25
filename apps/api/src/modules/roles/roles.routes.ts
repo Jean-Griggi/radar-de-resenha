@@ -15,8 +15,11 @@ function handleError(error: unknown, reply: FastifyReply) {
 
 export async function rolesRoutes(app: FastifyInstance) {
   app.get('/roles', { preHandler: [authenticate] }, async (request) => {
-    const { filter } = request.query as { filter?: string };
-    return listRoles(filter, request.user.sub);
+    const { filter, limit, offset } = request.query as { filter?: string; limit?: string; offset?: string };
+    return listRoles(filter, request.user.sub, {
+      limit: limit !== undefined ? Number(limit) : undefined,
+      offset: offset !== undefined ? Number(offset) : undefined,
+    });
   });
 
   app.get('/roles/:id', { preHandler: [authenticate] }, async (request, reply) => {
