@@ -7,6 +7,7 @@ import { RequireAuth } from '@/components/RequireAuth';
 import { usePlayer } from '@/components/Player';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage } from '@/lib/api';
+import { setCachedSpotifyStatus, setSpotifyConnectedFlag } from '@/lib/shellCache';
 
 export default function MusicPage() {
   const toast = useToast();
@@ -22,6 +23,8 @@ export default function MusicPage() {
     ]);
     setStatus(account);
     setTracks(music);
+    setSpotifyConnectedFlag(Boolean(account.connected));
+    setCachedSpotifyStatus(account);
     if (account.nowPlaying) setTrack(account.nowPlaying);
     if (account.connected) {
       const lists = await api.get<SpotifyPlaylist[]>('/spotify/playlists');
@@ -67,7 +70,15 @@ export default function MusicPage() {
             ) : (
               <p className="text-sm text-slate-400">Nenhuma faixa tocando agora.</p>
             )}
-            <Button variant="secondary" onClick={() => api.delete('/spotify').then(load)}>
+            <Button
+              variant="secondary"
+              onClick={() =>
+                api.delete('/spotify').then(() => {
+                  setSpotifyConnectedFlag(false);
+                  return load();
+                })
+              }
+            >
               Desconectar
             </Button>
           </div>

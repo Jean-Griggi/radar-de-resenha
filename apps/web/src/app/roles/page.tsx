@@ -5,8 +5,9 @@ import { useEffect, useState } from 'react';
 import { ROLE_CATEGORIES, type Role } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState, Skeleton } from '@/components/Card';
+import { MediaImage } from '@/components/MediaImage';
 import { RequireAuth } from '@/components/RequireAuth';
-import { api, apiErrorMessage } from '@/lib/api';
+import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 
 const FILTERS = [
@@ -25,12 +26,22 @@ export default function RolesPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const controller = new AbortController();
     setLoading(true);
+    setError('');
+    setRoles([]);
     api
-      .get<Role[]>('/roles', { params: filter ? { filter } : undefined })
+      .get<Role[]>('/roles', { params: filter ? { filter } : undefined, signal: controller.signal })
       .then(({ data }) => setRoles(data))
-      .catch((err) => setError(apiErrorMessage(err, 'Não foi possível listar os rolês')))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (isApiCanceled(err)) return;
+        setRoles([]);
+        setError(apiErrorMessage(err, 'Não foi possível listar os rolês'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [filter]);
 
   return (
@@ -63,7 +74,7 @@ export default function RolesPage() {
         </div>
       ) : null}
       {error ? <p className="text-rose-300">{error}</p> : null}
-      {!loading && roles.length === 0 ? (
+      {!loading && !error && roles.length === 0 ? (
         <EmptyState
           title="Você ainda não tem nenhum rolê."
           action={
@@ -76,24 +87,29 @@ export default function RolesPage() {
       <ul className="grid gap-4 sm:grid-cols-2">
         {roles.map((role) => (
           <li key={role.id}>
-            <Link href={`/roles/${role.id}`} className="card block p-5 transition hover:border-violet-400/40">
-              <div className="flex items-center justify-between gap-2">
-                <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs text-violet-200">{role.category}</span>
-                <span className="text-xs text-slate-400">{role.status}</span>
-              </div>
-              <h2 className="mt-3 text-lg font-medium">{role.title}</h2>
-              <p className="text-sm text-slate-400">
-                {formatDate(role.date)} {role.time ? `· ${role.time}` : ''}
-              </p>
-              <p className="text-sm text-slate-400">{role.location || 'Local a combinar'}</p>
-              <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-                <span className="flex items-center gap-2">
-                  <Avatar src={role.creator?.avatar} name={role.creator?.name} size="sm" />
-                  {role.creator?.name}
-                </span>
-                <span>
-                  {role.goingCount} vão · {role.maybeCount} talvez
-                </span>
+            <Link href={`/roles/${role.id}`} className="card block overflow-hidden transition hover:border-violet-400/40">
+              {role.coverPhoto ? (
+                <MediaImage src={role.coverPhoto} alt="" className="h-36 w-full object-cover" />
+              ) : null}
+              <div className="p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs text-violet-200">{role.category}</span>
+                  <span className="text-xs text-slate-400">{role.status}</span>
+                </div>
+                <h2 className="mt-3 text-lg font-medium">{role.title}</h2>
+                <p className="text-sm text-slate-400">
+                  {formatDate(role.date)} {role.time ? `· ${role.time}` : ''}
+                </p>
+                <p className="text-sm text-slate-400">{role.location || 'Local a combinar'}</p>
+                <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
+                  <span className="flex items-center gap-2">
+                    <Avatar src={role.creator?.avatar} name={role.creator?.name} size="sm" />
+                    {role.creator?.name}
+                  </span>
+                  <span>
+                    {role.goingCount} vão · {role.maybeCount} talvez
+                  </span>
+                </div>
               </div>
             </Link>
           </li>

@@ -6,6 +6,21 @@ import { FormEvent, useEffect, useState, type ReactNode } from 'react';
 import { api } from '@/lib/api';
 import { clearAuth, getUser, type AuthUser } from '@/lib/auth';
 import { formatShortDate } from '@/lib/format';
+import {
+  getSpotifyConnectedFlag,
+  peekSpotifyStatus,
+  peekSuggestions,
+  peekUnreadCount,
+  peekUpcomingRoles,
+  setCachedSpotifyStatus,
+  setCachedSuggestions,
+  setCachedUnreadCount,
+  setCachedUpcomingRoles,
+  setSpotifyConnectedFlag,
+  withInflight,
+  type RailPerson,
+  type RailRole,
+} from '@/lib/shellCache';
 import { Avatar } from './Avatar';
 import { MiniPlayer, usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
@@ -32,7 +47,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
   const [q, setQ] = useState('');
-  const [unread, setUnread] = useState(0);
+  const [unread, setUnread] = useState(() => peekUnreadCount() ?? 0);
   const { setTrack } = usePlayer();
 
   useEffect(() => {
@@ -55,13 +70,67 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
 
   useEffect(() => {
     setUserState(getUser());
-    api.get<{ count: number }>('/notifications/unread-count').then(({ data }) => setUnread(data.count)).catch(() => undefined);
-    api
-      .get<{ nowPlaying?: { title: string; artist: string; cover: string | null; spotifyUrl: string | null } | null }>('/spotify/status')
-      .then(({ data }) => {
-        if (data.nowPlaying) setTrack(data.nowPlaying);
-      })
-      .catch(() => undefined);
+
+    let cancelled = false;
+
+    async function refreshUnread(force = false) {
+      try {
+        const cached = force ? null : peekUnreadCount();
+        const count =
+          cached ??
+          (await withInflight('unread', async () => {
+            const { data } = await api.get<{ count: number }>('/notifications/unread-count');
+            setCachedUnreadCount(data.count);
+            return data.count;
+          }));
+        if (!cancelled) setUnread(count);
+      } catch {
+        /* unread is decorative */
+      }
+    }
+
+    async function loadSpotify() {
+      const known = getSpotifyConnectedFlag();
+      if (known === false) return;
+
+      const cached = peekSpotifyStatus();
+      if (cached) {
+        if (cached.nowPlaying) setTrack(cached.nowPlaying);
+        return;
+      }
+
+      try {
+        const data = await withInflight('spotify', async () => {
+          const { data: status } = await api.get<{
+            connected?: boolean;
+            nowPlaying?: { title: string; artist: string; cover: string | null; spotifyUrl: string | null } | null;
+          }>('/spotify/status');
+          setSpotifyConnectedFlag(Boolean(status.connected));
+          setCachedSpotifyStatus(status);
+          return status;
+        });
+        if (!cancelled && data.nowPlaying) setTrack(data.nowPlaying);
+      } catch {
+        /* player stays empty */
+      }
+    }
+
+    void refreshUnread();
+    void loadSpotify();
+
+    function onVisibility() {
+      if (document.visibilityState === 'visible') void refreshUnread();
+    }
+
+    document.addEventListener('visibilitychange', onVisibility);
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void refreshUnread(true);
+    }, 120_000);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.clearInterval(timer);
+    };
   }, [setTrack]);
 
   function search(event: FormEvent) {
@@ -223,12 +292,45 @@ function SidebarNav({
 }
 
 function DefaultRail() {
-  const [roles, setRoles] = useState<{ id: string; title: string; date: string | null; time: string | null }[]>([]);
-  const [people, setPeople] = useState<{ id: string; name: string; username: string; avatar: string | null }[]>([]);
+  const [roles, setRoles] = useState<RailRole[]>(() => peekUpcomingRoles() ?? []);
+  const [people, setPeople] = useState<RailPerson[]>(() => peekSuggestions() ?? []);
 
   useEffect(() => {
-    api.get<{ upcoming: typeof roles }>('/calendar').then(({ data }) => setRoles(data.upcoming ?? [])).catch(() => undefined);
-    api.get<typeof people>('/suggestions').then(({ data }) => setPeople(data)).catch(() => undefined);
+    let cancelled = false;
+
+    async function loadRail() {
+      try {
+        const nextRoles =
+          peekUpcomingRoles() ??
+          (await withInflight('calendar', async () => {
+            const { data } = await api.get<{ upcoming: RailRole[] }>('/calendar');
+            const upcoming = data.upcoming ?? [];
+            setCachedUpcomingRoles(upcoming);
+            return upcoming;
+          }));
+        if (!cancelled) setRoles(nextRoles);
+      } catch {
+        /* rail stays empty */
+      }
+
+      try {
+        const nextPeople =
+          peekSuggestions() ??
+          (await withInflight('suggestions', async () => {
+            const { data } = await api.get<RailPerson[]>('/suggestions');
+            setCachedSuggestions(data);
+            return data;
+          }));
+        if (!cancelled) setPeople(nextPeople);
+      } catch {
+        /* rail stays empty */
+      }
+    }
+
+    void loadRail();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

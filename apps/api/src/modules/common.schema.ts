@@ -90,6 +90,10 @@ export const friendRequestSchema = z.object({
   userId: z.string().min(1),
 });
 
+export const respondFriendSchema = z.object({
+  status: z.enum(['accepted', 'rejected']),
+});
+
 export const signUploadSchema = z.object({
   kind: z.enum(['avatar', 'cover', 'photo', 'audio']),
   contentType: z.string().min(1).max(120),

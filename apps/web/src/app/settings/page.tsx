@@ -6,7 +6,7 @@ import { Field, Input, Textarea } from '@/components/Field';
 import { RequireAuth } from '@/components/RequireAuth';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage } from '@/lib/api';
-import { postFile } from '@/lib/upload';
+import { postFile, IMAGE_ACCEPT } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
 
 export default function SettingsPage() {
@@ -85,13 +85,14 @@ export default function SettingsPage() {
         <section className="card space-y-4 p-6">
           <h2 className="text-lg font-medium">Perfil</h2>
           <Field label="Foto de perfil">
-            <Input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && upload('avatar', e.target.files[0])} />
+            <Input type="file" accept={IMAGE_ACCEPT} onChange={(e) => e.target.files?.[0] && upload('avatar', e.target.files[0])} />
           </Field>
           <Button variant="ghost" onClick={() => api.delete('/users/me/avatar').then(({ data }) => { setMe(data); setUser(data); })}>
             Remover avatar
           </Button>
           <Field label="Capa">
-            <Input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && upload('cover', e.target.files[0])} />
+            <Input type="file" accept={IMAGE_ACCEPT} onChange={(e) => e.target.files?.[0] && upload('cover', e.target.files[0])} />
+            <p className="mt-1 text-xs text-slate-500">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
           </Field>
           <Button variant="ghost" onClick={() => api.delete('/users/me/cover').then(({ data }) => { setMe(data); setUser(data); })}>
             Remover capa

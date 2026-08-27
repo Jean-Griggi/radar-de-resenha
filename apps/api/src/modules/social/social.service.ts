@@ -14,6 +14,7 @@ import {
   sqlPlaceholders,
 } from '../../lib/helpers.js';
 import { badRequest, forbidden, notFound } from '../../lib/http.js';
+import { publicUrl } from '../../lib/storage.js';
 import { nestComments, serializeRoles, type RoleRow } from '../roles/roles.service.js';
 
 export async function addComment(
@@ -173,8 +174,9 @@ export async function getFeed(userId: string) {
   const roleIds = [...new Set(rows.map((row) => row.role_id).filter((id): id is string => Boolean(id)))];
   const reviewIds = [...new Set(rows.map((row) => row.review_id).filter((id): id is string => Boolean(id)))];
   const postIds = [...new Set(rows.map((row) => row.post_id).filter((id): id is string => Boolean(id)))];
+  const photoIds = [...new Set(rows.map((row) => row.photo_id).filter((id): id is string => Boolean(id)))];
 
-  const [roleRows, reviewRows, postRows] = await Promise.all([
+  const [roleRows, reviewRows, postRows, photoRows] = await Promise.all([
     roleIds.length ? query<RoleRow>(`SELECT * FROM roles WHERE id IN (${sqlPlaceholders(roleIds.length)})`, roleIds) : [],
     reviewIds.length
       ? query<{
@@ -196,6 +198,17 @@ export async function getFeed(userId: string) {
           postIds,
         )
       : [],
+    photoIds.length
+      ? query<{
+          id: string;
+          url: string;
+          caption: string | null;
+          album_id: string | null;
+          role_id: string | null;
+          author_id: string;
+          created_at: string;
+        }>(`SELECT * FROM photos WHERE id IN (${sqlPlaceholders(photoIds.length)})`, photoIds)
+      : [],
   ]);
 
   const userIds = [
@@ -216,6 +229,7 @@ export async function getFeed(userId: string) {
   const roleMap = new Map(serializedRoles.map((role) => [role.id, role]));
   const reviewMap = new Map(reviewRows.map((row) => [row.id, row]));
   const postMap = new Map(postRows.map((row) => [row.id, row]));
+  const photoMap = new Map(photoRows.map((row) => [row.id, row]));
 
   const items = [];
   for (const row of rows) {
@@ -223,6 +237,7 @@ export async function getFeed(userId: string) {
       if (row.role_id && !roleMap.has(row.role_id)) continue;
       if (row.review_id && !reviewMap.has(row.review_id)) continue;
       if (row.post_id && !postMap.has(row.post_id)) continue;
+      if (row.photo_id && !photoMap.has(row.photo_id)) continue;
 
       const actor = userMap.get(row.actor_id);
       if (!actor) continue;
@@ -230,6 +245,7 @@ export async function getFeed(userId: string) {
       const role = row.role_id ? roleMap.get(row.role_id) : undefined;
       const reviewRow = row.review_id ? reviewMap.get(row.review_id) : undefined;
       const postRow = row.post_id ? postMap.get(row.post_id) : undefined;
+      const photoRow = row.photo_id ? photoMap.get(row.photo_id) : undefined;
       const target = feedReactionTarget(row);
 
       items.push({
@@ -268,6 +284,19 @@ export async function getFeed(userId: string) {
               },
             }
           : {}),
+        ...(photoRow
+          ? {
+              photo: {
+                id: photoRow.id,
+                url: publicUrl(photoRow.url),
+                caption: photoRow.caption,
+                albumId: photoRow.album_id,
+                roleId: photoRow.role_id,
+                authorId: photoRow.author_id,
+                createdAt: String(photoRow.created_at),
+              },
+            }
+          : {}),
         ...(row.achievement_slug
           ? {
               achievement: {
@@ -287,24 +316,24 @@ export async function getFeed(userId: string) {
   return items;
 }
 
-export async function requestFriend(userId: string, targetId: string) {
-  if (userId === targetId) throw badRequest('Não é possível adicionar a si mesmo');
-  const target = await getUserRow(targetId);
-  if (!target) throw notFound('Usuário não encontrado');
+function mapFriendship(row: { id: string; status: string; requester_id: string; receiver_id: string }) {
+  return {
+    id: row.id,
+    status: row.status,
+    requesterId: row.requester_id,
+    receiverId: row.receiver_id,
+  };
+}
 
-  const existing = await queryOne<{ id: string; status: string; requester_id: string }>(
-    `SELECT id, status, requester_id FROM friendships
-     WHERE (requester_id = $1 AND receiver_id = $2) OR (requester_id = $2 AND receiver_id = $1)`,
-    [userId, targetId],
-  );
-  if (existing?.status === 'accepted') throw badRequest('Vocês já são amigos');
-  if (existing) return existing;
+function isUniqueViolation(error: unknown) {
+  if (!error || typeof error !== 'object') return false;
+  const code = 'code' in error ? String((error as { code: unknown }).code) : '';
+  if (code === '23505') return true;
+  const message = 'message' in error ? String((error as { message: unknown }).message) : '';
+  return /duplicate key|unique constraint/i.test(message);
+}
 
-  const id = randomUUID();
-  await exec(
-    `INSERT INTO friendships (id, requester_id, receiver_id, status, created_at) VALUES ($1,$2,$3,'pending',$4)`,
-    [id, userId, targetId, nowIso()],
-  );
+async function notifyFriendRequest(userId: string, targetId: string) {
   const actor = await getUserRow(userId);
   await notify({
     userId: targetId,
@@ -313,7 +342,55 @@ export async function requestFriend(userId: string, targetId: string) {
     message: `${actor?.name ?? 'Alguém'} quer ser seu amigo`,
     link: `/perfil/${actor?.username ?? ''}`,
   });
-  return { id, requesterId: userId, receiverId: targetId, status: 'pending' };
+}
+
+export async function requestFriend(userId: string, targetId: string) {
+  if (userId === targetId) throw badRequest('Não é possível adicionar a si mesmo');
+  const target = await getUserRow(targetId);
+  if (!target) throw notFound('Usuário não encontrado');
+
+  const existing = await queryOne<{ id: string; status: string; requester_id: string; receiver_id: string }>(
+    `SELECT id, status, requester_id, receiver_id FROM friendships
+     WHERE (requester_id = $1 AND receiver_id = $2) OR (requester_id = $2 AND receiver_id = $1)`,
+    [userId, targetId],
+  );
+  if (existing?.status === 'accepted') throw badRequest('Vocês já são amigos');
+  if (existing?.status === 'pending') {
+    return { created: false, friendship: mapFriendship(existing) };
+  }
+
+  if (existing?.status === 'rejected') {
+    await exec(
+      `UPDATE friendships SET status = 'pending', requester_id = $1, receiver_id = $2 WHERE id = $3`,
+      [userId, targetId, existing.id],
+    );
+    await notifyFriendRequest(userId, targetId);
+    return {
+      created: true,
+      friendship: { id: existing.id, status: 'pending' as const, requesterId: userId, receiverId: targetId },
+    };
+  }
+
+  const id = randomUUID();
+  try {
+    await exec(
+      `INSERT INTO friendships (id, requester_id, receiver_id, status, created_at) VALUES ($1,$2,$3,'pending',$4)`,
+      [id, userId, targetId, nowIso()],
+    );
+  } catch (error) {
+    if (!isUniqueViolation(error)) throw error;
+    const row = await queryOne<{ id: string; status: string; requester_id: string; receiver_id: string }>(
+      `SELECT id, status, requester_id, receiver_id FROM friendships
+       WHERE (requester_id = $1 AND receiver_id = $2) OR (requester_id = $2 AND receiver_id = $1)`,
+      [userId, targetId],
+    );
+    if (!row) throw error;
+    if (row.status === 'accepted') throw badRequest('Vocês já são amigos');
+    return { created: false, friendship: mapFriendship(row) };
+  }
+
+  await notifyFriendRequest(userId, targetId);
+  return { created: true, friendship: { id, requesterId: userId, receiverId: targetId, status: 'pending' as const } };
 }
 
 export async function listFriendRequests(userId: string) {
@@ -351,6 +428,14 @@ export async function respondFriend(id: string, userId: string, status: 'accepte
     });
   }
   return { ok: true, status };
+}
+
+export async function cancelFriendRequest(id: string, userId: string) {
+  const row = await queryOne<{ requester_id: string; status: string }>(`SELECT requester_id, status FROM friendships WHERE id = $1`, [id]);
+  if (!row) throw notFound('Pedido não encontrado');
+  if (row.status !== 'pending') throw badRequest('Só é possível cancelar pedido pendente');
+  if (row.requester_id !== userId) throw forbidden();
+  await exec(`DELETE FROM friendships WHERE id = $1`, [id]);
 }
 
 export async function removeFriend(id: string, userId: string) {

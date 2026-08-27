@@ -8,6 +8,7 @@ import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Comments } from '@/components/Comments';
 import { Field, Input, Textarea } from '@/components/Field';
+import { MediaImage } from '@/components/MediaImage';
 import { usePlayer } from '@/components/Player';
 import { Reactions } from '@/components/Reactions';
 import { RequireAuth } from '@/components/RequireAuth';
@@ -160,7 +161,12 @@ export default function RoleDetailPage() {
             <h2 className="mb-3 font-medium">Fotos</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {role.photos.map((photo) => (
-                <img key={photo.id} src={photo.url} alt={photo.caption || 'Foto do rolê'} className="h-32 w-full rounded-xl object-cover" />
+                <MediaImage
+                  key={photo.id}
+                  src={photo.url}
+                  alt={photo.caption || 'Foto do rolê'}
+                  className="h-32 w-full rounded-xl object-cover"
+                />
               ))}
             </div>
           </section>

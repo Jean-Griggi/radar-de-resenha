@@ -10,6 +10,7 @@ import {
   nowIso,
   notify,
   parseJson,
+  ROLE_START_AT_SQL,
   roleStatus,
   sqlPlaceholders,
   toDateKey,
@@ -310,9 +311,9 @@ export async function listRoles(
     conditions.push(`id IN (SELECT role_id FROM attendances WHERE user_id = $${i++} AND status = $${i++})`);
     params.push(userId, filter === 'talvez' ? 'maybe' : 'going');
   } else if (filter === 'proximos') {
-    conditions.push(`(date IS NULL OR date >= CURRENT_DATE)`);
+    conditions.push(`(date IS NULL OR ${ROLE_START_AT_SQL} >= NOW() - INTERVAL '2 hours')`);
   } else if (filter === 'passados') {
-    conditions.push(`date IS NOT NULL AND date < CURRENT_DATE`);
+    conditions.push(`(date IS NOT NULL AND ${ROLE_START_AT_SQL} < NOW() - INTERVAL '2 hours')`);
   }
 
   let sql = `SELECT * FROM roles`;

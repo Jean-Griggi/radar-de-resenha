@@ -42,14 +42,15 @@ export async function getUserByUsername(username: string, viewerId?: string) {
       followers: Number(followers?.count ?? 0),
       following: Number(following?.count ?? 0),
     },
-    friendship: friendship
-      ? {
-          id: friendship.id,
-          status: friendship.status,
-          requesterId: friendship.requester_id,
-          receiverId: friendship.receiver_id,
-        }
-      : null,
+    friendship:
+      friendship && friendship.status !== 'rejected'
+        ? {
+            id: friendship.id,
+            status: friendship.status,
+            requesterId: friendship.requester_id,
+            receiverId: friendship.receiver_id,
+          }
+        : null,
     isFollowing: viewerId ? await isFollowing(viewerId, row.id) : false,
     isMe: viewerId === row.id,
     achievements: ACHIEVEMENT_DEFS.map((item) => ({
@@ -123,6 +124,14 @@ export async function suggestions(userId: string) {
      FROM users
      WHERE id <> $1
        AND id NOT IN (SELECT following_id FROM follows WHERE follower_id = $1)
+       AND NOT EXISTS (
+         SELECT 1 FROM friendships f
+         WHERE (
+           (f.requester_id = $1 AND f.receiver_id = users.id)
+           OR (f.requester_id = users.id AND f.receiver_id = $1)
+         )
+         AND f.status IN ('accepted', 'pending')
+       )
      ORDER BY created_at DESC
      LIMIT 8`,
     [userId],

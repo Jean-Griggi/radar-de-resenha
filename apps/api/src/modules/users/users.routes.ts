@@ -3,6 +3,7 @@ import { authenticate } from '../../lib/authenticate.js';
 import { publicUrl } from '../../lib/storage.js';
 import { parseJson } from '../../lib/helpers.js';
 import {
+  cancelFriendRequest,
   followUser,
   listFriendRequests,
   removeFriend,
@@ -10,7 +11,7 @@ import {
   respondFriend,
   unfollowUser,
 } from '../social/social.service.js';
-import { friendRequestSchema } from '../common.schema.js';
+import { friendRequestSchema, respondFriendSchema } from '../common.schema.js';
 import { getUserById, getUserByUsername, listFollowers, listFollowing, listFriends, suggestions, userContent } from './users.service.js';
 
 export async function usersRoutes(app: FastifyInstance) {
@@ -65,13 +66,20 @@ export async function usersRoutes(app: FastifyInstance) {
 
   app.post('/friends/requests', { preHandler: [authenticate] }, async (request, reply) => {
     const body = friendRequestSchema.parse(request.body);
-    return reply.status(201).send(await requestFriend(request.user.sub, body.userId));
+    const result = await requestFriend(request.user.sub, body.userId);
+    return reply.status(result.created ? 201 : 200).send(result.friendship);
   });
 
   app.put('/friends/requests/:id', { preHandler: [authenticate] }, async (request) => {
     const { id } = request.params as { id: string };
-    const { status } = (request.body as { status?: 'accepted' | 'rejected' }) ?? {};
-    return respondFriend(id, request.user.sub, status === 'rejected' ? 'rejected' : 'accepted');
+    const body = respondFriendSchema.parse(request.body);
+    return respondFriend(id, request.user.sub, body.status);
+  });
+
+  app.delete('/friends/requests/:id', { preHandler: [authenticate] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    await cancelFriendRequest(id, request.user.sub);
+    return reply.status(204).send();
   });
 
   app.delete('/friends/:id', { preHandler: [authenticate] }, async (request, reply) => {

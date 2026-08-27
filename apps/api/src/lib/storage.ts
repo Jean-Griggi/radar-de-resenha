@@ -9,7 +9,16 @@ import type { FastifyRequest } from 'fastify';
 import { createClient } from '@supabase/supabase-js';
 import { env } from '../config/env.js';
 
-const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const IMAGE_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/heic',
+  'image/heif',
+  'image/heic-sequence',
+  'image/heif-sequence',
+]);
 const AUDIO_TYPES = new Set(['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/mp4', 'audio/x-m4a']);
 
 const LIMITS = {
@@ -25,6 +34,8 @@ const MIME_FROM_EXT: Record<string, string> = {
   '.png': 'image/png',
   '.webp': 'image/webp',
   '.gif': 'image/gif',
+  '.heic': 'image/heic',
+  '.heif': 'image/heif',
   '.mp3': 'audio/mpeg',
   '.wav': 'audio/wav',
   '.webm': 'audio/webm',
@@ -98,6 +109,8 @@ function extensionFor(filename: string | undefined, mimetype: string, fallback: 
   if (mimetype === 'image/png') return '.png';
   if (mimetype === 'image/webp') return '.webp';
   if (mimetype === 'image/gif') return '.gif';
+  if (mimetype === 'image/heic' || mimetype === 'image/heic-sequence') return '.heic';
+  if (mimetype === 'image/heif' || mimetype === 'image/heif-sequence') return '.heif';
   if (mimetype === 'audio/wav') return '.wav';
   if (mimetype === 'audio/webm') return '.webm';
   if (mimetype === 'audio/ogg') return '.ogg';
@@ -233,35 +246,51 @@ export async function saveUpload(
       throw new Error(`UPLOAD_FAILED: ${error.message}`);
     }
 
-    const { data } = supabase!.storage.from(env.SUPABASE_STORAGE_BUCKET).getPublicUrl(relative);
-    return { relative, url: data.publicUrl };
+    return { relative, url: publicUrl(relative) ?? relative };
   }
 
   const fullPath = join(storageRoot(), relative);
   await mkdir(join(storageRoot(), folderFor(kind)), { recursive: true });
   await pipeline(Readable.from(buffer), createWriteStream(fullPath));
 
-  return {
-    relative,
-    url: `${env.PUBLIC_API_URL}/uploads/${relative}`,
-  };
+  return { relative, url: publicUrl(relative) ?? relative };
+}
+
+function storedPath(value: string | null | undefined) {
+  if (!value) return null;
+  if (!value.startsWith('http://') && !value.startsWith('https://')) {
+    return value.replace(/^\/+/, '');
+  }
+  try {
+    const pathname = new URL(value).pathname;
+    const uploads = pathname.indexOf('/uploads/');
+    if (uploads >= 0) return decodeURIComponent(pathname.slice(uploads + '/uploads/'.length));
+    const bucket = `/${env.SUPABASE_STORAGE_BUCKET}/`;
+    const idx = pathname.indexOf(bucket);
+    if (idx >= 0) return decodeURIComponent(pathname.slice(idx + bucket.length));
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 export function publicUrl(relative: string | null | undefined) {
   if (!relative) return null;
   if (relative.startsWith('http://') || relative.startsWith('https://')) return relative;
+  const path = relative.replace(/^\/+/, '');
   if (useSupabase) {
-    const { data } = supabase!.storage.from(env.SUPABASE_STORAGE_BUCKET).getPublicUrl(relative);
+    const { data } = supabase!.storage.from(env.SUPABASE_STORAGE_BUCKET).getPublicUrl(path);
     return data.publicUrl;
   }
-  return `${env.PUBLIC_API_URL}/uploads/${relative.replace(/^\/+/, '')}`;
+  return `${env.PUBLIC_API_URL}/uploads/${path}`;
 }
 
 export async function removeStored(relative: string | null | undefined) {
-  if (!relative || relative.startsWith('http')) return;
+  const path = storedPath(relative);
+  if (!path) return;
   if (useSupabase) {
-    await supabase!.storage.from(env.SUPABASE_STORAGE_BUCKET).remove([relative]).catch(() => undefined);
+    await supabase!.storage.from(env.SUPABASE_STORAGE_BUCKET).remove([path]).catch(() => undefined);
     return;
   }
-  await unlink(join(storageRoot(), relative)).catch(() => undefined);
+  await unlink(join(storageRoot(), path)).catch(() => undefined);
 }

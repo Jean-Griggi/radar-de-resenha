@@ -298,6 +298,22 @@ const migrations: Migration[] = [
     id: '033_idx_attendances_role',
     sql: `CREATE INDEX IF NOT EXISTS idx_attendances_role ON attendances (role_id)`,
   },
+  {
+    id: '034_friendships_dedupe_pair',
+    sql: `DELETE FROM friendships
+    WHERE id NOT IN (
+      SELECT DISTINCT ON (LEAST(requester_id, receiver_id), GREATEST(requester_id, receiver_id)) id
+      FROM friendships
+      ORDER BY LEAST(requester_id, receiver_id), GREATEST(requester_id, receiver_id),
+        CASE status WHEN 'accepted' THEN 0 WHEN 'pending' THEN 1 ELSE 2 END,
+        created_at DESC
+    )`,
+  },
+  {
+    id: '035_idx_friendships_pair_unordered',
+    sql: `CREATE UNIQUE INDEX IF NOT EXISTS idx_friendships_pair_unordered
+    ON friendships (LEAST(requester_id, receiver_id), GREATEST(requester_id, receiver_id))`,
+  },
 ];
 
 export async function applyMigrations(query: QueryFn) {

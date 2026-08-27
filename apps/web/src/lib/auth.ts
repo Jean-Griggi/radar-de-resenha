@@ -1,3 +1,5 @@
+import { clearShellCache } from './shellCache';
+
 const TOKEN_KEY = 'resenhometro_token';
 const USER_KEY = 'resenhometro_user';
 
@@ -42,4 +44,5 @@ export function setUser(user: AuthUser) {
 export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  clearShellCache();
 }

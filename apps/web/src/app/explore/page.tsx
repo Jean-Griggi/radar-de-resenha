@@ -5,8 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import type { SearchResults } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
+import { EmptyState, Skeleton } from '@/components/Card';
 import { RequireAuth } from '@/components/RequireAuth';
-import { api } from '@/lib/api';
+import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 
 type ExploreData = {
   featuredRoles: { id: string; title: string; location: string | null; category: string }[];
@@ -18,25 +19,75 @@ type ExploreData = {
   music: { id: string; title: string; artist: string }[];
 };
 
+function searchIsEmpty(results: SearchResults) {
+  return (
+    results.people.length === 0 &&
+    results.roles.length === 0 &&
+    results.reviews.length === 0 &&
+    results.tags.length === 0 &&
+    results.places.length === 0 &&
+    results.music.length === 0
+  );
+}
+
 function ExploreInner() {
   const params = useSearchParams();
   const q = params.get('q') ?? '';
   const [explore, setExplore] = useState<ExploreData | null>(null);
   const [search, setSearch] = useState<SearchResults | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError('');
+    setSearch(null);
+    setExplore(null);
     if (q) {
-      api.get<SearchResults>('/search', { params: { q } }).then(({ data }) => setSearch(data));
+      api
+        .get<SearchResults>('/search', { params: { q }, signal: controller.signal })
+        .then(({ data }) => {
+          if (!controller.signal.aborted) setSearch(data);
+        })
+        .catch((err) => {
+          if (isApiCanceled(err)) return;
+          setSearch(null);
+          setError(apiErrorMessage(err, 'Não foi possível buscar'));
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setLoading(false);
+        });
     } else {
-      api.get<ExploreData>('/explore').then(({ data }) => setExplore(data));
-      setSearch(null);
+      api
+        .get<ExploreData>('/explore', { signal: controller.signal })
+        .then(({ data }) => {
+          if (!controller.signal.aborted) setExplore(data);
+        })
+        .catch((err) => {
+          if (isApiCanceled(err)) return;
+          setExplore(null);
+          setError(apiErrorMessage(err, 'Não foi possível carregar o explorar'));
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setLoading(false);
+        });
     }
+    return () => controller.abort();
   }, [q]);
 
   return (
     <RequireAuth>
       <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">{q ? `Busca: ${q}` : 'Explorar'}</h1>
-      {search ? (
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-40" />
+          <Skeleton className="h-40" />
+        </div>
+      ) : null}
+      {error ? <p className="text-rose-300">{error}</p> : null}
+      {!loading && !error && search && searchIsEmpty(search) ? <EmptyState title="Nada encontrado." /> : null}
+      {!loading && !error && search && !searchIsEmpty(search) ? (
         <div className="space-y-6">
           <Section title="Pessoas">
             {search.people.map((person) => (
@@ -70,10 +121,11 @@ function ExploreInner() {
             ))}
           </Section>
         </div>
-      ) : (
+      ) : null}
+      {!loading && !error && !q && explore ? (
         <div className="grid gap-4 md:grid-cols-2">
           <Section title="Rolês em destaque">
-            {explore?.featuredRoles.map((role) => (
+            {explore.featuredRoles.map((role) => (
               <Link key={role.id} href={`/roles/${role.id}`} className="card block p-4">
                 <p>{role.title}</p>
                 <p className="text-xs text-slate-400">
@@ -83,7 +135,7 @@ function ExploreInner() {
             ))}
           </Section>
           <Section title="Pessoas">
-            {explore?.people.map((person) => (
+            {explore.people.map((person) => (
               <Link key={person.id} href={`/perfil/${person.username}`} className="flex items-center gap-2">
                 <Avatar src={person.avatar} name={person.name} size="sm" />
                 {person.name}
@@ -91,42 +143,42 @@ function ExploreInner() {
             ))}
           </Section>
           <Section title="Resenhas">
-            {explore?.reviews.map((review) => (
+            {explore.reviews.map((review) => (
               <Link key={review.id} href={`/reviews/${review.id}`}>
                 {'★'.repeat(review.rating)} {review.title}
               </Link>
             ))}
           </Section>
           <Section title="Categorias">
-            {explore?.categories.map((item) => (
+            {explore.categories.map((item) => (
               <span key={item.name} className="rounded-full bg-white/5 px-3 py-1 text-sm">
                 {item.name} · {item.count}
               </span>
             ))}
           </Section>
           <Section title="Tags">
-            {explore?.tags.map((item) => (
+            {explore.tags.map((item) => (
               <span key={item.name} className="text-violet-300">
                 #{item.name}
               </span>
             ))}
           </Section>
           <Section title="Lugares">
-            {explore?.places.map((item) => (
+            {explore.places.map((item) => (
               <p key={item.name}>
                 {item.name} · {item.count}
               </p>
             ))}
           </Section>
           <Section title="Músicas">
-            {explore?.music.map((item) => (
+            {explore.music.map((item) => (
               <p key={item.id}>
                 {item.title} — {item.artist}
               </p>
             ))}
           </Section>
         </div>
-      )}
+      ) : null}
     </RequireAuth>
   );
 }

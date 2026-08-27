@@ -1,4 +1,23 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 export function WaveBackground() {
+  const [lite, setLite] = useState(true);
+
+  useEffect(() => {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const narrow = window.matchMedia('(max-width: 767px)');
+    const update = () => setLite(motion.matches || narrow.matches);
+    update();
+    motion.addEventListener('change', update);
+    narrow.addEventListener('change', update);
+    return () => {
+      motion.removeEventListener('change', update);
+      narrow.removeEventListener('change', update);
+    };
+  }, []);
+
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden>
       <svg className="h-full w-full" viewBox="0 0 1440 1024" preserveAspectRatio="xMidYMax slice">
@@ -7,16 +26,18 @@ export function WaveBackground() {
             <stop offset="0%" stopColor="var(--wave-sky-start)" />
             <stop offset="100%" stopColor="var(--wave-sky-end)" />
           </linearGradient>
-          <filter id="wave-shadow" x="-10%" y="-10%" width="120%" height="140%">
-            <feDropShadow dx="0" dy="18" stdDeviation="14" floodColor="rgba(8,16,32,0.35)" />
-          </filter>
+          {lite ? null : (
+            <filter id="wave-shadow" x="-10%" y="-10%" width="120%" height="140%">
+              <feDropShadow dx="0" dy="18" stdDeviation="14" floodColor="rgba(8,16,32,0.35)" />
+            </filter>
+          )}
           <linearGradient id="wave-shine" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--wave-shine)" stopOpacity="0.55" />
             <stop offset="18%" stopColor="var(--wave-shine)" stopOpacity="0" />
           </linearGradient>
         </defs>
         <rect width="1440" height="1024" fill="url(#wave-sky)" />
-        <g filter="url(#wave-shadow)">
+        <g filter={lite ? undefined : 'url(#wave-shadow)'}>
           <path fill="var(--wave-5)" d="M0 430 C 180 360, 320 510, 520 455 C 740 395, 880 540, 1100 470 C 1260 420, 1360 500, 1440 455 L 1440 1024 L 0 1024 Z" />
           <path fill="var(--wave-4)" d="M0 530 C 200 470, 360 610, 560 545 C 780 475, 940 630, 1160 555 C 1300 510, 1380 590, 1440 550 L 1440 1024 L 0 1024 Z" />
           <path fill="var(--wave-3)" d="M0 620 C 170 575, 340 700, 540 640 C 760 575, 930 720, 1140 655 C 1290 610, 1375 690, 1440 650 L 1440 1024 L 0 1024 Z" />

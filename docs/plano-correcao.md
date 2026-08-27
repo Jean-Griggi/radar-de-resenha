@@ -242,29 +242,29 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 **API (`social.service.ts` + `users.service.ts`):**
 
-- [ ] Recusar: status `rejected` **pode ser reaberto** (update para `pending` + trocar requester/receiver) em vez de `return existing` eterno.
-- [ ] Já amigos (`accepted`): 400 claro “Vocês já são amigos”.
-- [ ] Pending existente: 409 ou 200 com `{ id, status, requesterId, receiverId }` **sempre camelCase**.
-- [ ] Impedir pedido duplicado nos dois sentidos (unique em par ordenado `LEAST/GREATEST` ou checagem + unique index).
-- [ ] `PUT /friends/requests/:id`: exigir `status` `accepted` | `rejected` no Zod. Sem body válido → 400, **nunca** aceitar por omissão.
-- [ ] `suggestions`: excluir amigos aceitos **e** qualquer pending (nos dois sentidos).
-- [ ] Opcional neste passo: cancelar pedido outgoing (`DELETE` no pending se você é o requester).
+- [x] Recusar: status `rejected` **pode ser reaberto** (update para `pending` + trocar requester/receiver) em vez de `return existing` eterno.
+- [x] Já amigos (`accepted`): 400 claro “Vocês já são amigos”.
+- [x] Pending existente: 409 ou 200 com `{ id, status, requesterId, receiverId }` **sempre camelCase**.
+- [x] Impedir pedido duplicado nos dois sentidos (unique em par ordenado `LEAST/GREATEST` ou checagem + unique index).
+- [x] `PUT /friends/requests/:id`: exigir `status` `accepted` | `rejected` no Zod. Sem body válido → 400, **nunca** aceitar por omissão.
+- [x] `suggestions`: excluir amigos aceitos **e** qualquer pending (nos dois sentidos).
+- [x] Opcional neste passo: cancelar pedido outgoing (`DELETE` no pending se você é o requester).
 
 **Front `/amigos`:**
 
-- [ ] Loading + erro visível (não fingir lista vazia).
-- [ ] Toast em falha.
-- [ ] Botão desabilitado enquanto o request roda.
-- [ ] Aceitar / recusar / adicionar com `try/catch`.
+- [x] Loading + erro visível (não fingir lista vazia).
+- [x] Toast em falha.
+- [x] Botão desabilitado enquanto o request roda.
+- [x] Aceitar / recusar / adicionar com `try/catch`.
 
 **Front perfil:**
 
-- [ ] Labels:
+- [x] Labels:
   - sem relação → Adicionar
   - pending e eu sou receiver → Aceitar (e Recusar)
   - pending e eu sou requester → Pedido enviado (e Cancelar)
   - accepted → Amigos / Desfazer
-- [ ] Não deixar o clique no “Pedido enviado” no-op.
+- [x] Não deixar o clique no “Pedido enviado” no-op.
 
 **Como validar:**
 
@@ -282,10 +282,10 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 **O que fazer:**
 
-- [ ] `roleStatus`: interpretar data+hora em **America/Sao_Paulo** (ou gravar `timestamptz` na criação). Nunca `new Date(\`${date}T${time}:00\`)` sem offset no servidor.
-- [ ] Conferir `toDateKey` com o driver `postgres` (DATE às vezes vira `Date` UTC midnight).
-- [ ] Front `/roles`: cancelar o GET anterior ao trocar o filtro (`AbortController` ou id de request). Não aplicar resposta velha.
-- [ ] Não mostrar empty state de “você não tem rolê” se `error` estiver setado.
+- [x] `roleStatus`: interpretar data+hora em **America/Sao_Paulo** (ou gravar `timestamptz` na criação). Nunca `new Date(\`${date}T${time}:00\`)` sem offset no servidor.
+- [x] Conferir `toDateKey` com o driver `postgres` (DATE às vezes vira `Date` UTC midnight).
+- [x] Front `/roles`: cancelar o GET anterior ao trocar o filtro (`AbortController` ou id de request). Não aplicar resposta velha.
+- [x] Não mostrar empty state de “você não tem rolê” se `error` estiver setado.
 
 **Como validar:**
 
@@ -298,16 +298,16 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 **O que fazer:**
 
-- [ ] `Avatar`: se a imagem falhar, cair nas iniciais (state `broken`).
-- [ ] Galeria / capa / perfil: o mesmo fallback (placeholder, não ícone quebrado).
-- [ ] Aceitar `image/heic` e `image/heif` no storage (e, se o browser não renderiza HEIC, converter no upload **ou** pedir JPEG no `accept` com mensagem clara).
-- [ ] Garantir que o que vai pro banco é **path relativo** (`photos/uuid.jpg`) e que `publicUrl()` é o único lugar que monta a URL.
-- [ ] Conferir em produção: bucket `resenhometro-uploads` **público**, `PUBLIC_API_URL` e `NEXT_PUBLIC_API_URL` corretos.
-- [ ] Feed: evento `photo_added` deve incluir `url` da foto (batch, não N+1).
-- [ ] Lista de rolês: mostrar `coverPhoto` se existir.
-- [ ] `listAlbums`: uma query de álbuns + uma de fotos, sem `getAlbum` em loop.
-- [ ] `deletePhoto` / `deleteAudio` / `deleteAlbum`: chamar `removeStored` (hoje a função existe e **não é usada** — arquivo órfão no Supabase, URL 404 depois).
-- [ ] Gravação de áudio: ao apertar Parar, cancelar o `setTimeout` de 5 min (hoje o timer continua e pode chamar `stop` de novo).
+- [x] `Avatar`: se a imagem falhar, cair nas iniciais (state `broken`).
+- [x] Galeria / capa / perfil: o mesmo fallback (placeholder, não ícone quebrado).
+- [x] Aceitar `image/heic` e `image/heif` no storage (e, se o browser não renderiza HEIC, converter no upload **ou** pedir JPEG no `accept` com mensagem clara).
+- [x] Garantir que o que vai pro banco é **path relativo** (`photos/uuid.jpg`) e que `publicUrl()` é o único lugar que monta a URL.
+- [x] Conferir em produção: bucket `resenhometro-uploads` **público**, `PUBLIC_API_URL` e `NEXT_PUBLIC_API_URL` corretos.
+- [x] Feed: evento `photo_added` deve incluir `url` da foto (batch, não N+1).
+- [x] Lista de rolês: mostrar `coverPhoto` se existir.
+- [x] `listAlbums`: uma query de álbuns + uma de fotos, sem `getAlbum` em loop.
+- [x] `deletePhoto` / `deleteAudio` / `deleteAlbum`: chamar `removeStored` (hoje a função existe e **não é usada** — arquivo órfão no Supabase, URL 404 depois).
+- [x] Gravação de áudio: ao apertar Parar, cancelar o `setTimeout` de 5 min (hoje o timer continua e pode chamar `stop` de novo).
 
 **Como validar:**
 
@@ -324,12 +324,12 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 **O que fazer (padrão único, repetir nas pages):**
 
-- [ ] `loading` / `error` / `empty` separados. Empty **só** se loading false e error vazio.
-- [ ] `try/catch` + `apiErrorMessage` + toast onde já existe toast.
-- [ ] Abortar fetch ao desmontar / ao mudar filtro / username.
-- [ ] Amigos e fotos: não disparar `load()` sem catch.
-- [ ] Explorar: `.then` sem catch hoje — tratar erro.
-- [ ] `api.ts`: 401 não pode loop infinito; não redirecionar se já está em login/cadastro (já tem um if; revisar rotas públicas: esqueci-senha, redefinir-senha).
+- [x] `loading` / `error` / `empty` separados. Empty **só** se loading false e error vazio.
+- [x] `try/catch` + `apiErrorMessage` + toast onde já existe toast.
+- [x] Abortar fetch ao desmontar / ao mudar filtro / username.
+- [x] Amigos e fotos: não disparar `load()` sem catch.
+- [x] Explorar: `.then` sem catch hoje — tratar erro.
+- [x] `api.ts`: 401 não pode loop infinito; não redirecionar se já está em login/cadastro (já tem um if; revisar rotas públicas: esqueci-senha, redefinir-senha).
 
 **Como validar:**
 
@@ -343,10 +343,10 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 **O que fazer:**
 
-- [ ] Não chamar `/spotify/status` se o usuário não conectou Spotify (ou cachear / lazy).
-- [ ] Unread de notificações: intervalo longo ou só ao focar a aba, não necessariamente a cada mount pesado — mas o mount já é 1 GET; o problema maior é o **rail** chamar `/calendar` (serializa menos, ok) **e** `/suggestions` em **toda** página.
-- [ ] Cache curto em memória (ex.: 60s) para sugestões + próximos rolês, compartilhado entre páginas.
-- [ ] SVG do `WaveBackground`: o `feDropShadow` é caro em mobile. Simplificar ou `prefers-reduced-motion` / esconder o filtro em telas estreitas.
+- [x] Não chamar `/spotify/status` se o usuário não conectou Spotify (ou cachear / lazy).
+- [x] Unread de notificações: intervalo longo ou só ao focar a aba, não necessariamente a cada mount pesado — mas o mount já é 1 GET; o problema maior é o **rail** chamar `/calendar` (serializa menos, ok) **e** `/suggestions` em **toda** página.
+- [x] Cache curto em memória (ex.: 60s) para sugestões + próximos rolês, compartilhado entre páginas.
+- [x] SVG do `WaveBackground`: o `feDropShadow` é caro em mobile. Simplificar ou `prefers-reduced-motion` / esconder o filtro em telas estreitas.
 
 **Como validar:**
 
@@ -443,10 +443,10 @@ apps/web/src/lib/api.ts                   passo 6
 | 0 | | | |
 | 1 | 2026-08-25 | agente | pool 5 (Vercel) / 10 (longo); schema_migrations; sem listBuckets no boot; índices friendships/photos/feed/attendances |
 | 2 | 2026-08-25 | agente | serializeRoles em batch; GET /roles limit 30 + offset; proximos/passados no SQL por date; getFeed batch + pula órfãos |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
+| 3 | 2026-08-25 | agente | rejected reabre; PUT exige status; unique LEAST/GREATEST; suggestions ignora amigos/pending; DELETE cancel outgoing; UI amigos/perfil |
+| 4 | 2026-08-25 | agente | roleStatus/toDateKey em America/Sao_Paulo; DATE via UTC; SQL próximos/passados com timestamptz SP; AbortController + empty só sem erro |
+| 5 | 2026-08-27 | agente | Avatar/MediaImage onError; HEIC aceito + conversão JPEG ou mensagem; publicUrl único; feed photo_added em batch; coverPhoto no card; listAlbums batch; removeStored no delete; timer de áudio cancelado |
+| 6 | 2026-08-27 | agente | loading/error/empty nas pages; AbortController; explorar com catch; 401 ignora esqueci/redefinir-senha e redireciona uma vez |
+| 7 | 2026-08-27 | agente | cache 60s no rail (calendar/suggestions); spotify/status só se conectado (flag); unread no foco + 2min; feDropShadow só desktop sem reduced-motion |
 | 8 | | | |
 | 9 | | | |
