@@ -100,6 +100,26 @@ body {
   }
 }
 
+@keyframes wave-drift {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.wave-drift {
+  animation-name: wave-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-drift {
+    animation: none;
+    will-change: auto;
+  }
+}
+
 img,
 video,
 audio {
