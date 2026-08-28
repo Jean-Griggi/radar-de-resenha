@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
+import { Inter } from 'next/font/google';
 import { PlayerProvider } from '@/components/Player';
 import { ThemeProvider } from '@/components/Theme';
 import { ToastProvider } from '@/components/Toast';
 import { WaveBackground } from '@/components/WaveBackground';
 import './globals.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -21,11 +28,11 @@ const themeScript = `try{var t=localStorage.getItem('resenhometro_theme');if(t==
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" data-theme="dark" suppressHydrationWarning>
+    <html lang="pt-BR" data-theme="dark" suppressHydrationWarning className={inter.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-screen antialiased">
+      <body className={`${inter.className} min-h-screen antialiased`}>
         <ThemeProvider>
           <WaveBackground />
           <ToastProvider>
