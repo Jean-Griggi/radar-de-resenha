@@ -120,6 +120,36 @@ describe('Resenhômetro API', () => {
     });
     expect(reply.statusCode).toBe(200);
     expect(reply.json().comments[0].replies.length).toBeGreaterThan(0);
+
+    const commentsOnly = await app.inject({
+      method: 'GET',
+      url: `/roles/${roleId}/comments`,
+      headers: await authHeaders(),
+    });
+    expect(commentsOnly.statusCode).toBe(200);
+    expect(Array.isArray(commentsOnly.json())).toBe(true);
+    expect(commentsOnly.json()[0].content).toBeTruthy();
+    expect(commentsOnly.json()[0].goingCount).toBeUndefined();
+    expect(commentsOnly.json()[0].coverPhoto).toBeUndefined();
+
+    const attendanceOnly = await app.inject({
+      method: 'GET',
+      url: `/roles/${roleId}/attendance`,
+      headers: await authHeaders(),
+    });
+    expect(attendanceOnly.statusCode).toBe(200);
+    expect(Array.isArray(attendanceOnly.json())).toBe(true);
+    expect(attendanceOnly.json()[0].userId).toBeTruthy();
+
+    const roleDetail = await app.inject({
+      method: 'GET',
+      url: `/roles/${roleId}`,
+      headers: await authHeaders(),
+    });
+    expect(roleDetail.statusCode).toBe(200);
+    expect(Array.isArray(roleDetail.json().comments)).toBe(true);
+    expect(Array.isArray(roleDetail.json().photos)).toBe(true);
+    expect(Array.isArray(roleDetail.json().attendances)).toBe(true);
   });
 
   it('review + reaction + feed + stats', async () => {
@@ -130,6 +160,49 @@ describe('Resenhômetro API', () => {
       payload: { roleId, title: 'Noite boa', content: 'Comida ok, música ótima', rating: 5, ratings: { fun: 5, music: 5 }, tags: ['sexta'] },
     });
     expect(review.statusCode).toBe(201);
+    const reviewId = review.json().id as string;
+
+    const listed = await app.inject({ method: 'GET', url: '/reviews', headers: await authHeaders() });
+    expect(listed.statusCode).toBe(200);
+    const listedItem = listed.json().find((item: { id: string }) => item.id === reviewId);
+    expect(listedItem).toBeTruthy();
+    expect(listedItem.comments).toBeUndefined();
+    expect(listedItem.photos).toBeUndefined();
+    expect(listedItem.audios).toBeUndefined();
+
+    const reviewDetail = await app.inject({
+      method: 'GET',
+      url: `/reviews/${reviewId}`,
+      headers: await authHeaders(),
+    });
+    expect(reviewDetail.statusCode).toBe(200);
+    expect(Array.isArray(reviewDetail.json().comments)).toBe(true);
+
+    const search = await app.inject({ method: 'GET', url: '/search?q=s', headers: await authHeaders() });
+    expect(search.statusCode).toBe(200);
+    expect(search.json().tags.length).toBeLessThanOrEqual(8);
+    const searchReview = search.json().reviews.find((item: { id: string }) => item.id === reviewId);
+    if (searchReview) {
+      expect(searchReview.comments).toBeUndefined();
+      expect(searchReview.photos).toBeUndefined();
+    }
+
+    const exploreRes = await app.inject({ method: 'GET', url: '/explore', headers: await authHeaders() });
+    expect(exploreRes.statusCode).toBe(200);
+    const exploreReview = exploreRes.json().reviews.find((item: { id: string }) => item.id === reviewId);
+    if (exploreReview) {
+      expect(exploreReview.comments).toBeUndefined();
+      expect(exploreReview.photos).toBeUndefined();
+    }
+
+    const content = await app.inject({
+      method: 'GET',
+      url: `/users/qa${suffix}/content`,
+      headers: await authHeaders(),
+    });
+    expect(content.statusCode).toBe(200);
+    expect(content.json().roles.length).toBeLessThanOrEqual(20);
+    expect(content.json().photos.length).toBeLessThanOrEqual(20);
 
     const reaction = await app.inject({
       method: 'POST',

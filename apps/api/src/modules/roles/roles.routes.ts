@@ -4,7 +4,16 @@ import { HttpError } from '../../lib/http.js';
 import { attendanceSchema, commentSchema, createRoleSchema, musicSchema, updateRoleSchema } from '../common.schema.js';
 import { addComment } from '../social/social.service.js';
 import { addMusicToRole } from '../music/music.service.js';
-import { createRole, deleteRole, listRoles, serializeRoleDetail, setAttendance, updateRole } from './roles.service.js';
+import {
+  createRole,
+  deleteRole,
+  getRoleAttendances,
+  getRoleComments,
+  listRoles,
+  serializeRoleDetail,
+  setAttendance,
+  updateRole,
+} from './roles.service.js';
 
 function handleError(error: unknown, reply: FastifyReply) {
   if (error instanceof HttpError) {
@@ -84,16 +93,16 @@ export async function rolesRoutes(app: FastifyInstance) {
 
   app.get('/roles/:id/attendance', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const role = await serializeRoleDetail(id, request.user.sub);
-    if (!role) return reply.status(404).send({ message: 'Rolê não encontrado' });
-    return role.attendances;
+    const attendances = await getRoleAttendances(id);
+    if (!attendances) return reply.status(404).send({ message: 'Rolê não encontrado' });
+    return attendances;
   });
 
   app.get('/roles/:id/comments', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const role = await serializeRoleDetail(id, request.user.sub);
-    if (!role) return reply.status(404).send({ message: 'Rolê não encontrado' });
-    return role.comments;
+    const comments = await getRoleComments(id, request.user.sub);
+    if (!comments) return reply.status(404).send({ message: 'Rolê não encontrado' });
+    return comments;
   });
 
   app.post('/roles/:id/comments', { preHandler: [authenticate] }, async (request, reply) => {

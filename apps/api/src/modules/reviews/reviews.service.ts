@@ -1,12 +1,21 @@
 import { randomUUID } from 'node:crypto';
 import { exec, query, queryOne } from '../../db/client.js';
-import { addFeedEvent, evaluateAchievements, getReactionSummary, getUserRow, mapUser, nowIso, parseJson } from '../../lib/helpers.js';
+import {
+  addFeedEvent,
+  evaluateAchievements,
+  getReactionSummary,
+  getUsersByIds,
+  mapUser,
+  nowIso,
+  parseJson,
+  sqlPlaceholders,
+} from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
 import { nestComments } from '../roles/roles.service.js';
 import type { ReviewInput } from '../common.schema.js';
 
-type ReviewRow = {
+export type ReviewRow = {
   id: string;
   role_id: string;
   author_id: string;
@@ -19,23 +28,30 @@ type ReviewRow = {
   updated_at: string;
 };
 
-export async function serializeReview(row: ReviewRow, viewerId?: string) {
-  const author = await getUserRow(row.author_id);
-  const role = await queryOne<{ id: string; title: string; date: string | null; location: string | null; category: string }>(
-    `SELECT id, title, date, location, category FROM roles WHERE id = $1`,
-    [row.role_id],
-  );
-  const photos = await query(`SELECT * FROM photos WHERE role_id = $1 ORDER BY created_at DESC LIMIT 6`, [row.role_id]);
-  const audios = await query(`SELECT * FROM audios WHERE review_id = $1 OR role_id = $2 ORDER BY created_at DESC LIMIT 6`, [
-    row.id,
-    row.role_id,
-  ]);
+type RoleSnippet = { id: string; title: string; date: string | null; location: string | null; category: string };
 
-  return {
+export async function serializeReviewCards(rows: ReviewRow[]) {
+  if (rows.length === 0) return [];
+
+  const authorIds = [...new Set(rows.map((row) => row.author_id))];
+  const roleIds = [...new Set(rows.map((row) => row.role_id))];
+  const [authors, roles] = await Promise.all([
+    getUsersByIds(authorIds),
+    roleIds.length
+      ? query<RoleSnippet>(
+          `SELECT id, title, date, location, category FROM roles WHERE id IN (${sqlPlaceholders(roleIds.length)})`,
+          roleIds,
+        )
+      : Promise.resolve([] as RoleSnippet[]),
+  ]);
+  const authorMap = new Map(authors.map((row) => [row.id, mapUser(row)]));
+  const roleMap = new Map(roles.map((row) => [row.id, row]));
+
+  return rows.map((row) => ({
     id: row.id,
     roleId: row.role_id,
     authorId: row.author_id,
-    author: author ? mapUser(author) : null,
+    author: authorMap.get(row.author_id) ?? null,
     title: row.title,
     content: row.content,
     rating: row.rating,
@@ -43,9 +59,26 @@ export async function serializeReview(row: ReviewRow, viewerId?: string) {
     tags: parseJson<string[]>(row.tags, []),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
-    role,
-    comments: await nestComments('review', row.id, viewerId),
-    reactions: await getReactionSummary('review', row.id, viewerId),
+    role: roleMap.get(row.role_id) ?? null,
+  }));
+}
+
+export async function serializeReview(row: ReviewRow, viewerId?: string) {
+  const [card] = await serializeReviewCards([row]);
+  const [photos, audios, comments, reactions] = await Promise.all([
+    query(`SELECT * FROM photos WHERE role_id = $1 ORDER BY created_at DESC LIMIT 6`, [row.role_id]),
+    query(`SELECT * FROM audios WHERE review_id = $1 OR role_id = $2 ORDER BY created_at DESC LIMIT 6`, [
+      row.id,
+      row.role_id,
+    ]),
+    nestComments('review', row.id, viewerId),
+    getReactionSummary('review', row.id, viewerId),
+  ]);
+
+  return {
+    ...card,
+    comments,
+    reactions,
     photos: photos.map((photo) => ({ ...photo, url: publicUrl(photo.url as string) })),
     audios: audios.map((audio) => ({ ...audio, url: publicUrl(audio.url as string) })),
   };
@@ -117,5 +150,5 @@ export async function deleteReview(id: string, userId: string) {
 
 export async function listReviews() {
   const rows = await query<ReviewRow>(`SELECT * FROM reviews ORDER BY created_at DESC LIMIT 40`);
-  return Promise.all(rows.map((row) => serializeReview(row)));
+  return serializeReviewCards(rows);
 }

@@ -3,7 +3,7 @@ import { ACHIEVEMENT_DEFS } from '@resenhometro/shared';
 import { query, queryOne } from '../../db/client.js';
 import { getUserRow, mapUser } from '../../lib/helpers.js';
 import { notFound } from '../../lib/http.js';
-import { serializeRole } from '../roles/roles.service.js';
+import { serializeRoles, type RoleRow } from '../roles/roles.service.js';
 import { getFriendship, isFollowing } from '../social/social.service.js';
 
 export async function getUserByUsername(username: string, viewerId?: string) {
@@ -68,15 +68,22 @@ export async function getUserById(id: string, viewerId?: string) {
   return getUserByUsername(row.username, viewerId);
 }
 
+const USER_CONTENT_LIMIT = 20;
+
 export async function userContent(userId: string, viewerId?: string) {
-  const roles = await query(`SELECT * FROM roles WHERE creator_id = $1 ORDER BY created_at DESC`, [userId]);
-  const reviews = await query(`SELECT * FROM reviews WHERE author_id = $1 ORDER BY created_at DESC`, [userId]);
-  const photos = await query(`SELECT * FROM photos WHERE author_id = $1 ORDER BY created_at DESC`, [userId]);
-  const audios = await query(`SELECT * FROM audios WHERE author_id = $1 ORDER BY created_at DESC`, [userId]);
-  const music = await query(`SELECT * FROM music WHERE added_by = $1 ORDER BY created_at DESC`, [userId]);
+  const [roles, reviews, photos, audios, music] = await Promise.all([
+    query<RoleRow>(`SELECT * FROM roles WHERE creator_id = $1 ORDER BY created_at DESC LIMIT $2`, [
+      userId,
+      USER_CONTENT_LIMIT,
+    ]),
+    query(`SELECT * FROM reviews WHERE author_id = $1 ORDER BY created_at DESC LIMIT $2`, [userId, USER_CONTENT_LIMIT]),
+    query(`SELECT * FROM photos WHERE author_id = $1 ORDER BY created_at DESC LIMIT $2`, [userId, USER_CONTENT_LIMIT]),
+    query(`SELECT * FROM audios WHERE author_id = $1 ORDER BY created_at DESC LIMIT $2`, [userId, USER_CONTENT_LIMIT]),
+    query(`SELECT * FROM music WHERE added_by = $1 ORDER BY created_at DESC LIMIT $2`, [userId, USER_CONTENT_LIMIT]),
+  ]);
 
   return {
-    roles: await Promise.all(roles.map((row) => serializeRole(row as never, viewerId))),
+    roles: await serializeRoles(roles, viewerId),
     reviews,
     photos,
     audios,

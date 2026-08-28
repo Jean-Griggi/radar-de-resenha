@@ -1,39 +1,52 @@
 import { query, queryOne } from '../../db/client.js';
 import { getUserRow, mapUser } from '../../lib/helpers.js';
-import { serializeRole } from '../roles/roles.service.js';
-import { serializeReview } from '../reviews/reviews.service.js';
+import { serializeRoles, type RoleRow } from '../roles/roles.service.js';
+import { serializeReviewCards, type ReviewRow } from '../reviews/reviews.service.js';
 
-export async function searchAll(q: string, viewerId?: string) {
-  const term = `%${q}%`;
-  const people = await query(
-    `SELECT id, name, username, email, avatar, cover, bio, city, is_public, show_followers, show_interactions, created_at, updated_at
-     FROM users WHERE name ILIKE $1 OR username ILIKE $1 OR city ILIKE $1 LIMIT 8`,
-    [term],
-  );
-  const roles = await query(`SELECT * FROM roles WHERE title ILIKE $1 OR location ILIKE $1 OR tags ILIKE $1 LIMIT 8`, [term]);
-  const reviews = await query(`SELECT * FROM reviews WHERE title ILIKE $1 OR content ILIKE $1 OR tags ILIKE $1 LIMIT 8`, [term]);
-  const tagsRows = await query<{ tags: string }>(`SELECT tags FROM roles UNION ALL SELECT tags FROM reviews`);
+function collectMatchingTags(rows: { tags: string }[], q: string, max = 8) {
+  const needle = q.toLowerCase();
   const tags = new Set<string>();
-  for (const row of tagsRows) {
+  for (const row of rows) {
     try {
       for (const tag of JSON.parse(row.tags || '[]') as string[]) {
-        if (tag.toLowerCase().includes(q.toLowerCase())) tags.add(tag);
+        if (tag.toLowerCase().includes(needle)) tags.add(tag);
+        if (tags.size >= max) return [...tags];
       }
     } catch {
       /* ignore */
     }
   }
-  const places = await query<{ location: string }>(
-    `SELECT DISTINCT location FROM roles WHERE location ILIKE $1 AND location IS NOT NULL LIMIT 8`,
-    [term],
-  );
-  const music = await query(`SELECT * FROM music WHERE title ILIKE $1 OR artist ILIKE $1 LIMIT 8`, [term]);
+  return [...tags];
+}
+
+export async function searchAll(q: string, viewerId?: string) {
+  const term = `%${q}%`;
+  const [people, roles, reviews, tagsRows, places, music] = await Promise.all([
+    query(
+      `SELECT id, name, username, email, avatar, cover, bio, city, is_public, show_followers, show_interactions, created_at, updated_at
+       FROM users WHERE name ILIKE $1 OR username ILIKE $1 OR city ILIKE $1 LIMIT 8`,
+      [term],
+    ),
+    query<RoleRow>(`SELECT * FROM roles WHERE title ILIKE $1 OR location ILIKE $1 OR tags ILIKE $1 LIMIT 8`, [term]),
+    query<ReviewRow>(`SELECT * FROM reviews WHERE title ILIKE $1 OR content ILIKE $1 OR tags ILIKE $1 LIMIT 8`, [term]),
+    query<{ tags: string }>(
+      `(SELECT tags FROM roles WHERE tags ILIKE $1 LIMIT 40)
+       UNION ALL
+       (SELECT tags FROM reviews WHERE tags ILIKE $1 LIMIT 40)`,
+      [term],
+    ),
+    query<{ location: string }>(
+      `SELECT DISTINCT location FROM roles WHERE location ILIKE $1 AND location IS NOT NULL LIMIT 8`,
+      [term],
+    ),
+    query(`SELECT * FROM music WHERE title ILIKE $1 OR artist ILIKE $1 LIMIT 8`, [term]),
+  ]);
 
   return {
     people: people.map((row) => mapUser(row as never)),
-    roles: await Promise.all(roles.map((row) => serializeRole(row as never, viewerId))),
-    reviews: await Promise.all(reviews.map((row) => serializeReview(row as never, viewerId))),
-    tags: [...tags].slice(0, 8),
+    roles: await serializeRoles(roles, viewerId),
+    reviews: await serializeReviewCards(reviews),
+    tags: collectMatchingTags(tagsRows, q),
     places: places.map((row) => row.location),
     music: music.map((row) => ({
       id: row.id,
@@ -48,20 +61,22 @@ export async function searchAll(q: string, viewerId?: string) {
 }
 
 export async function explore(viewerId?: string) {
-  const roles = await query(`SELECT * FROM roles ORDER BY created_at DESC LIMIT 8`);
-  const people = await query(
-    `SELECT id, name, username, email, avatar, cover, bio, city, is_public, show_followers, show_interactions, created_at, updated_at
-     FROM users ORDER BY created_at DESC LIMIT 8`,
-  );
-  const reviews = await query(`SELECT * FROM reviews ORDER BY created_at DESC LIMIT 6`);
-  const categories = await query<{ category: string; count: string }>(
-    `SELECT category, COUNT(*)::text AS count FROM roles GROUP BY category ORDER BY COUNT(*) DESC`,
-  );
-  const places = await query<{ location: string; count: string }>(
-    `SELECT location, COUNT(*)::text AS count FROM roles WHERE location IS NOT NULL AND location <> '' GROUP BY location ORDER BY COUNT(*) DESC LIMIT 8`,
-  );
-  const music = await query(`SELECT * FROM music ORDER BY created_at DESC LIMIT 6`);
-  const tagsRows = await query<{ tags: string }>(`SELECT tags FROM roles LIMIT 40`);
+  const [roles, people, reviews, categories, places, music, tagsRows] = await Promise.all([
+    query<RoleRow>(`SELECT * FROM roles ORDER BY created_at DESC LIMIT 8`),
+    query(
+      `SELECT id, name, username, email, avatar, cover, bio, city, is_public, show_followers, show_interactions, created_at, updated_at
+       FROM users ORDER BY created_at DESC LIMIT 8`,
+    ),
+    query<ReviewRow>(`SELECT * FROM reviews ORDER BY created_at DESC LIMIT 6`),
+    query<{ category: string; count: string }>(
+      `SELECT category, COUNT(*)::text AS count FROM roles GROUP BY category ORDER BY COUNT(*) DESC`,
+    ),
+    query<{ location: string; count: string }>(
+      `SELECT location, COUNT(*)::text AS count FROM roles WHERE location IS NOT NULL AND location <> '' GROUP BY location ORDER BY COUNT(*) DESC LIMIT 8`,
+    ),
+    query(`SELECT * FROM music ORDER BY created_at DESC LIMIT 6`),
+    query<{ tags: string }>(`SELECT tags FROM roles LIMIT 40`),
+  ]);
   const tags = new Map<string, number>();
   for (const row of tagsRows) {
     try {
@@ -74,9 +89,9 @@ export async function explore(viewerId?: string) {
   }
 
   return {
-    featuredRoles: await Promise.all(roles.map((row) => serializeRole(row as never, viewerId))),
+    featuredRoles: await serializeRoles(roles, viewerId),
     people: people.map((row) => mapUser(row as never)),
-    reviews: await Promise.all(reviews.map((row) => serializeReview(row as never, viewerId))),
+    reviews: await serializeReviewCards(reviews),
     categories: categories.map((row) => ({ name: row.category, count: Number(row.count) })),
     tags: [...tags.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12).map(([name, count]) => ({ name, count })),
     places: places.map((row) => ({ name: row.location, count: Number(row.count) })),

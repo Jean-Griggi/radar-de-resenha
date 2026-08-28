@@ -222,12 +222,7 @@ export async function serializeRoleDetail(id: string, viewerId?: string) {
   if (!row) return undefined;
   const base = await serializeRole(row, viewerId);
 
-  const attendanceRows = await query<{ id: string; role_id: string; user_id: string; status: string; created_at: string }>(
-    `SELECT * FROM attendances WHERE role_id = $1 ORDER BY created_at ASC`,
-    [id],
-  );
-  const users = await getUsersByIds(attendanceRows.map((item) => item.user_id));
-  const userMap = new Map(users.map((item) => [item.id, mapUser(item)]));
+  const attendances = await listRoleAttendances(id);
 
   const photos = await query(`SELECT * FROM photos WHERE role_id = $1 ORDER BY created_at DESC`, [id]);
   const audios = await query(`SELECT * FROM audios WHERE role_id = $1 ORDER BY created_at DESC`, [id]);
@@ -236,14 +231,7 @@ export async function serializeRoleDetail(id: string, viewerId?: string) {
 
   return {
     ...base,
-    attendances: attendanceRows.map((item) => ({
-      id: item.id,
-      roleId: item.role_id,
-      userId: item.user_id,
-      user: userMap.get(item.user_id)!,
-      status: item.status,
-      createdAt: String(item.created_at),
-    })),
+    attendances,
     comments: await nestComments('role', id, viewerId),
     photos: photos.map((photo) => ({
       id: photo.id,
@@ -414,6 +402,36 @@ export async function setAttendance(roleId: string, userId: string, status: 'goi
   }
 
   return serializeRoleDetail(roleId, userId);
+}
+
+export async function listRoleAttendances(id: string) {
+  const attendanceRows = await query<{ id: string; role_id: string; user_id: string; status: string; created_at: string }>(
+    `SELECT * FROM attendances WHERE role_id = $1 ORDER BY created_at ASC`,
+    [id],
+  );
+  const users = await getUsersByIds(attendanceRows.map((item) => item.user_id));
+  const userMap = new Map(users.map((item) => [item.id, mapUser(item)]));
+
+  return attendanceRows.map((item) => ({
+    id: item.id,
+    roleId: item.role_id,
+    userId: item.user_id,
+    user: userMap.get(item.user_id)!,
+    status: item.status,
+    createdAt: String(item.created_at),
+  }));
+}
+
+export async function getRoleComments(id: string, viewerId?: string) {
+  const row = await queryOne<{ id: string }>(`SELECT id FROM roles WHERE id = $1`, [id]);
+  if (!row) return undefined;
+  return nestComments('role', id, viewerId);
+}
+
+export async function getRoleAttendances(id: string) {
+  const row = await queryOne<{ id: string }>(`SELECT id FROM roles WHERE id = $1`, [id]);
+  if (!row) return undefined;
+  return listRoleAttendances(id);
 }
 
 export { nestComments };
