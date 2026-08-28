@@ -30,9 +30,10 @@ function points(y: number, amp: number, cycles: number, phase: number, wobble: n
 function cubics(pts: Pt[]) {
   let d = '';
   for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] ?? pts[i];
     const p1 = pts[i];
     const p2 = pts[i + 1];
+    if (!p1 || !p2) continue;
+    const p0 = pts[i - 1] ?? p1;
     const p3 = pts[i + 2] ?? p2;
     d += ` C${p1.x + (p2.x - p0.x) / 6} ${p1.y + (p2.y - p0.y) / 6}, ${p2.x - (p3.x - p1.x) / 6} ${p2.y - (p3.y - p1.y) / 6}, ${p2.x} ${p2.y}`;
   }
@@ -40,7 +41,9 @@ function cubics(pts: Pt[]) {
 }
 
 function smooth(pts: Pt[]) {
-  return `M${pts[0].x} ${pts[0].y}${cubics(pts)}`;
+  const start = pts[0];
+  if (!start) return '';
+  return `M${start.x} ${start.y}${cubics(pts)}`;
 }
 
 function fillPath(pts: Pt[]) {
@@ -49,7 +52,9 @@ function fillPath(pts: Pt[]) {
 
 function shinePath(pts: Pt[], band = 72) {
   const lower = pts.map((p) => ({ x: p.x, y: p.y + band })).reverse();
-  return `${smooth(pts)} L${lower[0].x} ${lower[0].y}${cubics(lower)} Z`;
+  const end = lower[0];
+  if (!end) return smooth(pts);
+  return `${smooth(pts)} L${end.x} ${end.y}${cubics(lower)} Z`;
 }
 
 function pathsAt(time: number) {
@@ -93,8 +98,8 @@ export function WaveBackground() {
     const tick = (now: number) => {
       const t = (now - start) / 1000;
       const next = pathsAt(t);
-      next.forEach((p, i) => fills[i]?.setAttribute('d', p.fill));
-      shine?.setAttribute('d', next[0].shine);
+      next.forEach((p, i) => fills.item(i)?.setAttribute('d', p.fill));
+      shine?.setAttribute('d', next[0]?.shine ?? '');
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
@@ -128,10 +133,10 @@ export function WaveBackground() {
                 data-wave="fill"
                 fill={layer.fill}
                 fillOpacity="0.72"
-                d={INITIAL[i].fill}
+                d={INITIAL[i]?.fill ?? ''}
               />
             ))}
-            <path data-wave="shine" fill="url(#wave-shine)" d={INITIAL[0].shine} />
+            <path data-wave="shine" fill="url(#wave-shine)" d={INITIAL[0]?.shine ?? ''} />
           </g>
         </svg>
       </div>
