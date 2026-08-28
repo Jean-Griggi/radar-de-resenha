@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { env } from '../../config/env.js';
 import { exec, query, queryOne } from '../../db/client.js';
 import { addFeedEvent, nowIso } from '../../lib/helpers.js';
@@ -40,6 +40,37 @@ export function spotifyAuthUrl(state: string) {
   return `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
+const SPOTIFY_FETCH_MS = 5_000;
+const SPOTIFY_STATE_TTL_MS = 10 * 60 * 1000;
+
+export function createSpotifyState(userId: string) {
+  const exp = Date.now() + SPOTIFY_STATE_TTL_MS;
+  const payload = `${userId}.${exp}`;
+  const sig = createHmac('sha256', env.JWT_SECRET).update(`spotify-oauth:${payload}`).digest('hex');
+  return Buffer.from(`${payload}.${sig}`).toString('base64url');
+}
+
+export function parseSpotifyState(state: string | undefined) {
+  if (!state) return null;
+  try {
+    const raw = Buffer.from(state, 'base64url').toString('utf8');
+    const parts = raw.split('.');
+    if (parts.length !== 3) return null;
+    const [userId, expRaw, sig] = parts;
+    if (!userId || !expRaw || !sig) return null;
+    const exp = Number(expRaw);
+    if (Number.isNaN(exp) || Date.now() > exp) return null;
+    const payload = `${userId}.${expRaw}`;
+    const expected = createHmac('sha256', env.JWT_SECRET).update(`spotify-oauth:${payload}`).digest('hex');
+    const a = Buffer.from(sig);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+    return userId;
+  } catch {
+    return null;
+  }
+}
+
 async function tokenRequest(body: Record<string, string>) {
   const credentials = Buffer.from(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`).toString('base64');
   const response = asHttp(
@@ -50,6 +81,7 @@ async function tokenRequest(body: Record<string, string>) {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams(body),
+      signal: AbortSignal.timeout(SPOTIFY_FETCH_MS),
     }),
   );
   if (!response.ok) throw badRequest('Falha ao conectar com o Spotify');
@@ -77,12 +109,14 @@ export async function completeSpotifyAuth(userId: string, code: string) {
     code,
     redirect_uri: env.SPOTIFY_REDIRECT_URI!,
   });
-  const me = asHttp(
+  const meResponse = asHttp(
     await fetch('https://api.spotify.com/v1/me', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
+      signal: AbortSignal.timeout(SPOTIFY_FETCH_MS),
     }),
-  ).json() as Promise<{ id: string; display_name: string; product?: string }>;
-  const profile = await me;
+  );
+  if (!meResponse.ok) throw badRequest('Falha ao ler o perfil do Spotify');
+  const profile = (await meResponse.json()) as { id: string; display_name: string; product?: string };
 
   const stamp = nowIso();
   const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
@@ -106,7 +140,21 @@ export async function disconnectSpotify(userId: string) {
 }
 
 export async function getSpotifyAccount(userId: string) {
-  const row = await ensureAccessToken(userId);
+  let row: SpotifyTokens | null = null;
+  try {
+    row = await ensureAccessToken(userId);
+  } catch {
+    row = (await queryOne<SpotifyTokens>(`SELECT * FROM spotify_connections WHERE user_id = $1`, [userId])) ?? null;
+    if (row) {
+      return {
+        connected: true,
+        displayName: row.display_name,
+        product: row.product,
+        nowPlaying: null,
+        configured: configured(),
+      };
+    }
+  }
   if (!row) {
     return { connected: false, displayName: null, product: null, nowPlaying: null, configured: configured() };
   }
@@ -116,6 +164,7 @@ export async function getSpotifyAccount(userId: string) {
     const response = asHttp(
       await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
         headers: { Authorization: `Bearer ${row.access_token}` },
+        signal: AbortSignal.timeout(SPOTIFY_FETCH_MS),
       }),
     );
     if (response.status === 200) {
@@ -159,6 +208,7 @@ export async function getPlaylists(userId: string) {
   const response = asHttp(
     await fetch('https://api.spotify.com/v1/me/playlists?limit=20', {
       headers: { Authorization: `Bearer ${row.access_token}` },
+      signal: AbortSignal.timeout(SPOTIFY_FETCH_MS),
     }),
   );
   if (!response.ok) return [];
@@ -191,14 +241,24 @@ export async function addMusicToRole(
   return { id, ...input };
 }
 
-export async function listMusic(userId?: string) {
-  if (userId) {
-    return query(
-      `SELECT * FROM music WHERE added_by = $1 OR role_id IN (SELECT id FROM roles WHERE creator_id = $1) ORDER BY created_at DESC`,
-      [userId],
-    );
-  }
-  return query(`SELECT * FROM music ORDER BY created_at DESC LIMIT 40`);
+function mapTrack(row: Record<string, unknown>) {
+  return {
+    id: row.id,
+    title: row.title,
+    artist: row.artist,
+    album: row.album,
+    cover: row.cover,
+    spotifyUrl: row.spotify_url,
+    spotifyId: row.spotify_id,
+  };
 }
 
-export const oauthStates = new Map<string, string>();
+export async function listMusic(userId?: string) {
+  const rows = userId
+    ? await query(
+        `SELECT * FROM music WHERE added_by = $1 OR role_id IN (SELECT id FROM roles WHERE creator_id = $1) ORDER BY created_at DESC`,
+        [userId],
+      )
+    : await query(`SELECT * FROM music ORDER BY created_at DESC LIMIT 40`);
+  return rows.map(mapTrack);
+}

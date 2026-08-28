@@ -60,7 +60,7 @@ function ExploreInner() {
         });
     } else {
       api
-        .get<ExploreData>('/explore', { signal: controller.signal })
+        .get<ExploreData>('/explore', { signal: controller.signal, timeout: 15_000 })
         .then(({ data }) => {
           if (!controller.signal.aborted) setExplore(data);
         })
@@ -194,7 +194,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default function ExplorePage() {
   return (
-    <Suspense>
+    <Suspense fallback={<Skeleton className="h-40" />}>
       <ExploreInner />
     </Suspense>
   );

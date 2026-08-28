@@ -24,20 +24,37 @@ export default function MusicPage() {
 
   async function load(signal?: AbortSignal) {
     const config = signal ? { signal } : undefined;
-    const [{ data: account }, { data: music }] = await Promise.all([
-      api.get<SpotifyAccount & { configured?: boolean }>('/spotify/status', config),
+    const [accountResult, musicResult] = await Promise.allSettled([
+      api.get<SpotifyAccount & { configured?: boolean }>('/spotify/status', { ...config, timeout: 8_000 }),
       api.get<MusicTrack[]>('/music', config),
     ]);
-    setStatus(account);
-    setTracks(music);
-    setSpotifyConnectedFlag(Boolean(account.connected));
-    setCachedSpotifyStatus(account);
-    if (account.nowPlaying) setTrack(account.nowPlaying);
-    if (account.connected) {
-      const lists = await api.get<SpotifyPlaylist[]>('/spotify/playlists', config);
-      setPlaylists(lists.data);
-    } else {
-      setPlaylists([]);
+
+    if (accountResult.status === 'fulfilled') {
+      const account = accountResult.value.data;
+      setStatus(account);
+      setSpotifyConnectedFlag(Boolean(account.connected));
+      setCachedSpotifyStatus(account);
+      if (account.nowPlaying) setTrack(account.nowPlaying);
+      if (account.connected) {
+        try {
+          const lists = await api.get<SpotifyPlaylist[]>('/spotify/playlists', { ...config, timeout: 8_000 });
+          setPlaylists(lists.data);
+        } catch {
+          setPlaylists([]);
+        }
+      } else {
+        setPlaylists([]);
+      }
+    }
+
+    if (musicResult.status === 'fulfilled') {
+      setTracks(musicResult.value.data);
+    }
+
+    const accountFailed = accountResult.status === 'rejected' && !isApiCanceled(accountResult.reason);
+    const musicFailed = musicResult.status === 'rejected' && !isApiCanceled(musicResult.reason);
+    if (accountFailed && musicFailed) {
+      throw accountResult.status === 'rejected' ? accountResult.reason : musicResult.reason;
     }
   }
 
@@ -123,10 +140,19 @@ export default function MusicPage() {
               </div>
             ) : (
               <div className="mt-3">
-                <p className="text-sm text-slate-400">Conecte sua conta para ver a música atual, playlists e abrir no Spotify.</p>
-                <Button className="mt-3" onClick={connect}>
-                  Conectar Spotify
-                </Button>
+                {status?.configured === false ? (
+                  <p className="text-sm text-slate-400">
+                    Spotify não está configurado no servidor. Defina SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET e
+                    SPOTIFY_REDIRECT_URI apontando para a URL pública da API.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-sm text-slate-400">Conecte sua conta para ver a música atual, playlists e abrir no Spotify.</p>
+                    <Button className="mt-3" onClick={connect}>
+                      Conectar Spotify
+                    </Button>
+                  </>
+                )}
               </div>
             )}
           </section>

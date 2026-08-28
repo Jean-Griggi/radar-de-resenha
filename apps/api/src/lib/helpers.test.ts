@@ -9,6 +9,8 @@ describe('toDateKey', () => {
 
   it('reads postgres DATE (UTC midnight) without shifting the day', () => {
     expect(toDateKey(new Date('2026-08-25T00:00:00.000Z'))).toBe('2026-08-25');
+    expect(toDateKey(new Date('2026-08-29T00:00:00.000Z'))).toBe('2026-08-29');
+    expect(toDateKey('2026-08-29')).toBe('2026-08-29');
   });
 
   it('returns null for empty values', () => {

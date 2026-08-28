@@ -9,13 +9,37 @@ type QueryResult = { rows: Record<string, unknown>[] };
 let runQuery: (sql: string, params?: unknown[]) => Promise<QueryResult>;
 let ready = false;
 
+/** Transaction pooler (Supabase :6543) deadlocks if postgres.js pipelines two queries on one connection. */
+const POOL_MAX = process.env.VERCEL ? 5 : 10;
+let inflight = 0;
+const waiters: Array<() => void> = [];
+
+async function acquireSlot() {
+  if (inflight < POOL_MAX) {
+    inflight += 1;
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    waiters.push(() => {
+      inflight += 1;
+      resolve();
+    });
+  });
+}
+
+function releaseSlot() {
+  inflight -= 1;
+  const next = waiters.shift();
+  if (next) next();
+}
+
 export async function initDb() {
   if (ready) return;
 
   if (env.DATABASE_URL) {
     const sql = postgres(env.DATABASE_URL, {
       // Serverless: poucas conexões por isolate. Processo longo (Render/local): um pouco mais.
-      max: process.env.VERCEL ? 5 : 10,
+      max: POOL_MAX,
       ssl: 'require',
       prepare: false,
       idle_timeout: 20,
@@ -48,8 +72,13 @@ export async function initDb() {
 
 export async function query<T = Record<string, unknown>>(sql: string, params: unknown[] = []) {
   if (!runQuery) await initDb();
-  const result = await runQuery(sql, params);
-  return result.rows as T[];
+  await acquireSlot();
+  try {
+    const result = await runQuery(sql, params);
+    return result.rows as T[];
+  } finally {
+    releaseSlot();
+  }
 }
 
 export async function queryOne<T = Record<string, unknown>>(sql: string, params: unknown[] = []) {

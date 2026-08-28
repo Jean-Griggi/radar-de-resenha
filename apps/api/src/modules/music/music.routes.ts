@@ -1,14 +1,14 @@
-import { randomUUID } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { env } from '../../config/env.js';
 import { authenticate } from '../../lib/authenticate.js';
 import {
   completeSpotifyAuth,
+  createSpotifyState,
   disconnectSpotify,
   getPlaylists,
   getSpotifyAccount,
   listMusic,
-  oauthStates,
+  parseSpotifyState,
   spotifyAuthUrl,
 } from './music.service.js';
 
@@ -19,9 +19,7 @@ export async function musicRoutes(app: FastifyInstance) {
   app.get('/spotify/playlists', { preHandler: [authenticate] }, async (request) => getPlaylists(request.user.sub));
 
   app.get('/spotify/connect', { preHandler: [authenticate] }, async (request) => {
-    const state = `${request.user.sub}:${randomUUID()}`;
-    oauthStates.set(state, request.user.sub);
-    return { url: spotifyAuthUrl(state) };
+    return { url: spotifyAuthUrl(createSpotifyState(request.user.sub)) };
   });
 
   app.delete('/spotify', { preHandler: [authenticate] }, async (request, reply) => {
@@ -31,8 +29,7 @@ export async function musicRoutes(app: FastifyInstance) {
 
   app.get('/spotify/callback', async (request, reply) => {
     const { code, state } = request.query as { code?: string; state?: string };
-    const userId = state ? oauthStates.get(state) : undefined;
-    oauthStates.delete(state ?? '');
+    const userId = parseSpotifyState(state);
     if (!code || !userId) {
       return reply.redirect(`${env.WEB_ORIGIN}/music?spotify=error`);
     }
