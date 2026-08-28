@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { StoryRing } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
-import { StoryViewer } from '@/components/StoryViewer';
+import { StoryViewer, StoryPhone } from '@/components/StoryViewer';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
@@ -165,37 +165,39 @@ export function StoriesBar() {
       </section>
 
       {draft ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 p-4">
-          <div className="w-full max-w-md overflow-hidden rounded-2xl bg-zinc-950">
-            {draft.isVideo ? (
-              <video src={draft.preview} className="max-h-[60vh] w-full object-contain" controls />
-            ) : (
-              <img src={draft.preview} alt="Prévia" className="max-h-[60vh] w-full object-contain" />
-            )}
-            <div className="space-y-3 p-4">
-              <input
-                value={caption}
-                onChange={(event) => setCaption(event.target.value)}
-                maxLength={200}
-                placeholder="Legenda (opcional)"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
-              />
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    URL.revokeObjectURL(draft.preview);
-                    setDraft(null);
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button type="button" disabled={publishing} onClick={publish}>
-                  {publishing ? 'Publicando…' : 'Publicar'}
-                </Button>
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-zinc-950/90 p-3 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <StoryPhone>
+              {draft.isVideo ? (
+                <video src={draft.preview} className="h-full w-full object-cover object-center" autoPlay loop muted playsInline />
+              ) : (
+                <img src={draft.preview} alt="Prévia" className="h-full w-full object-cover object-center" />
+              )}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-7 pt-10">
+                <input
+                  value={caption}
+                  onChange={(event) => setCaption(event.target.value)}
+                  maxLength={200}
+                  placeholder="Legenda (opcional)"
+                  className="w-full rounded-full border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
+                />
+                <div className="mt-3 flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      URL.revokeObjectURL(draft.preview);
+                      setDraft(null);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="button" disabled={publishing} onClick={publish}>
+                    {publishing ? 'Publicando…' : 'Publicar'}
+                  </Button>
+                </div>
               </div>
-            </div>
+            </StoryPhone>
           </div>
         </div>
       ) : null}

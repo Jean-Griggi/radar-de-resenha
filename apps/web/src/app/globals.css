@@ -138,3 +138,8 @@ select {
   from { width: 0%; }
   to { width: 100%; }
 }
+
+.story-phone {
+  height: min(88dvh, 740px);
+  width: min(calc(100vw - 1.5rem), calc(min(88dvh, 740px) * 9 / 19.5));
+}
