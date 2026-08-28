@@ -73,9 +73,18 @@ export const NOTIFICATION_TYPES = [
   'attendance',
   'friendship',
   'follow',
+  'story_reply',
 ] as const;
 
-export const MEDIA_KINDS = ['avatar', 'cover', 'photo', 'audio'] as const;
+export const MEDIA_KINDS = ['avatar', 'cover', 'photo', 'audio', 'story'] as const;
+
+export const STORY_MEDIA_TYPES = ['photo', 'video'] as const;
+
+export const STORY_TTL_MS = 24 * 60 * 60 * 1000;
+
+export const STORY_MAX_ACTIVE = 20;
+
+export const STORY_VIDEO_MAX_SECONDS = 15;
 
 export const ACHIEVEMENT_DEFS = [
   { slug: 'first-role', name: 'Primeiro Rolê', description: 'Criou o primeiro rolê.' },

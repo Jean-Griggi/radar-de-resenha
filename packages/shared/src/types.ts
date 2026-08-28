@@ -10,6 +10,7 @@ import type {
   REVIEW_RATING_CATEGORIES,
   ROLE_CATEGORIES,
   ROLE_STATUSES,
+  STORY_MEDIA_TYPES,
 } from './constants.js';
 
 export type RoleCategory = (typeof ROLE_CATEGORIES)[number];
@@ -23,6 +24,7 @@ export type ReactionTargetType = (typeof REACTION_TARGET_TYPES)[number];
 export type FeedEventType = (typeof FEED_EVENT_TYPES)[number];
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 export type MediaKind = (typeof MEDIA_KINDS)[number];
+export type StoryMediaType = (typeof STORY_MEDIA_TYPES)[number];
 
 export type PublicUser = {
   id: string;
@@ -312,4 +314,28 @@ export type SpotifyPlaylist = {
   image: string | null;
   tracks: number;
   url: string;
+};
+
+export type Story = {
+  id: string;
+  authorId: string;
+  author: PublicUser;
+  url: string;
+  mediaType: StoryMediaType;
+  caption: string | null;
+  expiresAt: string;
+  createdAt: string;
+  viewed: boolean;
+  viewCount?: number;
+};
+
+export type StoryRing = {
+  author: PublicUser;
+  stories: Story[];
+  hasUnseen: boolean;
+};
+
+export type StoryViewer = {
+  user: PublicUser;
+  viewedAt: string;
 };

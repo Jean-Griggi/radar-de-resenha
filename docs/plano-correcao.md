@@ -384,21 +384,9 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 ---
 
-## Depois dos bugs — Stories (backlog)
+## Depois dos bugs — Stories
 
-**Não implementar agora.** Quando o passo 9 estiver `[x]`, aí sim:
-
-Ideia: stories 24h (foto/vídeo curto no topo do feed), visualização por amigos, reply opcional.
-
-Precisa de desenho à parte (`docs/plano-stories.md` quando formos começar):
-
-- tabela `stories` (author, media url, expires_at)
-- upload reusando `/storage/sign` (kind novo ou `photo`)
-- barra no home (círculos)
-- viewer full-screen
-- quem viu (opcional v1)
-
-Até lá, zero código de stories neste plano.
+Implementado em [plano-stories.md](plano-stories.md): 24h, amigos, upload `kind=story`, barra no home, viewer, reply e quem viu.
 
 ---
 
@@ -427,11 +415,14 @@ apps/api/src/modules/search/search.service.ts  passo 8
 apps/web/src/app/amigos/page.tsx          passo 3 e 6
 apps/web/src/app/perfil/[username]/page.tsx    passo 3 e 6
 apps/web/src/app/roles/page.tsx           passos 4 e 6
-apps/web/src/app/page.tsx                 passo 6
+apps/web/src/app/page.tsx                 passo 6, stories
 apps/web/src/app/photos/page.tsx          passos 5 e 6
 apps/web/src/components/Avatar.tsx        passo 5
 apps/web/src/components/AppShell.tsx      passo 7
+apps/web/src/components/StoriesBar.tsx    stories
+apps/web/src/components/StoryViewer.tsx   stories
 apps/web/src/lib/api.ts                   passo 6
+apps/api/src/modules/stories/             stories
 ```
 
 ---
@@ -449,4 +440,5 @@ apps/web/src/lib/api.ts                   passo 6
 | 6 | 2026-08-27 | agente | loading/error/empty nas pages; AbortController; explorar com catch; 401 ignora esqueci/redefinir-senha e redireciona uma vez |
 | 7 | 2026-08-27 | agente | cache 60s no rail (calendar/suggestions); spotify/status só se conectado (flag); unread no foco + 2min; feDropShadow só desktop sem reduced-motion |
 | 8 | 2026-08-28 | agente | searchAll tags com ILIKE+limit; explore/listReviews card leve (sem comments/fotos/áudios); userContent LIMIT 20 + serializeRoles; GET comments/attendance sem serializeRoleDetail |
-| 9 | 2026-08-28 | agente | ErrorBoundary no shell + por card do feed; MediaImage lazy; links só /roles/new; Reactions catch+toast; settings/calendar/notifications/music com loading/error. Stories ainda bloqueadas. |
+| 9 | 2026-08-28 | agente | ErrorBoundary no shell + por card do feed; MediaImage lazy; links só /roles/new; Reactions catch+toast; settings/calendar/notifications/music com loading/error. |
+| Stories | 2026-08-28 | agente | 24h, amigos, barra no feed, viewer, reply, quem viu. Ver docs/plano-stories.md. |

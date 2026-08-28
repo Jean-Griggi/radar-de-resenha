@@ -16,6 +16,7 @@ import { reviewsRoutes } from './modules/reviews/reviews.routes.js';
 import { rolesRoutes } from './modules/roles/roles.routes.js';
 import { socialRoutes } from './modules/search/search.routes.js';
 import { usersRoutes } from './modules/users/users.routes.js';
+import { storiesRoutes } from './modules/stories/stories.routes.js';
 
 export async function buildApp() {
   await initDb();
@@ -81,6 +82,7 @@ export async function buildApp() {
   await app.register(rolesRoutes);
   await app.register(reviewsRoutes);
   await app.register(mediaRoutes);
+  await app.register(storiesRoutes);
   await app.register(musicRoutes);
   await app.register(socialRoutes);
 

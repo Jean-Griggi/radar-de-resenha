@@ -95,9 +95,13 @@ export const respondFriendSchema = z.object({
 });
 
 export const signUploadSchema = z.object({
-  kind: z.enum(['avatar', 'cover', 'photo', 'audio']),
+  kind: z.enum(['avatar', 'cover', 'photo', 'audio', 'story']),
   contentType: z.string().min(1).max(120),
   filename: z.string().max(180).optional(),
+});
+
+export const storyReplySchema = z.object({
+  content: z.string().min(1).max(280),
 });
 
 export const albumSchema = z.object({

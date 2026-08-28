@@ -20,12 +20,15 @@ const IMAGE_TYPES = new Set([
   'image/heif-sequence',
 ]);
 const AUDIO_TYPES = new Set(['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/mp4', 'audio/x-m4a']);
+const VIDEO_TYPES = new Set(['video/mp4', 'video/webm', 'video/quicktime']);
+const STORY_TYPES = new Set([...IMAGE_TYPES, ...VIDEO_TYPES]);
 
 const LIMITS = {
   avatar: 5 * 1024 * 1024,
   cover: 8 * 1024 * 1024,
   photo: 8 * 1024 * 1024,
   audio: 12 * 1024 * 1024,
+  story: 12 * 1024 * 1024,
 };
 
 const MIME_FROM_EXT: Record<string, string> = {
@@ -41,7 +44,8 @@ const MIME_FROM_EXT: Record<string, string> = {
   '.webm': 'audio/webm',
   '.ogg': 'audio/ogg',
   '.m4a': 'audio/mp4',
-  '.mp4': 'audio/mp4',
+  '.mp4': 'video/mp4',
+  '.mov': 'video/quicktime',
 };
 
 export type UploadKind = keyof typeof LIMITS;
@@ -85,7 +89,7 @@ export async function ensureStorage() {
   }
 
   const root = storageRoot();
-  for (const folder of ['avatars', 'covers', 'photos', 'audios']) {
+  for (const folder of ['avatars', 'covers', 'photos', 'audios', 'stories']) {
     await mkdir(join(root, folder), { recursive: true });
   }
 }
@@ -94,11 +98,18 @@ function folderFor(kind: UploadKind) {
   if (kind === 'avatar') return 'avatars';
   if (kind === 'cover') return 'covers';
   if (kind === 'audio') return 'audios';
+  if (kind === 'story') return 'stories';
   return 'photos';
 }
 
+function isVideoMime(contentType: string) {
+  return VIDEO_TYPES.has(contentType);
+}
+
 function normalizeMime(contentType: string, filename?: string) {
-  if (IMAGE_TYPES.has(contentType) || AUDIO_TYPES.has(contentType)) return contentType;
+  if (IMAGE_TYPES.has(contentType) || AUDIO_TYPES.has(contentType) || VIDEO_TYPES.has(contentType)) {
+    return contentType;
+  }
   const fromExt = MIME_FROM_EXT[extname(filename || '').toLowerCase()];
   return fromExt ?? contentType;
 }
@@ -115,11 +126,20 @@ function extensionFor(filename: string | undefined, mimetype: string, fallback: 
   if (mimetype === 'audio/webm') return '.webm';
   if (mimetype === 'audio/ogg') return '.ogg';
   if (mimetype === 'audio/mp4' || mimetype === 'audio/x-m4a') return '.m4a';
+  if (mimetype === 'video/webm') return '.webm';
+  if (mimetype === 'video/quicktime') return '.mov';
+  if (mimetype === 'video/mp4') return '.mp4';
   return fallback;
 }
 
+function defaultExtension(kind: UploadKind, mime: string) {
+  if (kind === 'audio') return '.mp3';
+  if (kind === 'story' && isVideoMime(mime)) return '.mp4';
+  return '.jpg';
+}
+
 function assertAllowed(kind: UploadKind, contentType: string) {
-  const allowed = kind === 'audio' ? AUDIO_TYPES : IMAGE_TYPES;
+  const allowed = kind === 'audio' ? AUDIO_TYPES : kind === 'story' ? STORY_TYPES : IMAGE_TYPES;
   if (!allowed.has(contentType)) {
     throw new Error('UNSUPPORTED_MEDIA');
   }
@@ -134,7 +154,7 @@ function issueConfirmToken(relative: string, userId: string, kind: UploadKind) {
 
 function assertConfirmToken(relative: string, token: string, userId: string, kind: UploadKind) {
   const safePath =
-    /^(avatars|covers|photos|audios)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{2,5}$/i;
+    /^(avatars|covers|photos|audios|stories)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{2,5}$/i;
   if (!safePath.test(relative)) {
     throw new Error('INVALID_UPLOAD_TOKEN');
   }
@@ -180,7 +200,7 @@ export async function signUpload(
     return { mode: 'multipart' as const };
   }
 
-  const relative = `${folderFor(kind)}/${randomUUID()}${extensionFor(filename, mime, kind === 'audio' ? '.mp3' : '.jpg')}`;
+  const relative = `${folderFor(kind)}/${randomUUID()}${extensionFor(filename, mime, defaultExtension(kind, mime))}`;
   const { data, error } = await supabase!.storage
     .from(env.SUPABASE_STORAGE_BUCKET)
     .createSignedUploadUrl(relative);
@@ -229,7 +249,7 @@ export async function saveUpload(
   const mime = normalizeMime(file.mimetype, file.filename);
   assertAllowed(kind, mime);
 
-  const filename = `${randomUUID()}${extensionFor(file.filename, mime, kind === 'audio' ? '.mp3' : '.jpg')}`;
+  const filename = `${randomUUID()}${extensionFor(file.filename, mime, defaultExtension(kind, mime))}`;
   const relative = `${folderFor(kind)}/${filename}`;
   const buffer = await file.toBuffer();
 

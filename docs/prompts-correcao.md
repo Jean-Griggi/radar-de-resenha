@@ -5,7 +5,7 @@ Cole **um** destes blocos no chat do Cursor (Agent). A IA lê o plano, pega **s�
 Plano completo: [plano-correcao.md](plano-correcao.md)  
 Regras gerais da IA: [ai/plano-execucao.md](ai/plano-execucao.md)
 
-Não cole dois passos de uma vez. Não peça stories até o passo 9 estar `[x]`.
+Não cole dois passos de uma vez. Stories: [plano-stories.md](plano-stories.md).
 
 ---
 
@@ -246,12 +246,6 @@ Ao terminar: marcar Passo 9 como [x], preencher o registro, confirmar que o back
 
 ---
 
-## Depois do passo 9 — Stories (ainda não)
+## Stories
 
-Só cole isto quando o passo 9 estiver `[x]` **e** você pedir a feature:
-
-```
-O plano de bugs em docs/plano-correcao.md está concluído (passos 0–9 [x]).
-Agora crie docs/plano-stories.md com o desenho da feature estilo Instagram (24h, upload, barra no feed, viewer) e NÃO implemente código até eu aprovar esse doc.
-Siga docs/ai/plano-execucao.md. Sem mobile/desktop.
-```
+A feature está desenhada e implementada em [plano-stories.md](plano-stories.md).

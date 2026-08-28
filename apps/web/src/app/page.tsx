@@ -10,6 +10,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { MediaImage } from '@/components/MediaImage';
 import { Reactions } from '@/components/Reactions';
 import { RequireAuth } from '@/components/RequireAuth';
+import { StoriesBar } from '@/components/StoriesBar';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
@@ -75,6 +76,8 @@ export default function HomePage() {
           <p className="text-sm text-white/80">Sua timeline</p>
           <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">O que está acontecendo?</h1>
         </section>
+
+        <StoriesBar />
 
         <form onSubmit={publish} className="card p-4">
           <div className="flex gap-3">

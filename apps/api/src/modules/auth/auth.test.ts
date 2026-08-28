@@ -443,6 +443,155 @@ describe('Resenhômetro API', () => {
     expect(removed.statusCode).toBe(204);
   });
 
+  it('stories: friends-only, view, reply and delete', async () => {
+    async function register(name: string, nick: string) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/auth/register',
+        payload: { name, email: `${nick}${suffix}@resenha.test`, password: 'secret12', username: nick },
+      });
+      expect(res.statusCode).toBe(201);
+      return { token: res.json().token as string, id: res.json().user.id as string };
+    }
+
+    const a = await register('Story A', `sa${suffix}`);
+    const b = await register('Story B', `sb${suffix}`);
+    const header = (token: string) => ({ authorization: `Bearer ${token}` });
+
+    const signOk = await app.inject({
+      method: 'POST',
+      url: '/storage/sign',
+      headers: header(a.token),
+      payload: { kind: 'story', contentType: 'image/jpeg', filename: 'x.jpg' },
+    });
+    expect(signOk.statusCode).toBe(200);
+
+    const signVideo = await app.inject({
+      method: 'POST',
+      url: '/storage/sign',
+      headers: header(a.token),
+      payload: { kind: 'story', contentType: 'video/mp4', filename: 'x.mp4' },
+    });
+    expect(signVideo.statusCode).toBe(200);
+
+    const signPdf = await app.inject({
+      method: 'POST',
+      url: '/storage/sign',
+      headers: header(a.token),
+      payload: { kind: 'story', contentType: 'application/pdf', filename: 'x.pdf' },
+    });
+    expect(signPdf.statusCode).toBe(400);
+
+    const boundary = '----radar-story';
+    const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
+    const payload = Buffer.concat([
+      Buffer.from(
+        `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="story.jpg"\r\nContent-Type: image/jpeg\r\n\r\n`,
+      ),
+      jpeg,
+      Buffer.from(
+        `\r\n--${boundary}\r\nContent-Disposition: form-data; name="caption"\r\n\r\nnoite boa\r\n--${boundary}--\r\n`,
+      ),
+    ]);
+    const created = await app.inject({
+      method: 'POST',
+      url: '/stories',
+      headers: { ...header(a.token), 'content-type': `multipart/form-data; boundary=${boundary}` },
+      payload,
+    });
+    expect(created.statusCode).toBe(201);
+    const story = created.json() as { id: string; caption: string; url: string; mediaType: string };
+    expect(story.caption).toBe('noite boa');
+    expect(story.mediaType).toBe('photo');
+    expect(story.url).toContain('stories/');
+
+    const strangerRings = await app.inject({ method: 'GET', url: '/stories', headers: header(b.token) });
+    expect(
+      (strangerRings.json() as { author: { id: string }; stories: unknown[] }[]).some(
+        (ring) => ring.author.id === a.id && ring.stories.length > 0,
+      ),
+    ).toBe(false);
+
+    const forbiddenView = await app.inject({
+      method: 'POST',
+      url: `/stories/${story.id}/view`,
+      headers: header(b.token),
+    });
+    expect(forbiddenView.statusCode).toBe(403);
+
+    const request = await app.inject({
+      method: 'POST',
+      url: '/friends/requests',
+      headers: header(a.token),
+      payload: { userId: b.id },
+    });
+    expect(request.statusCode).toBe(201);
+    const accepted = await app.inject({
+      method: 'PUT',
+      url: `/friends/requests/${request.json().id}`,
+      headers: header(b.token),
+      payload: { status: 'accepted' },
+    });
+    expect(accepted.statusCode).toBe(200);
+
+    const friendRings = await app.inject({ method: 'GET', url: '/stories', headers: header(b.token) });
+    const aRing = (friendRings.json() as { author: { id: string }; hasUnseen: boolean; stories: { id: string; viewed: boolean }[] }[]).find(
+      (ring) => ring.author.id === a.id,
+    );
+    expect(aRing?.hasUnseen).toBe(true);
+    expect(aRing?.stories[0]?.id).toBe(story.id);
+
+    const viewed = await app.inject({
+      method: 'POST',
+      url: `/stories/${story.id}/view`,
+      headers: header(b.token),
+    });
+    expect(viewed.statusCode).toBe(200);
+
+    const afterView = await app.inject({ method: 'GET', url: '/stories', headers: header(b.token) });
+    const seenRing = (afterView.json() as { author: { id: string }; hasUnseen: boolean; stories: { viewed: boolean }[] }[]).find(
+      (ring) => ring.author.id === a.id,
+    );
+    expect(seenRing?.hasUnseen).toBe(false);
+    expect(seenRing?.stories[0]?.viewed).toBe(true);
+
+    const viewers = await app.inject({
+      method: 'GET',
+      url: `/stories/${story.id}/viewers`,
+      headers: header(a.token),
+    });
+    expect((viewers.json() as { user: { id: string } }[]).some((item) => item.user.id === b.id)).toBe(true);
+
+    const viewersForbidden = await app.inject({
+      method: 'GET',
+      url: `/stories/${story.id}/viewers`,
+      headers: header(b.token),
+    });
+    expect(viewersForbidden.statusCode).toBe(403);
+
+    const reply = await app.inject({
+      method: 'POST',
+      url: `/stories/${story.id}/reply`,
+      headers: header(b.token),
+      payload: { content: 'top demais' },
+    });
+    expect(reply.statusCode).toBe(200);
+
+    const notes = await app.inject({ method: 'GET', url: '/notifications', headers: header(a.token) });
+    expect(
+      (notes.json() as { type: string; message: string }[]).some(
+        (item) => item.type === 'story_reply' && item.message.includes('top demais'),
+      ),
+    ).toBe(true);
+
+    const removedStory = await app.inject({
+      method: 'DELETE',
+      url: `/stories/${story.id}`,
+      headers: header(a.token),
+    });
+    expect(removedStory.statusCode).toBe(204);
+  });
+
   it('forgot password + reset', async () => {
     const email = `qa${suffix}@resenha.test`;
     const forgotUnknown = await app.inject({

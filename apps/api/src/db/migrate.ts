@@ -314,7 +314,36 @@ const migrations: Migration[] = [
     sql: `CREATE UNIQUE INDEX IF NOT EXISTS idx_friendships_pair_unordered
     ON friendships (LEAST(requester_id, receiver_id), GREATEST(requester_id, receiver_id))`,
   },
-];
+  {
+    id: '036_stories',
+    sql: `CREATE TABLE IF NOT EXISTS stories (
+    id TEXT PRIMARY KEY,
+    author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    url TEXT NOT NULL,
+    media_type TEXT NOT NULL DEFAULT 'photo',
+    caption TEXT,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL
+  )`,
+  },
+  {
+    id: '037_idx_stories_author_expires',
+    sql: `CREATE INDEX IF NOT EXISTS idx_stories_author_expires ON stories (author_id, expires_at DESC)`,
+  },
+  {
+    id: '038_idx_stories_expires',
+    sql: `CREATE INDEX IF NOT EXISTS idx_stories_expires ON stories (expires_at)`,
+  },
+  {
+    id: '039_story_views',
+    sql: `CREATE TABLE IF NOT EXISTS story_views (
+    story_id TEXT NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    viewed_at TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (story_id, user_id)
+  )`,
+  },
+]
 
 export async function applyMigrations(query: QueryFn) {
   await query(`CREATE TABLE IF NOT EXISTS schema_migrations (

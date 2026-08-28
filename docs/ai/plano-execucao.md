@@ -25,7 +25,7 @@ Este arquivo é o guia de trabalho **depois** da implementação da rede social.
 
 ## O que o produto já faz
 
-Cadastro/login JWT, perfil com avatar e capa, rolês (CRUD + presença), feed, comentários aninhados, reações, amigos, follow, busca, explorar, resenhas, fotos, álbuns, áudios, calendário, stats, retrospectiva, conquistas, notificações in-app, Spotify (se configurado), tema claro/escuro.
+Cadastro/login JWT, perfil com avatar e capa, rolês (CRUD + presença), feed, comentários aninhados, reações, amigos, follow, busca, explorar, resenhas, fotos, álbuns, áudios, calendário, stats, retrospectiva, conquistas, notificações in-app, Spotify (se configurado), tema claro/escuro, stories 24h.
 
 ## Como rodar
 
@@ -47,6 +47,5 @@ Web: http://localhost:3000 · API: http://localhost:3333
 
 ## Pendências reais
 
-- Bugs de produção (lentidão, amigos, rolês, fotos, front): seguir [docs/plano-correcao.md](../plano-correcao.md). Para a IA executar um passo, colar o prompt em [docs/prompts-correcao.md](../prompts-correcao.md). Stories só depois desses passos.
 - Spotify só conecta com credenciais no `.env`
 - Site público depende de Vercel (front) e Render/Railway (API)
