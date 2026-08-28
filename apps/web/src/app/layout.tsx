@@ -35,9 +35,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={`${inter.className} min-h-screen antialiased`}>
         <ThemeProvider>
           <WaveBackground />
-          <ToastProvider>
-            <PlayerProvider>{children}</PlayerProvider>
-          </ToastProvider>
+          <div className="relative z-10">
+            <ToastProvider>
+              <PlayerProvider>{children}</PlayerProvider>
+            </ToastProvider>
+          </div>
         </ThemeProvider>
       </body>
     </html>
