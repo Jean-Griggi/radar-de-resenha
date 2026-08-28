@@ -359,10 +359,10 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 **O que fazer:**
 
-- [ ] `searchAll`: **não** varrer todas as tags do banco. `WHERE tags ILIKE` ou tabela/GIN depois. Limit.
-- [ ] `explore` / `serializeReview`: review na listagem **não** precisa de `nestComments` + fotos + áudios. Card leve; detalhe hidrata o resto.
-- [ ] `userContent`: limitar rolês/fotos (ex. 20) e usar o batch do passo 2.
-- [ ] Rotas `GET /roles/:id/comments` e `GET /roles/:id/attendance` não devem chamar `serializeRoleDetail` inteiro.
+- [x] `searchAll`: **não** varrer todas as tags do banco. `WHERE tags ILIKE` ou tabela/GIN depois. Limit.
+- [x] `explore` / `serializeReview`: review na listagem **não** precisa de `nestComments` + fotos + áudios. Card leve; detalhe hidrata o resto.
+- [x] `userContent`: limitar rolês/fotos (ex. 20) e usar o batch do passo 2.
+- [x] Rotas `GET /roles/:id/comments` e `GET /roles/:id/attendance` não devem chamar `serializeRoleDetail` inteiro.
 
 **Como validar:**
 
@@ -374,11 +374,11 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 ## Passo 9 — Hardening do front
 
-- [ ] Error Boundary em volta do `children` do shell (erro de render não derruba o app inteiro).
-- [ ] `img` com `loading="lazy"` na galeria.
-- [ ] Conferir `/roles/new` vs `/roles/novo` (redirect já existe; links devem apontar só para `/roles/new`).
-- [ ] Reações: catch + toast (hoje o clique pode falhar em silêncio).
-- [ ] Passar os olhos em settings, calendar, notifications, music com o mesmo padrão loading/error.
+- [x] Error Boundary em volta do `children` do shell (erro de render não derruba o app inteiro).
+- [x] `img` com `loading="lazy"` na galeria.
+- [x] Conferir `/roles/new` vs `/roles/novo` (redirect já existe; links devem apontar só para `/roles/new`).
+- [x] Reações: catch + toast (hoje o clique pode falhar em silêncio).
+- [x] Passar os olhos em settings, calendar, notifications, music com o mesmo padrão loading/error.
 
 **Como validar:** forçar um throw num card do feed → o resto da página e o menu continuam.
 
@@ -448,5 +448,5 @@ apps/web/src/lib/api.ts                   passo 6
 | 5 | 2026-08-27 | agente | Avatar/MediaImage onError; HEIC aceito + conversão JPEG ou mensagem; publicUrl único; feed photo_added em batch; coverPhoto no card; listAlbums batch; removeStored no delete; timer de áudio cancelado |
 | 6 | 2026-08-27 | agente | loading/error/empty nas pages; AbortController; explorar com catch; 401 ignora esqueci/redefinir-senha e redireciona uma vez |
 | 7 | 2026-08-27 | agente | cache 60s no rail (calendar/suggestions); spotify/status só se conectado (flag); unread no foco + 2min; feDropShadow só desktop sem reduced-motion |
-| 8 | | | |
-| 9 | | | |
+| 8 | 2026-08-28 | agente | searchAll tags com ILIKE+limit; explore/listReviews card leve (sem comments/fotos/áudios); userContent LIMIT 20 + serializeRoles; GET comments/attendance sem serializeRoleDetail |
+| 9 | 2026-08-28 | agente | ErrorBoundary no shell + por card do feed; MediaImage lazy; links só /roles/new; Reactions catch+toast; settings/calendar/notifications/music com loading/error. Stories ainda bloqueadas. |

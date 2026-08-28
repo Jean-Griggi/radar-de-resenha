@@ -22,6 +22,7 @@ import {
   type RailRole,
 } from '@/lib/shellCache';
 import { Avatar } from './Avatar';
+import { ErrorBoundary } from './ErrorBoundary';
 import { MiniPlayer, usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
 
@@ -229,7 +230,9 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
           </div>
         </aside>
 
-        <main className="min-w-0">{children}</main>
+        <main className="min-w-0">
+          <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
+        </main>
 
         <aside className="min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:col-span-2 xl:col-span-1 xl:pb-0">
           <div className="space-y-4 xl:sticky xl:top-24">{right ?? <DefaultRail />}</div>

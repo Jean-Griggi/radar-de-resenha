@@ -28,5 +28,5 @@ export function MediaImage({
     );
   }
 
-  return <img src={src} alt={alt} className={className} onError={() => setBroken(true)} />;
+  return <img src={src} alt={alt} className={className} loading="lazy" decoding="async" onError={() => setBroken(true)} />;
 }
