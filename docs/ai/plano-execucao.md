@@ -9,7 +9,7 @@ Este arquivo é o guia de trabalho **depois** da implementação da rede social.
 3. Não volte atrás para store só em memória. Persistência já existe (PGlite ou PostgreSQL).
 4. Não mexa em `apps/mobile` nem `apps/desktop`.
 5. Backend: `routes` → `service` → `src/db` / storage.
-6. Frontend: manter identidade visual, temas claro/escuro e o fundo de waves.
+6. Frontend: identidade **Redesenha** (DS v1.0). Dark estrutural + paper `#F2F0EC`, Plus Jakarta Sans, barra superior no desktop, bottom nav 5 no mobile, ondas + grain. Sem violeta de marca. Não reintroduzir `#FF6347` / lima / Inter como fonte principal.
 7. A branch de trabalho é a **`main`**.
 8. Não publique deploy sozinha. Código já está no GitHub; hospedagem (Vercel + Render/Railway) só com conta e variáveis.
 9. Idioma com a equipe: português, direto.

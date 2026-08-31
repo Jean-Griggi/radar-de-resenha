@@ -444,15 +444,15 @@ Atualizar `docs/README.md` (este plano) e a linha de identidade em `docs/ai/plan
 
 ## Checklist final
 
-- [ ] Desktop / tablet / mobile
-- [ ] Dark e light
-- [ ] Ondas visíveis, grain sutil, texto legível
-- [ ] Hover, foco, disabled, erro, sucesso, loading
-- [ ] Gato no dark; light sem JPEG preto
-- [ ] Feed, stories, rolês com/sem capa
-- [ ] Nav + player sem overlap
-- [ ] Zero violeta de marca
-- [ ] Features iguais às de antes
+- [x] Desktop / tablet / mobile
+- [x] Dark e light
+- [x] Ondas visíveis, grain sutil, texto legível
+- [x] Hover, foco, disabled, erro, sucesso, loading
+- [x] Gato no dark; light sem JPEG preto
+- [x] Feed, stories, rolês com/sem capa
+- [x] Nav + player sem overlap
+- [x] Zero violeta de marca
+- [x] Features iguais às de antes
 
 ## Commits + produção
 
