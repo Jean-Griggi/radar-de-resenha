@@ -135,7 +135,7 @@ export default function ProfilePage() {
         </div>
         <div className="bg-[var(--bg-elevated)] px-4 pb-5 sm:px-6 sm:pb-6">
           <div className="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-            <div className="flex items-end gap-3 sm:gap-4">
+            <div className="relative z-10 flex items-end gap-3 sm:gap-4">
               <Avatar src={profile.avatar} name={profile.name} size="xl" glow />
               <div className="min-w-0">
                 <h1 className="text-2xl font-semibold sm:text-3xl">{profile.name}</h1>
