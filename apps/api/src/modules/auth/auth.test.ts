@@ -282,10 +282,16 @@ describe('Resenhômetro API', () => {
 
     const suggestionsA = await app.inject({ method: 'GET', url: '/suggestions', headers: header(a.token) });
     expect(suggestionsA.statusCode).toBe(200);
-    expect(suggestionsA.json().some((u: { id: string }) => u.id === b.id)).toBe(false);
+    expect(suggestionsA.json().some((u: { id: string }) => u.id === b.id)).toBe(true);
+
+    const followB = await app.inject({ method: 'POST', url: `/users/${b.id}/follow`, headers: header(a.token) });
+    expect(followB.statusCode).toBe(200);
+
+    const suggestionsAfterFollow = await app.inject({ method: 'GET', url: '/suggestions', headers: header(a.token) });
+    expect(suggestionsAfterFollow.json().some((u: { id: string }) => u.id === b.id)).toBe(false);
 
     const suggestionsB = await app.inject({ method: 'GET', url: '/suggestions', headers: header(b.token) });
-    expect(suggestionsB.json().some((u: { id: string }) => u.id === a.id)).toBe(false);
+    expect(suggestionsB.json().some((u: { id: string }) => u.id === a.id)).toBe(true);
 
     const crossed = await app.inject({
       method: 'POST',

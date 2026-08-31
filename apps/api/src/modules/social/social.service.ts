@@ -63,6 +63,17 @@ export async function addComment(
         link,
       });
     }
+  } else if (input.targetType === 'post') {
+    const post = await queryOne<{ author_id: string }>(`SELECT author_id FROM posts WHERE id = $1`, [input.targetId]);
+    if (post) {
+      await notify({
+        userId: post.author_id,
+        actorId: userId,
+        type: 'comment',
+        message: `${actor?.name ?? 'Alguém'} comentou na sua publicação`,
+        link: '/',
+      });
+    }
   } else if (input.targetType === 'review') {
     const review = await queryOne<{ author_id: string }>(`SELECT author_id FROM reviews WHERE id = $1`, [input.targetId]);
     if (review) {

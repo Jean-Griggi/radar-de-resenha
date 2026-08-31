@@ -131,14 +131,6 @@ export async function suggestions(userId: string) {
      FROM users
      WHERE id <> $1
        AND id NOT IN (SELECT following_id FROM follows WHERE follower_id = $1)
-       AND NOT EXISTS (
-         SELECT 1 FROM friendships f
-         WHERE (
-           (f.requester_id = $1 AND f.receiver_id = users.id)
-           OR (f.requester_id = users.id AND f.receiver_id = $1)
-         )
-         AND f.status IN ('accepted', 'pending')
-       )
      ORDER BY created_at DESC
      LIMIT 8`,
     [userId],

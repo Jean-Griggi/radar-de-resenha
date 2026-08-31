@@ -6,6 +6,7 @@ import type { FeedItem, ReactionSummary } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { EmptyState, Skeleton } from '@/components/Card';
+import { FeedComments } from '@/components/Comments';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { MediaImage } from '@/components/MediaImage';
 import { Reactions } from '@/components/Reactions';
@@ -26,6 +27,14 @@ const LABELS: Record<string, string> = {
   achievement_unlocked: 'ganhou uma conquista',
   post_created: 'publicou algo',
 };
+
+function commentTarget(item: FeedItem) {
+  if (item.post?.id) return { targetType: 'post', targetId: item.post.id };
+  if (item.role?.id) return { targetType: 'role', targetId: item.role.id };
+  if (item.review?.id) return { targetType: 'review', targetId: item.review.id };
+  if (item.photo?.id) return { targetType: 'photo', targetId: item.photo.id };
+  return null;
+}
 
 export default function HomePage() {
   const [items, setItems] = useState<FeedItem[]>([]);
@@ -140,7 +149,9 @@ export default function HomePage() {
         ) : null}
 
         {!loading
-          ? items.map((item) => (
+          ? items.map((item) => {
+              const target = commentTarget(item);
+              return (
               <ErrorBoundary
                 key={item.id}
                 fallback={
@@ -149,81 +160,83 @@ export default function HomePage() {
                   </article>
                 }
               >
-                <article className="card p-5">
-                  <div className="flex items-start gap-3">
-                    <Avatar src={item.actor?.avatar} name={item.actor?.name} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm">
-                        <Link href={`/perfil/${item.actor?.username}`} className="font-medium text-fg">
-                          {item.actor?.name}
-                        </Link>{' '}
-                        <span className="text-muted">{LABELS[item.type] ?? item.type}</span>
-                      </p>
-                      <p className="text-xs text-muted">{formatTimeAgo(item.createdAt)}</p>
-                      {item.role ? (
-                        <Link href={`/roles/${item.role.id}`} className="mt-3 block rounded-[var(--radius-lg)] border-2 border-line p-4 hover:border-[var(--text)]">
-                          <p className="text-small font-bold text-fg">
-                            {formatDate(item.role.date)} {item.role.time}
+                <article className="card overflow-hidden p-0">
+                  <div className="grid md:grid-cols-[minmax(0,1fr)_min(20rem,42%)]">
+                    <div className="min-w-0 p-3 sm:p-4">
+                      <div className="flex items-start gap-2">
+                        <Avatar src={item.actor?.avatar} name={item.actor?.name} size="sm" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm">
+                            <Link href={`/perfil/${item.actor?.username}`} className="font-medium text-fg">
+                              {item.actor?.name}
+                            </Link>{' '}
+                            <span className="text-muted">{LABELS[item.type] ?? item.type}</span>
                           </p>
-                          <p className="text-sm text-muted">{item.role.location || 'Local a combinar'}</p>
-                          <h2 className="mt-2 text-lg font-medium text-fg">{item.role.title}</h2>
-                          <p className="mt-2 text-xs text-muted">{item.role.goingCount} pessoas confirmaram</p>
-                        </Link>
-                      ) : null}
-                      {item.review ? (
-                        <Link href={`/reviews/${item.review.id}`} className="mt-3 block rounded-[var(--radius-lg)] border-2 border-line p-4">
-                          <p className="text-[var(--accent)]">{'★'.repeat(item.review.rating)}</p>
-                          <h2 className="text-lg font-medium text-fg">{item.review.title}</h2>
-                          <p className="line-clamp-3 text-sm text-muted">{item.review.content}</p>
-                        </Link>
-                      ) : null}
-                      {item.post ? <p className="mt-3 text-fg">{item.post.content}</p> : null}
-                      {item.photo ? (
-                        <MediaImage
-                          src={item.photo.url}
-                          alt={item.photo.caption || 'Foto'}
-                          className="mt-3 h-52 w-full rounded-[var(--radius-lg)] object-cover"
-                        />
-                      ) : null}
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {item.role ? (
-                          <button type="button" className="button button--primary" onClick={() => bora(item.role!.id)}>
-                            Bora
-                          </button>
-                        ) : null}
-                        {item.role || item.review ? (
-                          <Link
-                            href={item.role ? `/roles/${item.role.id}` : `/reviews/${item.review!.id}`}
-                            className="button button--outline"
-                          >
-                            Comentar
-                          </Link>
-                        ) : null}
-                        {item.role || item.review ? (
-                          <button
-                            type="button"
-                            className="button button--ghost"
-                            onClick={() => saveLink(item.role ? `/roles/${item.role.id}` : `/reviews/${item.review!.id}`)}
-                          >
-                            Salvar
-                          </button>
-                        ) : null}
-                      </div>
-                      <div className="mt-3">
-                        <Reactions
-                          targetType={item.role ? 'role' : item.review ? 'review' : 'post'}
-                          targetId={item.role?.id || item.review?.id || item.post?.id || item.id}
-                          items={item.reactions ?? []}
-                          onChange={(reactions: ReactionSummary[]) => {
-                            setItems((current) => current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)));
-                          }}
-                        />
+                          <p className="text-xs text-muted">{formatTimeAgo(item.createdAt)}</p>
+                          {item.role ? (
+                            <Link href={`/roles/${item.role.id}`} className="mt-2 block rounded-[var(--radius-md)] border-2 border-line p-3 hover:border-[var(--text)]">
+                              <p className="text-xs font-bold text-fg">
+                                {formatDate(item.role.date)} {item.role.time}
+                              </p>
+                              <p className="text-xs text-muted">{item.role.location || 'Local a combinar'}</p>
+                              <h2 className="mt-1 text-base font-medium text-fg">{item.role.title}</h2>
+                              <p className="mt-1 text-xs text-muted">{item.role.goingCount} pessoas confirmaram</p>
+                            </Link>
+                          ) : null}
+                          {item.review ? (
+                            <Link href={`/reviews/${item.review.id}`} className="mt-2 block rounded-[var(--radius-md)] border-2 border-line p-3">
+                              <p className="text-[var(--accent)]">{'★'.repeat(item.review.rating)}</p>
+                              <h2 className="text-base font-medium text-fg">{item.review.title}</h2>
+                              <p className="line-clamp-2 text-sm text-muted">{item.review.content}</p>
+                            </Link>
+                          ) : null}
+                          {item.post ? <p className="mt-2 line-clamp-5 text-sm text-fg">{item.post.content}</p> : null}
+                          {item.photo ? (
+                            <MediaImage
+                              src={item.photo.url}
+                              alt={item.photo.caption || 'Foto'}
+                              className="mt-2 h-36 w-full rounded-[var(--radius-md)] object-cover"
+                            />
+                          ) : null}
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {item.role ? (
+                              <button type="button" className="button button--primary" onClick={() => bora(item.role!.id)}>
+                                Bora
+                              </button>
+                            ) : null}
+                            {item.role || item.review ? (
+                              <button
+                                type="button"
+                                className="button button--ghost"
+                                onClick={() => saveLink(item.role ? `/roles/${item.role.id}` : `/reviews/${item.review!.id}`)}
+                              >
+                                Salvar
+                              </button>
+                            ) : null}
+                          </div>
+                          <div className="mt-2">
+                            <Reactions
+                              targetType={item.role ? 'role' : item.review ? 'review' : 'post'}
+                              targetId={item.role?.id || item.review?.id || item.post?.id || item.id}
+                              items={item.reactions ?? []}
+                              onChange={(reactions: ReactionSummary[]) => {
+                                setItems((current) => current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)));
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
+                    {target ? (
+                      <div className="border-t border-line p-3 md:border-t-0 md:border-l">
+                        <FeedComments targetType={target.targetType} targetId={target.targetId} />
+                      </div>
+                    ) : null}
                   </div>
                 </article>
               </ErrorBoundary>
-            ))
+              );
+            })
           : null}
       </div>
     </RequireAuth>

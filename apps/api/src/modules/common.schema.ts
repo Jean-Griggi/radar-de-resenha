@@ -60,6 +60,18 @@ export const commentSchema = z.object({
   parentId: z.string().uuid().optional().nullable(),
 });
 
+export const commentTargetSchema = z.enum(['role', 'review', 'post', 'photo', 'audio']);
+
+export const createTargetCommentSchema = commentSchema.extend({
+  targetType: commentTargetSchema,
+  targetId: z.string().min(1),
+});
+
+export const commentQuerySchema = z.object({
+  targetType: commentTargetSchema,
+  targetId: z.string().min(1),
+});
+
 export const reactionSchema = z.object({
   targetType: z.enum(['role', 'review', 'post', 'comment', 'photo', 'audio']),
   targetId: z.string().min(1),

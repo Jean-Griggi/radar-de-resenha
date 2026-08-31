@@ -297,6 +297,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
 function DefaultRail() {
   const [roles, setRoles] = useState<RailRole[]>(() => peekUpcomingRoles() ?? []);
   const [people, setPeople] = useState<RailPerson[]>(() => peekSuggestions() ?? []);
+  const [following, setFollowing] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -356,14 +357,33 @@ function DefaultRail() {
       </div>
       <div className="card p-4">
         <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted">SUGESTÕES</h2>
+        {people.length === 0 ? <p className="text-sm text-muted">Ninguém para seguir agora.</p> : null}
         <ul className="space-y-3">
           {people.map((person) => (
             <li key={person.id} className="flex items-center gap-2">
               <Avatar src={person.avatar} name={person.name} size="sm" />
-              <Link href={`/perfil/${person.username}`} className="min-w-0">
+              <Link href={`/perfil/${person.username}`} className="min-w-0 flex-1">
                 <p className="truncate text-sm">{person.name}</p>
                 <p className="truncate text-xs text-muted">@{person.username}</p>
               </Link>
+              <button
+                type="button"
+                className="button button--primary shrink-0 px-3 text-xs"
+                disabled={following === person.id}
+                onClick={async () => {
+                  setFollowing(person.id);
+                  try {
+                    await api.post(`/users/${person.id}/follow`);
+                    const next = people.filter((item) => item.id !== person.id);
+                    setPeople(next);
+                    setCachedSuggestions(next);
+                  } finally {
+                    setFollowing(null);
+                  }
+                }}
+              >
+                Seguir
+              </button>
             </li>
           ))}
         </ul>

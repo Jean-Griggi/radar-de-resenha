@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
-import { commentSchema, postSchema, reactionSchema } from '../common.schema.js';
+import { commentQuerySchema, commentSchema, createTargetCommentSchema, postSchema, reactionSchema } from '../common.schema.js';
 import { getCalendar } from '../calendar/calendar.service.js';
 import { getStats, getYearReview } from '../stats/stats.service.js';
 import {
@@ -12,6 +12,7 @@ import {
   setReaction,
   updateComment,
 } from '../social/social.service.js';
+import { nestComments } from '../roles/roles.service.js';
 import { explore, listNotifications, markAllRead, markNotificationRead, searchAll, unreadCount } from './search.service.js';
 
 export async function socialRoutes(app: FastifyInstance) {
@@ -32,6 +33,16 @@ export async function socialRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     await deleteReaction(id, request.user.sub);
     return reply.status(204).send();
+  });
+
+  app.get('/comments', { preHandler: [authenticate] }, async (request) => {
+    const query = commentQuerySchema.parse(request.query);
+    return nestComments(query.targetType, query.targetId, request.user.sub);
+  });
+
+  app.post('/comments', { preHandler: [authenticate] }, async (request) => {
+    const body = createTargetCommentSchema.parse(request.body);
+    return addComment(request.user.sub, body);
   });
 
   app.put('/comments/:id', { preHandler: [authenticate] }, async (request) => {
