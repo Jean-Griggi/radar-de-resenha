@@ -23,5 +23,5 @@ export function EmptyState({
 }
 
 export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-overlay ${className}`} />;
+  return <div className={`skeleton rounded-[var(--radius-md)] ${className}`} aria-hidden />;
 }

@@ -47,7 +47,7 @@ export function Comments({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? 'Responder…' : 'Comentar…'}
-              className="min-h-11 w-full rounded-full border-2 border-line bg-input px-3 text-sm text-fg"
+              className="input rounded-full"
             />
           ) : (
             <textarea
@@ -55,7 +55,7 @@ export function Comments({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? 'Escreva uma resposta...' : 'Escreva um comentário...'}
-              className="min-h-20 w-full rounded-xl border border-line bg-input px-3 py-2 text-sm text-fg focus:ring-2 focus:ring-[var(--accent)]"
+              className="input min-h-20"
             />
           )}
           <div className="mt-2 flex items-center gap-2">

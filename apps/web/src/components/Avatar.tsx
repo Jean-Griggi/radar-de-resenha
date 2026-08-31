@@ -27,7 +27,7 @@ export function Avatar({
   };
   return (
     <div
-      className={`overflow-hidden rounded-full bg-[var(--brand-red-dark)] ${sizes[size]} ${glow ? 'ring-2 ring-[var(--accent)]' : 'ring-2 ring-[var(--line)]'}`}
+      className={`overflow-hidden rounded-full bg-[var(--secondary)] ${sizes[size]} ${glow ? 'ring-2 ring-[var(--primary)]' : 'ring-2 ring-[var(--border)]'}`}
     >
       {src && !broken ? (
         <img
@@ -37,7 +37,7 @@ export function Avatar({
           onError={() => setBroken(true)}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center font-semibold text-[var(--paper)]">{initials(name)}</div>
+        <div className="flex h-full w-full items-center justify-center font-semibold text-[var(--text)]">{initials(name)}</div>
       )}
     </div>
   );

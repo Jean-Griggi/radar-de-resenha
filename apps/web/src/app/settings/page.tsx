@@ -92,9 +92,11 @@ export default function SettingsPage() {
     <RequireAuth>
       <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Configurações</h1>
       {loading ? (
-        <div className="space-y-4">
-          <Skeleton className="h-40" />
-          <Skeleton className="h-40" />
+        <div className="card space-y-4 p-6">
+          <Skeleton className="h-5 w-32" />
+          <Input skeleton />
+          <Input skeleton />
+          <Button skeleton />
         </div>
       ) : null}
       {error ? <p className="mb-5 text-rose-300">{error}</p> : null}

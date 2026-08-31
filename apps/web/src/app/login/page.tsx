@@ -55,7 +55,7 @@ export default function LoginPage() {
             Esqueci a senha
           </Link>
         </p>
-        {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Entrando...' : 'Entrar'}
         </Button>

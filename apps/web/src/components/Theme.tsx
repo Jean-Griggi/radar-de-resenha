@@ -52,7 +52,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
     <button
       type="button"
       onClick={toggle}
-      className={`flex h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--overlay)] px-2.5 text-sm text-[var(--text)] transition hover:border-[var(--accent)] sm:px-3 ${className}`}
+      className={`flex h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--overlay)] px-2.5 text-sm text-[var(--text)] transition-[border-color,background-color,color] duration-200 hover:border-[var(--accent-cool)] motion-reduce:transition-none sm:px-3 ${className}`}
       aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
     >
       <span className="sm:hidden">{theme === 'dark' ? '☀' : '☾'}</span>

@@ -26,13 +26,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`rounded-xl border px-4 py-3 text-sm shadow-lg backdrop-blur ${
-              toast.tone === 'error'
-                ? 'border-rose-500/30 bg-rose-950/80 text-rose-100'
-                : toast.tone === 'info'
-                  ? 'border-sky-500/30 bg-[var(--card)] text-fg'
-                  : 'border-[var(--accent)] bg-[var(--card)] text-fg'
-            }`}
+            className="rounded-[var(--radius-md)] border px-4 py-3 text-sm text-fg shadow-[var(--shadow-lg)] backdrop-blur"
+            style={{
+              background: 'var(--surface-elevated)',
+              borderColor:
+                toast.tone === 'error'
+                  ? 'var(--danger)'
+                  : toast.tone === 'info'
+                    ? 'var(--accent-cool)'
+                    : 'var(--success)',
+            }}
           >
             {toast.message}
           </div>

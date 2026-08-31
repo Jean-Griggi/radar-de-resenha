@@ -192,7 +192,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar"
-              className="min-h-11 w-full rounded-full border-2 border-line bg-overlay px-3 py-2 text-sm text-fg sm:px-4"
+              className="input rounded-full bg-[var(--overlay)] sm:px-4"
             />
           </form>
           <ThemeToggle />
@@ -219,7 +219,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
               <span className="hidden max-w-28 truncate text-sm lg:block">{user?.name}</span>
             </button>
             {menu ? (
-              <div className="absolute right-0 mt-2 w-52 rounded-[var(--radius-md)] border-2 border-[var(--text)] bg-card p-2 text-sm shadow-[4px_4px_0_var(--text)]" role="menu">
+              <div className="absolute right-0 mt-2 w-52 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-2 text-sm shadow-[var(--shadow-lg)]" role="menu">
                 <Link href={profileHref} className="block min-h-11 rounded-lg px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
                   Perfil
                 </Link>
