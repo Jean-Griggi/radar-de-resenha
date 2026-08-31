@@ -52,19 +52,3 @@ export function BrandWordmark({
   }
   return <p className={className}>{inner}</p>;
 }
-
-export function BrandMascot({
-  className = 'brand-mascot-hero',
-}: {
-  className?: string;
-}) {
-  return (
-    <img
-      src={MASCOT.src}
-      alt="Redesenha"
-      width={MASCOT.width}
-      height={MASCOT.height}
-      className={className}
-    />
-  );
-}

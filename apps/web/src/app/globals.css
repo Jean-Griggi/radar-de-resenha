@@ -288,27 +288,6 @@ html[data-theme] body {
   max-width: min(82vw, 22rem);
 }
 
-.brand-mascot-hero {
-  display: block;
-  height: 11.5rem;
-  width: auto;
-  max-width: 17rem;
-  object-fit: contain;
-  margin: 0 auto 0.5rem;
-}
-
-.login-mascot-corner {
-  position: fixed;
-  top: max(0.35rem, env(safe-area-inset-top));
-  left: max(0.35rem, env(safe-area-inset-left));
-  z-index: 50;
-  display: block;
-  height: 6.75rem;
-  width: auto;
-  max-width: 9.5rem;
-  object-fit: contain;
-}
-
 .theme-toggle-corner {
   position: fixed;
   top: max(0.4rem, env(safe-area-inset-top));
