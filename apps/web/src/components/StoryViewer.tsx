@@ -43,6 +43,8 @@ export function StoryViewer({
   const [ringIndex, setRingIndex] = useState(() => Math.min(startRing, Math.max(0, playable.length - 1)));
   const [storyIndex, setStoryIndex] = useState(startStory);
   const [paused, setPaused] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const [composing, setComposing] = useState(false);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -56,6 +58,7 @@ export function StoryViewer({
   const ring = playable[ringIndex];
   const story: Story | undefined = ring?.stories[storyIndex];
   const isOwn = story?.authorId === meId;
+  const frozen = paused || holding || composing || viewers !== null;
 
   function go(delta: number) {
     if (!ring) return;
@@ -91,6 +94,7 @@ export function StoryViewer({
     setError('');
     setViewers(null);
     setVideoProgress(0);
+    setHolding(false);
     if (marked.current.has(story.id)) return;
     marked.current.add(story.id);
     api
@@ -104,7 +108,7 @@ export function StoryViewer({
   }, [story?.id]);
 
   useEffect(() => {
-    if (!story || paused || story.mediaType === 'video') return;
+    if (!story || frozen || story.mediaType === 'video') return;
     const started = Date.now();
     const remaining = remainingRef.current;
     const timer = window.setTimeout(() => goRef.current(1), remaining);
@@ -112,20 +116,24 @@ export function StoryViewer({
       remainingRef.current = Math.max(0, remaining - (Date.now() - started));
       window.clearTimeout(timer);
     };
-  }, [story?.id, paused, story?.mediaType]);
+  }, [story?.id, frozen, story?.mediaType]);
 
   useEffect(() => {
     const el = videoRef.current;
     if (!el || story?.mediaType !== 'video') return;
-    if (paused) el.pause();
+    if (frozen) el.pause();
     else el.play().catch(() => undefined);
-  }, [paused, story?.id, story?.mediaType]);
+  }, [frozen, story?.id, story?.mediaType]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key === 'Escape') onClose();
       if (event.key === 'ArrowRight') goRef.current(1);
       if (event.key === 'ArrowLeft') goRef.current(-1);
+      if (event.key === ' ' && event.target instanceof HTMLElement && event.target.tagName !== 'INPUT') {
+        event.preventDefault();
+        setPaused((current) => !current);
+      }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -181,9 +189,10 @@ export function StoryViewer({
         <StoryPhone>
           <div
             className="absolute inset-0 bg-zinc-900"
-            onPointerDown={() => setPaused(true)}
-            onPointerUp={() => setPaused(false)}
-            onPointerCancel={() => setPaused(false)}
+            onPointerDown={() => setHolding(true)}
+            onPointerUp={() => setHolding(false)}
+            onPointerCancel={() => setHolding(false)}
+            onPointerLeave={() => setHolding(false)}
           >
             {story.mediaType === 'video' ? (
               <video
@@ -224,6 +233,13 @@ export function StoryViewer({
                 go(1);
               }}
             />
+            {paused ? (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/55 text-2xl text-white" aria-hidden>
+                  ⏸
+                </span>
+              </div>
+            ) : null}
           </div>
 
           <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-9">
@@ -240,9 +256,9 @@ export function StoryViewer({
                         ? story.mediaType === 'video'
                           ? { width: `${videoProgress * 100}%` }
                           : {
-                              width: paused ? undefined : '100%',
+                              width: '100%',
                               animation: `storybar ${PHOTO_MS}ms linear`,
-                              animationPlayState: paused ? 'paused' : 'running',
+                              animationPlayState: frozen ? 'paused' : 'running',
                             }
                         : undefined
                     }
@@ -266,7 +282,16 @@ export function StoryViewer({
                   </button>
                 </>
               ) : null}
-              <button type="button" className="text-white" onClick={onClose} aria-label="Fechar">
+              <button
+                type="button"
+                className="flex h-11 w-11 items-center justify-center text-lg text-white"
+                aria-label={paused ? 'Continuar story' : 'Pausar story'}
+                aria-pressed={paused}
+                onClick={() => setPaused((current) => !current)}
+              >
+                {paused ? '▶' : '⏸'}
+              </button>
+              <button type="button" className="flex h-11 w-11 items-center justify-center text-white" onClick={onClose} aria-label="Fechar">
                 ✕
               </button>
             </div>
@@ -282,6 +307,8 @@ export function StoryViewer({
                 <input
                   value={reply}
                   onChange={(event) => setReply(event.target.value)}
+                  onFocus={() => setComposing(true)}
+                  onBlur={() => setComposing(false)}
                   placeholder="Responder…"
                   maxLength={280}
                   className="min-w-0 flex-1 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
