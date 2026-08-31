@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Bomb Font";
+  src: url("/fonts/BombFont.otf") format("opentype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root,
 html[data-theme="dark"] {
   color-scheme: dark;
@@ -78,7 +86,7 @@ html[data-theme="light"] {
 
 @theme inline {
   --font-sans: var(--font-plus-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-plus-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bomb Font", var(--font-plus-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --text-display: 48px;
   --text-display--line-height: 52px;
   --text-h1: 36px;
@@ -206,6 +214,40 @@ h3,
   font-weight: 700;
 }
 
+.brand-wordmark {
+  display: inline-block;
+  font-family: "Bomb Font", var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  background-image: linear-gradient(
+    105deg,
+    var(--paper) 0%,
+    var(--brand-red) 48%,
+    var(--brand-red-dark) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+html[data-theme="light"] .brand-wordmark {
+  background-image: linear-gradient(
+    105deg,
+    var(--brand-red-dark) 0%,
+    var(--brand-red) 42%,
+    var(--graphite) 100%
+  );
+}
+
+@media (min-width: 640px) {
+  .brand-wordmark {
+    font-size: 1.05rem;
+  }
+}
+
 nav,
 form,
 table,
@@ -213,6 +255,11 @@ nav .font-display,
 form .font-display,
 table .font-display {
   font-family: var(--font-sans);
+}
+
+nav .brand-wordmark,
+header .brand-wordmark {
+  font-family: "Bomb Font", var(--font-sans);
 }
 
 a {

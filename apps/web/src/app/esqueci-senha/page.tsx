@@ -34,7 +34,7 @@ export default function EsqueciSenhaPage() {
       <div className="mb-6 flex justify-end">
         <ThemeToggle />
       </div>
-      <p className="text-xs tracking-[0.35em] text-violet-400">RESENHÔMETRO</p>
+      <p className="brand-wordmark">Redesenha</p>
       <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Esqueceu a senha?</h1>
       <p className="mt-3 mb-8 text-muted">Informe o e-mail da conta. Se ele existir, mandamos um link de redefinição.</p>
       {done ? (

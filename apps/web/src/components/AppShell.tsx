@@ -162,9 +162,8 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
           >
             {open ? '✕' : '☰'}
           </button>
-          <Link href="/" className="shrink-0 text-sm font-bold tracking-[0.18em] text-fg sm:text-lg sm:tracking-[0.2em]">
-            <span className="sm:hidden">RESENHA</span>
-            <span className="hidden sm:inline">RESENHÔMETRO</span>
+          <Link href="/" className="brand-wordmark shrink-0" aria-label="Redesenha">
+            Redesenha
           </Link>
           <form onSubmit={search} className="min-w-0 flex-1">
             <label className="sr-only" htmlFor="search">
