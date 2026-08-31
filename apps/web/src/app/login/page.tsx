@@ -37,16 +37,14 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
-      <div className="mb-8 flex justify-end">
-        <ThemeToggle />
-      </div>
+    <main className="relative z-10 flex min-h-screen flex-col justify-center px-4 pt-14">
+      <ThemeToggle className="theme-toggle-corner" />
       <h1 className="sr-only">Entrar no Redesenha</h1>
       <div className="login-brand">
         <BrandMascot />
         <BrandWordmark large mascot={false} />
       </div>
-      <form onSubmit={onSubmit} className="card space-y-4 p-6">
+      <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4 p-6">
         <Field label="E-mail">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
         </Field>
@@ -63,7 +61,7 @@ export default function LoginPage() {
           {loading ? 'Entrando...' : 'Entrar'}
         </Button>
       </form>
-      <p className="mt-4 text-center text-sm text-muted">
+      <p className="mx-auto mt-4 w-full max-w-md text-center text-sm text-muted">
         Não tem conta?{' '}
         <Link href="/cadastro" className="text-violet-400 hover:underline">
           Cadastre-se
