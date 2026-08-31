@@ -10,7 +10,7 @@ const WORDMARK = {
 const MASCOT = {
   src: '/brand/mascote.png',
   width: 800,
-  height: 562,
+  height: 570,
 };
 
 export function BrandWordmark({

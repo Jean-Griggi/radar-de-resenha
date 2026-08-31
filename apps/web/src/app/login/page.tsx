@@ -38,13 +38,14 @@ export default function LoginPage() {
 
   return (
     <main className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
-      <div className="mb-6 flex justify-end">
+      <div className="mb-8 flex justify-end">
         <ThemeToggle />
       </div>
-      <BrandMascot />
-      <BrandWordmark large mascot={false} />
-      <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Sua vida social, em um só lugar.</h1>
-      <p className="mt-3 mb-8 text-muted">Entre para ver rolês, memórias e a trilha da galera.</p>
+      <h1 className="sr-only">Entrar no Redesenha</h1>
+      <div className="login-brand">
+        <BrandMascot />
+        <BrandWordmark large mascot={false} />
+      </div>
       <form onSubmit={onSubmit} className="card space-y-4 p-6">
         <Field label="E-mail">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
