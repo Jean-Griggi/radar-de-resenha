@@ -7,6 +7,8 @@
 | [plano-correcao.md](plano-correcao.md) | Correção dos bugs de produção (passo a passo) |
 | [prompts-correcao.md](prompts-correcao.md) | Prompts prontos: colar no chat para executar um passo |
 | [plano-stories.md](plano-stories.md) | Stories 24h (estilo Instagram) |
+| [plano-migracao-identidade-visual.md](plano-migracao-identidade-visual.md) | Migração da identidade visual (Redesenha) |
+| [Redesenha_Design_System_v1.pdf](Redesenha_Design_System_v1.pdf) | Design System oficial v1.0 |
 | [ai/plano-execucao.md](ai/plano-execucao.md) | Estado atual do produto (guia para humanos e IAs) |
 | [apps/api/README.md](../apps/api/README.md) | API |
 | [apps/web/README.md](../apps/web/README.md) | Web |
