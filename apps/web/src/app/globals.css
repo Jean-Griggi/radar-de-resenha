@@ -495,3 +495,7 @@ select {
   height: min(88dvh, 740px);
   width: min(calc(100vw - 1.5rem), calc(min(88dvh, 740px) * 9 / 19.5));
 }
+
+.story-ring-unseen {
+  box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--brand-red);
+}

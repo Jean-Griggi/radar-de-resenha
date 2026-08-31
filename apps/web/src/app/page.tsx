@@ -69,14 +69,29 @@ export default function HomePage() {
     }
   }
 
+  async function bora(roleId: string) {
+    try {
+      await api.post(`/roles/${roleId}/attendance`, { status: 'going' });
+      toast.push('Presença confirmada');
+    } catch (err) {
+      if (isApiCanceled(err)) return;
+      toast.push(apiErrorMessage(err, 'Não foi possível confirmar'), 'error');
+    }
+  }
+
+  async function saveLink(path: string) {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}${path}`);
+      toast.push('Link copiado');
+    } catch {
+      toast.push('Não foi possível copiar o link', 'error');
+    }
+  }
+
   return (
     <RequireAuth>
       <div className="space-y-5">
-        <section className="overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(120deg,#4c1d95,#6d28d9,#0ea5e9)] p-5 sm:rounded-3xl sm:p-8">
-          <p className="text-sm text-white/80">Sua timeline</p>
-          <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">O que está acontecendo?</h1>
-        </section>
-
+        <h1 className="sr-only">Feed</h1>
         <StoriesBar />
 
         <form onSubmit={publish} className="card p-4">
@@ -89,21 +104,15 @@ export default function HomePage() {
               className="min-h-20 min-w-0 flex-1 bg-transparent text-sm outline-none"
             />
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
             <div className="flex flex-wrap gap-2 text-xs">
-              <Link href="/roles/new" className="rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10">
+              <Link href="/roles/new" className="min-h-11 rounded-full border-2 border-line px-3 py-2 hover:border-[var(--text)]">
                 Criar rolê
               </Link>
-              <Link href="/roles" className="rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10">
-                Resenha
-              </Link>
-              <Link href="/photos" className="rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10">
+              <Link href="/photos" className="min-h-11 rounded-full border-2 border-line px-3 py-2 hover:border-[var(--text)]">
                 Foto
               </Link>
-              <Link href="/photos" className="rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10">
-                Áudio
-              </Link>
-              <Link href="/music" className="rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10">
+              <Link href="/music" className="min-h-11 rounded-full border-2 border-line px-3 py-2 hover:border-[var(--text)]">
                 Música
               </Link>
             </div>
@@ -123,7 +132,7 @@ export default function HomePage() {
             title="O feed ainda está quieto"
             description="Crie o primeiro rolê e comece a registrar a resenha."
             action={
-              <Link href="/roles/new" className="rounded-xl bg-violet-500 px-4 py-2 text-sm">
+              <Link href="/roles/new" className="button button--primary">
                 Criar primeiro rolê
               </Link>
             }
@@ -145,37 +154,62 @@ export default function HomePage() {
                     <Avatar src={item.actor?.avatar} name={item.actor?.name} />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm">
-                        <Link href={`/perfil/${item.actor?.username}`} className="font-medium text-white">
+                        <Link href={`/perfil/${item.actor?.username}`} className="font-medium text-fg">
                           {item.actor?.name}
                         </Link>{' '}
-                        <span className="text-slate-400">{LABELS[item.type] ?? item.type}</span>
+                        <span className="text-muted">{LABELS[item.type] ?? item.type}</span>
                       </p>
-                      <p className="text-xs text-slate-500">{formatTimeAgo(item.createdAt)}</p>
+                      <p className="text-xs text-muted">{formatTimeAgo(item.createdAt)}</p>
                       {item.role ? (
-                        <Link href={`/roles/${item.role.id}`} className="mt-3 block rounded-2xl bg-white/5 p-4 hover:bg-white/10">
-                          <h2 className="text-lg font-medium">{item.role.title}</h2>
-                          <p className="text-sm text-slate-400">
-                            {formatDate(item.role.date)} {item.role.time} · {item.role.location || 'Local a combinar'}
+                        <Link href={`/roles/${item.role.id}`} className="mt-3 block rounded-[var(--radius-lg)] border-2 border-line p-4 hover:border-[var(--text)]">
+                          <p className="text-small font-bold text-fg">
+                            {formatDate(item.role.date)} {item.role.time}
                           </p>
-                          <p className="mt-2 text-xs text-slate-400">{item.role.goingCount} pessoas confirmaram</p>
+                          <p className="text-sm text-muted">{item.role.location || 'Local a combinar'}</p>
+                          <h2 className="mt-2 text-lg font-medium text-fg">{item.role.title}</h2>
+                          <p className="mt-2 text-xs text-muted">{item.role.goingCount} pessoas confirmaram</p>
                         </Link>
                       ) : null}
                       {item.review ? (
-                        <Link href={`/reviews/${item.review.id}`} className="mt-3 block rounded-2xl bg-white/5 p-4">
-                          <p className="text-amber-300">{'★'.repeat(item.review.rating)}</p>
-                          <h2 className="text-lg font-medium">{item.review.title}</h2>
-                          <p className="line-clamp-3 text-sm text-slate-300">{item.review.content}</p>
+                        <Link href={`/reviews/${item.review.id}`} className="mt-3 block rounded-[var(--radius-lg)] border-2 border-line p-4">
+                          <p className="text-[var(--accent)]">{'★'.repeat(item.review.rating)}</p>
+                          <h2 className="text-lg font-medium text-fg">{item.review.title}</h2>
+                          <p className="line-clamp-3 text-sm text-muted">{item.review.content}</p>
                         </Link>
                       ) : null}
-                      {item.post ? <p className="mt-3 text-slate-100">{item.post.content}</p> : null}
+                      {item.post ? <p className="mt-3 text-fg">{item.post.content}</p> : null}
                       {item.photo ? (
                         <MediaImage
                           src={item.photo.url}
                           alt={item.photo.caption || 'Foto'}
-                          className="mt-3 h-52 w-full rounded-2xl object-cover"
+                          className="mt-3 h-52 w-full rounded-[var(--radius-lg)] object-cover"
                         />
                       ) : null}
-                      <div className="mt-4">
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {item.role ? (
+                          <button type="button" className="button button--primary" onClick={() => bora(item.role!.id)}>
+                            Bora
+                          </button>
+                        ) : null}
+                        {item.role || item.review ? (
+                          <Link
+                            href={item.role ? `/roles/${item.role.id}` : `/reviews/${item.review!.id}`}
+                            className="button button--outline"
+                          >
+                            Comentar
+                          </Link>
+                        ) : null}
+                        {item.role || item.review ? (
+                          <button
+                            type="button"
+                            className="button button--ghost"
+                            onClick={() => saveLink(item.role ? `/roles/${item.role.id}` : `/reviews/${item.review!.id}`)}
+                          >
+                            Salvar
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="mt-3">
                         <Reactions
                           targetType={item.role ? 'role' : item.review ? 'review' : 'post'}
                           targetId={item.role?.id || item.review?.id || item.post?.id || item.id}

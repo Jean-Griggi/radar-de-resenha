@@ -111,6 +111,13 @@ export function StoriesBar() {
                   <div className="relative">
                     <button
                       type="button"
+                      aria-label={
+                        emptyMine
+                          ? 'Adicionar story'
+                          : ring.hasUnseen
+                            ? `Stories de ${ring.author.name}, não vistos`
+                            : `Stories de ${ring.author.name}`
+                      }
                       onClick={() => {
                         if (emptyMine) {
                           inputRef.current?.click();
@@ -120,14 +127,19 @@ export function StoriesBar() {
                       }}
                     >
                       <span
-                        className={`block rounded-full p-[2px] ${
+                        className={`relative block rounded-full ${
                           emptyMine
-                            ? 'bg-white/15'
-                            : ring.hasUnseen || isMe
-                              ? 'bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-sky-400'
-                              : 'bg-white/25'
+                            ? 'bg-[var(--line)] p-[2px]'
+                            : ring.hasUnseen
+                              ? 'story-ring-unseen bg-[var(--brand-red)] p-[3px]'
+                              : isMe
+                                ? 'bg-[var(--accent)] p-[2px]'
+                                : 'bg-[var(--line)] p-[2px]'
                         }`}
                       >
+                        {ring.hasUnseen && !isMe ? (
+                          <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[var(--accent)] ring-2 ring-[var(--card)]" aria-hidden />
+                        ) : null}
                         <span className="block rounded-full bg-[var(--card)] p-[2px]">
                           <Avatar src={ring.author.avatar} name={ring.author.name} size="lg" />
                         </span>
@@ -136,7 +148,7 @@ export function StoriesBar() {
                     {isMe ? (
                       <button
                         type="button"
-                        className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-violet-500 text-xs font-bold text-white"
+                        className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-bold text-[var(--paper)]"
                         aria-label="Adicionar story"
                         onClick={() => inputRef.current?.click()}
                       >

@@ -43,8 +43,10 @@ export function Reactions({
             type="button"
             disabled={pending !== null}
             onClick={() => toggle(type)}
-            className={`rounded-full border px-2.5 py-1 text-sm transition disabled:opacity-60 ${
-              current?.reacted ? 'border-violet-400/50 bg-violet-500/20' : 'border-line bg-overlay hover:border-violet-400/30'
+            className={`min-h-11 rounded-full border px-2.5 py-1 text-sm transition disabled:opacity-40 ${
+              current?.reacted
+                ? 'border-[var(--accent)] bg-[var(--accent-soft)]'
+                : 'border-line bg-overlay hover:border-[var(--text)]'
             }`}
             aria-label={`Reagir com ${REACTION_EMOJI[type]}`}
           >
