@@ -250,8 +250,8 @@ html[data-theme] body {
 }
 
 .brand-wordmark-img {
-  height: 2.15rem;
-  max-width: 9.5rem;
+  height: 2.4rem;
+  max-width: 11rem;
 }
 
 @media (min-width: 640px) {
@@ -260,8 +260,8 @@ html[data-theme] body {
   }
 
   .brand-wordmark-img {
-    height: 2.5rem;
-    max-width: 12rem;
+    height: 2.85rem;
+    max-width: 13.5rem;
   }
 }
 
@@ -270,8 +270,8 @@ html[data-theme] body {
 }
 
 .brand-wordmark--lg .brand-wordmark-img {
-  height: 4.75rem;
-  max-width: 22rem;
+  height: 5.85rem;
+  max-width: 26rem;
 }
 
 .login-brand {
