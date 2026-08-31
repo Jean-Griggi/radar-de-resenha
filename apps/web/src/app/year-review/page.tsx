@@ -24,7 +24,7 @@ export default function YearReviewPage() {
   return (
     <RequireAuth>
       <div className="space-y-4">
-        <section className="overflow-hidden rounded-2xl bg-[linear-gradient(160deg,#4c1d95,#db2777,#38bdf8)] p-6 sm:rounded-3xl sm:p-10">
+        <section className="overflow-hidden rounded-2xl bg-[linear-gradient(160deg,var(--ink),var(--brand-red-dark),var(--accent))] p-6 sm:rounded-3xl sm:p-10">
           <p className="text-sm tracking-[0.3em] text-white/70">RESENHÔMETRO WRAPPED</p>
           <h1 className="mt-2 text-2xl font-semibold sm:text-4xl">Seu {data.year} no Resenhômetro</h1>
         </section>

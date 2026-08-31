@@ -69,7 +69,7 @@ export default function CadastroPage() {
       </form>
       <p className="mt-4 text-center text-sm text-muted">
         Já tem conta?{' '}
-        <Link href="/login" className="text-violet-400 hover:underline">
+        <Link href="/login" className="text-[var(--accent)] hover:underline">
           Entrar
         </Link>
       </p>

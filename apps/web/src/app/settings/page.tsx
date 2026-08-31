@@ -165,7 +165,7 @@ export default function SettingsPage() {
           <section className="card p-6">
             <h2 className="text-lg font-medium">Música</h2>
             <p className="mt-2 text-sm text-slate-400">Conecte o Spotify em Música para ver a faixa atual e playlists.</p>
-            <a href="/music" className="mt-3 inline-block text-violet-300">
+            <a href="/music" className="mt-3 inline-block text-[var(--accent)]">
               Ir para música
             </a>
           </section>

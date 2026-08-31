@@ -31,7 +31,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 ? 'border-rose-500/30 bg-rose-950/80 text-rose-100'
                 : toast.tone === 'info'
                   ? 'border-sky-500/30 bg-[var(--card)] text-fg'
-                  : 'border-violet-500/30 bg-[var(--card)] text-fg'
+                  : 'border-[var(--accent)] bg-[var(--card)] text-fg'
             }`}
           >
             {toast.message}

@@ -34,7 +34,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="card p-6">
           <h2 className="text-lg font-medium">Algo deu errado</h2>
           <p className="mt-2 text-sm text-muted">Esta área falhou ao renderizar. O menu e o restante do app continuam disponíveis.</p>
-          <button type="button" className="mt-4 rounded-xl bg-violet-500 px-4 py-2 text-sm" onClick={() => this.setState({ error: null })}>
+          <button type="button" className="button button--primary mt-4" onClick={() => this.setState({ error: null })}>
             Tentar de novo
           </button>
         </div>

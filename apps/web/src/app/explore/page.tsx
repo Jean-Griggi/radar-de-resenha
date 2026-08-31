@@ -158,7 +158,7 @@ function ExploreInner() {
           </Section>
           <Section title="Tags">
             {explore.tags.map((item) => (
-              <span key={item.name} className="text-violet-300">
+              <span key={item.name} className="text-[var(--accent)]">
                 #{item.name}
               </span>
             ))}

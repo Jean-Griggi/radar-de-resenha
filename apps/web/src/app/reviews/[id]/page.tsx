@@ -39,7 +39,7 @@ export default function ReviewPage() {
         <p className="text-slate-300">{review.content}</p>
         <div className="flex flex-wrap gap-2">
           {review.tags?.map((tag) => (
-            <span key={tag} className="text-sm text-violet-300">
+            <span key={tag} className="text-sm text-[var(--accent)]">
               #{tag}
             </span>
           ))}

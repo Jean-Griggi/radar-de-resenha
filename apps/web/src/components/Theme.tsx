@@ -52,7 +52,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
     <button
       type="button"
       onClick={toggle}
-      className={`shrink-0 rounded-full border border-[var(--line)] bg-[var(--overlay)] px-2.5 py-2 text-sm text-[var(--text)] transition hover:border-violet-400/40 sm:px-3 ${className}`}
+      className={`shrink-0 rounded-full border border-[var(--line)] bg-[var(--overlay)] px-2.5 py-2 text-sm text-[var(--text)] transition hover:border-[var(--accent)] sm:px-3 ${className}`}
       aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
     >
       <span className="sm:hidden">{theme === 'dark' ? '☀' : '☾'}</span>

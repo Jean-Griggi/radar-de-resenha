@@ -51,7 +51,7 @@ export default function LoginPage() {
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required autoComplete="current-password" />
         </Field>
         <p className="-mt-2 text-right text-sm">
-          <Link href="/esqueci-senha" className="text-violet-400 hover:underline">
+          <Link href="/esqueci-senha" className="text-[var(--accent)] hover:underline">
             Esqueci a senha
           </Link>
         </p>
@@ -62,7 +62,7 @@ export default function LoginPage() {
       </form>
       <p className="mx-auto mt-4 w-full max-w-md text-center text-sm text-muted">
         Não tem conta?{' '}
-        <Link href="/cadastro" className="text-violet-400 hover:underline">
+        <Link href="/cadastro" className="text-[var(--accent)] hover:underline">
           Cadastre-se
         </Link>
       </p>

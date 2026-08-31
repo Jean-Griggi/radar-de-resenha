@@ -163,7 +163,7 @@ export default function MusicPage() {
               <ul className="space-y-2">
                 {playlists.map((list) => (
                   <li key={list.id}>
-                    <a href={list.url} target="_blank" rel="noreferrer" className="text-sm hover:text-violet-300">
+                    <a href={list.url} target="_blank" rel="noreferrer" className="text-sm hover:text-[var(--accent)]">
                       {list.name} · {list.tracks} faixas
                     </a>
                   </li>

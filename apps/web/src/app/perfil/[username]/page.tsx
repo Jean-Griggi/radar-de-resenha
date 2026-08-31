@@ -121,19 +121,19 @@ export default function ProfilePage() {
   return (
     <RequireAuth>
       <div className="overflow-hidden rounded-3xl border border-white/10">
-        <div className="relative h-32 bg-[#151d2e] sm:h-48">
+        <div className="relative h-32 bg-[var(--surface)] sm:h-48">
           {profile.cover ? (
             <MediaImage
               src={profile.cover}
               alt=""
               className="h-full w-full object-cover"
-              fallbackClassName="h-full w-full bg-[linear-gradient(120deg,#4c1d95,#db2777,#38bdf8)]"
+              fallbackClassName="h-full w-full bg-[var(--brand-red-dark)]"
             />
           ) : (
-            <div className="h-full w-full bg-[linear-gradient(120deg,#4c1d95,#db2777,#38bdf8)]" />
+            <div className="h-full w-full media-fallback" />
           )}
         </div>
-        <div className="bg-[#10182c] px-4 pb-5 sm:px-6 sm:pb-6">
+        <div className="bg-[var(--bg-elevated)] px-4 pb-5 sm:px-6 sm:pb-6">
           <div className="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div className="flex items-end gap-3 sm:gap-4">
               <Avatar src={profile.avatar} name={profile.name} size="xl" glow />
@@ -211,7 +211,7 @@ export default function ProfilePage() {
             key={item}
             type="button"
             onClick={() => setTab(item)}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm ${tab === item ? 'bg-violet-500 text-white' : 'bg-white/5 text-slate-300'}`}
+            className={`shrink-0 rounded-full px-4 py-2 text-sm ${tab === item ? 'bg-[var(--accent)] text-white' : 'bg-white/5 text-slate-300'}`}
           >
             {item}
           </button>
@@ -225,7 +225,7 @@ export default function ProfilePage() {
               <h2 className="mb-3 font-medium">Conquistas</h2>
               <ul className="space-y-2">
                 {profile.achievements.map((item: Achievement) => (
-                  <li key={item.slug} className={`rounded-xl px-3 py-2 text-sm ${item.unlockedAt ? 'bg-violet-500/20' : 'bg-white/5 text-slate-500'}`}>
+                  <li key={item.slug} className={`rounded-xl px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[var(--accent-soft)]' : 'bg-white/5 text-slate-500'}`}>
                     {item.name} — {item.description}
                   </li>
                 ))}

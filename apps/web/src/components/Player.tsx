@@ -36,7 +36,7 @@ export function MiniPlayer() {
         {track.cover ? (
           <img src={track.cover} alt="" className="h-10 w-10 rounded-lg object-cover" />
         ) : (
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/30">♪</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--accent-soft)]">♪</div>
         )}
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-fg">{track.title}</p>

@@ -62,7 +62,7 @@ export default function RedefinirSenhaPage() {
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-muted">
-        <Link href="/login" className="text-violet-400 hover:underline">
+        <Link href="/login" className="text-[var(--accent)] hover:underline">
           Voltar ao login
         </Link>
       </p>

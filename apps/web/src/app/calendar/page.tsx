@@ -110,21 +110,21 @@ export default function CalendarPage() {
                     disabled={!day}
                     onClick={() => setSelected(date)}
                     className={`relative flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left sm:min-h-24 sm:rounded-xl sm:p-2 lg:min-h-28 ${
-                      selected === date ? 'bg-violet-500/30 ring-1 ring-violet-400/50' : 'bg-white/5'
-                    } ${isToday && selected !== date ? 'ring-1 ring-fuchsia-400/60' : ''} ${!day ? 'opacity-0' : ''}`}
+                      selected === date ? 'bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]' : 'bg-white/5'
+                    } ${isToday && selected !== date ? 'ring-1 ring-[var(--accent)]' : ''} ${!day ? 'opacity-0' : ''}`}
                   >
-                    <span className={`text-xs sm:text-sm ${isToday ? 'font-semibold text-violet-300' : ''}`}>{day}</span>
+                    <span className={`text-xs sm:text-sm ${isToday ? 'font-semibold text-[var(--accent)]' : ''}`}>{day}</span>
                     <span className="flex min-h-0 flex-1 flex-col gap-0.5">
                       {dayEvents.slice(0, 2).map((event) => (
                         <span
                           key={event.id}
-                          className="block truncate rounded bg-fuchsia-500/25 px-1 py-0.5 text-[9px] leading-tight text-fg sm:text-[11px]"
+                          className="block truncate rounded bg-[var(--accent-soft)] px-1 py-0.5 text-[9px] leading-tight text-fg sm:text-[11px]"
                         >
                           {event.time ? `${event.time} ` : ''}
                           {event.title}
                         </span>
                       ))}
-                      {extra > 0 ? <span className="px-1 text-[9px] text-violet-300 sm:text-[10px]">+{extra}</span> : null}
+                      {extra > 0 ? <span className="px-1 text-[9px] text-[var(--accent)] sm:text-[10px]">+{extra}</span> : null}
                     </span>
                   </button>
                 );
@@ -140,7 +140,7 @@ export default function CalendarPage() {
               <ul className="space-y-2">
                 {selectedEvents.map((event) => (
                   <li key={event.id}>
-                    <Link href={`/roles/${event.roleId}`} className="hover:text-violet-300">
+                    <Link href={`/roles/${event.roleId}`} className="hover:text-[var(--accent)]">
                       {event.time || '--:--'} — {event.title} · {event.category}
                     </Link>
                   </li>
@@ -153,7 +153,7 @@ export default function CalendarPage() {
               <h2 className="mb-3 font-medium">Próximos</h2>
               {upcoming.length === 0 ? <p className="text-sm text-slate-400">Nada marcado ainda.</p> : null}
               {upcoming.map((event) => (
-                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-violet-300">
+                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--accent)]">
                   {formatShortDate(event.date)} {event.time ?? ''} — {event.title}
                 </Link>
               ))}
@@ -162,7 +162,7 @@ export default function CalendarPage() {
               <h2 className="mb-3 font-medium">Passados</h2>
               {past.length === 0 ? <p className="text-sm text-slate-400">Nenhum rolê passado.</p> : null}
               {past.map((event) => (
-                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-violet-300">
+                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--accent)]">
                   {formatShortDate(event.date)} — {event.title}
                 </Link>
               ))}
