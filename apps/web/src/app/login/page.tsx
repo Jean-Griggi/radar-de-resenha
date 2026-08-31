@@ -37,11 +37,11 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative z-10 flex min-h-screen flex-col justify-center px-4 pt-14">
+    <main className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[max(7.5rem,calc(env(safe-area-inset-top)+6.5rem))]">
+      <BrandMascot className="login-mascot-corner" />
       <ThemeToggle className="theme-toggle-corner" />
       <h1 className="sr-only">Entrar no Redesenha</h1>
       <div className="login-brand">
-        <BrandMascot />
         <BrandWordmark large mascot={false} />
       </div>
       <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4 p-6">
