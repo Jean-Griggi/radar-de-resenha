@@ -1,16 +1,24 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { Inter } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { PlayerProvider } from '@/components/Player';
 import { ThemeProvider } from '@/components/Theme';
 import { ToastProvider } from '@/components/Toast';
 import { WaveBackground } from '@/components/WaveBackground';
 import './globals.css';
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-plus-jakarta',
+  weight: ['400', '700'],
+});
+
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+  weight: ['400', '700'],
 });
 
 export const viewport: Viewport = {
@@ -28,11 +36,16 @@ const themeScript = `try{var t=localStorage.getItem('resenhometro_theme');if(t==
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" data-theme="dark" suppressHydrationWarning className={inter.variable}>
+    <html
+      lang="pt-BR"
+      data-theme="dark"
+      suppressHydrationWarning
+      className={`${plusJakartaSans.variable} ${inter.variable}`}
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={`${inter.className} min-h-screen antialiased`}>
+      <body className={`${plusJakartaSans.className} min-h-screen antialiased`}>
         <ThemeProvider>
           <WaveBackground />
           <div className="relative z-10">

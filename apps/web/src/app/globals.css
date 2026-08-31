@@ -77,7 +77,22 @@ html[data-theme="light"] {
 }
 
 @theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plus-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-plus-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --text-display: 48px;
+  --text-display--line-height: 52px;
+  --text-h1: 36px;
+  --text-h1--line-height: 44px;
+  --text-h2: 28px;
+  --text-h2--line-height: 36px;
+  --text-h3: 22px;
+  --text-h3--line-height: 30px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-small: 14px;
+  --text-small--line-height: 20px;
+  --text-label: 12px;
+  --text-label--line-height: 16px;
   --color-bg: var(--bg);
   --color-card: var(--card);
   --color-line: var(--line);
@@ -133,9 +148,71 @@ audio {
   }
 }
 
-body {
+html[data-theme] body {
   @apply antialiased;
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+h1,
+.text-h1 {
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 700;
+}
+
+h2,
+.text-h2 {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 700;
+}
+
+h3,
+.text-h3 {
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 700;
+}
+
+.text-display {
+  font-size: 48px;
+  line-height: 52px;
+  font-weight: 700;
+}
+
+.text-body {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.text-small {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.text-label {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+nav,
+form,
+table,
+nav .font-display,
+form .font-display,
+table .font-display {
+  font-family: var(--font-sans);
 }
 
 a {
