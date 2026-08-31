@@ -7,23 +7,64 @@ const WORDMARK = {
   height: 309,
 };
 
-export function BrandWordmark({ href, large = false }: { href?: string; large?: boolean }) {
-  const img = (
-    <img
-      src={WORDMARK.src}
-      alt={WORDMARK.alt}
-      width={WORDMARK.width}
-      height={WORDMARK.height}
-      className="brand-wordmark-img"
-    />
+const MASCOT = {
+  src: '/brand/mascote.png',
+  width: 800,
+  height: 562,
+};
+
+export function BrandWordmark({
+  href,
+  large = false,
+  mascot = true,
+}: {
+  href?: string;
+  large?: boolean;
+  mascot?: boolean;
+}) {
+  const inner = (
+    <>
+      {mascot ? (
+        <img
+          src={MASCOT.src}
+          alt=""
+          width={MASCOT.width}
+          height={MASCOT.height}
+          className="brand-mascot"
+        />
+      ) : null}
+      <img
+        src={WORDMARK.src}
+        alt={WORDMARK.alt}
+        width={WORDMARK.width}
+        height={WORDMARK.height}
+        className="brand-wordmark-img"
+      />
+    </>
   );
   const className = `brand-wordmark shrink-0${large ? ' brand-wordmark--lg' : ''}`;
   if (href) {
     return (
       <Link href={href} className={className} aria-label={WORDMARK.alt}>
-        {img}
+        {inner}
       </Link>
     );
   }
-  return <p className={className}>{img}</p>;
+  return <p className={className}>{inner}</p>;
+}
+
+export function BrandMascot({
+  className = 'brand-mascot-hero',
+}: {
+  className?: string;
+}) {
+  return (
+    <img
+      src={MASCOT.src}
+      alt="Redesenha"
+      width={MASCOT.width}
+      height={MASCOT.height}
+      className={className}
+    />
+  );
 }

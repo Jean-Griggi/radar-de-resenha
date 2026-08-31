@@ -234,27 +234,53 @@ html[data-theme] body {
 .brand-wordmark {
   display: inline-flex;
   align-items: center;
+  gap: 0.4rem;
   line-height: 0;
 }
 
+.brand-mascot,
 .brand-wordmark-img {
   display: block;
-  height: 2.5rem;
   width: auto;
-  max-width: 11.5rem;
   object-fit: contain;
 }
 
+.brand-mascot {
+  height: 2.5rem;
+}
+
+.brand-wordmark-img {
+  height: 2.15rem;
+  max-width: 9.5rem;
+}
+
 @media (min-width: 640px) {
-  .brand-wordmark-img {
+  .brand-mascot {
     height: 2.85rem;
-    max-width: 13.75rem;
+  }
+
+  .brand-wordmark-img {
+    height: 2.5rem;
+    max-width: 12rem;
   }
 }
 
+.brand-wordmark--lg .brand-mascot {
+  height: 4.25rem;
+}
+
 .brand-wordmark--lg .brand-wordmark-img {
-  height: 3.75rem;
-  max-width: 18rem;
+  height: 3.5rem;
+  max-width: 16rem;
+}
+
+.brand-mascot-hero {
+  display: block;
+  height: 9.5rem;
+  width: auto;
+  max-width: 14rem;
+  object-fit: contain;
+  margin-bottom: 0.85rem;
 }
 
 nav,

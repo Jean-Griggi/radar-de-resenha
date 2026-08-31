@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Resenhômetro',
+  title: 'Redesenha',
   description: 'Rede social de experiências, rolês e memórias',
 };
 
