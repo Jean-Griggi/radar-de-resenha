@@ -21,7 +21,7 @@ export function MediaImage({
   if (!src || broken) {
     return (
       <div
-        className={`bg-gradient-to-br from-violet-500/25 to-sky-400/15 ${className} ${fallbackClassName}`}
+        className={`media-fallback ${className} ${fallbackClassName}`}
         role="img"
         aria-label={alt || 'Imagem indisponível'}
       />

@@ -21,13 +21,13 @@ export function Avatar({
 
   const sizes = {
     sm: 'h-8 w-8 text-xs',
-    md: 'h-10 w-10 text-sm',
+    md: 'h-11 w-11 text-sm',
     lg: 'h-14 w-14 text-lg sm:h-16 sm:w-16',
     xl: 'h-20 w-20 text-xl sm:h-28 sm:w-28 sm:text-2xl',
   };
   return (
     <div
-      className={`overflow-hidden rounded-full bg-gradient-to-br from-violet-500 to-sky-400 ${sizes[size]} ${glow ? 'ring-2 ring-violet-400/70 shadow-[0_0_20px_rgba(139,92,246,0.45)]' : 'ring-2 ring-white/10'}`}
+      className={`overflow-hidden rounded-full bg-[var(--brand-red-dark)] ${sizes[size]} ${glow ? 'ring-2 ring-[var(--accent)]' : 'ring-2 ring-[var(--line)]'}`}
     >
       {src && !broken ? (
         <img
@@ -37,7 +37,7 @@ export function Avatar({
           onError={() => setBroken(true)}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center font-semibold text-white">{initials(name)}</div>
+        <div className="flex h-full w-full items-center justify-center font-semibold text-[var(--paper)]">{initials(name)}</div>
       )}
     </div>
   );
