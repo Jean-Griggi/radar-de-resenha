@@ -27,16 +27,33 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { MiniPlayer, usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
 
-const NAV = [
-  { href: '/', label: 'Início', icon: '⌂' },
-  { href: '/explore', label: 'Explorar', icon: '◎' },
-  { href: '/roles', label: 'Rolês', icon: '✦' },
-  { href: '/calendar', label: 'Calendário', icon: '▦' },
-  { href: '/music', label: 'Música', icon: '♪' },
-  { href: '/stats', label: 'Estatísticas', icon: '▮' },
-  { href: '/amigos', label: 'Amigos', icon: '☺' },
-  { href: '/photos', label: 'Fotos', icon: '▣' },
+const TOP_NAV = [
+  { href: '/', label: 'Feed' },
+  { href: '/explore', label: 'Explorar' },
+  { href: '/roles', label: 'Rolês' },
 ];
+
+const BOTTOM_NAV = [
+  { href: '/', label: 'Feed', icon: '⌂' },
+  { href: '/explore', label: 'Explorar', icon: '◎' },
+  { href: '/roles/new', label: 'Criar', icon: '+', create: true },
+  { href: '/roles', label: 'Rolês', icon: '✦' },
+  { href: '/perfil', label: 'Perfil', icon: '◉', profile: true },
+];
+
+const MORE_NAV = [
+  { href: '/calendar', label: 'Calendário' },
+  { href: '/music', label: 'Música' },
+  { href: '/stats', label: 'Estatísticas' },
+  { href: '/amigos', label: 'Amigos' },
+  { href: '/photos', label: 'Fotos' },
+];
+
+function navActive(pathname: string, href: string) {
+  if (href === '/') return pathname === '/';
+  if (href === '/roles') return pathname.startsWith('/roles') && !pathname.startsWith('/roles/new');
+  return pathname.startsWith(href);
+}
 
 export function AppShell({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return <ShellFrame right={right}>{children}</ShellFrame>;
@@ -46,29 +63,23 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUserState] = useState<AuthUser | null>(null);
-  const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
   const [q, setQ] = useState('');
   const [unread, setUnread] = useState(() => peekUnreadCount() ?? 0);
   const { setTrack } = usePlayer();
 
   useEffect(() => {
-    setOpen(false);
     setMenu(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!menu) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') setMenu(false);
     };
     window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
-  }, [open]);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menu]);
 
   useEffect(() => {
     setUserState(getUser());
@@ -139,7 +150,6 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
     event.preventDefault();
     if (!q.trim()) return;
     router.push(`/explore?q=${encodeURIComponent(q.trim())}`);
-    setOpen(false);
   }
 
   function logout() {
@@ -152,18 +162,27 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-line bg-[var(--header)] backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:gap-4 sm:px-4">
-          <button
-            type="button"
-            className="shrink-0 rounded-lg p-2 text-muted lg:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-controls="sidebar-nav"
-            aria-label={open ? 'Fechar menu' : 'Abrir menu'}
-          >
-            {open ? '✕' : '☰'}
-          </button>
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-4 sm:px-4 sm:py-3">
           <BrandWordmark href="/" />
+          <nav className="hidden items-stretch self-stretch lg:flex" aria-label="Principal">
+            {TOP_NAV.map((item) => {
+              const active = navActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`relative flex items-center px-3 text-sm font-bold ${active ? 'nav-active' : 'text-muted hover:text-fg'}`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="hidden shrink-0 lg:block">
+            <Link href="/roles/new" className="button button--primary" aria-label="Criar rolê">
+              + Criar
+            </Link>
+          </div>
           <form onSubmit={search} className="min-w-0 flex-1">
             <label className="sr-only" htmlFor="search">
               Buscar
@@ -173,28 +192,52 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar pessoas, rolês e tags"
-              className="w-full rounded-full border border-line bg-overlay px-3 py-2 text-sm text-fg outline-none focus:ring-2 focus:ring-violet-500/40 sm:px-4"
+              className="min-h-11 w-full rounded-full border-2 border-line bg-overlay px-3 py-2 text-sm text-fg sm:px-4"
             />
           </form>
           <ThemeToggle />
-          <Link href="/notifications" className="relative shrink-0 rounded-full p-2 text-muted hover:bg-overlay" aria-label="Notificações">
-            🔔
-            {unread > 0 ? <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-fuchsia-400" /> : null}
+          <Link
+            href="/notifications"
+            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-overlay"
+            aria-label="Notificações"
+          >
+            <span aria-hidden className="text-lg">
+              🔔
+            </span>
+            {unread > 0 ? <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[var(--accent)]" /> : null}
           </Link>
           <div className="relative shrink-0">
-            <button type="button" onClick={() => setMenu((v) => !v)} className="flex items-center gap-2 rounded-full p-1 hover:bg-overlay">
+            <button
+              type="button"
+              onClick={() => setMenu((v) => !v)}
+              className="flex h-11 min-w-11 items-center gap-2 rounded-full p-1 hover:bg-overlay"
+              aria-expanded={menu}
+              aria-haspopup="menu"
+              aria-label="Menu da conta"
+            >
               <Avatar src={user?.avatar} name={user?.name} size="sm" glow />
               <span className="hidden max-w-28 truncate text-sm lg:block">{user?.name}</span>
             </button>
             {menu ? (
-              <div className="absolute right-0 mt-2 w-48 rounded-xl border border-line bg-card p-2 text-sm shadow-xl">
-                <Link href={profileHref} className="block rounded-lg px-3 py-2 hover:bg-overlay" onClick={() => setMenu(false)}>
+              <div className="absolute right-0 mt-2 w-52 rounded-[var(--radius-md)] border-2 border-[var(--text)] bg-card p-2 text-sm shadow-[4px_4px_0_var(--text)]" role="menu">
+                <Link href={profileHref} className="block min-h-11 rounded-lg px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
                   Perfil
                 </Link>
-                <Link href="/settings" className="block rounded-lg px-3 py-2 hover:bg-overlay" onClick={() => setMenu(false)}>
+                {MORE_NAV.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block min-h-11 rounded-lg px-3 py-2.5 hover:bg-overlay"
+                    role="menuitem"
+                    onClick={() => setMenu(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                <Link href="/settings" className="block min-h-11 rounded-lg px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
                   Configurações
                 </Link>
-                <button type="button" onClick={logout} className="block w-full rounded-lg px-3 py-2 text-left text-rose-400 hover:bg-overlay">
+                <button type="button" onClick={logout} className="block min-h-11 w-full rounded-lg px-3 py-2.5 text-left text-[var(--accent)] hover:bg-overlay" role="menuitem">
                   Sair
                 </button>
               </div>
@@ -203,92 +246,51 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
         </div>
       </header>
 
-      {open ? (
-        <button
-          type="button"
-          className="fixed inset-x-0 top-14 bottom-0 z-40 bg-black/50 lg:hidden"
-          aria-label="Fechar menu"
-          onClick={() => setOpen(false)}
-        />
-      ) : null}
-
-      <aside
-        id="sidebar-nav"
-        className={`fixed top-14 bottom-0 left-0 z-50 w-[min(18rem,86vw)] overflow-y-auto p-3 transition-transform duration-200 lg:hidden ${open ? 'translate-x-0' : '-translate-x-full'}`}
-      >
-        <div className="card h-full p-3">
-          <SidebarNav pathname={pathname} profileHref={profileHref} onNavigate={() => setOpen(false)} onLogout={logout} />
-        </div>
-      </aside>
-
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 sm:px-4 sm:py-6 lg:grid-cols-[230px_minmax(0,1fr)] xl:grid-cols-[230px_minmax(0,1fr)_280px]">
-        <aside className="hidden lg:sticky lg:top-24 lg:block lg:self-start">
-          <div className="card p-3">
-            <SidebarNav pathname={pathname} profileHref={profileHref} onNavigate={() => setOpen(false)} onLogout={logout} />
-          </div>
-        </aside>
-
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 lg:pb-8 xl:grid-cols-[minmax(0,1fr)_280px]">
         <main className="min-w-0">
           <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
         </main>
 
-        <aside className="min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:col-span-2 xl:col-span-1 xl:pb-0">
+        <aside className="hidden min-w-0 xl:block">
           <div className="space-y-4 xl:sticky xl:top-24">{right ?? <DefaultRail />}</div>
         </aside>
       </div>
       <MiniPlayer />
-    </div>
-  );
-}
-
-function SidebarNav({
-  pathname,
-  profileHref,
-  onNavigate,
-  onLogout,
-}: {
-  pathname: string;
-  profileHref: string;
-  onNavigate: () => void;
-  onLogout: () => void;
-}) {
-  return (
-    <>
-      <nav className="space-y-1">
-        {NAV.map((item) => {
-          const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${active ? 'nav-active text-fg' : 'text-muted hover:bg-overlay'}`}
-              onClick={onNavigate}
-            >
-              <span className="w-5 text-center text-violet-300">{item.icon}</span>
-              {item.label}
-            </Link>
-          );
-        })}
-        <Link
-          href={profileHref}
-          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${pathname.startsWith('/perfil') ? 'nav-active text-fg' : 'text-muted hover:bg-overlay'}`}
-          onClick={onNavigate}
-        >
-          <span className="w-5 text-center text-violet-300">◉</span>
-          Perfil
-        </Link>
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-[var(--header)] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden" aria-label="Principal">
+        <ul className="grid grid-cols-5">
+          {BOTTOM_NAV.map((item) => {
+            const href = item.profile ? profileHref : item.href;
+            const active = item.profile ? pathname.startsWith('/perfil') : item.create ? pathname.startsWith('/roles/new') : navActive(pathname, item.href);
+            if (item.create) {
+              return (
+                <li key={item.href} className="flex items-center justify-center">
+                  <Link
+                    href={href}
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--accent)] text-2xl font-bold leading-none text-[var(--paper)]"
+                    aria-label="Criar rolê"
+                  >
+                    +
+                  </Link>
+                </li>
+              );
+            }
+            return (
+              <li key={item.href}>
+                <Link
+                  href={href}
+                  className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[10px] font-bold ${active ? 'nav-active' : 'text-muted'}`}
+                >
+                  <span className="text-lg leading-none" aria-hidden>
+                    {item.icon}
+                  </span>
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
-      <div className="mt-6 border-t border-line pt-3">
-        <Link href="/settings" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted hover:bg-overlay" onClick={onNavigate}>
-          <span className="w-5 text-center">⚙</span>
-          Configurações
-        </Link>
-        <button type="button" onClick={onLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted hover:bg-overlay">
-          <span className="w-5 text-center">→</span>
-          Sair
-        </button>
-      </div>
-    </>
+    </div>
   );
 }
 

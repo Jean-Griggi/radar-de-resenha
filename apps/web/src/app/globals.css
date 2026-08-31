@@ -465,9 +465,19 @@ select {
 }
 
 .nav-active {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent), transparent);
-  box-shadow: inset 3px 0 0 var(--accent);
-  color: var(--text);
+  position: relative;
+  color: var(--accent);
+}
+
+.nav-active::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 0;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--accent);
 }
 
 input,
