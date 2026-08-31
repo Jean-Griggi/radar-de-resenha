@@ -30,6 +30,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'Redesenha',
   description: 'Rede social de experiências, rolês e memórias',
+  icons: {
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+  },
 };
 
 const themeScript = `try{var t=localStorage.getItem('resenhometro_theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme: light)').matches){document.documentElement.dataset.theme='light';document.documentElement.style.colorScheme='light'}}catch(e){}`;

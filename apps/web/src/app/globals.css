@@ -254,6 +254,28 @@ html[data-theme] body {
   max-width: 11rem;
 }
 
+.brand-wordmark-text {
+  display: none;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--brand-red);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+html[data-theme="dark"] .brand-wordmark-img {
+  mix-blend-mode: lighten;
+}
+
+html[data-theme="light"] .brand-wordmark-img,
+html[data-theme="light"] .brand-mascot {
+  display: none;
+}
+
+html[data-theme="light"] .brand-wordmark-text {
+  display: inline;
+}
+
 @media (min-width: 640px) {
   .brand-mascot {
     height: 2.85rem;
@@ -262,6 +284,10 @@ html[data-theme] body {
   .brand-wordmark-img {
     height: 2.85rem;
     max-width: 13.5rem;
+  }
+
+  .brand-wordmark-text {
+    font-size: 1.6rem;
   }
 }
 
@@ -272,6 +298,10 @@ html[data-theme] body {
 .brand-wordmark--lg .brand-wordmark-img {
   height: 5.85rem;
   max-width: 26rem;
+}
+
+.brand-wordmark--lg .brand-wordmark-text {
+  font-size: clamp(2.4rem, 9vw, 4.2rem);
 }
 
 .login-brand {

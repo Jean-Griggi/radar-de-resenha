@@ -46,7 +46,7 @@ export default function RedefinirSenhaPage() {
   return (
     <main className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 pt-14">
       <ThemeToggle className="theme-toggle-corner" />
-      <BrandWordmark large />
+      <BrandWordmark large mascot={false} />
       <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Nova senha</h1>
       <p className="mt-3 mb-8 text-muted">Escolha uma senha com pelo menos 6 caracteres.</p>
       <form onSubmit={onSubmit} className="card space-y-4 p-6">

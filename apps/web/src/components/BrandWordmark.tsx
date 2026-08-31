@@ -16,7 +16,7 @@ const MASCOT = {
 export function BrandWordmark({
   href,
   large = false,
-  mascot = true,
+  mascot = false,
 }: {
   href?: string;
   large?: boolean;
@@ -31,15 +31,20 @@ export function BrandWordmark({
           width={MASCOT.width}
           height={MASCOT.height}
           className="brand-mascot"
+          aria-hidden
         />
       ) : null}
       <img
         src={WORDMARK.src}
-        alt={WORDMARK.alt}
+        alt=""
         width={WORDMARK.width}
         height={WORDMARK.height}
         className="brand-wordmark-img"
+        aria-hidden
       />
+      <span className="brand-wordmark-text font-display" aria-hidden>
+        Redesenha
+      </span>
     </>
   );
   const className = `brand-wordmark shrink-0${large ? ' brand-wordmark--lg' : ''}`;
@@ -50,5 +55,5 @@ export function BrandWordmark({
       </Link>
     );
   }
-  return <p className={className}>{inner}</p>;
+  return <p className={className} role="img" aria-label={WORDMARK.alt}>{inner}</p>;
 }
