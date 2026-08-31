@@ -25,8 +25,8 @@ export default function YearReviewPage() {
     <RequireAuth>
       <div className="space-y-4">
         <section className="overflow-hidden rounded-2xl bg-[linear-gradient(160deg,var(--ink),var(--brand-red-dark),var(--accent))] p-6 sm:rounded-3xl sm:p-10">
-          <p className="text-sm tracking-[0.3em] text-white/70">RESENHÔMETRO WRAPPED</p>
-          <h1 className="mt-2 text-2xl font-semibold sm:text-4xl">Seu {data.year} no Resenhômetro</h1>
+          <p className="text-sm tracking-[0.3em] text-white/70">REDESENHA WRAPPED</p>
+          <h1 className="mt-2 text-2xl font-semibold sm:text-4xl">Seu {data.year} no Redesenha</h1>
         </section>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
