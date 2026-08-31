@@ -164,21 +164,38 @@ html[data-theme] body {
   font-weight: 400;
 }
 
-h1,
+@layer base {
+  h1 {
+    font-size: 36px;
+    line-height: 44px;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 700;
+  }
+}
+
 .text-h1 {
   font-size: 36px;
   line-height: 44px;
   font-weight: 700;
 }
 
-h2,
 .text-h2 {
   font-size: 28px;
   line-height: 36px;
   font-weight: 700;
 }
 
-h3,
 .text-h3 {
   font-size: 22px;
   line-height: 30px;
@@ -215,12 +232,13 @@ h3,
 }
 
 .brand-wordmark {
+  position: relative;
   display: inline-block;
   font-family: "Bomb Font", var(--font-sans);
-  font-size: 0.95rem;
-  line-height: 1.1;
+  font-size: 1.65rem;
+  line-height: 0.95;
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   background-image: linear-gradient(
     105deg,
     var(--paper) 0%,
@@ -229,8 +247,10 @@ h3,
   );
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
+  color: var(--brand-red);
   -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.18em var(--brand-red);
+  paint-order: stroke fill;
 }
 
 html[data-theme="light"] .brand-wordmark {
@@ -240,11 +260,12 @@ html[data-theme="light"] .brand-wordmark {
     var(--brand-red) 42%,
     var(--graphite) 100%
   );
+  -webkit-text-stroke: 0.18em var(--brand-red-dark);
 }
 
 @media (min-width: 640px) {
   .brand-wordmark {
-    font-size: 1.05rem;
+    font-size: 1.95rem;
   }
 }
 

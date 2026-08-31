@@ -338,7 +338,7 @@ function DefaultRail() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
       <div className="card p-4">
-        <h2 className="mb-3 text-sm font-semibold tracking-wide text-muted">PRÓXIMOS ROLÊS</h2>
+        <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted">PRÓXIMOS ROLÊS</h2>
         <ul className="space-y-3">
           {roles.length === 0 ? <li className="text-sm text-muted">Nada marcado ainda.</li> : null}
           {roles.map((role) => (
@@ -354,7 +354,7 @@ function DefaultRail() {
         </ul>
       </div>
       <div className="card p-4">
-        <h2 className="mb-3 text-sm font-semibold tracking-wide text-muted">SUGESTÕES</h2>
+        <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted">SUGESTÕES</h2>
         <ul className="space-y-3">
           {people.map((person) => (
             <li key={person.id} className="flex items-center gap-2">
