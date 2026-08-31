@@ -318,6 +318,24 @@ html[data-theme="light"] .brand-wordmark-text {
   max-width: min(82vw, 22rem);
 }
 
+@media (max-width: 359.98px) {
+  .brand-wordmark-img {
+    height: 1.7rem;
+    max-width: 6.5rem;
+  }
+
+  .brand-wordmark-text {
+    font-size: 1.05rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .brand-wordmark-img {
+    height: 2.6rem;
+    max-width: 12rem;
+  }
+}
+
 .theme-toggle-corner {
   position: fixed;
   top: max(0.4rem, env(safe-area-inset-top));

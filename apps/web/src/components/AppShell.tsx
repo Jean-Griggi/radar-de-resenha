@@ -162,7 +162,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-line bg-[var(--header)] backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-4 sm:px-4 sm:py-3">
+        <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-4 sm:px-4 sm:py-3 2xl:max-w-[1536px]">
           <BrandWordmark href="/" />
           <nav className="hidden items-stretch self-stretch lg:flex" aria-label="Principal">
             {TOP_NAV.map((item) => {
@@ -191,7 +191,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
               id="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar pessoas, rolês e tags"
+              placeholder="Buscar"
               className="min-h-11 w-full rounded-full border-2 border-line bg-overlay px-3 py-2 text-sm text-fg sm:px-4"
             />
           </form>
@@ -246,7 +246,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 lg:pb-8 xl:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 lg:pb-28 xl:grid-cols-[minmax(0,1fr)_280px] 2xl:max-w-[1536px]">
         <main className="min-w-0">
           <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
         </main>
