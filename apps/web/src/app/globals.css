@@ -82,6 +82,7 @@ html[data-theme="light"] {
   --wave-line: color-mix(in srgb, #9E1B1B 12%, transparent);
   --wave-shine: rgba(255, 255, 255, 0.45);
   --grain-opacity: 0.04;
+  --focus: 0 0 0 3px #0D0D0D;
 }
 
 @theme inline {
@@ -468,6 +469,8 @@ a {
 }
 
 .button:focus-visible,
+a:focus-visible,
+button:focus-visible,
 input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):focus-visible,
 textarea:focus-visible,
 select:focus-visible {

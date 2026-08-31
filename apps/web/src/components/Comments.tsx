@@ -43,7 +43,7 @@ export function Comments({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={replyTo ? 'Escreva uma resposta...' : 'Escreva um comentário...'}
-            className="min-h-20 w-full rounded-xl border border-line bg-input px-3 py-2 text-sm text-fg outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            className="min-h-20 w-full rounded-xl border border-line bg-input px-3 py-2 text-sm text-fg focus:ring-2 focus:ring-[var(--accent)]"
           />
           <div className="mt-2 flex items-center gap-2">
             <Button type="submit">Publicar</Button>
