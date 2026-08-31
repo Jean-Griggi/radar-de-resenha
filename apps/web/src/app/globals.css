@@ -232,41 +232,29 @@ html[data-theme] body {
 }
 
 .brand-wordmark {
-  position: relative;
-  display: inline-block;
-  font-family: "Bomb Font", var(--font-sans);
-  font-size: 1.65rem;
-  line-height: 0.95;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  background-image: linear-gradient(
-    105deg,
-    var(--paper) 0%,
-    var(--brand-red) 48%,
-    var(--brand-red-dark) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: var(--brand-red);
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.18em var(--brand-red);
-  paint-order: stroke fill;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
 }
 
-html[data-theme="light"] .brand-wordmark {
-  background-image: linear-gradient(
-    105deg,
-    var(--brand-red-dark) 0%,
-    var(--brand-red) 42%,
-    var(--graphite) 100%
-  );
-  -webkit-text-stroke: 0.18em var(--brand-red-dark);
+.brand-wordmark-img {
+  display: block;
+  height: 2.5rem;
+  width: auto;
+  max-width: 11.5rem;
+  object-fit: contain;
 }
 
 @media (min-width: 640px) {
-  .brand-wordmark {
-    font-size: 1.95rem;
+  .brand-wordmark-img {
+    height: 2.85rem;
+    max-width: 13.75rem;
   }
+}
+
+.brand-wordmark--lg .brand-wordmark-img {
+  height: 3.75rem;
+  max-width: 18rem;
 }
 
 nav,
@@ -276,11 +264,6 @@ nav .font-display,
 form .font-display,
 table .font-display {
   font-family: var(--font-sans);
-}
-
-nav .brand-wordmark,
-header .brand-wordmark {
-  font-family: "Bomb Font", var(--font-sans);
 }
 
 a {

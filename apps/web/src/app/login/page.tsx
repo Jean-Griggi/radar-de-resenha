@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/Button';
+import { BrandWordmark } from '@/components/BrandWordmark';
 import { Field, Input } from '@/components/Field';
 import { ThemeToggle } from '@/components/Theme';
 import { api, apiErrorMessage } from '@/lib/api';
@@ -40,7 +41,7 @@ export default function LoginPage() {
       <div className="mb-6 flex justify-end">
         <ThemeToggle />
       </div>
-      <p className="brand-wordmark">Redesenha</p>
+      <BrandWordmark large />
       <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Sua vida social, em um só lugar.</h1>
       <p className="mt-3 mb-8 text-muted">Entre para ver rolês, memórias e a trilha da galera.</p>
       <form onSubmit={onSubmit} className="card space-y-4 p-6">

@@ -22,6 +22,7 @@ import {
   type RailRole,
 } from '@/lib/shellCache';
 import { Avatar } from './Avatar';
+import { BrandWordmark } from './BrandWordmark';
 import { ErrorBoundary } from './ErrorBoundary';
 import { MiniPlayer, usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
@@ -162,9 +163,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
           >
             {open ? '✕' : '☰'}
           </button>
-          <Link href="/" className="brand-wordmark shrink-0" aria-label="Redesenha">
-            Redesenha
-          </Link>
+          <BrandWordmark href="/" />
           <form onSubmit={search} className="min-w-0 flex-1">
             <label className="sr-only" htmlFor="search">
               Buscar
