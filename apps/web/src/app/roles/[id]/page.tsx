@@ -85,20 +85,23 @@ export default function RoleDetailPage() {
   return (
     <RequireAuth>
       <div className="space-y-5">
-        <div className="overflow-hidden rounded-3xl border border-white/10">
-          <div className="h-32 bg-[linear-gradient(120deg,#6d28d9,#db2777,#38bdf8)] sm:h-40" />
-          <div className="bg-[#10182c] p-4 sm:p-6">
+        <div className="overflow-hidden rounded-[var(--radius-xl)] border-2 border-[var(--text)]">
+          <MediaImage src={role.coverPhoto ?? role.photos?.[0]?.url} alt="" className="h-40 w-full object-cover sm:h-52" />
+          <div className="bg-[var(--card)] p-4 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="min-w-0">
-                <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs text-violet-200">{role.category}</span>
-                <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">{role.title}</h1>
-                <p className="text-slate-400">
-                  {formatDate(role.date)} {role.time ? `· ${role.time}` : ''} · {role.location || 'Local a combinar'}
+              <div className="min-w-0 space-y-2">
+                <p className="text-sm font-bold text-fg">
+                  {formatDate(role.date)} {role.time ? `· ${role.time}` : ''}
                 </p>
-                <p className="mt-2 text-sm text-slate-300">{role.description || 'Sem descrição.'}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <p className="text-sm text-muted">{role.location || 'Local a combinar'}</p>
+                <h1 className="text-2xl font-semibold sm:text-3xl">{role.title}</h1>
+                <p className="text-sm text-muted">{role.description || 'Sem descrição.'}</p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="inline-flex min-h-6 items-center rounded-full border-2 border-[var(--text)] px-2 text-label">
+                    {role.category}
+                  </span>
                   {role.tags?.map((tag) => (
-                    <span key={tag} className="text-xs text-violet-300">
+                    <span key={tag} className="text-xs text-muted">
                       #{tag}
                     </span>
                   ))}
@@ -106,7 +109,7 @@ export default function RoleDetailPage() {
               </div>
               {owner ? (
                 <div className="flex gap-2">
-                  <Link href={`/roles/${role.id}/editar`} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
+                  <Link href={`/roles/${role.id}/editar`} className="button button--outline">
                     Editar
                   </Link>
                   <Button variant="danger" onClick={remove}>
@@ -115,10 +118,15 @@ export default function RoleDetailPage() {
                 </div>
               ) : null}
             </div>
-            <div className="mt-4 flex items-center gap-3 text-sm">
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
               <Avatar src={role.creator?.avatar} name={role.creator?.name} size="sm" />
               <Link href={`/perfil/${role.creator?.username}`}>{role.creator?.name}</Link>
-              {formatMoney(role.estimatedCost) ? <span className="text-slate-400">· {formatMoney(role.estimatedCost)}</span> : null}
+              {formatMoney(role.estimatedCost) ? <span className="text-muted">· {formatMoney(role.estimatedCost)}</span> : null}
+            </div>
+            <div className="mt-4">
+              <Button variant={role.myAttendance === 'going' ? 'outline' : 'primary'} onClick={() => attendance('going')}>
+                {role.myAttendance === 'going' ? 'Confirmado' : 'Bora'}
+              </Button>
             </div>
           </div>
         </div>
@@ -129,12 +137,12 @@ export default function RoleDetailPage() {
               key={status}
               type="button"
               onClick={() => attendance(status)}
-              className={`card p-4 text-left ${role.myAttendance === status ? 'border-violet-400/50' : ''}`}
+              className={`card min-h-11 p-4 text-left ${role.myAttendance === status ? 'border-[var(--accent)]' : ''}`}
             >
               <p className="text-2xl font-semibold">
                 {status === 'going' ? role.goingCount : status === 'maybe' ? role.maybeCount : role.notGoingCount}
               </p>
-              <p className="text-sm text-slate-400">{status === 'going' ? 'vão' : status === 'maybe' ? 'talvez' : 'não vão'}</p>
+              <p className="text-sm text-muted">{status === 'going' ? 'vão' : status === 'maybe' ? 'talvez' : 'não vão'}</p>
             </button>
           ))}
         </div>
@@ -146,7 +154,7 @@ export default function RoleDetailPage() {
               <li key={item.id} className="flex items-center gap-2 rounded-full bg-white/5 px-2 py-1">
                 <Avatar src={item.user?.avatar} name={item.user?.name} size="sm" />
                 <span className="text-sm">{item.user?.name}</span>
-                <span className="text-xs text-slate-400">{item.status}</span>
+                <span className="text-xs text-muted">{item.status}</span>
               </li>
             ))}
           </ul>
@@ -234,9 +242,9 @@ export default function RoleDetailPage() {
           <h2 className="mb-4 font-medium">Resenha</h2>
           {role.review ? (
             <Link href={`/reviews/${role.review.id}`} className="block rounded-xl bg-white/5 p-4">
-              <p className="text-amber-300">{'★'.repeat(role.review.rating)}</p>
+              <p className="text-[var(--accent)]">{'★'.repeat(role.review.rating)}</p>
               <h3 className="text-lg">{role.review.title}</h3>
-              <p className="text-sm text-slate-300">{role.review.content}</p>
+              <p className="text-sm text-muted">{role.review.content}</p>
             </Link>
           ) : (
             <form onSubmit={publishReview} className="space-y-3">

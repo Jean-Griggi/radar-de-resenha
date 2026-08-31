@@ -7,6 +7,7 @@ import { Avatar } from '@/components/Avatar';
 import { EmptyState, Skeleton } from '@/components/Card';
 import { MediaImage } from '@/components/MediaImage';
 import { RequireAuth } from '@/components/RequireAuth';
+import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 
@@ -19,11 +20,46 @@ const FILTERS = [
   { id: 'talvez', label: 'Talvez' },
 ];
 
+function isToday(date: string | null) {
+  if (!date) return false;
+  const value = date.slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return value === today;
+}
+
+function RoleBadges({ role }: { role: Role }) {
+  const badges: { label: string; tone: 'accent' | 'muted' }[] = [];
+  if (isToday(role.date)) badges.push({ label: 'Hoje', tone: 'accent' });
+  if (role.status === 'ongoing') badges.push({ label: 'Confirmado', tone: 'accent' });
+  if (role.status === 'upcoming') badges.push({ label: 'Pendente', tone: 'muted' });
+  if (role.status === 'cancelled') badges.push({ label: 'Cancelado', tone: 'muted' });
+  badges.push({ label: role.category, tone: 'muted' });
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {badges.map((badge) => (
+        <span
+          key={badge.label}
+          className={`inline-flex min-h-6 items-center rounded-full border-2 px-2 text-label ${
+            badge.tone === 'accent'
+              ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--paper)]'
+              : 'border-[var(--text)] text-fg'
+          }`}
+        >
+          {badge.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function RolesPage() {
+  const toast = useToast();
   const [roles, setRoles] = useState<Role[]>([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [acting, setActing] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -44,14 +80,26 @@ export default function RolesPage() {
     return () => controller.abort();
   }, [filter]);
 
+  async function bora(roleId: string) {
+    setActing(roleId);
+    try {
+      await api.post(`/roles/${roleId}/attendance`, { status: 'going' });
+      toast.push('Presença confirmada');
+    } catch (err) {
+      if (!isApiCanceled(err)) toast.push(apiErrorMessage(err, 'Não foi possível confirmar'), 'error');
+    } finally {
+      setActing(null);
+    }
+  }
+
   return (
     <RequireAuth>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold sm:text-3xl">Rolês</h1>
-          <p className="text-sm text-slate-400">Os encontros, as memórias e o que vem aí.</p>
+          <p className="text-sm text-muted">Os encontros, as memórias e o que vem aí.</p>
         </div>
-        <Link href="/roles/new" className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2 text-center text-sm font-medium glow-btn sm:shrink-0">
+        <Link href="/roles/new" className="button button--primary sm:shrink-0">
           Novo rolê
         </Link>
       </div>
@@ -61,7 +109,9 @@ export default function RolesPage() {
             key={item.id}
             type="button"
             onClick={() => setFilter(item.id)}
-            className={`rounded-full px-3 py-1.5 text-sm ${filter === item.id ? 'bg-violet-500 text-white' : 'bg-white/5 text-slate-300'}`}
+            className={`min-h-11 rounded-full border-2 px-3 text-sm font-bold ${
+              filter === item.id ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--paper)]' : 'border-line text-muted hover:border-[var(--text)]'
+            }`}
           >
             {item.label}
           </button>
@@ -78,7 +128,7 @@ export default function RolesPage() {
         <EmptyState
           title="Você ainda não tem nenhum rolê."
           action={
-            <Link href="/roles/new" className="rounded-xl bg-violet-500 px-4 py-2 text-sm">
+            <Link href="/roles/new" className="button button--primary">
               Criar primeiro rolê
             </Link>
           }
@@ -87,35 +137,37 @@ export default function RolesPage() {
       <ul className="grid gap-4 sm:grid-cols-2">
         {roles.map((role) => (
           <li key={role.id}>
-            <Link href={`/roles/${role.id}`} className="card block overflow-hidden transition hover:border-violet-400/40">
-              {role.coverPhoto ? (
-                <MediaImage src={role.coverPhoto} alt="" className="h-36 w-full object-cover" />
-              ) : null}
-              <div className="p-5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs text-violet-200">{role.category}</span>
-                  <span className="text-xs text-slate-400">{role.status}</span>
+            <article className="card overflow-hidden">
+              <Link href={`/roles/${role.id}`} className="block">
+                <MediaImage src={role.coverPhoto} alt="" className="h-40 w-full object-cover" />
+                <div className="space-y-2 p-4">
+                  <RoleBadges role={role} />
+                  <p className="text-sm font-bold text-fg">
+                    {formatDate(role.date)} {role.time ? `· ${role.time}` : ''}
+                  </p>
+                  <p className="text-sm text-muted">{role.location || 'Local a combinar'}</p>
+                  <h2 className="text-lg font-medium text-fg">{role.title}</h2>
+                  <div className="flex items-center justify-between text-xs text-muted">
+                    <span className="flex items-center gap-2">
+                      <Avatar src={role.creator?.avatar} name={role.creator?.name} size="sm" />
+                      {role.creator?.name}
+                    </span>
+                    <span>
+                      {role.goingCount} vão · {role.maybeCount} talvez
+                    </span>
+                  </div>
                 </div>
-                <h2 className="mt-3 text-lg font-medium">{role.title}</h2>
-                <p className="text-sm text-slate-400">
-                  {formatDate(role.date)} {role.time ? `· ${role.time}` : ''}
-                </p>
-                <p className="text-sm text-slate-400">{role.location || 'Local a combinar'}</p>
-                <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-                  <span className="flex items-center gap-2">
-                    <Avatar src={role.creator?.avatar} name={role.creator?.name} size="sm" />
-                    {role.creator?.name}
-                  </span>
-                  <span>
-                    {role.goingCount} vão · {role.maybeCount} talvez
-                  </span>
-                </div>
+              </Link>
+              <div className="px-4 pb-4">
+                <button type="button" className="button button--primary w-full" disabled={acting === role.id} onClick={() => bora(role.id)}>
+                  Bora
+                </button>
               </div>
-            </Link>
+            </article>
           </li>
         ))}
       </ul>
-      <p className="mt-6 text-xs text-slate-500">Categorias: {ROLE_CATEGORIES.join(' · ')}</p>
+      <p className="mt-6 text-xs text-muted">Categorias: {ROLE_CATEGORIES.join(' · ')}</p>
     </RequireAuth>
   );
 }
