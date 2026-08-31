@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Moon, Sun } from 'lucide-react';
 
 type Theme = 'light' | 'dark';
 
@@ -52,11 +53,10 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
     <button
       type="button"
       onClick={toggle}
-      className={`flex h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--overlay)] px-2.5 text-sm text-[var(--text)] transition-[border-color,background-color,color] duration-200 hover:border-[var(--accent-cool)] motion-reduce:transition-none sm:px-3 ${className}`}
+      className={`icon-btn ${className}`}
       aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
     >
-      <span className="sm:hidden">{theme === 'dark' ? '☀' : '☾'}</span>
-      <span className="hidden sm:inline">{theme === 'dark' ? '☀ Claro' : '☾ Escuro'}</span>
+      {theme === 'dark' ? <Sun size={20} strokeWidth={2} aria-hidden /> : <Moon size={20} strokeWidth={2} aria-hidden />}
     </button>
   );
 }

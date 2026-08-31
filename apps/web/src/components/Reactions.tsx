@@ -34,23 +34,27 @@ export function Reactions({
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1" role="group" aria-label="Reações">
       {(Object.keys(REACTION_EMOJI) as ReactionType[]).map((type) => {
         const current = items.find((item) => item.type === type);
+        const reacted = Boolean(current?.reacted);
+        const count = current?.count || 0;
         return (
           <button
             key={type}
             type="button"
             disabled={pending !== null}
             onClick={() => toggle(type)}
-            className={`min-h-11 rounded-full border px-2.5 py-1 text-sm transition disabled:opacity-40 ${
-              current?.reacted
-                ? 'border-[var(--accent)] bg-[var(--accent-soft)]'
-                : 'border-line bg-overlay hover:border-[var(--text)]'
+            className={`inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full px-2.5 text-sm transition disabled:opacity-40 ${
+              reacted
+                ? 'bg-[var(--accent-soft)] text-fg'
+                : 'text-muted hover:bg-overlay hover:text-fg'
             }`}
+            aria-pressed={reacted}
             aria-label={`Reagir com ${REACTION_EMOJI[type]}`}
           >
-            {REACTION_EMOJI[type]} {current?.count || ''}
+            <span aria-hidden>{REACTION_EMOJI[type]}</span>
+            {count > 0 ? <span className="text-xs tabular-nums">{count}</span> : null}
           </button>
         );
       })}

@@ -439,6 +439,9 @@ html[data-theme="light"] .brand-wordmark-text {
   top: max(0.4rem, env(safe-area-inset-top));
   right: max(0.4rem, env(safe-area-inset-right));
   z-index: 50;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 nav,
@@ -673,6 +676,200 @@ select {
   background: var(--primary);
 }
 
+.top-nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.top-nav-link:hover {
+  color: var(--text);
+  background: var(--overlay);
+}
+
+.top-nav-link.nav-active {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.top-nav-link.nav-active::after {
+  left: 28%;
+  right: 28%;
+  bottom: 6px;
+}
+
+header .brand-wordmark-img {
+  height: 2.7rem;
+  max-width: 12.75rem;
+}
+
+@media (min-width: 640px) {
+  header .brand-wordmark-img {
+    height: 3.1rem;
+    max-width: 15.25rem;
+  }
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  width: 44px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  color: var(--text-muted);
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease,
+    opacity 0.18s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: var(--overlay);
+  color: var(--text);
+}
+
+.icon-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.chat-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-elevated);
+}
+
+.chat-sheet-inner {
+  height: 100%;
+  padding-top: env(safe-area-inset-top);
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 0.55rem 0.85rem;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 20px;
+  word-break: break-word;
+}
+
+.chat-bubble--me {
+  margin-left: auto;
+  background: var(--primary);
+  color: var(--paper);
+  border-bottom-right-radius: 6px;
+}
+
+.chat-bubble--them {
+  background: var(--secondary);
+  color: var(--text);
+  border-bottom-left-radius: 6px;
+}
+
+.chat-fab {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: calc(5.75rem + env(safe-area-inset-bottom));
+  z-index: 45;
+  display: flex;
+  height: 56px;
+  width: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--paper);
+  box-shadow: var(--shadow-lg);
+  transition:
+    background-color 0.18s ease,
+    transform 0.15s ease;
+}
+
+.chat-fab:hover {
+  background: var(--primary-hover);
+}
+
+.chat-fab:active {
+  transform: scale(0.96);
+}
+
+@media (min-width: 1024px) {
+  .chat-fab {
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+.chat-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: flex;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--paper);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--surface-elevated);
+}
+
+.chat-badge--header {
+  top: 6px;
+  right: 6px;
+  box-shadow: 0 0 0 2px var(--background);
+}
+
+.chat-count {
+  display: inline-flex;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--paper);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 input,
 textarea,
 select {
@@ -706,8 +903,16 @@ select {
 
   .button,
   .input,
-  a {
+  a,
+  .top-nav-link,
+  .icon-btn,
+  .chat-fab {
     transition: none;
+  }
+
+  .icon-btn:active:not(:disabled),
+  .chat-fab:active {
+    transform: none;
   }
 
   .button__spinner {

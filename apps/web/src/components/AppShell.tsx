@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState, type ReactNode } from 'react';
+import { Bell, Compass, House, Plus, Search, Sparkles, User } from 'lucide-react';
 import { api } from '@/lib/api';
 import { clearAuth, getUser, type AuthUser } from '@/lib/auth';
 import { formatShortDate } from '@/lib/format';
@@ -23,6 +24,7 @@ import {
 } from '@/lib/shellCache';
 import { Avatar } from './Avatar';
 import { BrandWordmark } from './BrandWordmark';
+import { ChatColumn, ChatDock, ChatHeaderButton, ChatMobile, ChatProvider, useChat } from './Chat';
 import { ErrorBoundary } from './ErrorBoundary';
 import { MiniPlayer, usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
@@ -34,11 +36,11 @@ const TOP_NAV = [
 ];
 
 const BOTTOM_NAV = [
-  { href: '/', label: 'Feed', icon: '⌂' },
-  { href: '/explore', label: 'Explorar', icon: '◎' },
-  { href: '/roles/new', label: 'Criar', icon: '+', create: true },
-  { href: '/roles', label: 'Rolês', icon: '✦' },
-  { href: '/perfil', label: 'Perfil', icon: '◉', profile: true },
+  { href: '/', label: 'Feed', icon: House },
+  { href: '/explore', label: 'Explorar', icon: Compass },
+  { href: '/roles/new', label: 'Criar', icon: Plus, create: true },
+  { href: '/roles', label: 'Rolês', icon: Sparkles },
+  { href: '/perfil', label: 'Perfil', icon: User, profile: true },
 ];
 
 const MORE_NAV = [
@@ -56,7 +58,11 @@ function navActive(pathname: string, href: string) {
 }
 
 export function AppShell({ children, right }: { children: ReactNode; right?: ReactNode }) {
-  return <ShellFrame right={right}>{children}</ShellFrame>;
+  return (
+    <ChatProvider>
+      <ShellFrame right={right}>{children}</ShellFrame>
+    </ChatProvider>
+  );
 }
 
 function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNode }) {
@@ -162,49 +168,42 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-line bg-[var(--header)] backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-4 sm:px-4 sm:py-3 2xl:max-w-[1536px]">
+        <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-3 sm:px-4 sm:py-3 2xl:max-w-[1536px]">
           <BrandWordmark href="/" />
           <nav className="hidden items-stretch self-stretch lg:flex" aria-label="Principal">
             {TOP_NAV.map((item) => {
               const active = navActive(pathname, item.href);
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`relative flex items-center px-3 text-sm font-bold ${active ? 'nav-active' : 'text-muted hover:text-fg'}`}
-                >
+                <Link key={item.href} href={item.href} className={`top-nav-link ${active ? 'nav-active' : ''}`}>
                   {item.label}
                 </Link>
               );
             })}
           </nav>
           <div className="hidden shrink-0 lg:block">
-            <Link href="/roles/new" className="button button--primary" aria-label="Criar rolê">
-              + Criar
+            <Link href="/roles/new" className="button button--primary gap-1.5" aria-label="Criar rolê">
+              <Plus size={16} strokeWidth={2.5} aria-hidden />
+              Criar
             </Link>
           </div>
-          <form onSubmit={search} className="min-w-0 flex-1">
+          <form onSubmit={search} className="relative min-w-0 flex-1">
             <label className="sr-only" htmlFor="search">
               Buscar
             </label>
+            <Search size={16} strokeWidth={2} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted" aria-hidden />
             <input
               id="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar"
-              className="input rounded-full bg-[var(--overlay)] sm:px-4"
+              className="input rounded-full bg-[var(--overlay)] pr-4 pl-10 sm:px-4 sm:pl-10"
             />
           </form>
           <ThemeToggle />
-          <Link
-            href="/notifications"
-            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-overlay"
-            aria-label="Notificações"
-          >
-            <span aria-hidden className="text-lg">
-              🔔
-            </span>
-            {unread > 0 ? <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[var(--accent)]" /> : null}
+          <ChatHeaderButton />
+          <Link href="/notifications" className="icon-btn relative" aria-label={unread > 0 ? `Notificações, ${unread} não lidas` : 'Notificações'}>
+            <Bell size={20} strokeWidth={2} aria-hidden />
+            {unread > 0 ? <span className="chat-badge chat-badge--header">{unread > 9 ? '9+' : unread}</span> : null}
           </Link>
           <div className="relative shrink-0">
             <button
@@ -246,16 +245,17 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 lg:pb-28 xl:grid-cols-[minmax(0,1fr)_280px] 2xl:max-w-[1536px]">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 lg:pb-28 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,22.5rem)] 2xl:max-w-[1536px]">
         <main className="min-w-0">
           <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
         </main>
 
         <aside className="hidden min-w-0 xl:block">
-          <div className="space-y-4 xl:sticky xl:top-24">{right ?? <DefaultRail />}</div>
+          <ShellAside right={right} />
         </aside>
       </div>
       <MiniPlayer />
+      <ChatMobile />
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-[var(--header)] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden" aria-label="Principal">
         <ul className="grid grid-cols-5">
           {BOTTOM_NAV.map((item) => {
@@ -266,10 +266,10 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
                 <li key={item.href} className="flex items-center justify-center">
                   <Link
                     href={href}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--accent)] text-2xl font-bold leading-none text-[var(--paper)]"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--paper)] transition hover:bg-[var(--primary-hover)]"
                     aria-label="Criar rolê"
                   >
-                    +
+                    <Plus size={22} strokeWidth={2.5} aria-hidden />
                   </Link>
                 </li>
               );
@@ -278,11 +278,9 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
               <li key={item.href}>
                 <Link
                   href={href}
-                  className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[10px] font-bold ${active ? 'nav-active' : 'text-muted'}`}
+                  className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[10px] font-bold ${active ? 'text-[var(--primary)]' : 'text-muted'}`}
                 >
-                  <span className="text-lg leading-none" aria-hidden>
-                    {item.icon}
-                  </span>
+                  <item.icon size={20} strokeWidth={active ? 2.4 : 2} aria-hidden />
                   {item.label}
                 </Link>
               </li>
@@ -290,6 +288,20 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
           })}
         </ul>
       </nav>
+    </div>
+  );
+}
+
+function ShellAside({ right }: { right?: ReactNode }) {
+  const { mode, hydrated, isDesktop } = useChat();
+  const chatOpen = hydrated && isDesktop && mode === 'open';
+
+  if (chatOpen) return <ChatColumn />;
+
+  return (
+    <div className="space-y-4 xl:sticky xl:top-[4.75rem]">
+      <ChatDock />
+      {right ?? <DefaultRail />}
     </div>
   );
 }
