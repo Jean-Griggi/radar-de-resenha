@@ -14,7 +14,7 @@ export function BrandWordmark({
     <>
       <BrandSymbol className="brand-wordmark-mark" />
       <span className="brand-wordmark-text" aria-hidden>
-        edesinha
+        Redesinha
       </span>
     </>
   );
