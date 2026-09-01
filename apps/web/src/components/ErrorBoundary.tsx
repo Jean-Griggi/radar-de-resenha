@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { BrandBadge } from './BrandMark';
 
 type Props = {
   children: ReactNode;
@@ -31,7 +32,8 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       if (this.props.fallback) return this.props.fallback;
       return (
-        <div className="card p-6">
+        <div className="card p-6 text-center">
+          <BrandBadge className="mx-auto mb-4" />
           <h2 className="text-lg font-medium">Algo deu errado</h2>
           <p className="mt-2 text-sm text-muted">Esta área falhou ao renderizar. O menu e o restante do app continuam disponíveis.</p>
           <button type="button" className="button button--primary mt-4" onClick={() => this.setState({ error: null })}>

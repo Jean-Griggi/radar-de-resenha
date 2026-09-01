@@ -28,6 +28,7 @@ import {
   type ChatConversation,
 } from '@/lib/chatMock';
 import { Avatar } from './Avatar';
+import { BrandBadge } from './BrandMark';
 
 type ChatMode = 'closed' | 'minimized' | 'open';
 
@@ -358,9 +359,7 @@ function ChatList({ conversations, onSelect }: { conversations: ChatConversation
   if (conversations.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-10 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--primary)]">
-          <MessageCircle size={26} strokeWidth={2} aria-hidden />
-        </span>
+        <BrandBadge />
         <p className="text-sm font-semibold text-fg">Nenhuma conversa ainda</p>
         <p className="text-xs text-muted">Quando a galera chegar, as mensagens aparecem aqui.</p>
       </div>

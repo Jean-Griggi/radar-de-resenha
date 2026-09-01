@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken } from '@/lib/auth';
 import { AppShell } from './AppShell';
-import { Skeleton } from './Card';
+import { BrandLoader } from './BrandMark';
 
 export function RequireAuth({ children, right }: { children: ReactNode; right?: ReactNode }) {
   const router = useRouter();
@@ -19,13 +19,7 @@ export function RequireAuth({ children, right }: { children: ReactNode; right?: 
   }, [router]);
 
   if (!ready) {
-    return (
-      <div className="mx-auto max-w-4xl space-y-4 px-4 py-10">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-40 w-full" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    );
+    return <BrandLoader label="Entrando no Redesinha" />;
   }
 
   return <AppShell right={right}>{children}</AppShell>;

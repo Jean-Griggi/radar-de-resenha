@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { BrandBadge } from './BrandMark';
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <div className={`card p-5 ${className}`}>{children}</div>;
@@ -15,6 +16,7 @@ export function EmptyState({
 }) {
   return (
     <Card className="border-dashed py-12 text-center">
+      <BrandBadge className="mx-auto mb-4" />
       <h3 className="text-lg font-medium text-fg">{title}</h3>
       {description ? <p className="mt-2 text-sm text-muted">{description}</p> : null}
       {action ? <div className="mt-5">{action}</div> : null}

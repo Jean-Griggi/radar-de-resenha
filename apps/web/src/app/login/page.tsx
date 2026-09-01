@@ -37,13 +37,16 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-14">
+    <main className="auth-screen relative z-10 flex min-h-screen flex-col items-center px-4 pt-14">
       <ThemeToggle className="theme-toggle-corner" />
-      <h1 className="sr-only">Entrar no Redesenha</h1>
       <div className="login-brand">
-        <BrandWordmark large mascot={false} />
+        <BrandWordmark large />
       </div>
       <form onSubmit={onSubmit} className="card composer mx-auto w-full max-w-md space-y-4 p-6">
+        <div className="space-y-1.5 text-center">
+          <h1 className="text-h2 text-fg">Boas-vindas!</h1>
+          <p className="text-sm text-muted">Entre para curtir os melhores rolês com sua galera.</p>
+        </div>
         <Field label="E-mail">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
         </Field>
@@ -56,14 +59,14 @@ export default function LoginPage() {
           </Link>
         </p>
         {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
-        <Button type="submit" disabled={loading} className="w-full">
+        <Button type="submit" loading={loading} className="w-full">
           {loading ? 'Entrando...' : 'Entrar'}
         </Button>
       </form>
       <p className="mx-auto mt-4 w-full max-w-md text-center text-sm text-muted">
-        Não tem conta?{' '}
-        <Link href="/cadastro" className="text-[var(--accent)] hover:underline">
-          Cadastre-se
+        Ainda não tem conta?{' '}
+        <Link href="/cadastro" className="font-semibold text-[var(--primary)] hover:underline">
+          Criar conta
         </Link>
       </p>
     </main>

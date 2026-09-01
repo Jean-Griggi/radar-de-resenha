@@ -44,9 +44,11 @@ export default function RedefinirSenhaPage() {
   }
 
   return (
-    <main className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 pt-14">
+    <main className="auth-screen relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 pt-14">
       <ThemeToggle className="theme-toggle-corner" />
-      <BrandWordmark large mascot={false} />
+      <div className="login-brand">
+        <BrandWordmark large />
+      </div>
       <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Nova senha</h1>
       <p className="mt-3 mb-8 text-muted">Escolha uma senha com pelo menos 6 caracteres.</p>
       <form onSubmit={onSubmit} className="card composer space-y-4 p-6">
@@ -57,12 +59,12 @@ export default function RedefinirSenhaPage() {
           <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={6} required autoComplete="new-password" />
         </Field>
         {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
-        <Button type="submit" disabled={loading} className="w-full">
+        <Button type="submit" loading={loading} className="w-full">
           {loading ? 'Salvando...' : 'Salvar senha'}
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-muted">
-        <Link href="/login" className="text-[var(--accent)] hover:underline">
+        <Link href="/login" className="font-semibold text-[var(--primary)] hover:underline">
           Voltar ao login
         </Link>
       </p>

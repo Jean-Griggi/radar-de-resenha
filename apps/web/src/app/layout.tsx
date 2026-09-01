@@ -25,14 +25,23 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f3eee4' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b0b0f' },
+  ],
 };
 
 export const metadata: Metadata = {
-  title: 'Redesenha',
-  description: 'Rede social de experiências, rolês e memórias',
+  title: 'Redesinha',
+  description: 'Seus rolês. Suas pessoas. Sua rede.',
+  applicationName: 'Redesinha',
   icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/brand/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/brand/favicon-32-light.png', sizes: '32x32', type: 'image/png', media: '(prefers-color-scheme: light)' },
+    ],
+    apple: [{ url: '/brand/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
 };
 
