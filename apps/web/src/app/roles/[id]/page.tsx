@@ -75,7 +75,7 @@ export default function RoleDetailPage() {
   if (!role) {
     return (
       <RequireAuth>
-        <p className="text-rose-300">{error}</p>
+        <p className="text-[var(--danger)]">{error}</p>
       </RequireAuth>
     );
   }
@@ -151,7 +151,7 @@ export default function RoleDetailPage() {
           <h2 className="mb-3 font-medium">Participantes</h2>
           <ul className="flex flex-wrap gap-3">
             {role.attendances.map((item) => (
-              <li key={item.id} className="flex items-center gap-2 rounded-full bg-white/5 px-2 py-1">
+              <li key={item.id} className="flex items-center gap-2 rounded-full bg-[var(--overlay)] px-2 py-1">
                 <Avatar src={item.user?.avatar} name={item.user?.name} size="sm" />
                 <span className="text-sm">{item.user?.name}</span>
                 <span className="text-xs text-muted">{item.status}</span>
@@ -198,7 +198,7 @@ export default function RoleDetailPage() {
             <button
               key={track.id}
               type="button"
-              className="flex w-full items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-left"
+              className="flex w-full items-center justify-between rounded-xl bg-[var(--overlay)] px-3 py-2 text-left"
               onClick={() => setTrack({ title: track.title, artist: track.artist, cover: track.cover, spotifyUrl: track.spotifyUrl })}
             >
               <span>
@@ -241,7 +241,7 @@ export default function RoleDetailPage() {
         <section className="card p-5">
           <h2 className="mb-4 font-medium">Resenha</h2>
           {role.review ? (
-            <Link href={`/reviews/${role.review.id}`} className="block rounded-xl bg-white/5 p-4">
+            <Link href={`/reviews/${role.review.id}`} className="block rounded-xl bg-[var(--overlay)] p-4">
               <p className="text-[var(--accent)]">{'★'.repeat(role.review.rating)}</p>
               <h3 className="text-lg">{role.review.title}</h3>
               <p className="text-sm text-muted">{role.review.content}</p>

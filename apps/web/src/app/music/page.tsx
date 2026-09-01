@@ -109,7 +109,7 @@ export default function MusicPage() {
           <Skeleton className="h-32" />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-rose-300">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
       {!loading && !error ? (
         <>
           <section className="card p-6">
@@ -120,7 +120,7 @@ export default function MusicPage() {
                 {status.nowPlaying ? (
                   <button
                     type="button"
-                    className="flex w-full items-center gap-3 rounded-xl bg-white/5 p-3 text-left"
+                    className="flex w-full items-center gap-3 rounded-xl bg-[var(--overlay)] p-3 text-left"
                     onClick={() => setTrack(status.nowPlaying!)}
                   >
                     {status.nowPlaying.cover ? (
@@ -128,11 +128,11 @@ export default function MusicPage() {
                     ) : null}
                     <div>
                       <p>{status.nowPlaying.title}</p>
-                      <p className="text-sm text-slate-400">{status.nowPlaying.artist}</p>
+                      <p className="text-sm text-muted">{status.nowPlaying.artist}</p>
                     </div>
                   </button>
                 ) : (
-                  <p className="text-sm text-slate-400">Nenhuma faixa tocando agora.</p>
+                  <p className="text-sm text-muted">Nenhuma faixa tocando agora.</p>
                 )}
                 <Button variant="secondary" disabled={disconnecting} onClick={disconnect}>
                   Desconectar
@@ -141,13 +141,13 @@ export default function MusicPage() {
             ) : (
               <div className="mt-3">
                 {status?.configured === false ? (
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-muted">
                     Spotify não está configurado no servidor. Defina SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET e
                     SPOTIFY_REDIRECT_URI apontando para a URL pública da API.
                   </p>
                 ) : (
                   <>
-                    <p className="text-sm text-slate-400">Conecte sua conta para ver a música atual, playlists e abrir no Spotify.</p>
+                    <p className="text-sm text-muted">Conecte sua conta para ver a música atual, playlists e abrir no Spotify.</p>
                     <Button className="mt-3" onClick={connect}>
                       Conectar Spotify
                     </Button>
@@ -174,7 +174,7 @@ export default function MusicPage() {
 
           <section className="mt-5 card p-6">
             <h2 className="mb-3 font-medium">Músicas associadas a rolês</h2>
-            {tracks.length === 0 ? <p className="text-sm text-slate-400">Nenhuma música associada ainda.</p> : null}
+            {tracks.length === 0 ? <p className="text-sm text-muted">Nenhuma música associada ainda.</p> : null}
             <ul className="space-y-2">
               {tracks.map((track) => (
                 <li key={track.id}>

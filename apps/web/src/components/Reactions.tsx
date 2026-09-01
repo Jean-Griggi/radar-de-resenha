@@ -45,11 +45,7 @@ export function Reactions({
             type="button"
             disabled={pending !== null}
             onClick={() => toggle(type)}
-            className={`inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full px-2.5 text-sm transition disabled:opacity-40 ${
-              reacted
-                ? 'bg-[var(--accent-soft)] text-fg'
-                : 'text-muted hover:bg-overlay hover:text-fg'
-            }`}
+            className="reaction-btn disabled:opacity-40"
             aria-pressed={reacted}
             aria-label={`Reagir com ${REACTION_EMOJI[type]}`}
           >

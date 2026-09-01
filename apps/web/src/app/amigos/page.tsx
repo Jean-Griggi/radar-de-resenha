@@ -71,12 +71,12 @@ export default function FriendsPage() {
           <Skeleton className="h-32" />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-rose-300">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
       {!loading && !error ? (
         <>
           <section className="card mb-5 p-5">
             <h2 className="mb-3 font-medium">Pedidos</h2>
-            {!error && requests.length === 0 ? <p className="text-sm text-slate-400">Nenhum pedido pendente.</p> : null}
+            {!error && requests.length === 0 ? <p className="text-sm text-muted">Nenhum pedido pendente.</p> : null}
             <ul className="space-y-3">
               {requests.map((item) => (
                 <li key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -108,12 +108,12 @@ export default function FriendsPage() {
             {!error && friends.length === 0 ? <EmptyState title="Você ainda não tem amigos." /> : null}
             <ul className="grid gap-3 sm:grid-cols-2">
               {friends.map((person) => (
-                <li key={person.id} className="flex items-center justify-between rounded-xl bg-white/5 p-3">
+                <li key={person.id} className="flex items-center justify-between rounded-xl bg-[var(--overlay)] p-3">
                   <Link href={`/perfil/${person.username}`} className="flex items-center gap-2">
                     <Avatar src={person.avatar} name={person.name} size="sm" />
                     <span>
                       {person.name}
-                      <span className="block text-xs text-slate-400">@{person.username}</span>
+                      <span className="block text-xs text-muted">@{person.username}</span>
                     </span>
                   </Link>
                 </li>
@@ -122,7 +122,7 @@ export default function FriendsPage() {
           </section>
           <section className="card p-5">
             <h2 className="mb-3 font-medium">Sugestões</h2>
-            {!error && suggestions.length === 0 ? <p className="text-sm text-slate-400">Nenhuma sugestão no momento.</p> : null}
+            {!error && suggestions.length === 0 ? <p className="text-sm text-muted">Nenhuma sugestão no momento.</p> : null}
             <ul className="space-y-3">
               {suggestions.map((person) => (
                 <li key={person.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

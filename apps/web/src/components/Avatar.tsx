@@ -35,7 +35,7 @@ export function Avatar({
   };
 
   return (
-    <div className={`relative inline-flex shrink-0 ${sizes[size]}`}>
+    <div className={`avatar relative inline-flex shrink-0 ${sizes[size]}`}>
       <div
         className={`h-full w-full overflow-hidden rounded-full bg-[var(--secondary)] ${glow ? 'ring-2 ring-[var(--primary)]' : 'ring-2 ring-[var(--border)]'}`}
       >

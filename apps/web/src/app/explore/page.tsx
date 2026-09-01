@@ -85,7 +85,7 @@ function ExploreInner() {
           <Skeleton className="h-40" />
         </div>
       ) : null}
-      {error ? <p className="text-rose-300">{error}</p> : null}
+      {error ? <p className="text-[var(--danger)]">{error}</p> : null}
       {!loading && !error && search && searchIsEmpty(search) ? <EmptyState title="Nada encontrado." /> : null}
       {!loading && !error && search && !searchIsEmpty(search) ? (
         <div className="space-y-6">
@@ -128,7 +128,7 @@ function ExploreInner() {
             {explore.featuredRoles.map((role) => (
               <Link key={role.id} href={`/roles/${role.id}`} className="card block p-4">
                 <p>{role.title}</p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted">
                   {role.category} · {role.location}
                 </p>
               </Link>
@@ -151,7 +151,7 @@ function ExploreInner() {
           </Section>
           <Section title="Categorias">
             {explore.categories.map((item) => (
-              <span key={item.name} className="rounded-full bg-white/5 px-3 py-1 text-sm">
+              <span key={item.name} className="rounded-full bg-[var(--overlay)] px-3 py-1 text-sm">
                 {item.name} · {item.count}
               </span>
             ))}

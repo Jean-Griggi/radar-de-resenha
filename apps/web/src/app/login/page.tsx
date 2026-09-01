@@ -43,7 +43,7 @@ export default function LoginPage() {
       <div className="login-brand">
         <BrandWordmark large mascot={false} />
       </div>
-      <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4 p-6">
+      <form onSubmit={onSubmit} className="card composer mx-auto w-full max-w-md space-y-4 p-6">
         <Field label="E-mail">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
         </Field>

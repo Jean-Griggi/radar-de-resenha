@@ -31,7 +31,7 @@ export function MiniPlayer() {
   if (!track) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-line bg-[var(--header)] px-3 py-3 backdrop-blur lg:bottom-0 lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4">
+    <div className="shell-chrome fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-line px-3 py-3 lg:bottom-0 lg:pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4">
       <div className="mx-auto flex max-w-6xl items-center gap-3 sm:gap-4">
         {track.cover ? (
           <img src={track.cover} alt="" className="h-10 w-10 rounded-lg object-cover" />

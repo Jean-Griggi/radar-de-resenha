@@ -49,14 +49,14 @@ export default function RedefinirSenhaPage() {
       <BrandWordmark large mascot={false} />
       <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Nova senha</h1>
       <p className="mt-3 mb-8 text-muted">Escolha uma senha com pelo menos 6 caracteres.</p>
-      <form onSubmit={onSubmit} className="card space-y-4 p-6">
+      <form onSubmit={onSubmit} className="card composer space-y-4 p-6">
         <Field label="Nova senha">
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required autoComplete="new-password" />
         </Field>
         <Field label="Confirmar senha">
           <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={6} required autoComplete="new-password" />
         </Field>
-        {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Salvando...' : 'Salvar senha'}
         </Button>

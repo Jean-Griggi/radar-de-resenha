@@ -52,11 +52,11 @@ export default function EsqueciSenhaPage() {
           </Link>
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="card space-y-4 p-6">
+        <form onSubmit={onSubmit} className="card composer space-y-4 p-6">
           <Field label="E-mail">
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
           </Field>
-          {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+          {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? 'Enviando...' : 'Enviar link'}
           </Button>

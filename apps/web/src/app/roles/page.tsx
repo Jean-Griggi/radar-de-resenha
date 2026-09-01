@@ -123,7 +123,7 @@ export default function RolesPage() {
           <Skeleton className="h-40" />
         </div>
       ) : null}
-      {error ? <p className="text-rose-300">{error}</p> : null}
+      {error ? <p className="text-[var(--danger)]">{error}</p> : null}
       {!loading && !error && roles.length === 0 ? (
         <EmptyState
           title="Você ainda não tem nenhum rolê."

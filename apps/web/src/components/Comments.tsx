@@ -47,7 +47,7 @@ export function Comments({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? 'Responder…' : 'Comentar…'}
-              className="input rounded-full"
+              className="input composer rounded-full"
             />
           ) : (
             <textarea
@@ -111,7 +111,7 @@ export function FeedComments({ targetType, targetId }: { targetType: string; tar
   return (
     <div>
       <p className="mb-2 text-label text-muted">Comentários</p>
-      {error ? <p className="mb-2 text-xs text-rose-300">{error}</p> : null}
+      {error ? <p className="mb-2 text-xs text-[var(--danger)]">{error}</p> : null}
       <Comments
         compact
         comments={comments}
@@ -157,7 +157,7 @@ function CommentItem({
                 await api.delete(`/comments/${comment.id}`);
                 onChanged?.();
               }}
-              className="hover:text-rose-300"
+              className="hover:text-[var(--danger)]"
             >
               Excluir
             </button>

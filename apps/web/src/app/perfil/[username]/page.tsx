@@ -62,7 +62,7 @@ export default function ProfilePage() {
     return (
       <RequireAuth>
         {loading ? <Skeleton className="h-72" /> : null}
-        {error ? <p className="text-rose-300">{error}</p> : null}
+        {error ? <p className="text-[var(--danger)]">{error}</p> : null}
         {!loading && !error ? <EmptyState title="Perfil não encontrado." /> : null}
       </RequireAuth>
     );
@@ -120,7 +120,7 @@ export default function ProfilePage() {
 
   return (
     <RequireAuth>
-      <div className="overflow-hidden rounded-3xl border border-white/10">
+      <div className="overflow-hidden rounded-3xl border border-[var(--border)] shadow-[var(--shadow-md)]">
         <div className="relative h-32 bg-[var(--surface)] sm:h-48">
           {profile.cover ? (
             <MediaImage
@@ -139,13 +139,13 @@ export default function ProfilePage() {
               <Avatar src={profile.avatar} name={profile.name} size="xl" glow />
               <div className="min-w-0">
                 <h1 className="text-2xl font-semibold sm:text-3xl">{profile.name}</h1>
-                <p className="text-slate-400">@{profile.username}</p>
-                {profile.city ? <p className="text-sm text-slate-400">{profile.city}</p> : null}
+                <p className="text-muted">@{profile.username}</p>
+                {profile.city ? <p className="text-sm text-muted">{profile.city}</p> : null}
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {profile.isMe ? (
-                <Link href="/settings" className="rounded-xl border border-white/10 px-4 py-2 text-sm">
+                <Link href="/settings" className="button button--outline">
                   Editar perfil
                 </Link>
               ) : (
@@ -187,7 +187,7 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-          <p className="mt-4 max-w-2xl text-slate-300">{profile.bio || 'Sem bio ainda.'}</p>
+          <p className="mt-4 max-w-2xl text-fg">{profile.bio || 'Sem bio ainda.'}</p>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
             {[
               ['Rolês', profile.stats.roles],
@@ -196,9 +196,9 @@ export default function ProfilePage() {
               ['Seguidores', profile.stats.followers],
               ['Seguindo', profile.stats.following],
             ].map(([label, value]) => (
-              <div key={String(label)} className="rounded-2xl bg-white/5 p-3 text-center">
+              <div key={String(label)} className="profile-stat">
                 <p className="text-xl font-semibold">{value}</p>
-                <p className="text-xs text-slate-400">{label}</p>
+                <p className="text-xs text-muted">{label}</p>
               </div>
             ))}
           </div>
@@ -211,7 +211,7 @@ export default function ProfilePage() {
             key={item}
             type="button"
             onClick={() => setTab(item)}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm ${tab === item ? 'bg-[var(--accent)] text-white' : 'bg-white/5 text-slate-300'}`}
+            className={`chip-tab ${tab === item ? 'is-active' : ''}`}
           >
             {item}
           </button>
@@ -225,7 +225,7 @@ export default function ProfilePage() {
               <h2 className="mb-3 font-medium">Conquistas</h2>
               <ul className="space-y-2">
                 {profile.achievements.map((item: Achievement) => (
-                  <li key={item.slug} className={`rounded-xl px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[var(--accent-soft)]' : 'bg-white/5 text-slate-500'}`}>
+                  <li key={item.slug} className={`rounded-xl px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[var(--accent-soft)]' : 'bg-[var(--overlay)] text-muted'}`}>
                     {item.name} — {item.description}
                   </li>
                 ))}
@@ -252,7 +252,7 @@ export default function ProfilePage() {
             {((content?.roles as { id: string; title: string; location?: string }[]) ?? []).map((role) => (
               <li key={role.id} className="card p-4">
                 <Link href={`/roles/${role.id}`}>{role.title}</Link>
-                <p className="text-sm text-slate-400">{role.location}</p>
+                <p className="text-sm text-muted">{role.location}</p>
               </li>
             ))}
           </ul>
@@ -262,7 +262,7 @@ export default function ProfilePage() {
             {((content?.reviews as { id: string; title: string; content: string }[]) ?? []).map((item) => (
               <li key={item.id} className="card p-4">
                 <Link href={`/reviews/${item.id}`}>{item.title}</Link>
-                <p className="line-clamp-2 text-sm text-slate-400">{item.content}</p>
+                <p className="line-clamp-2 text-sm text-muted">{item.content}</p>
               </li>
             ))}
           </ul>

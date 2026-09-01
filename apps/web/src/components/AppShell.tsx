@@ -167,7 +167,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 border-b border-line bg-[var(--header)] backdrop-blur">
+      <header className="shell-chrome sticky top-0 z-40 border-b border-line">
         <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-3 sm:px-4 sm:py-3 2xl:max-w-[1536px]">
           <BrandWordmark href="/" />
           <nav className="hidden items-stretch self-stretch lg:flex" aria-label="Principal">
@@ -196,7 +196,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar"
-              className="input rounded-full bg-[var(--overlay)] pr-4 pl-10 sm:px-4 sm:pl-10"
+              className="input composer rounded-full bg-[var(--overlay)] pr-4 pl-10 sm:px-4 sm:pl-10"
             />
           </form>
           <ThemeToggle />
@@ -256,7 +256,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
       </div>
       <MiniPlayer />
       <ChatMobile />
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-[var(--header)] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden" aria-label="Principal">
+      <nav className="shell-chrome fixed inset-x-0 bottom-0 z-50 border-t border-line pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Principal">
         <ul className="grid grid-cols-5">
           {BOTTOM_NAV.map((item) => {
             const href = item.profile ? profileHref : item.href;
@@ -264,11 +264,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
             if (item.create) {
               return (
                 <li key={item.href} className="flex items-center justify-center">
-                  <Link
-                    href={href}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--paper)] transition hover:bg-[var(--primary-hover)]"
-                    aria-label="Criar rolê"
-                  >
+                  <Link href={href} className="nav-create" aria-label="Criar rolê">
                     <Plus size={22} strokeWidth={2.5} aria-hidden />
                   </Link>
                 </li>
@@ -276,10 +272,7 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
             }
             return (
               <li key={item.href}>
-                <Link
-                  href={href}
-                  className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-[10px] font-bold ${active ? 'text-[var(--primary)]' : 'text-muted'}`}
-                >
+                <Link href={href} className={`nav-bottom-link ${active ? 'is-active' : ''}`}>
                   <item.icon size={20} strokeWidth={active ? 2.4 : 2} aria-hidden />
                   {item.label}
                 </Link>

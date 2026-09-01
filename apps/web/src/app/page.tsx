@@ -104,7 +104,7 @@ export default function HomePage() {
         <h1 className="sr-only">Feed</h1>
         <StoriesBar />
 
-        <form onSubmit={publish} className="card p-4">
+        <form onSubmit={publish} className="card composer p-4">
           <div className="flex gap-3">
             <Avatar src={me?.avatar} name={me?.name} />
             <textarea
@@ -116,15 +116,15 @@ export default function HomePage() {
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
             <div className="flex flex-wrap gap-1.5">
-              <Link href="/roles/new" className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-muted hover:bg-overlay hover:text-fg">
+              <Link href="/roles/new" className="composer-chip">
                 <CalendarPlus size={16} strokeWidth={2} aria-hidden />
                 Criar rolê
               </Link>
-              <Link href="/photos" className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-muted hover:bg-overlay hover:text-fg">
+              <Link href="/photos" className="composer-chip">
                 <ImageIcon size={16} strokeWidth={2} aria-hidden />
                 Foto
               </Link>
-              <Link href="/music" className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-muted hover:bg-overlay hover:text-fg">
+              <Link href="/music" className="composer-chip">
                 <Music size={16} strokeWidth={2} aria-hidden />
                 Música
               </Link>
@@ -139,7 +139,7 @@ export default function HomePage() {
             <Skeleton className="h-32" />
           </div>
         ) : null}
-        {error ? <p className="text-rose-300">{error}</p> : null}
+        {error ? <p className="text-[var(--danger)]">{error}</p> : null}
         {!loading && !error && items.length === 0 ? (
           <EmptyState
             title="O feed ainda está quieto"
@@ -164,7 +164,7 @@ export default function HomePage() {
                   </article>
                 }
               >
-                <article className="card overflow-hidden p-0">
+                <article className="card card--lift overflow-hidden p-0">
                   <div className="min-w-0 p-4">
                     <div className="flex items-start gap-3">
                       <Avatar src={item.actor?.avatar} name={item.actor?.name} size="sm" />

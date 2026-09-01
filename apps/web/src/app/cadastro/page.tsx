@@ -49,7 +49,7 @@ export default function CadastroPage() {
       <BrandWordmark large mascot={false} />
       <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Crie seu perfil.</h1>
       <p className="mt-3 mb-8 text-muted">Registre rolês, fotos, áudios e a trilha da noite.</p>
-      <form onSubmit={onSubmit} className="card space-y-4 p-6">
+      <form onSubmit={onSubmit} className="card composer space-y-4 p-6">
         <Field label="Nome">
           <Input value={name} onChange={(e) => setName(e.target.value)} minLength={2} required />
         </Field>
@@ -62,7 +62,7 @@ export default function CadastroPage() {
         <Field label="Senha">
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
         </Field>
-        {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Cadastrando...' : 'Criar conta'}
         </Button>

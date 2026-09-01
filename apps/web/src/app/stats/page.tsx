@@ -13,11 +13,11 @@ function Bars({ items, label }: { items: { label: string; count: number }[]; lab
       <ul className="space-y-2">
         {items.map((item) => (
           <li key={item.label} className="grid grid-cols-[minmax(0,4.5rem)_minmax(0,1fr)_1.5rem] items-center gap-2 text-xs sm:grid-cols-[8rem_1fr_2rem] sm:text-sm">
-            <span className="truncate text-slate-300">{item.label}</span>
-            <div className="h-3 overflow-hidden rounded-full bg-white/5">
+            <span className="truncate text-muted">{item.label}</span>
+            <div className="h-3 overflow-hidden rounded-full bg-[var(--overlay)]">
               <div className="h-full rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--brand-red-dark)]" style={{ width: `${(item.count / max) * 100}%` }} />
             </div>
-            <span className="text-right text-slate-400">{item.count}</span>
+            <span className="text-right text-muted">{item.count}</span>
           </li>
         ))}
       </ul>
@@ -42,7 +42,7 @@ export default function StatsPage() {
 
   return (
     <RequireAuth>
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(120deg,var(--ink),var(--brand-red-dark),var(--accent))] p-5 sm:rounded-3xl sm:p-8">
+      <div className="overflow-hidden rounded-2xl border border-white/15 bg-[linear-gradient(120deg,var(--ink),var(--brand-red-dark),var(--accent))] p-5 text-white sm:rounded-3xl sm:p-8">
         <p className="text-sm text-white/80">Dashboard</p>
         <h1 className="text-2xl font-semibold sm:text-3xl">Sua vida social em números</h1>
         <a href="/year-review" className="mt-3 inline-block text-sm text-white/80 underline">
@@ -59,7 +59,7 @@ export default function StatsPage() {
         ].map(([label, value]) => (
           <div key={String(label)} className="card p-4">
             <p className="text-2xl font-semibold">{value}</p>
-            <p className="text-xs text-slate-400">{label}</p>
+            <p className="text-xs text-muted">{label}</p>
           </div>
         ))}
       </div>
@@ -74,7 +74,7 @@ export default function StatsPage() {
         <section className="card p-5">
           <h2 className="mb-3 font-medium">Média das avaliações</h2>
           <p className="text-3xl">{stats.ratingsAverage ?? '—'}</p>
-          <ul className="mt-3 space-y-1 text-sm text-slate-300">
+          <ul className="mt-3 space-y-1 text-sm text-muted">
             {Object.entries(stats.ratingsByCategory).map(([key, value]) => (
               <li key={key}>
                 {key}: {value}

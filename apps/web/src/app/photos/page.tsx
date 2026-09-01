@@ -144,7 +144,7 @@ export default function PhotosPage() {
         </Field>
         <Field label="Enviar foto">
           <Input type="file" accept={IMAGE_ACCEPT} onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
-          <p className="mt-1 text-xs text-slate-500">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
+          <p className="mt-1 text-xs text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
         </Field>
         <Field label="Enviar áudio">
           <Input type="file" accept="audio/*" onChange={(e) => e.target.files?.[0] && uploadAudio(e.target.files[0])} />
@@ -169,12 +169,12 @@ export default function PhotosPage() {
           <Skeleton className="h-32" />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-rose-300">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
 
       {!loading && !error ? (
         <>
           <h2 className="mb-3 text-lg font-medium">Álbuns</h2>
-          {!error && albums.length === 0 ? <p className="mb-6 text-sm text-slate-400">Nenhum álbum ainda.</p> : null}
+          {!error && albums.length === 0 ? <p className="mb-6 text-sm text-muted">Nenhum álbum ainda.</p> : null}
           <div className="mb-6 grid gap-3 sm:grid-cols-3">
             {albums.map((album) => (
               <div key={album.id} className="card p-4">
@@ -182,10 +182,10 @@ export default function PhotosPage() {
                   <MediaImage src={album.cover} alt={album.name} className="mb-2 h-24 w-full rounded-lg object-cover" />
                 ) : null}
                 <p>{album.name}</p>
-                <p className="text-xs text-slate-400">{album.photos?.length ?? 0} fotos</p>
+                <p className="text-xs text-muted">{album.photos?.length ?? 0} fotos</p>
                 <button
                   type="button"
-                  className="mt-2 text-xs text-rose-300"
+                  className="mt-2 text-xs text-[var(--danger)]"
                   onClick={async () => {
                     if (!confirm('Excluir álbum?')) return;
                     try {
@@ -229,7 +229,7 @@ export default function PhotosPage() {
           </div>
 
           <h2 className="mt-8 mb-3 text-lg font-medium">Áudios</h2>
-          {!error && audios.length === 0 ? <p className="text-sm text-slate-400">Nenhum áudio ainda.</p> : null}
+          {!error && audios.length === 0 ? <p className="text-sm text-muted">Nenhum áudio ainda.</p> : null}
           <div className="space-y-3">
             {audios.map((audio) => (
               <div key={audio.id} className="card p-4">
@@ -237,7 +237,7 @@ export default function PhotosPage() {
                   <p>🎙️ {audio.name}</p>
                   <button
                     type="button"
-                    className="text-xs text-rose-300"
+                    className="text-xs text-[var(--danger)]"
                     onClick={async () => {
                       try {
                         await api.delete(`/audios/${audio.id}`);

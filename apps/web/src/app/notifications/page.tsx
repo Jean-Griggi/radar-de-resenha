@@ -68,7 +68,7 @@ export default function NotificationsPage() {
           <Skeleton className="h-16" />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-rose-300">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
       {!loading && !error && items.length === 0 ? <EmptyState title="Nenhuma notificação." /> : null}
       {!loading && !error ? (
         <ul className="space-y-3">
@@ -83,7 +83,7 @@ export default function NotificationsPage() {
                 ) : (
                   <p className="text-sm">{item.message}</p>
                 )}
-                <p className="text-xs text-slate-400">{formatTimeAgo(item.createdAt)}</p>
+                <p className="text-xs text-muted">{formatTimeAgo(item.createdAt)}</p>
               </div>
               {!item.read ? (
                 <Button variant="ghost" disabled={acting !== null} onClick={() => run(item.id, () => api.put(`/notifications/${item.id}/read`))}>

@@ -76,23 +76,23 @@ export default function CalendarPage() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold sm:text-3xl">Calendário</h1>
         <div className="flex items-center gap-2">
-          <button type="button" className="rounded-lg bg-white/5 px-3 py-1" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}>
+          <button type="button" className="button button--ghost min-h-11 min-w-11 px-3" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))} aria-label="Mês anterior">
             ←
           </button>
           <p className="min-w-0 flex-1 px-2 py-1 text-center capitalize sm:flex-none">
             {cursor.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
           </p>
-          <button type="button" className="rounded-lg bg-white/5 px-3 py-1" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}>
+          <button type="button" className="button button--ghost min-h-11 min-w-11 px-3" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))} aria-label="Próximo mês">
             →
           </button>
         </div>
       </div>
       {loading ? <Skeleton className="mb-4 h-80" /> : null}
-      {error ? <p className="mb-5 text-rose-300">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
       {ready ? (
         <>
           <div className="card p-2 sm:p-4">
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-slate-400 sm:gap-2 sm:text-xs">
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-muted sm:gap-2 sm:text-xs">
               {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((d, index) => (
                 <span key={`${d}-${index}`}>{d}</span>
               ))}
@@ -110,7 +110,7 @@ export default function CalendarPage() {
                     disabled={!day}
                     onClick={() => setSelected(date)}
                     className={`relative flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left sm:min-h-24 sm:rounded-xl sm:p-2 lg:min-h-28 ${
-                      selected === date ? 'bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]' : 'bg-white/5'
+                      selected === date ? 'bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]' : 'bg-[var(--overlay)]'
                     } ${isToday && selected !== date ? 'ring-1 ring-[var(--accent)]' : ''} ${!day ? 'opacity-0' : ''}`}
                   >
                     <span className={`text-xs sm:text-sm ${isToday ? 'font-semibold text-[var(--accent)]' : ''}`}>{day}</span>
@@ -136,7 +136,7 @@ export default function CalendarPage() {
               <h2 className="mb-3 font-medium">
                 {new Date(`${selected}T12:00:00`).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}
               </h2>
-              {selectedEvents.length === 0 ? <p className="text-slate-400">Nenhum rolê neste dia.</p> : null}
+              {selectedEvents.length === 0 ? <p className="text-muted">Nenhum rolê neste dia.</p> : null}
               <ul className="space-y-2">
                 {selectedEvents.map((event) => (
                   <li key={event.id}>
@@ -151,7 +151,7 @@ export default function CalendarPage() {
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <section className="card p-5">
               <h2 className="mb-3 font-medium">Próximos</h2>
-              {upcoming.length === 0 ? <p className="text-sm text-slate-400">Nada marcado ainda.</p> : null}
+              {upcoming.length === 0 ? <p className="text-sm text-muted">Nada marcado ainda.</p> : null}
               {upcoming.map((event) => (
                 <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--accent)]">
                   {formatShortDate(event.date)} {event.time ?? ''} — {event.title}
@@ -160,7 +160,7 @@ export default function CalendarPage() {
             </section>
             <section className="card p-5">
               <h2 className="mb-3 font-medium">Passados</h2>
-              {past.length === 0 ? <p className="text-sm text-slate-400">Nenhum rolê passado.</p> : null}
+              {past.length === 0 ? <p className="text-sm text-muted">Nenhum rolê passado.</p> : null}
               {past.map((event) => (
                 <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--accent)]">
                   {formatShortDate(event.date)} — {event.title}

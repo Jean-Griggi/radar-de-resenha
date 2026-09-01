@@ -132,7 +132,7 @@ export function WaveBackground() {
                 key={layer.fill}
                 data-wave="fill"
                 fill={layer.fill}
-                fillOpacity="0.72"
+                className="wave-fill"
                 d={INITIAL[i]?.fill ?? ''}
               />
             ))}

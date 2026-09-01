@@ -10,5 +10,5 @@ export default function ProfileRedirect() {
     const user = getUser();
     router.replace(user?.username ? `/perfil/${user.username}` : '/login');
   }, [router]);
-  return <p className="p-8 text-slate-400">Abrindo perfil...</p>;
+  return <p className="p-8 text-muted">Abrindo perfil...</p>;
 }

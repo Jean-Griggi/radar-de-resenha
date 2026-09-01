@@ -99,7 +99,7 @@ export default function SettingsPage() {
           <Button skeleton />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-rose-300">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
       {!loading && !error && me ? (
         <div className="grid gap-5">
           <form onSubmit={save} className="card space-y-4 p-6">
@@ -126,7 +126,7 @@ export default function SettingsPage() {
             </Button>
             <Field label="Capa">
               <Input type="file" accept={IMAGE_ACCEPT} onChange={(e) => e.target.files?.[0] && upload('cover', e.target.files[0])} />
-              <p className="mt-1 text-xs text-slate-500">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
+              <p className="mt-1 text-xs text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
             </Field>
             <Button variant="ghost" onClick={() => removeMedia('cover')}>
               Remover capa
@@ -166,7 +166,7 @@ export default function SettingsPage() {
 
           <section className="card p-6">
             <h2 className="text-lg font-medium">Música</h2>
-            <p className="mt-2 text-sm text-slate-400">Conecte o Spotify em Música para ver a faixa atual e playlists.</p>
+            <p className="mt-2 text-sm text-muted">Conecte o Spotify em Música para ver a faixa atual e playlists.</p>
             <a href="/music" className="mt-3 inline-block text-[var(--accent)]">
               Ir para música
             </a>

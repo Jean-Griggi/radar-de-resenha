@@ -34,9 +34,9 @@ export default function ReviewPage() {
   return (
     <RequireAuth>
       <article className="card space-y-4 p-6">
-        <p className="text-amber-300">{'★'.repeat(review.rating)}</p>
+        <p className="text-[var(--warning)]">{'★'.repeat(review.rating)}</p>
         <h1 className="text-2xl font-semibold sm:text-3xl">{review.title}</h1>
-        <p className="text-slate-300">{review.content}</p>
+        <p className="text-fg">{review.content}</p>
         <div className="flex flex-wrap gap-2">
           {review.tags?.map((tag) => (
             <span key={tag} className="text-sm text-[var(--accent)]">
@@ -45,11 +45,11 @@ export default function ReviewPage() {
           ))}
         </div>
         {review.role ? (
-          <Link href={`/roles/${review.role.id}`} className="text-sm text-slate-400 hover:text-white">
+          <Link href={`/roles/${review.role.id}`} className="text-sm text-muted hover:text-fg">
             Sobre o rolê {review.role.title}
           </Link>
         ) : null}
-        <div className="grid gap-2 text-sm text-slate-400 sm:grid-cols-2">
+        <div className="grid gap-2 text-sm text-muted sm:grid-cols-2">
           {Object.entries(review.ratings ?? {}).map(([key, value]) => (
             <p key={key}>
               {key}: {value}/5

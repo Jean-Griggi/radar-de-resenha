@@ -374,7 +374,7 @@ function ChatList({ conversations, onSelect }: { conversations: ChatConversation
           <button
             type="button"
             onClick={() => onSelect(item.id)}
-            className="flex w-full min-h-11 items-center gap-3 rounded-[var(--radius-md)] px-2 py-2 text-left hover:bg-overlay"
+            className="chat-row"
           >
             <Avatar src={item.person.avatar} name={item.person.name} size="sm" online={item.person.online} />
             <span className="min-w-0 flex-1">
@@ -464,7 +464,7 @@ function ChatThread({ conversation, onSend }: { conversation: ChatConversation; 
           onKeyDown={onKeyDown}
           placeholder="Escreva uma mensagem"
           autoComplete="off"
-          className="input min-h-11 flex-1 rounded-full"
+          className="input composer min-h-11 flex-1 rounded-full"
         />
         <button type="submit" className="icon-btn bg-[var(--primary)] text-[var(--paper)] hover:bg-[var(--primary-hover)] hover:text-[var(--paper)]" aria-label="Enviar" disabled={!text.trim()}>
           <Send size={18} strokeWidth={2} aria-hidden />
