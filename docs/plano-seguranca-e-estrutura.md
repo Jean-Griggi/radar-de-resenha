@@ -294,9 +294,9 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] `Chat.tsx` / `chatMock` **fora** do `AppShell` (não montar `ChatProvider` / botão / dock / coluna). Não apagar os arquivos neste passo se ainda quiser referência; não renderizar. Comentário curto: chat realtime fora de escopo.
-- [ ] Links e redirect: só `/roles/new`. `/roles/novo` pode redirecionar (já existe) — garantir que nenhum link aponte para `novo`.
-- [ ] Não mudar layout Redesenha (nav, ondas, tokens).
+- [x] `Chat.tsx` / `chatMock` **fora** do `AppShell` (não montar `ChatProvider` / botão / dock / coluna). Não apagar os arquivos neste passo se ainda quiser referência; não renderizar. Comentário curto: chat realtime fora de escopo.
+- [x] Links e redirect: só `/roles/new`. `/roles/novo` pode redirecionar (já existe) — garantir que nenhum link aponte para `novo`.
+- [x] Não mudar layout Redesenha (nav, ondas, tokens).
 
 **Como validar:** logado, nenhuma UI de chat ( balão / dock / coluna). Criar rolê usa `/roles/new`.
 
@@ -425,7 +425,7 @@ Uma linha, para não achar que o plano acabou.
 | 4 | 2026-09-21 | IA (Cursor) | Search só `/search` e `/explore`. Feed/posts/comments/reactions em `social.routes.ts`. Notifications extraídas para módulo próprio. Calendar/stats/year-review em `stats.routes.ts`. HTTP igual; `common.schema.ts` intocado. |
 | 5 | 2026-09-21 | IA (Cursor) | Zod fatiado por módulo (`auth`, `roles`, `social`, `reviews`, `media`, `stories`, `music`, `storage`, `users` para amigos). `common.schema.ts` apagado. Regras iguais ao passo 3. Sem web/cookie/SQL. |
 | 6 | 2026-09-21 | IA (Cursor) | `helpers.ts` só data/SQL. `mapUser`/`getUserRow` em `users.map`; `notify` em notifications; feed/reações em social; achievements em users. `GET /me` e `PUT /auth/me` removidos (404). Avatar/capa em `users.routes`. Web já usava URLs canônicas. |
-| 7 | | | |
+| 7 | 2026-09-21 | IA (Cursor) | Chat mock fora do AppShell (arquivos mantidos, não renderizados). Links só `/roles/new`; `/roles/novo` continua redirect. Visual Redesenha intacto. Sem `features/`. |
 | 8 | | | |
 | 9 | | | |
 | 10 | | | |

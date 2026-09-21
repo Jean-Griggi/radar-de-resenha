@@ -1,5 +1,7 @@
 'use client';
 
+// Chat mock de referência. Chat em tempo real está fora de escopo — não montar no AppShell.
+
 import {
   createContext,
   useCallback,
