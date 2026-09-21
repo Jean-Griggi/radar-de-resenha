@@ -62,7 +62,7 @@ export default function CadastroPage() {
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </Field>
         <Field label="Senha">
-          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
+          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required />
         </Field>
         {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
         <Button type="submit" loading={loading} className="w-full">

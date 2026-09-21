@@ -40,13 +40,13 @@ export async function usersRoutes(app: FastifyInstance) {
   app.get('/users/:id/followers', { preHandler: [authenticate] }, async (request) => {
     const { id } = request.params as { id: string };
     const profile = await getUserById(id, request.user.sub);
-    return listFollowers(profile.id);
+    return listFollowers(profile.id, request.user.sub);
   });
 
   app.get('/users/:id/following', { preHandler: [authenticate] }, async (request) => {
     const { id } = request.params as { id: string };
     const profile = await getUserById(id, request.user.sub);
-    return listFollowing(profile.id);
+    return listFollowing(profile.id, request.user.sub);
   });
 
   app.post('/users/:id/follow', { preHandler: [authenticate] }, async (request, reply) => {

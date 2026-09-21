@@ -737,4 +737,114 @@ describe('Resenhômetro API', () => {
     expect(extra.statusCode).toBe(429);
     expect(extra.json().message).toBe(AUTH_RATE_LIMIT_MESSAGE);
   });
+
+  it('rejects passwords shorter than 8 on register', async () => {
+    const short = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: { name: 'Curto', email: `short${suffix}@resenha.test`, password: '1234567', username: `short${suffix}` },
+    });
+    expect(short.statusCode).toBe(400);
+
+    const ok = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: { name: 'Oito', email: `eight${suffix}@resenha.test`, password: '12345678', username: `eight${suffix}` },
+    });
+    expect(ok.statusCode).toBe(201);
+    expect(ok.json().user.email).toContain('@resenha.test');
+  });
+
+  it('hides email on other profiles and private content from strangers', async () => {
+    async function register(name: string, nick: string) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/auth/register',
+        payload: { name, email: `${nick}${suffix}@resenha.test`, password: 'secret12', username: nick },
+      });
+      expect(res.statusCode).toBe(201);
+      return { token: res.json().token as string, id: res.json().user.id as string, username: res.json().user.username as string };
+    }
+
+    const a = await register('Priv A', `pa${suffix}`);
+    const b = await register('Priv B', `pb${suffix}`);
+    const header = (token: string) => ({ authorization: `Bearer ${token}` });
+
+    const publicProfile = await app.inject({
+      method: 'GET',
+      url: `/users/${b.username}`,
+      headers: header(a.token),
+    });
+    expect(publicProfile.statusCode).toBe(200);
+    expect(publicProfile.json().email).toBeUndefined();
+
+    const madePrivate = await app.inject({
+      method: 'PUT',
+      url: '/users/me',
+      headers: header(a.token),
+      payload: { isPublic: false },
+    });
+    expect(madePrivate.statusCode).toBe(200);
+    expect(madePrivate.json().email).toContain('@resenha.test');
+    expect(madePrivate.json().isPublic).toBe(false);
+
+    const role = await app.inject({
+      method: 'POST',
+      url: '/roles',
+      headers: header(a.token),
+      payload: { title: 'Rolê secreto da privacidade' },
+    });
+    expect(role.statusCode).toBe(201);
+
+    const me = await app.inject({ method: 'GET', url: '/auth/me', headers: header(a.token) });
+    expect(me.statusCode).toBe(200);
+    expect(me.json().email).toContain('@resenha.test');
+
+    const strangerProfile = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(b.token),
+    });
+    expect(strangerProfile.statusCode).toBe(200);
+    expect(strangerProfile.json().email).toBeUndefined();
+    expect(strangerProfile.json().username).toBe(a.username);
+    expect(strangerProfile.json().stats.roles).toBe(0);
+
+    const strangerContent = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}/content`,
+      headers: header(b.token),
+    });
+    expect(strangerContent.statusCode).toBe(200);
+    expect(strangerContent.json().roles).toEqual([]);
+
+    const search = await app.inject({
+      method: 'GET',
+      url: `/search?q=${a.username}`,
+      headers: header(b.token),
+    });
+    const person = (search.json().people as { username: string; email?: string }[]).find((item) => item.username === a.username);
+    expect(person?.email).toBeUndefined();
+
+    const ownContent = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}/content`,
+      headers: header(a.token),
+    });
+    expect(ownContent.json().roles.some((item: { title: string }) => item.title.includes('secreto'))).toBe(true);
+
+    const follow = await app.inject({
+      method: 'POST',
+      url: `/users/${a.id}/follow`,
+      headers: header(b.token),
+    });
+    expect(follow.statusCode).toBe(200);
+
+    const followerContent = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}/content`,
+      headers: header(b.token),
+    });
+    expect(followerContent.json().roles.length).toBeGreaterThan(0);
+  });
 });

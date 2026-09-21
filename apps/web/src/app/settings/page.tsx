@@ -146,7 +146,7 @@ export default function SettingsPage() {
               <Input type="password" value={password.currentPassword} onChange={(e) => setPassword({ ...password, currentPassword: e.target.value })} />
             </Field>
             <Field label="Nova senha">
-              <Input type="password" value={password.newPassword} onChange={(e) => setPassword({ ...password, newPassword: e.target.value })} />
+              <Input type="password" value={password.newPassword} onChange={(e) => setPassword({ ...password, newPassword: e.target.value })} minLength={8} required />
             </Field>
             <Button type="submit">Alterar senha</Button>
           </form>

@@ -4,12 +4,13 @@ import { ROLE_CATEGORIES } from '@resenhometro/shared';
 export const registerSchema = z.object({
   name: z.string().min(2).max(80),
   email: z.string().email(),
-  password: z.string().min(6).max(72),
+  password: z.string().min(8).max(72),
   username: z.string().min(3).max(24).regex(/^[a-zA-Z0-9_]+$/).optional(),
 });
 
 export const loginSchema = z.object({
   email: z.string().email(),
+  // Login still accepts older 6-char hashes; new register/reset/change require 8.
   password: z.string().min(6),
 });
 
@@ -26,7 +27,7 @@ export const updateMeSchema = z.object({
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(6),
-  newPassword: z.string().min(6).max(72),
+  newPassword: z.string().min(8).max(72),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -35,7 +36,7 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   token: z.string().min(16).max(200),
-  password: z.string().min(6).max(72),
+  password: z.string().min(8).max(72),
 });
 
 export const createRoleSchema = z.object({

@@ -204,10 +204,10 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] `email` só em `/auth/me` (e update do próprio user). Busca, sugestões, listagem, perfil alheio: **sem** e-mail.
-- [ ] `is_public = false`: perfil/conteúdo (rolês, fotos, resenhas no `userContent`) só para o dono, amigo aceito ou (definir uma regra e seguir) quem segue. Estranho → 403 ou payload reduzido (nome/username/avatar, sem conteúdo). Escrever a regra num comentário curto no service.
-- [ ] Zod: senha min **8** no cadastro, login (login ainda aceita comparar hash antigo, mas **novo** cadastro/troca exige 8), reset e change password.
-- [ ] Testes em `auth.test.ts` / users: e-mail não aparece no perfil alheio; senha curta → 400.
+- [x] `email` só em `/auth/me` (e update do próprio user). Busca, sugestões, listagem, perfil alheio: **sem** e-mail.
+- [x] `is_public = false`: perfil/conteúdo (rolês, fotos, resenhas no `userContent`) só para o dono, amigo aceito ou (definir uma regra e seguir) quem segue. Estranho → 403 ou payload reduzido (nome/username/avatar, sem conteúdo). Escrever a regra num comentário curto no service.
+- [x] Zod: senha min **8** no cadastro, login (login ainda aceita comparar hash antigo, mas **novo** cadastro/troca exige 8), reset e change password.
+- [x] Testes em `auth.test.ts` / users: e-mail não aparece no perfil alheio; senha curta → 400.
 
 **Como validar:**
 
@@ -421,7 +421,7 @@ Uma linha, para não achar que o plano acabou.
 | 0 | 2026-09-21 | IA (Cursor) | Branch `chore/security-and-modular-stacks` confirmada. Inventário só neste markdown; `apps/`, `packages/`, `.env` e banco intocados. |
 | 1 | 2026-09-21 | IA (Cursor) | JWT_SECRET sem default em prod/Vercel (mín. 32). CORS só allowlist (sem `*.vercel.app`). Rate limit login/register/forgot. `resetUrl` e log do link só fora de produção. Helmet básico. Cookie/localStorage intocados. |
 | 2 | 2026-09-21 | IA (Cursor) | Cookie `resenhometro_session` httpOnly, JWT `expiresIn` 7d. Logout limpa cookie. Web parou de gravar JWT no localStorage; Axios `withCredentials`. CORS `credentials: true`. Bearer só para testes. Sem fatiar módulos, sem `is_public`, banco intocado. |
-| 3 | | | |
+| 3 | 2026-09-21 | IA (Cursor) | E-mail só em `/auth/me` (e update/login/register do próprio). `is_public=false`: conteúdo só dono, amigo aceito ou quem segue; estranho vê payload reduzido. Senha min 8 no cadastro/reset/troca; login ainda aceita hash antigo (≥6). Sem cookie de novo, sem fatiar pastas. |
 | 4 | | | |
 | 5 | | | |
 | 6 | | | |
