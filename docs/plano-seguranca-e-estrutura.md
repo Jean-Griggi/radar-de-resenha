@@ -115,23 +115,23 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Confirmar que o git está em `chore/security-and-modular-stacks` (já criada). Se estiver na `main`, `git checkout chore/security-and-modular-stacks`. Não criar outra branch.
-- [ ] Preencher as linhas abaixo com achados **do código** (não inventar). Citar arquivo.
+- [x] Confirmar que o git está em `chore/security-and-modular-stacks` (já criada). Se estiver na `main`, `git checkout chore/security-and-modular-stacks`. Não criar outra branch.
+- [x] Preencher as linhas abaixo com achados **do código** (não inventar). Citar arquivo.
 
 **Inventário (preencher neste passo):**
 
 | Tema | Achado | Arquivo |
 | --- | --- | --- |
-| Onde o token é guardado | | |
-| JWT tem `expiresIn`? | | |
-| `JWT_SECRET` tem default? | | |
-| CORS aceita `*.vercel.app`? | | |
-| Rate limit em login/forgot? | | |
-| `resetUrl` volta no JSON? | | |
-| Busca/listagem devolve `email`? | | |
-| `is_public` autoriza conteúdo? | | |
-| Rotas duplicadas (`/me`, `/auth/me`, `/roles/novo`) | | |
-| Quem registra `/feed` (arquivo de rotas) | | |
+| Onde o token é guardado | `localStorage` na chave `resenhometro_token` (`getToken` / `setAuth`). | `apps/web/src/lib/auth.ts` |
+| JWT tem `expiresIn`? | Não. `app.jwt.sign({ sub, email })` sem `expiresIn`; plugin JWT só com `secret`. | `apps/api/src/modules/auth/auth.routes.ts`; `apps/api/src/app.ts` |
+| `JWT_SECRET` tem default? | Sim: Zod `.default('change-me-dev-secret')` (mín. 8). | `apps/api/src/config/env.ts` |
+| CORS aceita `*.vercel.app`? | Sim: `origin.endsWith('.vercel.app')` além da allowlist. Origem vazia também passa (`if (!origin) return true`). | `apps/api/src/config/env.ts` (`isAllowedOrigin`) |
+| Rate limit em login/forgot? | Não. Sem `@fastify/rate-limit` no repo. `POST /auth/login`, `/auth/register` e `/auth/forgot-password` sem throttle. | `apps/api/src/modules/auth/auth.routes.ts` |
+| `resetUrl` volta no JSON? | Sim, quando SMTP não está configurado (`mailConfigured()` falso inclui `resetUrl`). Também loga o link em `console.info`. | `apps/api/src/modules/auth/auth.service.ts` |
+| Busca/listagem devolve `email`? | Não no JSON: `mapUser` omite e-mail por padrão. Busca e sugestões chamam `mapUser(row)` sem `withEmail`. SQL ainda seleciona a coluna. E-mail só em login/me/perfil próprio. | `apps/api/src/lib/helpers.ts`; `apps/api/src/modules/search/search.service.ts`; `apps/api/src/modules/users/users.service.ts` |
+| `is_public` autoriza conteúdo? | Não. Flag é persistida, atualizada no perfil e espelhada em `isPublic`. `getUserByUsername` e `userContent` não checam o flag (sem 403 / payload reduzido). | `apps/api/src/modules/users/users.service.ts`; `apps/api/src/modules/auth/auth.service.ts` |
+| Rotas duplicadas (`/me`, `/auth/me`, `/roles/novo`) | `GET /auth/me` e `GET /me` (mesmo handler); `PUT /auth/me` e `PUT /users/me`. Web: `/roles/novo` redireciona para `/roles/new`. | `apps/api/src/modules/auth/auth.routes.ts`; `apps/web/src/app/roles/novo/page.tsx` |
+| Quem registra `/feed` (arquivo de rotas) | `socialRoutes` em `search.routes.ts` (`app.get('/feed', ...)`); `app.ts` registra esse plugin. | `apps/api/src/modules/search/search.routes.ts`; `apps/api/src/app.ts` |
 
 **Como validar:** a tabela acima tem uma linha por tema, com arquivo. App **não** mudou (diff só neste markdown + registro).
 
@@ -418,7 +418,7 @@ Uma linha, para não achar que o plano acabou.
 
 | Passo | Data | Quem | Notas |
 |------|------|------|--------|
-| 0 | | | |
+| 0 | 2026-09-21 | IA (Cursor) | Branch `chore/security-and-modular-stacks` confirmada. Inventário só neste markdown; `apps/`, `packages/`, `.env` e banco intocados. |
 | 1 | | | |
 | 2 | | | |
 | 3 | | | |
