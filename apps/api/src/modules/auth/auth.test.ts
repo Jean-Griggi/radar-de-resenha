@@ -122,6 +122,15 @@ describe('Resenhômetro API', () => {
     expect(updated.json().bio).toBe('Curto um barzinho');
   });
 
+  it('drops the GET /me twin; session is GET /auth/me', async () => {
+    const twin = await app.inject({ method: 'GET', url: '/me', headers: await authHeaders() });
+    expect(twin.statusCode).toBe(404);
+
+    const session = await app.inject({ method: 'GET', url: '/auth/me', headers: await authHeaders() });
+    expect(session.statusCode).toBe(200);
+    expect(session.json().email).toContain('@resenha.test');
+  });
+
   it('rejects unauthorized role creation', async () => {
     const res = await app.inject({ method: 'POST', url: '/roles', payload: { title: 'Sem token' } });
     expect(res.statusCode).toBe(401);

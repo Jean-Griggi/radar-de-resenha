@@ -1,17 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { exec, query, queryOne } from '../../db/client.js';
-import {
-  addFeedEvent,
-  evaluateAchievements,
-  getReactionSummary,
-  getUsersByIds,
-  mapUser,
-  nowIso,
-  parseJson,
-  sqlPlaceholders,
-} from '../../lib/helpers.js';
+import { nowIso, parseJson, sqlPlaceholders } from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
+import { addFeedEvent } from '../social/feed.js';
+import { getReactionSummary } from '../social/reactions.js';
+import { evaluateAchievements } from '../users/achievements.js';
+import { getUsersByIds, mapUser } from '../users/users.map.js';
 import { nestComments } from '../roles/roles.service.js';
 import type { ReviewInput } from './reviews.schema.js';
 

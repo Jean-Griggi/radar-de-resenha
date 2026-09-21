@@ -13,17 +13,6 @@ export const loginSchema = z.object({
   password: z.string().min(6),
 });
 
-export const updateMeSchema = z.object({
-  name: z.string().min(2).max(80).optional(),
-  username: z.string().min(3).max(24).regex(/^[a-zA-Z0-9_]+$/).optional(),
-  email: z.string().email().optional(),
-  bio: z.string().max(280).nullable().optional(),
-  city: z.string().max(80).nullable().optional(),
-  isPublic: z.boolean().optional(),
-  showFollowers: z.boolean().optional(),
-  showInteractions: z.boolean().optional(),
-});
-
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(6),
   newPassword: z.string().min(8).max(72),
@@ -40,4 +29,3 @@ export const resetPasswordSchema = z.object({
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
-export type UpdateMeInput = z.infer<typeof updateMeSchema>;

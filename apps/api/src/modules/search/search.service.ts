@@ -1,5 +1,5 @@
 import { query, queryOne } from '../../db/client.js';
-import { mapUser } from '../../lib/helpers.js';
+import { mapUser } from '../users/users.map.js';
 import { publicUrl } from '../../lib/storage.js';
 import type { RoleRow } from '../roles/roles.service.js';
 import type { ReviewRow } from '../reviews/reviews.service.js';

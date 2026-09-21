@@ -1,21 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { exec, query, queryOne } from '../../db/client.js';
-import {
-  addFeedEvent,
-  evaluateAchievements,
-  getReactionSummaries,
-  getReactionSummary,
-  getUserRow,
-  getUsersByIds,
-  mapUser,
-  nowIso,
-  notify,
-  parseJson,
-  sqlPlaceholders,
-} from '../../lib/helpers.js';
+import { nowIso, parseJson, sqlPlaceholders } from '../../lib/helpers.js';
 import { badRequest, forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
+import { notify } from '../notifications/notifications.service.js';
 import { nestComments, serializeRoles, type RoleRow } from '../roles/roles.service.js';
+import { getUserRow, getUsersByIds, mapUser } from '../users/users.map.js';
+import { addFeedEvent } from './feed.js';
+import { getReactionSummaries, getReactionSummary } from './reactions.js';
 
 export async function addComment(
   userId: string,
@@ -490,5 +482,3 @@ export async function isFollowing(a: string, b: string) {
   const row = await queryOne(`SELECT id FROM follows WHERE follower_id = $1 AND following_id = $2`, [a, b]);
   return Boolean(row);
 }
-
-export { evaluateAchievements };

@@ -1,14 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { exec, query, queryOne } from '../../db/client.js';
 import {
-  addFeedEvent,
-  evaluateAchievements,
-  getReactionSummary,
-  getUserRow,
-  getUsersByIds,
-  mapUser,
   nowIso,
-  notify,
   parseJson,
   ROLE_START_AT_SQL,
   roleStatus,
@@ -17,6 +10,11 @@ import {
 } from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
+import { notify } from '../notifications/notifications.service.js';
+import { addFeedEvent } from '../social/feed.js';
+import { getReactionSummary } from '../social/reactions.js';
+import { evaluateAchievements } from '../users/achievements.js';
+import { getUserRow, getUsersByIds, mapUser } from '../users/users.map.js';
 import type { CreateRoleInput, UpdateRoleInput } from './roles.schema.js';
 
 export type RoleRow = {

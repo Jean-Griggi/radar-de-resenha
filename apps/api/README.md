@@ -51,8 +51,9 @@ Aí defina `DATABASE_URL=postgres://resenhometro:resenhometro@localhost:5432/res
 ## Rotas principais
 
 - `GET /health`
-- `POST /auth/register` `POST /auth/login` `POST /auth/logout` `GET /auth/me` `PUT /auth/me` `PUT /auth/password`
-- `GET /users/:username` `PUT /users/me`
+- `POST /auth/register` `POST /auth/login` `POST /auth/logout` `GET /auth/me` `PUT /auth/password`
+- `GET /users/:username` `PUT /users/me` `POST|DELETE /users/me/avatar` `POST|DELETE /users/me/cover`
+- `GET /me` e `PUT /auth/me` não existem mais (404). Sessão: `/auth/me`. Perfil: `/users/me`.
 - `GET /feed` `GET /explore` `GET /search`
 - `GET|POST /roles` `GET|PUT|PATCH|DELETE /roles/:id`
 - `POST /roles/:id/attendance` `POST /roles/:id/comments` `POST /roles/:id/music`

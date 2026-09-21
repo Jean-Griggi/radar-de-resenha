@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
-import { publicUrl } from '../../lib/storage.js';
 import { parseJson } from '../../lib/helpers.js';
+import { publicUrl, takeUpload } from '../../lib/storage.js';
 import {
   cancelFriendRequest,
   followUser,
@@ -11,10 +11,43 @@ import {
   respondFriend,
   unfollowUser,
 } from '../social/social.service.js';
-import { friendRequestSchema, respondFriendSchema } from './users.schema.js';
-import { getUserById, getUserByUsername, listFollowers, listFollowing, listFriends, suggestions, userContent } from './users.service.js';
+import { friendRequestSchema, respondFriendSchema, updateMeSchema } from './users.schema.js';
+import {
+  getUserById,
+  getUserByUsername,
+  listFollowers,
+  listFollowing,
+  listFriends,
+  setUserMedia,
+  suggestions,
+  updateMe,
+  userContent,
+} from './users.service.js';
 
 export async function usersRoutes(app: FastifyInstance) {
+  app.put('/users/me', { preHandler: [authenticate] }, async (request) => {
+    const body = updateMeSchema.parse(request.body);
+    return updateMe(request.user.sub, body);
+  });
+
+  app.post('/users/me/avatar', { preHandler: [authenticate] }, async (request) => {
+    const saved = await takeUpload(request, 'avatar');
+    return setUserMedia(request.user.sub, 'avatar', saved.relative);
+  });
+
+  app.delete('/users/me/avatar', { preHandler: [authenticate] }, async (request) => {
+    return setUserMedia(request.user.sub, 'avatar', null);
+  });
+
+  app.post('/users/me/cover', { preHandler: [authenticate] }, async (request) => {
+    const saved = await takeUpload(request, 'cover');
+    return setUserMedia(request.user.sub, 'cover', saved.relative);
+  });
+
+  app.delete('/users/me/cover', { preHandler: [authenticate] }, async (request) => {
+    return setUserMedia(request.user.sub, 'cover', null);
+  });
+
   app.get('/users/:username', { preHandler: [authenticate] }, async (request) => {
     const { username } = request.params as { username: string };
     return getUserByUsername(username, request.user.sub);

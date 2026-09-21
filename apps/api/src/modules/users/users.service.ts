@@ -1,10 +1,12 @@
-import { randomUUID } from 'node:crypto';
 import { ACHIEVEMENT_DEFS } from '@resenhometro/shared';
-import { query, queryOne } from '../../db/client.js';
-import { getUserRow, mapUser } from '../../lib/helpers.js';
-import { notFound } from '../../lib/http.js';
+import { exec, query, queryOne } from '../../db/client.js';
+import { nowIso } from '../../lib/helpers.js';
+import { conflict, notFound } from '../../lib/http.js';
 import { serializeRoles, type RoleRow } from '../roles/roles.service.js';
 import { getFriendship, isFollowing } from '../social/social.service.js';
+import { evaluateAchievements } from './achievements.js';
+import type { UpdateMeInput } from './users.schema.js';
+import { getUserRow, mapUser, type UserRow } from './users.map.js';
 
 const HIDDEN_STATS = { roles: 0, reviews: 0, friends: 0, followers: 0, following: 0 };
 
@@ -29,7 +31,7 @@ export async function canViewProfileContent(
 }
 
 export async function getUserByUsername(username: string, viewerId?: string) {
-  const row = await queryOne<Parameters<typeof mapUser>[0]>(
+  const row = await queryOne<UserRow>(
     `SELECT id, name, username, email, avatar, cover, bio, city, is_public, show_followers, show_interactions, created_at, updated_at
      FROM users WHERE username = $1`,
     [username.toLowerCase()],
@@ -181,4 +183,53 @@ export async function suggestions(userId: string) {
     [userId],
   );
   return rows.map((row) => mapUser(row as never));
+}
+
+export async function updateMe(id: string, input: UpdateMeInput) {
+  const row = await queryOne<Record<string, unknown>>(`SELECT * FROM users WHERE id = $1`, [id]);
+  if (!row) throw notFound('Usuário não encontrado');
+
+  if (input.email && input.email.toLowerCase() !== row.email) {
+    const taken = await queryOne(`SELECT id FROM users WHERE email = $1 AND id <> $2`, [input.email.toLowerCase(), id]);
+    if (taken) throw conflict('E-mail já cadastrado');
+  }
+
+  if (input.username && input.username.toLowerCase() !== row.username) {
+    const taken = await queryOne(`SELECT id FROM users WHERE username = $1 AND id <> $2`, [
+      input.username.toLowerCase(),
+      id,
+    ]);
+    if (taken) throw conflict('Username já está em uso');
+  }
+
+  await exec(
+    `UPDATE users SET
+      name = $1, username = $2, email = $3, bio = $4, city = $5,
+      is_public = $6, show_followers = $7, show_interactions = $8, updated_at = $9
+     WHERE id = $10`,
+    [
+      input.name ?? row.name,
+      (input.username ?? (row.username as string)).toLowerCase(),
+      (input.email ?? (row.email as string)).toLowerCase(),
+      input.bio === undefined ? row.bio : input.bio,
+      input.city === undefined ? row.city : input.city,
+      input.isPublic ?? row.is_public,
+      input.showFollowers ?? row.show_followers,
+      input.showInteractions ?? row.show_interactions,
+      nowIso(),
+      id,
+    ],
+  );
+
+  const updated = await getUserRow(id);
+  if (!updated) throw notFound('Usuário não encontrado');
+  return mapUser(updated, true);
+}
+
+export async function setUserMedia(id: string, field: 'avatar' | 'cover', relative: string | null) {
+  await exec(`UPDATE users SET ${field} = $1, updated_at = $2 WHERE id = $3`, [relative, nowIso(), id]);
+  await evaluateAchievements(id);
+  const row = await getUserRow(id);
+  if (!row) throw notFound('Usuário não encontrado');
+  return mapUser(row, true);
 }

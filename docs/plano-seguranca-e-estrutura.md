@@ -271,13 +271,13 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] `helpers.ts` fica com data/timezone, `sqlPlaceholders`, `parseJson`. Tirar `notify`, `addFeedEvent`, `mapUser`, `getUserRow`, achievements, reações — para o módulo dono (`users`, `social`, etc.).
-- [ ] Rotas canônicas:
+- [x] `helpers.ts` fica com data/timezone, `sqlPlaceholders`, `parseJson`. Tirar `notify`, `addFeedEvent`, `mapUser`, `getUserRow`, achievements, reações — para o módulo dono (`users`, `social`, etc.).
+- [x] Rotas canônicas:
   - sessão: `/auth/login` `/auth/register` `/auth/logout` `/auth/me` `/auth/password`
   - perfil: `/users/me` (update, avatar, capa)
   - **Remover** ou redirecionar gêmeos: `GET /me` duplicado de `/auth/me`
-- [ ] Avatar/capa: se hoje estão em `auth.routes`, mover para `users.routes` (`/users/me/avatar`, `/users/me/cover`).
-- [ ] Web: atualizar fetches se alguma URL canônica mudou. Manter um alias **só** se quebrar o front no mesmo passo — preferir atualizar o front junto, ainda neste passo, **mínimo**.
+- [x] Avatar/capa: se hoje estão em `auth.routes`, mover para `users.routes` (`/users/me/avatar`, `/users/me/cover`).
+- [x] Web: atualizar fetches se alguma URL canônica mudou. Manter um alias **só** se quebrar o front no mesmo passo — preferir atualizar o front junto, ainda neste passo, **mínimo**.
 
 **Como validar:** login, `/auth/me`, editar perfil, upload de avatar. `GET /me` ou 404 ou redirect documentado.
 
@@ -424,7 +424,7 @@ Uma linha, para não achar que o plano acabou.
 | 3 | 2026-09-21 | IA (Cursor) | E-mail só em `/auth/me` (e update/login/register do próprio). `is_public=false`: conteúdo só dono, amigo aceito ou quem segue; estranho vê payload reduzido. Senha min 8 no cadastro/reset/troca; login ainda aceita hash antigo (≥6). Sem cookie de novo, sem fatiar pastas. |
 | 4 | 2026-09-21 | IA (Cursor) | Search só `/search` e `/explore`. Feed/posts/comments/reactions em `social.routes.ts`. Notifications extraídas para módulo próprio. Calendar/stats/year-review em `stats.routes.ts`. HTTP igual; `common.schema.ts` intocado. |
 | 5 | 2026-09-21 | IA (Cursor) | Zod fatiado por módulo (`auth`, `roles`, `social`, `reviews`, `media`, `stories`, `music`, `storage`, `users` para amigos). `common.schema.ts` apagado. Regras iguais ao passo 3. Sem web/cookie/SQL. |
-| 6 | | | |
+| 6 | 2026-09-21 | IA (Cursor) | `helpers.ts` só data/SQL. `mapUser`/`getUserRow` em `users.map`; `notify` em notifications; feed/reações em social; achievements em users. `GET /me` e `PUT /auth/me` removidos (404). Avatar/capa em `users.routes`. Web já usava URLs canônicas. |
 | 7 | | | |
 | 8 | | | |
 | 9 | | | |

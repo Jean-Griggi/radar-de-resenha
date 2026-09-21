@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { exec, query, queryOne } from '../../db/client.js';
-import { addFeedEvent, nowIso, sqlPlaceholders } from '../../lib/helpers.js';
+import { nowIso, sqlPlaceholders } from '../../lib/helpers.js';
+import { addFeedEvent } from '../social/feed.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl, removeStored } from '../../lib/storage.js';
 

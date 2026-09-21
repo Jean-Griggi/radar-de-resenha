@@ -1,5 +1,22 @@
-import { query, queryOne } from '../../db/client.js';
-import { getUserRow, mapUser } from '../../lib/helpers.js';
+import { randomUUID } from 'node:crypto';
+import { exec, query, queryOne } from '../../db/client.js';
+import { nowIso } from '../../lib/helpers.js';
+import { getUserRow, mapUser } from '../users/users.map.js';
+
+export async function notify(input: {
+  userId: string;
+  actorId?: string | null;
+  type: string;
+  message: string;
+  link?: string | null;
+}) {
+  if (input.userId === input.actorId) return;
+  await exec(
+    `INSERT INTO notifications (id, user_id, actor_id, type, message, link, read, created_at)
+     VALUES ($1,$2,$3,$4,$5,$6,FALSE,$7)`,
+    [randomUUID(), input.userId, input.actorId ?? null, input.type, input.message, input.link ?? null, nowIso()],
+  );
+}
 
 export async function listNotifications(userId: string) {
   const rows = await query(
