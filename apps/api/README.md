@@ -1,6 +1,6 @@
 # API — Resenhômetro
 
-Backend Fastify com JWT. Os dados **persistem**: sem `DATABASE_URL` a API usa PostgreSQL embarcado (PGlite) em `apps/api/data`. Com `DATABASE_URL`, usa PostgreSQL.
+Backend Fastify com sessão em cookie httpOnly. Os dados **persistem**: sem `DATABASE_URL` a API usa PostgreSQL embarcado (PGlite) em `apps/api/data`. Com `DATABASE_URL`, usa PostgreSQL.
 
 Uploads ficam em `apps/api/data/uploads` e são servidos em `/uploads`.
 
@@ -15,6 +15,16 @@ pnpm --filter @resenhometro/api dev
 ```
 
 Health: `GET http://localhost:3333/health`
+
+## Sessão
+
+Login e cadastro gravam o JWT no cookie `resenhometro_session` (httpOnly, path `/`, 7 dias). O JavaScript da página não lê esse cookie.
+
+O browser guarda o cookie no **domínio da API** (`localhost:3333` em dev). O web (`localhost:3000`) envia o cookie porque Axios usa `withCredentials` e o CORS da API tem `credentials: true` com origem explícita.
+
+`WEB_ORIGIN` (e `CORS_ORIGINS` em produção) precisa ser a URL exata do front. Sem isso o navegador não envia o cookie.
+
+`POST /auth/logout` apaga o cookie. `Authorization: Bearer` ainda vale para testes/scripts; o web não usa.
 
 ## Variáveis
 
@@ -41,7 +51,7 @@ Aí defina `DATABASE_URL=postgres://resenhometro:resenhometro@localhost:5432/res
 ## Rotas principais
 
 - `GET /health`
-- `POST /auth/register` `POST /auth/login` `GET /auth/me` `PUT /auth/me` `PUT /auth/password`
+- `POST /auth/register` `POST /auth/login` `POST /auth/logout` `GET /auth/me` `PUT /auth/me` `PUT /auth/password`
 - `GET /users/:username` `PUT /users/me`
 - `GET /feed` `GET /explore` `GET /search`
 - `GET|POST /roles` `GET|PUT|PATCH|DELETE /roles/:id`
@@ -54,7 +64,7 @@ Aí defina `DATABASE_URL=postgres://resenhometro:resenhometro@localhost:5432/res
 - `POST /photos` `POST /audios` `POST /albums`
 - `GET /spotify/connect` `GET /spotify/callback` `GET /spotify/status`
 
-Rotas autenticadas exigem `Authorization: Bearer <jwt>`.
+Rotas autenticadas leem o cookie `resenhometro_session` (ou `Authorization: Bearer` em scripts).
 
 ## Testes
 

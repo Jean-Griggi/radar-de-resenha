@@ -158,7 +158,12 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
     router.push(`/explore?q=${encodeURIComponent(q.trim())}`);
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      /* local session still cleared */
+    }
     clearAuth();
     router.replace('/login');
   }

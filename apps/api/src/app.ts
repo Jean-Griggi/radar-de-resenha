@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import jwt from '@fastify/jwt';
@@ -8,6 +9,7 @@ import { ZodError } from 'zod';
 import { env, isAllowedOrigin, isProductionLike } from './config/env.js';
 import { initDb } from './db/client.js';
 import { HttpError } from './lib/http.js';
+import { SESSION_COOKIE_NAME, SESSION_EXPIRES_IN } from './lib/session.js';
 import { ensureStorage, storageRoot, isSupabaseStorage } from './lib/storage.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { mediaRoutes } from './modules/media/media.routes.js';
@@ -55,10 +57,19 @@ export async function buildApp() {
     origin: (origin, callback) => {
       callback(null, isAllowedOrigin(origin));
     },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
-  await app.register(jwt, { secret: env.JWT_SECRET });
+  await app.register(cookie);
+  await app.register(jwt, {
+    secret: env.JWT_SECRET,
+    sign: { expiresIn: SESSION_EXPIRES_IN },
+    cookie: {
+      cookieName: SESSION_COOKIE_NAME,
+      signed: false,
+    },
+  });
   await app.register(multipart, {
     limits: { fileSize: 12 * 1024 * 1024 },
   });

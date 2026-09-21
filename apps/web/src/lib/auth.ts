@@ -1,6 +1,6 @@
 import { clearShellCache } from './shellCache';
 
-const TOKEN_KEY = 'resenhometro_token';
+const LEGACY_TOKEN_KEY = 'resenhometro_token';
 const USER_KEY = 'resenhometro_user';
 
 export type AuthUser = {
@@ -16,9 +16,8 @@ export type AuthUser = {
   createdAt?: string;
 };
 
-export function getToken() {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
+function dropLegacyToken() {
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
 }
 
 export function getUser(): AuthUser | null {
@@ -32,17 +31,18 @@ export function getUser(): AuthUser | null {
   }
 }
 
-export function setAuth(token: string, user: AuthUser) {
-  localStorage.setItem(TOKEN_KEY, token);
+export function setAuth(user: AuthUser) {
+  dropLegacyToken();
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 export function setUser(user: AuthUser) {
+  dropLegacyToken();
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 export function clearAuth() {
-  localStorage.removeItem(TOKEN_KEY);
+  dropLegacyToken();
   localStorage.removeItem(USER_KEY);
   clearShellCache();
 }

@@ -2,7 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { getToken } from '@/lib/auth';
+import { api } from '@/lib/api';
+import { clearAuth, getUser, setUser, type AuthUser } from '@/lib/auth';
 import { AppShell } from './AppShell';
 import { BrandLoader } from './BrandMark';
 
@@ -11,11 +12,30 @@ export function RequireAuth({ children, right }: { children: ReactNode; right?: 
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!getToken()) {
-      router.replace('/login');
-      return;
+    let cancelled = false;
+
+    async function confirmSession() {
+      if (getUser()) {
+        setReady(true);
+        return;
+      }
+
+      try {
+        const { data } = await api.get<AuthUser>('/auth/me');
+        if (cancelled) return;
+        setUser(data);
+        setReady(true);
+      } catch {
+        if (cancelled) return;
+        clearAuth();
+        router.replace('/login');
+      }
     }
-    setReady(true);
+
+    void confirmSession();
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   if (!ready) {

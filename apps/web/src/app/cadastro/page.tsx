@@ -8,7 +8,7 @@ import { BrandWordmark } from '@/components/BrandWordmark';
 import { Field, Input } from '@/components/Field';
 import { ThemeToggle } from '@/components/Theme';
 import { api, apiErrorMessage } from '@/lib/api';
-import { getToken, setAuth, type AuthUser } from '@/lib/auth';
+import { getUser, setAuth, type AuthUser } from '@/lib/auth';
 
 export default function CadastroPage() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function CadastroPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (getToken()) router.replace('/');
+    if (getUser()) router.replace('/');
   }, [router]);
 
   async function onSubmit(event: FormEvent) {
@@ -28,13 +28,13 @@ export default function CadastroPage() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.post<{ token: string; user: AuthUser }>('/auth/register', {
+      const { data } = await api.post<{ user: AuthUser }>('/auth/register', {
         name,
         email,
         password,
         username: username || undefined,
       });
-      setAuth(data.token, data.user);
+      setAuth(data.user);
       router.replace('/');
     } catch (err) {
       setError(apiErrorMessage(err, 'Não foi possível cadastrar'));

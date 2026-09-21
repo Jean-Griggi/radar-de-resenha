@@ -22,6 +22,8 @@ pnpm --filter @resenhometro/web dev
 
 Abra http://localhost:3000. A API precisa estar em http://localhost:3333.
 
+A sessão fica no cookie httpOnly da API. O Axios usa `withCredentials`; o web **não** guarda JWT no `localStorage`.
+
 ## Scripts
 
 - `pnpm dev` — desenvolvimento (Turbopack)

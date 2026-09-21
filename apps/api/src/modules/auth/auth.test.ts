@@ -47,6 +47,7 @@ describe('Resenhômetro API', () => {
       headers: { origin: 'http://localhost:3000' },
     });
     expect(allowed.headers['access-control-allow-origin']).toBe('http://localhost:3000');
+    expect(allowed.headers['access-control-allow-credentials']).toBe('true');
   });
 
   it('register + login', async () => {
@@ -60,6 +61,12 @@ describe('Resenhômetro API', () => {
     token = register.json().token;
     userId = register.json().user.id;
 
+    const session = register.cookies.find((item) => item.name === 'resenhometro_session');
+    expect(session?.value).toBeTruthy();
+    expect(session?.httpOnly).toBe(true);
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()) as { exp?: number };
+    expect(payload.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
+
     const login = await app.inject({
       method: 'POST',
       url: '/auth/login',
@@ -67,6 +74,37 @@ describe('Resenhômetro API', () => {
     });
     expect(login.statusCode).toBe(200);
     expect(login.json().token).toBeTruthy();
+  });
+
+  it('session cookie authenticates and logout clears it', async () => {
+    const login = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email: `qa${suffix}@resenha.test`, password: 'secret12' },
+    });
+    const session = login.cookies.find((item) => item.name === 'resenhometro_session');
+    expect(session?.value).toBeTruthy();
+
+    const me = await app.inject({
+      method: 'GET',
+      url: '/auth/me',
+      cookies: { resenhometro_session: session!.value },
+    });
+    expect(me.statusCode).toBe(200);
+    expect(me.json().email).toContain('@resenha.test');
+
+    const logout = await app.inject({
+      method: 'POST',
+      url: '/auth/logout',
+      cookies: { resenhometro_session: session!.value },
+    });
+    expect(logout.statusCode).toBe(200);
+    const cleared = logout.cookies.find((item) => item.name === 'resenhometro_session');
+    expect(cleared).toBeTruthy();
+    expect(Number(cleared?.maxAge ?? 1)).toBeLessThanOrEqual(0);
+
+    const after = await app.inject({ method: 'GET', url: '/auth/me' });
+    expect(after.statusCode).toBe(401);
   });
 
   it('me + update profile', async () => {

@@ -32,6 +32,7 @@ const envSchema = z.object({
   PUBLIC_API_URL: z.string().default(
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3333',
   ),
+  /** Origem do web. Obrigatória na allowlist CORS com credentials (cookie de sessão). */
   WEB_ORIGIN: z.string().default('http://localhost:3000'),
   SPOTIFY_CLIENT_ID: z.string().optional(),
   SPOTIFY_CLIENT_SECRET: z.string().optional(),

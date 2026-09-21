@@ -176,14 +176,14 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Login e cadastro: `jwt.sign` **com `expiresIn`** (access curto, ex. 15 min, **ou** sessão ≤ 7 dias — escolher um e documentar no código). Setar cookie `httpOnly`, `Secure` em prod, `SameSite=Lax`, path `/`. Nome sugerido: `resenhometro_session`.
-- [ ] `POST /auth/logout` limpa o cookie.
-- [ ] `authenticate` aceita o cookie **e**, só neste passo de transição se precisar, o `Authorization: Bearer` antigo. Preferir cookie. Não deixar os dois para sempre: Bearer pode ficar só para testes/scripts, não para o web.
-- [ ] Web: `apps/web/src/lib/auth.ts` **para de gravar token** no `localStorage`. Pode guardar dados públicos do user (nome, avatar) se ainda precisar, sem o JWT.
-- [ ] Axios: `withCredentials: true`. Não mandar `Authorization` se não houver token.
-- [ ] CORS: `credentials: true` e origem **explícita** (não `*`).
-- [ ] 401: igual hoje (vai para `/login`), mas `clearAuth` não precisa apagar JWT inexistente.
-- [ ] Cookie no browser aponta para o domínio da API. Em dev: `localhost` API `3333` + web `3000` — CORS + credentials têm que fechar o ciclo. Documentar no README da API se a URL do cookie exigir `WEB_ORIGIN`.
+- [x] Login e cadastro: `jwt.sign` **com `expiresIn`** (access curto, ex. 15 min, **ou** sessão ≤ 7 dias — escolher um e documentar no código). Setar cookie `httpOnly`, `Secure` em prod, `SameSite=Lax`, path `/`. Nome sugerido: `resenhometro_session`.
+- [x] `POST /auth/logout` limpa o cookie.
+- [x] `authenticate` aceita o cookie **e**, só neste passo de transição se precisar, o `Authorization: Bearer` antigo. Preferir cookie. Não deixar os dois para sempre: Bearer pode ficar só para testes/scripts, não para o web.
+- [x] Web: `apps/web/src/lib/auth.ts` **para de gravar token** no `localStorage`. Pode guardar dados públicos do user (nome, avatar) se ainda precisar, sem o JWT.
+- [x] Axios: `withCredentials: true`. Não mandar `Authorization` se não houver token.
+- [x] CORS: `credentials: true` e origem **explícita** (não `*`).
+- [x] 401: igual hoje (vai para `/login`), mas `clearAuth` não precisa apagar JWT inexistente.
+- [x] Cookie no browser aponta para o domínio da API. Em dev: `localhost` API `3333` + web `3000` — CORS + credentials têm que fechar o ciclo. Documentar no README da API se a URL do cookie exigir `WEB_ORIGIN`.
 
 **Como validar:**
 
@@ -420,7 +420,7 @@ Uma linha, para não achar que o plano acabou.
 |------|------|------|--------|
 | 0 | 2026-09-21 | IA (Cursor) | Branch `chore/security-and-modular-stacks` confirmada. Inventário só neste markdown; `apps/`, `packages/`, `.env` e banco intocados. |
 | 1 | 2026-09-21 | IA (Cursor) | JWT_SECRET sem default em prod/Vercel (mín. 32). CORS só allowlist (sem `*.vercel.app`). Rate limit login/register/forgot. `resetUrl` e log do link só fora de produção. Helmet básico. Cookie/localStorage intocados. |
-| 2 | | | |
+| 2 | 2026-09-21 | IA (Cursor) | Cookie `resenhometro_session` httpOnly, JWT `expiresIn` 7d. Logout limpa cookie. Web parou de gravar JWT no localStorage; Axios `withCredentials`. CORS `credentials: true`. Bearer só para testes. Sem fatiar módulos, sem `is_public`, banco intocado. |
 | 3 | | | |
 | 4 | | | |
 | 5 | | | |
