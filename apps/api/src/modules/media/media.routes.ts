@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
 import { takeUpload } from '../../lib/storage.js';
-import { albumSchema } from '../common.schema.js';
+import { albumSchema } from './media.schema.js';
 import {
   addAudio,
   addPhoto,

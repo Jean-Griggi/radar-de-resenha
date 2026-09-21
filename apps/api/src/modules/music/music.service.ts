@@ -1,7 +1,8 @@
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { env } from '../../config/env.js';
 import { exec, query, queryOne } from '../../db/client.js';
-import { addFeedEvent, nowIso } from '../../lib/helpers.js';
+import { nowIso } from '../../lib/helpers.js';
+import { addFeedEvent } from '../social/feed.js';
 import { badRequest, notFound } from '../../lib/http.js';
 
 type HttpResponse = {

@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { STORY_MAX_ACTIVE, STORY_TTL_MS } from '@resenhometro/shared';
+import { STORY_MAX_ACTIVE, STORY_TTL_MS, type PublicUser } from '@resenhometro/shared';
 import { exec, query, queryOne } from '../../db/client.js';
-import { getUserRow, getUsersByIds, mapUser, nowIso, notify, sqlPlaceholders } from '../../lib/helpers.js';
+import { nowIso, sqlPlaceholders } from '../../lib/helpers.js';
 import { badRequest, forbidden, notFound } from '../../lib/http.js';
 import { publicUrl, removeStored } from '../../lib/storage.js';
+import { notify } from '../notifications/notifications.service.js';
+import { getUserRow, getUsersByIds, mapUser } from '../users/users.map.js';
 
 type StoryRow = {
   id: string;
@@ -56,7 +58,7 @@ async function assertCanSee(story: StoryRow, userId: string) {
 
 function serializeStory(
   row: StoryRow,
-  author: ReturnType<typeof mapUser>,
+  author: PublicUser,
   viewed: boolean,
   viewCount?: number,
 ) {

@@ -1,71 +1,10 @@
-'use client';
-
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import type { Review } from '@resenhometro/shared';
-import { Comments } from '@/components/Comments';
-import { Reactions } from '@/components/Reactions';
 import { RequireAuth } from '@/components/RequireAuth';
-import { api, apiErrorMessage } from '@/lib/api';
+import { ReviewDetailScreen } from '@/features/reviews';
 
 export default function ReviewPage() {
-  const params = useParams<{ id: string }>();
-  const [review, setReview] = useState<Review | null>(null);
-  const [error, setError] = useState('');
-
-  async function load() {
-    const { data } = await api.get<Review>(`/reviews/${params.id}`);
-    setReview(data);
-  }
-
-  useEffect(() => {
-    load().catch((err) => setError(apiErrorMessage(err, 'Resenha não encontrada')));
-  }, [params.id]);
-
-  if (!review) {
-    return (
-      <RequireAuth>
-        <p>{error || 'Carregando...'}</p>
-      </RequireAuth>
-    );
-  }
-
   return (
     <RequireAuth>
-      <article className="card space-y-4 p-6">
-        <p className="text-[var(--warning)]">{'★'.repeat(review.rating)}</p>
-        <h1 className="text-2xl font-semibold sm:text-3xl">{review.title}</h1>
-        <p className="text-fg">{review.content}</p>
-        <div className="flex flex-wrap gap-2">
-          {review.tags?.map((tag) => (
-            <span key={tag} className="text-sm text-[var(--accent)]">
-              #{tag}
-            </span>
-          ))}
-        </div>
-        {review.role ? (
-          <Link href={`/roles/${review.role.id}`} className="text-sm text-muted hover:text-fg">
-            Sobre o rolê {review.role.title}
-          </Link>
-        ) : null}
-        <div className="grid gap-2 text-sm text-muted sm:grid-cols-2">
-          {Object.entries(review.ratings ?? {}).map(([key, value]) => (
-            <p key={key}>
-              {key}: {value}/5
-            </p>
-          ))}
-        </div>
-        <Reactions targetType="review" targetId={review.id} items={review.reactions ?? []} onChange={() => load()} />
-        <Comments
-          comments={review.comments ?? []}
-          onChanged={load}
-          onSubmit={async (content, parentId) => {
-            await api.post(`/reviews/${review.id}/comments`, { content, parentId });
-            await load();
-          }}
-        />
-      </article>
+      <ReviewDetailScreen />
     </RequireAuth>
   );
 }

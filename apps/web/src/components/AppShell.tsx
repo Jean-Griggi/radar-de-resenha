@@ -24,7 +24,6 @@ import {
 } from '@/lib/shellCache';
 import { Avatar } from './Avatar';
 import { BrandWordmark } from './BrandWordmark';
-import { ChatColumn, ChatDock, ChatHeaderButton, ChatMobile, ChatProvider, useChat } from './Chat';
 import { ErrorBoundary } from './ErrorBoundary';
 import { MiniPlayer, usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
@@ -58,14 +57,6 @@ function navActive(pathname: string, href: string) {
 }
 
 export function AppShell({ children, right }: { children: ReactNode; right?: ReactNode }) {
-  return (
-    <ChatProvider>
-      <ShellFrame right={right}>{children}</ShellFrame>
-    </ChatProvider>
-  );
-}
-
-function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUserState] = useState<AuthUser | null>(null);
@@ -158,7 +149,12 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
     router.push(`/explore?q=${encodeURIComponent(q.trim())}`);
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      /* local session still cleared */
+    }
     clearAuth();
     router.replace('/login');
   }
@@ -200,7 +196,6 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
             />
           </form>
           <ThemeToggle />
-          <ChatHeaderButton />
           <Link href="/notifications" className="icon-btn relative" aria-label={unread > 0 ? `Notificações, ${unread} não lidas` : 'Notificações'}>
             <Bell size={20} strokeWidth={2} aria-hidden />
             {unread > 0 ? <span className="chat-badge chat-badge--header">{unread > 9 ? '9+' : unread}</span> : null}
@@ -255,7 +250,6 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
         </aside>
       </div>
       <MiniPlayer />
-      <ChatMobile />
       <nav className="shell-chrome fixed inset-x-0 bottom-0 z-50 border-t border-line pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Principal">
         <ul className="grid grid-cols-5">
           {BOTTOM_NAV.map((item) => {
@@ -286,14 +280,8 @@ function ShellFrame({ children, right }: { children: ReactNode; right?: ReactNod
 }
 
 function ShellAside({ right }: { right?: ReactNode }) {
-  const { mode, hydrated, isDesktop } = useChat();
-  const chatOpen = hydrated && isDesktop && mode === 'open';
-
-  if (chatOpen) return <ChatColumn />;
-
   return (
     <div className="space-y-4 xl:sticky xl:top-[4.75rem]">
-      <ChatDock />
       {right ?? <DefaultRail />}
     </div>
   );

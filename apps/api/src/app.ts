@@ -1,20 +1,26 @@
 import Fastify from 'fastify';
+import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
 import jwt from '@fastify/jwt';
 import multipart from '@fastify/multipart';
 import staticFiles from '@fastify/static';
 import { ZodError } from 'zod';
-import { env, isAllowedOrigin } from './config/env.js';
+import { env, isAllowedOrigin, isProductionLike } from './config/env.js';
 import { initDb } from './db/client.js';
 import { HttpError } from './lib/http.js';
+import { SESSION_COOKIE_NAME, SESSION_EXPIRES_IN } from './lib/session.js';
 import { ensureStorage, storageRoot, isSupabaseStorage } from './lib/storage.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { mediaRoutes } from './modules/media/media.routes.js';
 import { storageRoutes } from './modules/storage/storage.routes.js';
 import { musicRoutes } from './modules/music/music.routes.js';
+import { notificationsRoutes } from './modules/notifications/notifications.routes.js';
 import { reviewsRoutes } from './modules/reviews/reviews.routes.js';
 import { rolesRoutes } from './modules/roles/roles.routes.js';
-import { socialRoutes } from './modules/search/search.routes.js';
+import { searchRoutes } from './modules/search/search.routes.js';
+import { socialRoutes } from './modules/social/social.routes.js';
+import { statsRoutes } from './modules/stats/stats.routes.js';
 import { usersRoutes } from './modules/users/users.routes.js';
 import { storiesRoutes } from './modules/stories/stories.routes.js';
 
@@ -22,16 +28,51 @@ export async function buildApp() {
   await initDb();
   await ensureStorage();
 
-  const app = Fastify({ logger: true });
+  const productionLike = isProductionLike();
+  const app = Fastify({
+    logger: process.env.VITEST
+      ? false
+      : {
+          redact: [
+            'req.headers.authorization',
+            'req.body.password',
+            'req.body.token',
+            'req.body.currentPassword',
+            'req.body.newPassword',
+          ],
+        },
+  });
+
+  await app.register(helmet, {
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+    frameguard: { action: 'deny' },
+    hsts: productionLike ? { maxAge: 15552000, includeSubDomains: true } : false,
+    noSniff: true,
+  });
+  app.addHook('onSend', async (_request, reply) => {
+    reply.header('Content-Security-Policy', "frame-ancestors 'none'");
+  });
 
   await app.register(cors, {
     origin: (origin, callback) => {
       callback(null, isAllowedOrigin(origin));
     },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
-  await app.register(jwt, { secret: env.JWT_SECRET });
+  await app.register(cookie);
+  await app.register(jwt, {
+    secret: env.JWT_SECRET,
+    sign: { expiresIn: SESSION_EXPIRES_IN },
+    cookie: {
+      cookieName: SESSION_COOKIE_NAME,
+      signed: false,
+    },
+  });
   await app.register(multipart, {
     limits: { fileSize: 12 * 1024 * 1024 },
   });
@@ -85,6 +126,9 @@ export async function buildApp() {
   await app.register(storiesRoutes);
   await app.register(musicRoutes);
   await app.register(socialRoutes);
+  await app.register(searchRoutes);
+  await app.register(statsRoutes);
+  await app.register(notificationsRoutes);
 
   return app;
 }

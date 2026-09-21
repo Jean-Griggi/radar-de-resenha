@@ -1,7 +1,8 @@
 import { ACHIEVEMENT_DEFS } from '@resenhometro/shared';
 import { query, queryOne } from '../../db/client.js';
-import { getUserRow, mapUser, parseJson, toDateKey } from '../../lib/helpers.js';
+import { parseJson, toDateKey } from '../../lib/helpers.js';
 import { serializeRole } from '../roles/roles.service.js';
+import { getUserRow, mapUser } from '../users/users.map.js';
 
 const WEEKDAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 const MONTHS = [

@@ -12,13 +12,13 @@ Repositório: [github.com/Jean-Griggi/radar-de-resenha](https://github.com/Jean-
 
 O **Resenhômetro** não é só um cadastro de rolês. É um diário social: feed, perfil, calendário, estatísticas, resenhas e música.
 
-A branch única do projeto é a **`main`**.
+A branch estável do produto é a **`main`**. O trabalho de segurança e pastas saiu na branch `chore/security-and-modular-stacks` (cookie, módulos, `features/`) e entra na `main` via PR.
 
 ---
 
 # ✨ O que já existe
 
-- Cadastro, login, sessão JWT e perfil (`/perfil/[username]`)
+- Cadastro, login e perfil (`/perfil/[username]`). Sessão em cookie httpOnly (`resenhometro_session`, 7 dias). Senha mínima **8** no cadastro, reset e troca.
 - Foto de perfil e capa
 - Rolês: criar, listar, editar, excluir, presença (vou / talvez / não vou)
 - Feed, comentários com respostas e reações
@@ -43,11 +43,15 @@ flowchart LR
   WEB --> API[API Fastify serverless / Vercel]
   API --> DB[(Supabase Postgres)]
   API --> FILES[Supabase Storage]
-  API --> AUTH[JWT]
+  API --> AUTH[Cookie httpOnly]
   API --> SPOTIFY[Spotify OAuth]
 ```
 
-Backend: `routes` → `service` → banco/arquivos.
+Monólito modular **por stacks**: web (`apps/web`), API (`apps/api`) e tipos (`packages/shared`), um Postgres.
+
+- API: cada domínio em `apps/api/src/modules/` (`routes` → `service` → banco/arquivos).
+- Web: páginas finas em `app/`; telas em `apps/web/src/features/`; UI genérica em `components/`.
+- Sessão: cookie `resenhometro_session` no domínio da API. O front manda o cookie com `withCredentials` e **não** guarda JWT no `localStorage`.
 
 ---
 
@@ -56,7 +60,7 @@ Backend: `routes` → `service` → banco/arquivos.
 | Camada | Tecnologia |
 | ------ | ---------- |
 | Web | Next.js, React, TypeScript, Tailwind CSS |
-| API | Fastify, TypeScript, JWT, bcryptjs, Zod |
+| API | Fastify, TypeScript, cookie httpOnly, JWT, bcryptjs, Zod |
 | Tipos | `packages/shared` |
 | Banco | PGlite (dev local) ou PostgreSQL (Supabase em produção) |
 | Mídia | Disco local em dev; Supabase Storage na Vercel |
@@ -122,7 +126,15 @@ Ou, na raiz, `pnpm dev` (sobe os apps do monorepo).
 curl http://localhost:3333/health
 ```
 
-Resposta: `{"status":"ok"}`. Cadastre uma conta no navegador e entre.
+Resposta: `{"status":"ok"}`. Cadastre uma conta no navegador (senha com **pelo menos 8** caracteres) e entre. O login grava o cookie `resenhometro_session` no domínio da API (`localhost:3333`); o JavaScript da página não lê esse cookie.
+
+Para zerar o banco **local** (PGlite + uploads) e cadastrar de novo:
+
+```bash
+pnpm --filter @resenhometro/api db:reset
+```
+
+Não use isso contra Supabase / produção.
 
 ---
 
@@ -137,6 +149,7 @@ Resposta: `{"status":"ok"}`. Cadastre uma conta no navegador e entre.
 | `pnpm lint` | Lint |
 | `pnpm typecheck` | TypeScript |
 | `pnpm test` | Testes da API |
+| `pnpm --filter @resenhometro/api db:reset` | Apaga o banco **local** (PGlite + uploads) |
 | `pnpm format` | Prettier |
 
 ---
@@ -146,7 +159,8 @@ Resposta: `{"status":"ok"}`. Cadastre uma conta no navegador e entre.
 | Problema | Solução |
 | -------- | ------- |
 | `pnpm` não encontrado | `npm install -g pnpm` |
-| Login antigo não entra | Banco local foi zerado — cadastre de novo |
+| Login antigo não entra | Banco local foi zerado — cadastre de novo (senha ≥ 8) |
+| Cookie de sessão não aparece | `WEB_ORIGIN` tem que ser a URL exata do web (`http://localhost:3000` em dev) |
 | Porta 3000 ou 3333 em uso | Feche o processo ou mude `API_PORT` |
 | Spotify não conecta | Preencha `SPOTIFY_*` no `.env` |
 
@@ -156,15 +170,17 @@ Resposta: `{"status":"ok"}`. Cadastre uma conta no navegador e entre.
 
 ```text
 radar-de-resenha/
-├── apps/api/          Backend Fastify
-├── apps/web/          Frontend Next.js
-├── apps/mobile/       Reservado (não usar agora)
-├── apps/desktop/      Reservado (não usar agora)
-├── packages/shared/   Tipos e constantes
-├── packages/ui/       Componentes (mínimo)
-├── packages/config/   TSConfig compartilhado
-├── docs/              Documentação
-├── docker-compose.yml PostgreSQL opcional
+├── apps/api/                 Backend Fastify
+│   └── src/modules/          auth, users, roles, social, search, …
+├── apps/web/                 Frontend Next.js
+│   └── src/features/         telas por domínio (auth, roles, social, …)
+├── apps/mobile/              Reservado (não usar agora)
+├── apps/desktop/             Reservado (não usar agora)
+├── packages/shared/          Tipos e constantes (PublicUser sem e-mail)
+├── packages/ui/              Componentes (mínimo)
+├── packages/config/          TSConfig compartilhado
+├── docs/                     Documentação
+├── docker-compose.yml        PostgreSQL opcional
 └── README.md
 ```
 
@@ -172,7 +188,7 @@ radar-de-resenha/
 
 # 🌿 Git
 
-A branch de trabalho é a **`main`**. Não há `develop` nem branches de feature ativas.
+A branch estável é a **`main`**. Trabalho maior (como este de segurança) entra por PR, não commit direto na `main`.
 
 Commits no padrão Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`.
 
@@ -182,7 +198,7 @@ Commits no padrão Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, 
 
 Frontend e API na **Vercel**, banco e arquivos no **Supabase**. Passo a passo completo em [`DEPLOY.md`](./DEPLOY.md).
 
-1. **API (Vercel)** — root `apps/api`
+1. **API (Vercel)** — root `apps/api`. `JWT_SECRET` (≥ 32), `WEB_ORIGIN` e `CORS_ORIGINS` com a URL **exata** do front (CORS com credentials; cookie não funciona com `*`).
 2. **Front (Vercel)** — root `apps/web`, variável `NEXT_PUBLIC_API_URL`
 3. **Banco + Storage (Supabase)** — `DATABASE_URL` (pooler 6543), `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 

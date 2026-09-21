@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../../app.js';
+import { AUTH_RATE_LIMIT_MESSAGE } from '../../lib/auth-rate-limit.js';
 
 let app: FastifyInstance;
 let token = '';
@@ -25,6 +26,28 @@ describe('Resenhômetro API', () => {
     const res = await app.inject({ method: 'GET', url: '/health' });
     expect(res.statusCode).toBe(200);
     expect(res.json().status).toBe('ok');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('DENY');
+    expect(String(res.headers['content-security-policy'] ?? '')).toContain("frame-ancestors 'none'");
+    expect(res.headers['strict-transport-security']).toBeUndefined();
+  });
+
+  it('rejects CORS for arbitrary *.vercel.app origins', async () => {
+    const blocked = await app.inject({
+      method: 'GET',
+      url: '/health',
+      headers: { origin: 'https://qualquer-coisa.vercel.app' },
+    });
+    expect(blocked.statusCode).toBe(200);
+    expect(blocked.headers['access-control-allow-origin']).not.toBe('https://qualquer-coisa.vercel.app');
+
+    const allowed = await app.inject({
+      method: 'GET',
+      url: '/health',
+      headers: { origin: 'http://localhost:3000' },
+    });
+    expect(allowed.headers['access-control-allow-origin']).toBe('http://localhost:3000');
+    expect(allowed.headers['access-control-allow-credentials']).toBe('true');
   });
 
   it('register + login', async () => {
@@ -38,6 +61,12 @@ describe('Resenhômetro API', () => {
     token = register.json().token;
     userId = register.json().user.id;
 
+    const session = register.cookies.find((item) => item.name === 'resenhometro_session');
+    expect(session?.value).toBeTruthy();
+    expect(session?.httpOnly).toBe(true);
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()) as { exp?: number };
+    expect(payload.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
+
     const login = await app.inject({
       method: 'POST',
       url: '/auth/login',
@@ -45,6 +74,37 @@ describe('Resenhômetro API', () => {
     });
     expect(login.statusCode).toBe(200);
     expect(login.json().token).toBeTruthy();
+  });
+
+  it('session cookie authenticates and logout clears it', async () => {
+    const login = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email: `qa${suffix}@resenha.test`, password: 'secret12' },
+    });
+    const session = login.cookies.find((item) => item.name === 'resenhometro_session');
+    expect(session?.value).toBeTruthy();
+
+    const me = await app.inject({
+      method: 'GET',
+      url: '/auth/me',
+      cookies: { resenhometro_session: session!.value },
+    });
+    expect(me.statusCode).toBe(200);
+    expect(me.json().email).toContain('@resenha.test');
+
+    const logout = await app.inject({
+      method: 'POST',
+      url: '/auth/logout',
+      cookies: { resenhometro_session: session!.value },
+    });
+    expect(logout.statusCode).toBe(200);
+    const cleared = logout.cookies.find((item) => item.name === 'resenhometro_session');
+    expect(cleared).toBeTruthy();
+    expect(Number(cleared?.maxAge ?? 1)).toBeLessThanOrEqual(0);
+
+    const after = await app.inject({ method: 'GET', url: '/auth/me' });
+    expect(after.statusCode).toBe(401);
   });
 
   it('me + update profile', async () => {
@@ -62,9 +122,28 @@ describe('Resenhômetro API', () => {
     expect(updated.json().bio).toBe('Curto um barzinho');
   });
 
+  it('drops the GET /me twin; session is GET /auth/me', async () => {
+    const twin = await app.inject({ method: 'GET', url: '/me', headers: await authHeaders() });
+    expect(twin.statusCode).toBe(404);
+
+    const session = await app.inject({ method: 'GET', url: '/auth/me', headers: await authHeaders() });
+    expect(session.statusCode).toBe(200);
+    expect(session.json().email).toContain('@resenha.test');
+  });
+
   it('rejects unauthorized role creation', async () => {
     const res = await app.inject({ method: 'POST', url: '/roles', payload: { title: 'Sem token' } });
     expect(res.statusCode).toBe(401);
+  });
+
+  it('rejects invalid role payload', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/roles',
+      headers: await authHeaders(),
+      payload: { title: 'ab' },
+    });
+    expect(res.statusCode).toBe(400);
   });
 
   it('create, edit, attendance, comment, delete role', async () => {
@@ -639,5 +718,152 @@ describe('Resenhômetro API', () => {
     });
     expect(newLogin.statusCode).toBe(200);
     expect(newLogin.json().token).toBeTruthy();
+
+    const previous = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    try {
+      const prodForgot = await app.inject({
+        method: 'POST',
+        url: '/auth/forgot-password',
+        payload: { email },
+      });
+      expect(prodForgot.statusCode).toBe(200);
+      expect(prodForgot.json().resetUrl).toBeUndefined();
+    } finally {
+      process.env.NODE_ENV = previous;
+    }
+  });
+
+  it('rate-limits 20 login attempts from the same IP', async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 20; i += 1) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/auth/login',
+        payload: { email: 'nobody@resenha.test', password: 'whatever1' },
+      });
+      statuses.push(res.statusCode);
+    }
+    expect(statuses).toContain(429);
+    const limited = statuses.findLast((code) => code === 429);
+    expect(limited).toBe(429);
+
+    const extra = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email: 'nobody@resenha.test', password: 'whatever1' },
+    });
+    expect(extra.statusCode).toBe(429);
+    expect(extra.json().message).toBe(AUTH_RATE_LIMIT_MESSAGE);
+  });
+
+  it('rejects passwords shorter than 8 on register', async () => {
+    const short = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: { name: 'Curto', email: `short${suffix}@resenha.test`, password: '1234567', username: `short${suffix}` },
+    });
+    expect(short.statusCode).toBe(400);
+
+    const ok = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: { name: 'Oito', email: `eight${suffix}@resenha.test`, password: '12345678', username: `eight${suffix}` },
+    });
+    expect(ok.statusCode).toBe(201);
+    expect(ok.json().user.email).toContain('@resenha.test');
+  });
+
+  it('hides email on other profiles and private content from strangers', async () => {
+    async function register(name: string, nick: string) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/auth/register',
+        payload: { name, email: `${nick}${suffix}@resenha.test`, password: 'secret12', username: nick },
+      });
+      expect(res.statusCode).toBe(201);
+      return { token: res.json().token as string, id: res.json().user.id as string, username: res.json().user.username as string };
+    }
+
+    const a = await register('Priv A', `pa${suffix}`);
+    const b = await register('Priv B', `pb${suffix}`);
+    const header = (token: string) => ({ authorization: `Bearer ${token}` });
+
+    const publicProfile = await app.inject({
+      method: 'GET',
+      url: `/users/${b.username}`,
+      headers: header(a.token),
+    });
+    expect(publicProfile.statusCode).toBe(200);
+    expect(publicProfile.json().email).toBeUndefined();
+
+    const madePrivate = await app.inject({
+      method: 'PUT',
+      url: '/users/me',
+      headers: header(a.token),
+      payload: { isPublic: false },
+    });
+    expect(madePrivate.statusCode).toBe(200);
+    expect(madePrivate.json().email).toContain('@resenha.test');
+    expect(madePrivate.json().isPublic).toBe(false);
+
+    const role = await app.inject({
+      method: 'POST',
+      url: '/roles',
+      headers: header(a.token),
+      payload: { title: 'Rolê secreto da privacidade' },
+    });
+    expect(role.statusCode).toBe(201);
+
+    const me = await app.inject({ method: 'GET', url: '/auth/me', headers: header(a.token) });
+    expect(me.statusCode).toBe(200);
+    expect(me.json().email).toContain('@resenha.test');
+
+    const strangerProfile = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(b.token),
+    });
+    expect(strangerProfile.statusCode).toBe(200);
+    expect(strangerProfile.json().email).toBeUndefined();
+    expect(strangerProfile.json().username).toBe(a.username);
+    expect(strangerProfile.json().stats.roles).toBe(0);
+
+    const strangerContent = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}/content`,
+      headers: header(b.token),
+    });
+    expect(strangerContent.statusCode).toBe(200);
+    expect(strangerContent.json().roles).toEqual([]);
+
+    const search = await app.inject({
+      method: 'GET',
+      url: `/search?q=${a.username}`,
+      headers: header(b.token),
+    });
+    const person = (search.json().people as { username: string; email?: string }[]).find((item) => item.username === a.username);
+    expect(person?.email).toBeUndefined();
+
+    const ownContent = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}/content`,
+      headers: header(a.token),
+    });
+    expect(ownContent.json().roles.some((item: { title: string }) => item.title.includes('secreto'))).toBe(true);
+
+    const follow = await app.inject({
+      method: 'POST',
+      url: `/users/${a.id}/follow`,
+      headers: header(b.token),
+    });
+    expect(follow.statusCode).toBe(200);
+
+    const followerContent = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}/content`,
+      headers: header(b.token),
+    });
+    expect(followerContent.json().roles.length).toBeGreaterThan(0);
   });
 });

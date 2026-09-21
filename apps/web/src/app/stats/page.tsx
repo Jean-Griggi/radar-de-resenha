@@ -1,88 +1,10 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import type { StatsOverview } from '@resenhometro/shared';
 import { RequireAuth } from '@/components/RequireAuth';
-import { api } from '@/lib/api';
-
-function Bars({ items, label }: { items: { label: string; count: number }[]; label: string }) {
-  const max = Math.max(...items.map((item) => item.count), 1);
-  return (
-    <section className="card p-5">
-      <h2 className="mb-4 font-medium">{label}</h2>
-      <ul className="space-y-2">
-        {items.map((item) => (
-          <li key={item.label} className="grid grid-cols-[minmax(0,4.5rem)_minmax(0,1fr)_1.5rem] items-center gap-2 text-xs sm:grid-cols-[8rem_1fr_2rem] sm:text-sm">
-            <span className="truncate text-muted">{item.label}</span>
-            <div className="h-3 overflow-hidden rounded-full bg-[var(--overlay)]">
-              <div className="h-full rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--brand-red-dark)]" style={{ width: `${(item.count / max) * 100}%` }} />
-            </div>
-            <span className="text-right text-muted">{item.count}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
+import { StatsScreen } from '@/features/stats';
 
 export default function StatsPage() {
-  const [stats, setStats] = useState<StatsOverview | null>(null);
-
-  useEffect(() => {
-    api.get<StatsOverview>('/stats').then(({ data }) => setStats(data));
-  }, []);
-
-  if (!stats) {
-    return (
-      <RequireAuth>
-        <p>Carregando estatísticas...</p>
-      </RequireAuth>
-    );
-  }
-
   return (
     <RequireAuth>
-      <div className="overflow-hidden rounded-2xl border border-white/15 bg-[linear-gradient(120deg,var(--ink),var(--brand-red-dark),var(--accent))] p-5 text-white sm:rounded-3xl sm:p-8">
-        <p className="text-sm text-white/80">Dashboard</p>
-        <h1 className="text-2xl font-semibold sm:text-3xl">Sua vida social em números</h1>
-        <a href="/year-review" className="mt-3 inline-block text-sm text-white/80 underline">
-          Ver retrospectiva anual
-        </a>
-      </div>
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {[
-          ['Rolês', stats.totalRoles],
-          ['Resenhas', stats.totalReviews],
-          ['Participações', stats.participations],
-          ['Amigos', stats.friends],
-          ['Lugares', stats.placesVisited],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="card p-4">
-            <p className="text-2xl font-semibold">{value}</p>
-            <p className="text-xs text-muted">{label}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <Bars label="Rolês por mês" items={stats.rolesByMonth.map((item) => ({ label: item.month, count: item.count }))} />
-        <Bars label="Por categoria" items={stats.rolesByCategory.map((item) => ({ label: item.category, count: item.count }))} />
-        <Bars label="Dias mais ativos" items={stats.rolesByWeekday.map((item) => ({ label: item.weekday, count: item.count }))} />
-        <Bars label="Horários" items={stats.hourDistribution.map((item) => ({ label: `${item.hour}h`, count: item.count }))} />
-        <Bars label="Lugares mais visitados" items={stats.topPlaces.map((item) => ({ label: item.name, count: item.count }))} />
-        <Bars label="Pessoas mais presentes" items={stats.topPeople.map((item) => ({ label: item.user.name, count: item.count }))} />
-        <Bars label="Artistas" items={stats.topArtists.map((item) => ({ label: item.name, count: item.count }))} />
-        <section className="card p-5">
-          <h2 className="mb-3 font-medium">Média das avaliações</h2>
-          <p className="text-3xl">{stats.ratingsAverage ?? '—'}</p>
-          <ul className="mt-3 space-y-1 text-sm text-muted">
-            {Object.entries(stats.ratingsByCategory).map(([key, value]) => (
-              <li key={key}>
-                {key}: {value}
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
+      <StatsScreen />
     </RequireAuth>
   );
 }

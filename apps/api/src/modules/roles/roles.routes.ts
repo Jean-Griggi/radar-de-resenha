@@ -1,7 +1,9 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
 import { HttpError } from '../../lib/http.js';
-import { attendanceSchema, commentSchema, createRoleSchema, musicSchema, updateRoleSchema } from '../common.schema.js';
+import { musicSchema } from '../music/music.schema.js';
+import { commentSchema } from '../social/social.schema.js';
+import { attendanceSchema, createRoleSchema, updateRoleSchema } from './roles.schema.js';
 import { addComment } from '../social/social.service.js';
 import { addMusicToRole } from '../music/music.service.js';
 import {

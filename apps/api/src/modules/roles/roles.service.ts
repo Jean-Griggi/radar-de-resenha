@@ -1,14 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { exec, query, queryOne } from '../../db/client.js';
 import {
-  addFeedEvent,
-  evaluateAchievements,
-  getReactionSummary,
-  getUserRow,
-  getUsersByIds,
-  mapUser,
   nowIso,
-  notify,
   parseJson,
   ROLE_START_AT_SQL,
   roleStatus,
@@ -17,7 +10,13 @@ import {
 } from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
-import type { CreateRoleInput, UpdateRoleInput } from '../common.schema.js';
+import { notify } from '../notifications/notifications.service.js';
+import { addFeedEvent } from '../social/feed.js';
+import { getReactionSummary } from '../social/reactions.js';
+import { evaluateAchievements } from '../users/achievements.js';
+import type { PublicUser } from '@resenhometro/shared';
+import { getUserRow, getUsersByIds, mapUser } from '../users/users.map.js';
+import type { CreateRoleInput, UpdateRoleInput } from './roles.schema.js';
 
 export type RoleRow = {
   id: string;
@@ -111,7 +110,7 @@ async function loadRoleExtras(roleIds: string[], viewerId?: string): Promise<Rol
 
 function mapSerializedRole(
   row: RoleRow,
-  creatorMap: Map<string, ReturnType<typeof mapUser>>,
+  creatorMap: Map<string, PublicUser>,
   extras: RoleExtras,
   viewerId?: string,
 ) {

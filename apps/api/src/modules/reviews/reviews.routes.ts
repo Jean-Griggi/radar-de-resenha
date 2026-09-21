@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
-import { commentSchema, reviewSchema, updateReviewSchema } from '../common.schema.js';
+import { commentSchema } from '../social/social.schema.js';
+import { reviewSchema, updateReviewSchema } from './reviews.schema.js';
 import { addComment } from '../social/social.service.js';
 import { createReview, deleteReview, getReview, listReviews, updateReview } from './reviews.service.js';
 
