@@ -374,12 +374,12 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Parar a API se estiver rodando.
-- [ ] Apagar dados locais: pasta `apps/api/data/` (PGlite + uploads). Está no `.gitignore`.
-- [ ] Se `DATABASE_URL` apontar para localhost/Docker: `TRUNCATE` / drop das tabelas de negócio **ou** `docker compose down -v` + `up` — o que for mais limpo neste repo. Recriar schema na próxima subida (`applyMigrations`).
-- [ ] **Não** apagar o volume/projeto Supabase de produção, **a menos que** o humano tenha escrito neste chat: `pode zerar o Supabase também`.
-- [ ] Na resposta do aprendizado: listar **o que foi apagado** e **o que não foi**.
-- [ ] Não commitar dumps nem `.env`. Commit só de script de reset se criar um (`apps/api` script `pnpm --filter @resenhometro/api db:reset` é desejável, documentado no README da API).
+- [x] Parar a API se estiver rodando.
+- [x] Apagar dados locais: pasta `apps/api/data/` (PGlite + uploads). Está no `.gitignore`.
+- [x] Se `DATABASE_URL` apontar para localhost/Docker: `TRUNCATE` / drop das tabelas de negócio **ou** `docker compose down -v` + `up` — o que for mais limpo neste repo. Recriar schema na próxima subida (`applyMigrations`).
+- [x] **Não** apagar o volume/projeto Supabase de produção, **a menos que** o humano tenha escrito neste chat: `pode zerar o Supabase também`.
+- [x] Na resposta do aprendizado: listar **o que foi apagado** e **o que não foi**.
+- [x] Não commitar dumps nem `.env`. Commit só de script de reset se criar um (`apps/api` script `pnpm --filter @resenhometro/api db:reset` é desejável, documentado no README da API).
 
 **Como validar:**
 
@@ -429,7 +429,7 @@ Uma linha, para não achar que o plano acabou.
 | 8 | 2026-09-21 | IA (Cursor) | Pages de auth e roles viraram compostores finos. Telas em `features/auth` e `features/roles`. Sessão em `features/auth/session.ts`; `lib/auth.ts` reexporta. Sem migrar feed/amigos/fotos. Sem React Query. |
 | 9 | 2026-09-21 | IA (Cursor) | Extraídas social, users, media, stories, reviews, search, notifications, stats, music, settings. Pages finas. Comments/Reactions/Stories saíram de `components/`. Sem feature nova, sem chat realtime, sem TanStack Query. |
 | 10 | 2026-09-21 | IA (Cursor) | `PublicUser`/`UserProfile` sem e-mail. `AuthUser`/`Me` único contrato com e-mail. Sessão web importa de shared. `mapUser` tipado. Constantes intactas. Sem cookie/SQL/React no shared. Typecheck verde. |
-| 11 | | | wipe local apenas, salvo autorização de prod |
+| 11 | 2026-09-21 | IA (Cursor) | Script `pnpm db:reset`. Apagado PGlite + uploads em `apps/api/data/`. Sem `.env`/`DATABASE_URL`; Docker daemon parado — volume `pgdata` não existia neste ambiente. Supabase/produção intocado. Commit só de script/docs. |
 | 12 | | | |
 
 ---

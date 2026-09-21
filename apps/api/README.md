@@ -4,6 +4,20 @@ Backend Fastify com sessão em cookie httpOnly. Os dados **persistem**: sem `DAT
 
 Uploads ficam em `apps/api/data/uploads` e são servidos em `/uploads`.
 
+## Reset do banco local
+
+Apaga o PGlite e os uploads em `apps/api/data/`. Se `DATABASE_URL` apontar para Postgres em localhost/Docker, zera esse volume também (`docker compose down -v` + `up`, ou `DROP SCHEMA` se o Docker não estiver no ar). **Não** toca em Supabase nem em qualquer Postgres remoto.
+
+Pare a API antes (o PGlite trava arquivos em `data/` se estiver rodando).
+
+```bash
+pnpm db:reset
+# ou:
+pnpm --filter @resenhometro/api db:reset
+```
+
+Na próxima subida, `applyMigrations` recria o schema vazio. Cadastre de novo (senha ≥ 8). O cookie de sessão antigo deixa de valer.
+
 ## Rodar
 
 Na raiz do monorepo:
