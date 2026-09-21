@@ -227,12 +227,12 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] `search.routes.ts` **só** `/search` e `/explore`.
-- [ ] Rotas de feed, posts, comments, reactions → `social.routes.ts` (criar se não existir).
-- [ ] `/notifications*` → `notifications.routes.ts` (+ service já existente ou extraído).
-- [ ] `/calendar`, `/stats`, `/year-review` → `stats.routes.ts` (calendar pode permanecer no service de calendar, registrado por stats ou por um `calendar.routes.ts` — escolher um; não deixar em search).
-- [ ] `app.ts` registra os plugins novos. Comportamento HTTP **igual**.
-- [ ] Amigos podem continuar em `users.routes.ts` neste passo (canônico no passo 6).
+- [x] `search.routes.ts` **só** `/search` e `/explore`.
+- [x] Rotas de feed, posts, comments, reactions → `social.routes.ts` (criar se não existir).
+- [x] `/notifications*` → `notifications.routes.ts` (+ service já existente ou extraído).
+- [x] `/calendar`, `/stats`, `/year-review` → `stats.routes.ts` (calendar pode permanecer no service de calendar, registrado por stats ou por um `calendar.routes.ts` — escolher um; não deixar em search).
+- [x] `app.ts` registra os plugins novos. Comportamento HTTP **igual**.
+- [x] Amigos podem continuar em `users.routes.ts` neste passo (canônico no passo 6).
 
 **Como validar:**
 
@@ -422,7 +422,7 @@ Uma linha, para não achar que o plano acabou.
 | 1 | 2026-09-21 | IA (Cursor) | JWT_SECRET sem default em prod/Vercel (mín. 32). CORS só allowlist (sem `*.vercel.app`). Rate limit login/register/forgot. `resetUrl` e log do link só fora de produção. Helmet básico. Cookie/localStorage intocados. |
 | 2 | 2026-09-21 | IA (Cursor) | Cookie `resenhometro_session` httpOnly, JWT `expiresIn` 7d. Logout limpa cookie. Web parou de gravar JWT no localStorage; Axios `withCredentials`. CORS `credentials: true`. Bearer só para testes. Sem fatiar módulos, sem `is_public`, banco intocado. |
 | 3 | 2026-09-21 | IA (Cursor) | E-mail só em `/auth/me` (e update/login/register do próprio). `is_public=false`: conteúdo só dono, amigo aceito ou quem segue; estranho vê payload reduzido. Senha min 8 no cadastro/reset/troca; login ainda aceita hash antigo (≥6). Sem cookie de novo, sem fatiar pastas. |
-| 4 | | | |
+| 4 | 2026-09-21 | IA (Cursor) | Search só `/search` e `/explore`. Feed/posts/comments/reactions em `social.routes.ts`. Notifications extraídas para módulo próprio. Calendar/stats/year-review em `stats.routes.ts`. HTTP igual; `common.schema.ts` intocado. |
 | 5 | | | |
 | 6 | | | |
 | 7 | | | |

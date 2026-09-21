@@ -15,9 +15,12 @@ import { authRoutes } from './modules/auth/auth.routes.js';
 import { mediaRoutes } from './modules/media/media.routes.js';
 import { storageRoutes } from './modules/storage/storage.routes.js';
 import { musicRoutes } from './modules/music/music.routes.js';
+import { notificationsRoutes } from './modules/notifications/notifications.routes.js';
 import { reviewsRoutes } from './modules/reviews/reviews.routes.js';
 import { rolesRoutes } from './modules/roles/roles.routes.js';
-import { socialRoutes } from './modules/search/search.routes.js';
+import { searchRoutes } from './modules/search/search.routes.js';
+import { socialRoutes } from './modules/social/social.routes.js';
+import { statsRoutes } from './modules/stats/stats.routes.js';
 import { usersRoutes } from './modules/users/users.routes.js';
 import { storiesRoutes } from './modules/stories/stories.routes.js';
 
@@ -123,6 +126,9 @@ export async function buildApp() {
   await app.register(storiesRoutes);
   await app.register(musicRoutes);
   await app.register(socialRoutes);
+  await app.register(searchRoutes);
+  await app.register(statsRoutes);
+  await app.register(notificationsRoutes);
 
   return app;
 }
