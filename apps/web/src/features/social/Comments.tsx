@@ -5,8 +5,8 @@ import type { Comment as CommentType } from '@resenhometro/shared';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
 import { formatTimeAgo } from '@/lib/format';
-import { Avatar } from './Avatar';
-import { Button } from './Button';
+import { Avatar } from '@/components/Avatar';
+import { Button } from '@/components/Button';
 import { Reactions } from './Reactions';
 
 export function Comments({

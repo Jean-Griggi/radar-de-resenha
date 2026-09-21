@@ -333,9 +333,9 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Extrair para `features/`: `social` (home/feed, amigos), `users` (perfil), `media` (photos), `stories`, `reviews`, `search` (explore), `notifications`, `stats` (calendar, stats, year-review), `music`, `settings`.
-- [ ] `components/` fica UI genérica (Button, Avatar, Shell, Field, Toast, Theme, Player, ErrorBoundary, MediaImage, WaveBackground, Brand*).
-- [ ] Pages em `app/` finas.
+- [x] Extrair para `features/`: `social` (home/feed, amigos), `users` (perfil), `media` (photos), `stories`, `reviews`, `search` (explore), `notifications`, `stats` (calendar, stats, year-review), `music`, `settings`.
+- [x] `components/` fica UI genérica (Button, Avatar, Shell, Field, Toast, Theme, Player, ErrorBoundary, MediaImage, WaveBackground, Brand*).
+- [x] Pages em `app/` finas.
 
 **Como validar:** clicar as rotas principais (home, amigos, perfil, fotos, explore, calendar, settings, music, notifications). Loading/error/empty continuam.
 
@@ -427,7 +427,7 @@ Uma linha, para não achar que o plano acabou.
 | 6 | 2026-09-21 | IA (Cursor) | `helpers.ts` só data/SQL. `mapUser`/`getUserRow` em `users.map`; `notify` em notifications; feed/reações em social; achievements em users. `GET /me` e `PUT /auth/me` removidos (404). Avatar/capa em `users.routes`. Web já usava URLs canônicas. |
 | 7 | 2026-09-21 | IA (Cursor) | Chat mock fora do AppShell (arquivos mantidos, não renderizados). Links só `/roles/new`; `/roles/novo` continua redirect. Visual Redesenha intacto. Sem `features/`. |
 | 8 | 2026-09-21 | IA (Cursor) | Pages de auth e roles viraram compostores finos. Telas em `features/auth` e `features/roles`. Sessão em `features/auth/session.ts`; `lib/auth.ts` reexporta. Sem migrar feed/amigos/fotos. Sem React Query. |
-| 9 | | | |
+| 9 | 2026-09-21 | IA (Cursor) | Extraídas social, users, media, stories, reviews, search, notifications, stats, music, settings. Pages finas. Comments/Reactions/Stories saíram de `components/`. Sem feature nova, sem chat realtime, sem TanStack Query. |
 | 10 | | | |
 | 11 | | | wipe local apenas, salvo autorização de prod |
 | 12 | | | |

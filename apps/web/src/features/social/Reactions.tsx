@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { REACTION_EMOJI, type ReactionSummary, type ReactionType } from '@resenhometro/shared';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
-import { useToast } from './Toast';
+import { useToast } from '@/components/Toast';
 
 export function Reactions({
   targetType,

@@ -1,0 +1,193 @@
+'use client';
+
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import type { SearchResults } from '@resenhometro/shared';
+import { Avatar } from '@/components/Avatar';
+import { EmptyState, Skeleton } from '@/components/Card';
+import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+
+type ExploreData = {
+  featuredRoles: { id: string; title: string; location: string | null; category: string }[];
+  people: { id: string; name: string; username: string; avatar: string | null }[];
+  reviews: { id: string; title: string; rating: number }[];
+  categories: { name: string; count: number }[];
+  tags: { name: string; count: number }[];
+  places: { name: string; count: number }[];
+  music: { id: string; title: string; artist: string }[];
+};
+
+function searchIsEmpty(results: SearchResults) {
+  return (
+    results.people.length === 0 &&
+    results.roles.length === 0 &&
+    results.reviews.length === 0 &&
+    results.tags.length === 0 &&
+    results.places.length === 0 &&
+    results.music.length === 0
+  );
+}
+
+export function ExploreScreen() {
+  const params = useSearchParams();
+  const q = params.get('q') ?? '';
+  const [explore, setExplore] = useState<ExploreData | null>(null);
+  const [search, setSearch] = useState<SearchResults | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError('');
+    setSearch(null);
+    setExplore(null);
+    if (q) {
+      api
+        .get<SearchResults>('/search', { params: { q }, signal: controller.signal })
+        .then(({ data }) => {
+          if (!controller.signal.aborted) setSearch(data);
+        })
+        .catch((err) => {
+          if (isApiCanceled(err)) return;
+          setSearch(null);
+          setError(apiErrorMessage(err, 'Não foi possível buscar'));
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setLoading(false);
+        });
+    } else {
+      api
+        .get<ExploreData>('/explore', { signal: controller.signal, timeout: 15_000 })
+        .then(({ data }) => {
+          if (!controller.signal.aborted) setExplore(data);
+        })
+        .catch((err) => {
+          if (isApiCanceled(err)) return;
+          setExplore(null);
+          setError(apiErrorMessage(err, 'Não foi possível carregar o explorar'));
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setLoading(false);
+        });
+    }
+    return () => controller.abort();
+  }, [q]);
+
+  return (
+    <>
+      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">{q ? `Busca: ${q}` : 'Explorar'}</h1>
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-40" />
+          <Skeleton className="h-40" />
+        </div>
+      ) : null}
+      {error ? <p className="text-[var(--danger)]">{error}</p> : null}
+      {!loading && !error && search && searchIsEmpty(search) ? <EmptyState title="Nada encontrado." /> : null}
+      {!loading && !error && search && !searchIsEmpty(search) ? (
+        <div className="space-y-6">
+          <Section title="Pessoas">
+            {search.people.map((person) => (
+              <Link key={person.id} href={`/perfil/${person.username}`} className="card flex items-center gap-3 p-3">
+                <Avatar src={person.avatar} name={person.name} size="sm" />
+                {person.name}
+              </Link>
+            ))}
+          </Section>
+          <Section title="Rolês">
+            {search.roles.map((role) => (
+              <Link key={role.id} href={`/roles/${role.id}`} className="card p-3">
+                {role.title}
+              </Link>
+            ))}
+          </Section>
+          <Section title="Resenhas">
+            {search.reviews.map((review) => (
+              <Link key={review.id} href={`/reviews/${review.id}`} className="card p-3">
+                {review.title}
+              </Link>
+            ))}
+          </Section>
+          <Section title="Tags">{search.tags.map((tag) => <span key={tag}>#{tag}</span>)}</Section>
+          <Section title="Lugares">{search.places.map((place) => <span key={place}>{place}</span>)}</Section>
+          <Section title="Músicas">
+            {search.music.map((track) => (
+              <p key={track.id}>
+                {track.title} — {track.artist}
+              </p>
+            ))}
+          </Section>
+        </div>
+      ) : null}
+      {!loading && !error && !q && explore ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Section title="Rolês em destaque">
+            {explore.featuredRoles.map((role) => (
+              <Link key={role.id} href={`/roles/${role.id}`} className="card block p-4">
+                <p>{role.title}</p>
+                <p className="text-xs text-muted">
+                  {role.category} · {role.location}
+                </p>
+              </Link>
+            ))}
+          </Section>
+          <Section title="Pessoas">
+            {explore.people.map((person) => (
+              <Link key={person.id} href={`/perfil/${person.username}`} className="flex items-center gap-2">
+                <Avatar src={person.avatar} name={person.name} size="sm" />
+                {person.name}
+              </Link>
+            ))}
+          </Section>
+          <Section title="Resenhas">
+            {explore.reviews.map((review) => (
+              <Link key={review.id} href={`/reviews/${review.id}`}>
+                {'★'.repeat(review.rating)} {review.title}
+              </Link>
+            ))}
+          </Section>
+          <Section title="Categorias">
+            {explore.categories.map((item) => (
+              <span key={item.name} className="rounded-full bg-[var(--overlay)] px-3 py-1 text-sm">
+                {item.name} · {item.count}
+              </span>
+            ))}
+          </Section>
+          <Section title="Tags">
+            {explore.tags.map((item) => (
+              <span key={item.name} className="text-[var(--accent)]">
+                #{item.name}
+              </span>
+            ))}
+          </Section>
+          <Section title="Lugares">
+            {explore.places.map((item) => (
+              <p key={item.name}>
+                {item.name} · {item.count}
+              </p>
+            ))}
+          </Section>
+          <Section title="Músicas">
+            {explore.music.map((item) => (
+              <p key={item.id}>
+                {item.title} — {item.artist}
+              </p>
+            ))}
+          </Section>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="card space-y-3 p-5">
+      <h2 className="font-medium">{title}</h2>
+      <div className="flex flex-col gap-2">{children}</div>
+    </section>
+  );
+}
+

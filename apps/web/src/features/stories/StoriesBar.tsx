@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { StoryRing } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
-import { StoryViewer, StoryPhone } from '@/components/StoryViewer';
+import { StoryViewer, StoryPhone } from './StoryViewer';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
