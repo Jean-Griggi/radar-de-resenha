@@ -155,8 +155,8 @@ export function SettingsScreen() {
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
-                checked={Boolean((me as AuthUser & { isPublic?: boolean }).isPublic ?? true)}
-                onChange={(e) => setMe({ ...me, isPublic: e.target.checked } as AuthUser)}
+                checked={me.isPublic}
+                onChange={(e) => setMe({ ...me, isPublic: e.target.checked })}
               />
               Perfil público
             </label>

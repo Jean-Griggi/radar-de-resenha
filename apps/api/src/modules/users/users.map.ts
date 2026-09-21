@@ -1,3 +1,4 @@
+import type { AuthUser, PublicUser } from '@resenhometro/shared';
 import { query, queryOne } from '../../db/client.js';
 import { sqlPlaceholders } from '../../lib/helpers.js';
 import { publicUrl } from '../../lib/storage.js';
@@ -18,8 +19,10 @@ export type UserRow = {
   updated_at: string;
 };
 
-export function mapUser(row: UserRow, withEmail = false) {
-  return {
+export function mapUser(row: UserRow, withEmail: true): AuthUser;
+export function mapUser(row: UserRow, withEmail?: boolean): PublicUser;
+export function mapUser(row: UserRow, withEmail = false): PublicUser | AuthUser {
+  const user: PublicUser = {
     id: row.id,
     name: row.name,
     username: row.username,
@@ -30,8 +33,11 @@ export function mapUser(row: UserRow, withEmail = false) {
     isPublic: Boolean(row.is_public),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
-    ...(withEmail ? { email: row.email } : {}),
   };
+  if (withEmail) {
+    return { ...user, email: row.email };
+  }
+  return user;
 }
 
 export async function getUserRow(id: string) {

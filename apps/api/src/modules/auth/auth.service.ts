@@ -1,3 +1,4 @@
+import type { AuthUser } from '@resenhometro/shared';
 import bcrypt from 'bcryptjs';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { env } from '../../config/env.js';
@@ -9,7 +10,7 @@ import { mailConfigured, passwordResetEmail, sendMail } from '../../lib/mail.js'
 import type { ChangePasswordInput } from './auth.types.js';
 import type { LoginInput, RegisterInput } from './auth.schema.js';
 
-export async function registerUser(input: RegisterInput) {
+export async function registerUser(input: RegisterInput): Promise<AuthUser> {
   const existingEmail = await queryOne(`SELECT id FROM users WHERE email = $1`, [input.email.toLowerCase()]);
   if (existingEmail) throw conflict('E-mail já cadastrado');
 
@@ -36,7 +37,7 @@ export async function registerUser(input: RegisterInput) {
   return mapUser(user!, true);
 }
 
-export async function loginUser(input: LoginInput) {
+export async function loginUser(input: LoginInput): Promise<AuthUser> {
   const user = await queryOne<{
     id: string;
     password_hash: string;
@@ -51,7 +52,7 @@ export async function loginUser(input: LoginInput) {
   return mapUser(row!, true);
 }
 
-export async function getMe(id: string) {
+export async function getMe(id: string): Promise<AuthUser> {
   const row = await getUserRow(id);
   if (!row) throw notFound('Usuário não encontrado');
   return mapUser(row, true);

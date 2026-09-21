@@ -1,20 +1,10 @@
+import type { AuthUser } from '@resenhometro/shared';
 import { clearShellCache } from '@/lib/shellCache';
+
+export type { AuthUser, Me, PublicUser } from '@resenhometro/shared';
 
 const LEGACY_TOKEN_KEY = 'resenhometro_token';
 const USER_KEY = 'resenhometro_user';
-
-export type AuthUser = {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  avatar?: string | null;
-  cover?: string | null;
-  bio?: string | null;
-  city?: string | null;
-  isPublic?: boolean;
-  createdAt?: string;
-};
 
 function dropLegacyToken() {
   localStorage.removeItem(LEGACY_TOKEN_KEY);

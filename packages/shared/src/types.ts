@@ -26,11 +26,11 @@ export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 export type MediaKind = (typeof MEDIA_KINDS)[number];
 export type StoryMediaType = (typeof STORY_MEDIA_TYPES)[number];
 
+/** Perfil visível a terceiros. Sem e-mail — alinhado à privacidade do passo 3. */
 export type PublicUser = {
   id: string;
   name: string;
   username: string;
-  email?: string;
   avatar: string | null;
   cover: string | null;
   bio: string | null;
@@ -41,7 +41,6 @@ export type PublicUser = {
 };
 
 export type UserProfile = PublicUser & {
-  email: string;
   stats: UserStats;
   friendship: FriendshipPreview | null;
   isFollowing: boolean;
@@ -57,9 +56,12 @@ export type UserStats = {
   following: number;
 };
 
+/** Sessão autenticada (`/auth/me`, login, cadastro). Único contrato público com e-mail. */
 export type AuthUser = PublicUser & {
   email: string;
 };
+
+export type Me = AuthUser;
 
 export type Attendance = {
   id: string;

@@ -37,7 +37,24 @@ export function ProfileScreen() {
     setProfile(data);
     setContent(extra.data);
     setError('');
-    if (data.isMe) setUser({ ...getUser()!, ...data });
+    if (data.isMe) {
+      const current = getUser();
+      if (current) {
+        setUser({
+          ...current,
+          id: data.id,
+          name: data.name,
+          username: data.username,
+          avatar: data.avatar,
+          cover: data.cover,
+          bio: data.bio,
+          city: data.city,
+          isPublic: data.isPublic,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+        });
+      }
+    }
   }
 
   useEffect(() => {

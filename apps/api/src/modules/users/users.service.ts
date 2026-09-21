@@ -1,4 +1,4 @@
-import { ACHIEVEMENT_DEFS } from '@resenhometro/shared';
+import { ACHIEVEMENT_DEFS, type AuthUser, type FriendshipStatus, type UserProfile } from '@resenhometro/shared';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso } from '../../lib/helpers.js';
 import { conflict, notFound } from '../../lib/http.js';
@@ -30,7 +30,7 @@ export async function canViewProfileContent(
   return status === 'accepted' || following;
 }
 
-export async function getUserByUsername(username: string, viewerId?: string) {
+export async function getUserByUsername(username: string, viewerId?: string): Promise<UserProfile> {
   const row = await queryOne<UserRow>(
     `SELECT id, name, username, email, avatar, cover, bio, city, is_public, show_followers, show_interactions, created_at, updated_at
      FROM users WHERE username = $1`,
@@ -80,7 +80,7 @@ export async function getUserByUsername(username: string, viewerId?: string) {
       friendship && (friendship as { status?: string }).status !== 'rejected'
         ? {
             id: (friendship as { id: string }).id,
-            status: (friendship as { status: string }).status,
+            status: (friendship as { status: FriendshipStatus }).status,
             requesterId: (friendship as { requester_id: string }).requester_id,
             receiverId: (friendship as { receiver_id: string }).receiver_id,
           }
@@ -185,7 +185,7 @@ export async function suggestions(userId: string) {
   return rows.map((row) => mapUser(row as never));
 }
 
-export async function updateMe(id: string, input: UpdateMeInput) {
+export async function updateMe(id: string, input: UpdateMeInput): Promise<AuthUser> {
   const row = await queryOne<Record<string, unknown>>(`SELECT * FROM users WHERE id = $1`, [id]);
   if (!row) throw notFound('Usuário não encontrado');
 
@@ -226,7 +226,7 @@ export async function updateMe(id: string, input: UpdateMeInput) {
   return mapUser(updated, true);
 }
 
-export async function setUserMedia(id: string, field: 'avatar' | 'cover', relative: string | null) {
+export async function setUserMedia(id: string, field: 'avatar' | 'cover', relative: string | null): Promise<AuthUser> {
   await exec(`UPDATE users SET ${field} = $1, updated_at = $2 WHERE id = $3`, [relative, nowIso(), id]);
   await evaluateAchievements(id);
   const row = await getUserRow(id);

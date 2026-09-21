@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { STORY_MAX_ACTIVE, STORY_TTL_MS } from '@resenhometro/shared';
+import { STORY_MAX_ACTIVE, STORY_TTL_MS, type PublicUser } from '@resenhometro/shared';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso, sqlPlaceholders } from '../../lib/helpers.js';
 import { badRequest, forbidden, notFound } from '../../lib/http.js';
@@ -58,7 +58,7 @@ async function assertCanSee(story: StoryRow, userId: string) {
 
 function serializeStory(
   row: StoryRow,
-  author: ReturnType<typeof mapUser>,
+  author: PublicUser,
   viewed: boolean,
   viewCount?: number,
 ) {

@@ -352,10 +352,10 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Tipos de user público **sem** e-mail obrigatório; e-mail só num tipo `AuthUser` / `Me`.
-- [ ] Constantes (categorias, reações, stories) intactas.
-- [ ] Web e API compilam com o package. Sem código de cookie no shared (cookie é detalhe da API + browser).
-- [ ] Exportar o que o front precisa da sessão (ex. `PublicUser`) de forma alinhada ao passo 3.
+- [x] Tipos de user público **sem** e-mail obrigatório; e-mail só num tipo `AuthUser` / `Me`.
+- [x] Constantes (categorias, reações, stories) intactas.
+- [x] Web e API compilam com o package. Sem código de cookie no shared (cookie é detalhe da API + browser).
+- [x] Exportar o que o front precisa da sessão (ex. `PublicUser`) de forma alinhada ao passo 3.
 
 **Como validar:** `pnpm typecheck`. Perfil alheio no tipo não exige `email`.
 
@@ -428,7 +428,7 @@ Uma linha, para não achar que o plano acabou.
 | 7 | 2026-09-21 | IA (Cursor) | Chat mock fora do AppShell (arquivos mantidos, não renderizados). Links só `/roles/new`; `/roles/novo` continua redirect. Visual Redesenha intacto. Sem `features/`. |
 | 8 | 2026-09-21 | IA (Cursor) | Pages de auth e roles viraram compostores finos. Telas em `features/auth` e `features/roles`. Sessão em `features/auth/session.ts`; `lib/auth.ts` reexporta. Sem migrar feed/amigos/fotos. Sem React Query. |
 | 9 | 2026-09-21 | IA (Cursor) | Extraídas social, users, media, stories, reviews, search, notifications, stats, music, settings. Pages finas. Comments/Reactions/Stories saíram de `components/`. Sem feature nova, sem chat realtime, sem TanStack Query. |
-| 10 | | | |
+| 10 | 2026-09-21 | IA (Cursor) | `PublicUser`/`UserProfile` sem e-mail. `AuthUser`/`Me` único contrato com e-mail. Sessão web importa de shared. `mapUser` tipado. Constantes intactas. Sem cookie/SQL/React no shared. Typecheck verde. |
 | 11 | | | wipe local apenas, salvo autorização de prod |
 | 12 | | | |
 
