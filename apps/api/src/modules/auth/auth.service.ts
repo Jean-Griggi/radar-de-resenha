@@ -139,8 +139,13 @@ export async function requestPasswordReset(email: string) {
     console.error('Falha ao enviar e-mail de redefinição', error);
   }
 
-  if (!emailSent) {
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (!emailSent && !isProduction) {
     console.info(`Link de redefinição (SMTP não configurado ou falhou): ${resetUrl}`);
+  }
+
+  if (isProduction) {
+    return generic;
   }
 
   return mailConfigured()

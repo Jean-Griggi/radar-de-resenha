@@ -1,11 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
+import { consumeAuthIpLimit, consumeForgotEmailLimit } from '../../lib/auth-rate-limit.js';
 import { takeUpload } from '../../lib/storage.js';
 import { changePasswordSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, updateMeSchema } from '../common.schema.js';
 import { changePassword, getMe, loginUser, registerUser, requestPasswordReset, resetPassword, setUserMedia, updateMe } from './auth.service.js';
 
 export async function authRoutes(app: FastifyInstance) {
   app.post('/auth/register', async (request, reply) => {
+    consumeAuthIpLimit(request, 'auth-register');
     const body = registerSchema.parse(request.body);
     const user = await registerUser(body);
     const token = app.jwt.sign({ sub: user.id, email: user.email ?? '' });
@@ -13,6 +15,7 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/auth/login', async (request, reply) => {
+    consumeAuthIpLimit(request, 'auth-login');
     const body = loginSchema.parse(request.body);
     const user = await loginUser(body);
     const token = app.jwt.sign({ sub: user.id, email: user.email ?? '' });
@@ -20,7 +23,9 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.post('/auth/forgot-password', async (request, reply) => {
+    consumeAuthIpLimit(request, 'auth-forgot');
     const body = forgotPasswordSchema.parse(request.body);
+    consumeForgotEmailLimit(body.email);
     return reply.send(await requestPasswordReset(body.email));
   });
 

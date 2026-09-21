@@ -30,7 +30,7 @@ Suba este repositório para o GitHub (sem `.env` com segredos).
 
    | Variável | Valor |
    |---|---|
-   | `JWT_SECRET` | string longa aleatória |
+   | `JWT_SECRET` | string aleatória com **pelo menos 32 caracteres** (obrigatória; a API não tem default em produção) |
    | `DATABASE_URL` | pooler do Supabase (porta 6543) |
    | `SUPABASE_URL` | Project URL |
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role |

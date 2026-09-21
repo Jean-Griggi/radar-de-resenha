@@ -1,10 +1,11 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
 import jwt from '@fastify/jwt';
 import multipart from '@fastify/multipart';
 import staticFiles from '@fastify/static';
 import { ZodError } from 'zod';
-import { env, isAllowedOrigin } from './config/env.js';
+import { env, isAllowedOrigin, isProductionLike } from './config/env.js';
 import { initDb } from './db/client.js';
 import { HttpError } from './lib/http.js';
 import { ensureStorage, storageRoot, isSupabaseStorage } from './lib/storage.js';
@@ -22,7 +23,33 @@ export async function buildApp() {
   await initDb();
   await ensureStorage();
 
-  const app = Fastify({ logger: true });
+  const productionLike = isProductionLike();
+  const app = Fastify({
+    logger: process.env.VITEST
+      ? false
+      : {
+          redact: [
+            'req.headers.authorization',
+            'req.body.password',
+            'req.body.token',
+            'req.body.currentPassword',
+            'req.body.newPassword',
+          ],
+        },
+  });
+
+  await app.register(helmet, {
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+    frameguard: { action: 'deny' },
+    hsts: productionLike ? { maxAge: 15552000, includeSubDomains: true } : false,
+    noSniff: true,
+  });
+  app.addHook('onSend', async (_request, reply) => {
+    reply.header('Content-Security-Policy', "frame-ancestors 'none'");
+  });
 
   await app.register(cors, {
     origin: (origin, callback) => {

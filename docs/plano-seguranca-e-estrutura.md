@@ -148,13 +148,13 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Em `apps/api/src/config/env.ts`:
+- [x] Em `apps/api/src/config/env.ts`:
   - `JWT_SECRET` **sem default** quando `VERCEL` ou `NODE_ENV=production`. Em dev, default pode ficar, mas mínimo longo (≥ 32 caracteres no schema de prod).
   - CORS: allowlist = localhost (dev) + `WEB_ORIGIN` + `CORS_ORIGINS`. **Remover** `origin.endsWith('.vercel.app')`. Origem vazia: manter só para health/curl (sem `Origin`); browser sempre manda Origin.
-- [ ] Rate limit em `POST /auth/login`, `POST /auth/register`, `POST /auth/forgot-password` (por IP; forgot também por e-mail). 429 com mensagem clara.
-- [ ] `resetUrl` no JSON **somente** se `NODE_ENV !== 'production'` (e de preferência só quando SMTP não está configurado). Em produção: mensagem genérica, sem link.
-- [ ] Headers: `@fastify/helmet` (ou equivalente): `nosniff`, `frame-ancestors: none`, HSTS só em produção. Sem CSP agressiva que quebre o front neste passo.
-- [ ] Não logar senha, token nem `resetUrl` em produção (`console.info` do link de reset: só dev).
+- [x] Rate limit em `POST /auth/login`, `POST /auth/register`, `POST /auth/forgot-password` (por IP; forgot também por e-mail). 429 com mensagem clara.
+- [x] `resetUrl` no JSON **somente** se `NODE_ENV !== 'production'` (e de preferência só quando SMTP não está configurado). Em produção: mensagem genérica, sem link.
+- [x] Headers: `@fastify/helmet` (ou equivalente): `nosniff`, `frame-ancestors: none`, HSTS só em produção. Sem CSP agressiva que quebre o front neste passo.
+- [x] Não logar senha, token nem `resetUrl` em produção (`console.info` do link de reset: só dev).
 
 **Como validar:**
 
@@ -419,7 +419,7 @@ Uma linha, para não achar que o plano acabou.
 | Passo | Data | Quem | Notas |
 |------|------|------|--------|
 | 0 | 2026-09-21 | IA (Cursor) | Branch `chore/security-and-modular-stacks` confirmada. Inventário só neste markdown; `apps/`, `packages/`, `.env` e banco intocados. |
-| 1 | | | |
+| 1 | 2026-09-21 | IA (Cursor) | JWT_SECRET sem default em prod/Vercel (mín. 32). CORS só allowlist (sem `*.vercel.app`). Rate limit login/register/forgot. `resetUrl` e log do link só fora de produção. Helmet básico. Cookie/localStorage intocados. |
 | 2 | | | |
 | 3 | | | |
 | 4 | | | |

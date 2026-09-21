@@ -27,3 +27,7 @@ export function badRequest(message: string) {
 export function unauthorized(message = 'Não autorizado') {
   return new HttpError(401, message);
 }
+
+export function tooManyRequests(message = 'Muitas tentativas. Tente novamente em instantes.') {
+  return new HttpError(429, message);
+}
