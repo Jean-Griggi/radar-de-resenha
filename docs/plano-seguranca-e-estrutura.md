@@ -4,7 +4,7 @@ Guia para endurecer a sessão, fechar o perímetro da API, reorganizar pastas/c�
 
 Arquitetura travada: **2 stacks** (`apps/web`, `apps/api`) + `packages/shared` + 1 Postgres. Sem microserviço, sem Nest, sem Clerk, sem GraphQL.
 
-Branch deste plano: **`chore/security-and-modular-stacks`**.
+Branch deste plano: **`chore/security-and-modular-stacks`**. **Plano encerrado** (passos 0–12). Entra na `main` via PR.
 
 Prompts prontos: [prompts-seguranca-e-estrutura.md](prompts-seguranca-e-estrutura.md).
 
@@ -399,11 +399,11 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Marcar todos os passos `[x]` (os que realmente rodaram).
-- [ ] Atualizar [ai/plano-execucao.md](ai/plano-execucao.md): sessão em cookie, módulos por domínio, `features/` no web, reset local, branch deste trabalho.
-- [ ] Atualizar [README.md](README.md) desta pasta, READMEs de `apps/api` e `apps/web` se URLs/auth mudaram.
-- [ ] `DEPLOY.md`: cookie + `WEB_ORIGIN` + CORS credentials, se ainda falar só em JWT no front.
-- [ ] Tabela de registro completa.
+- [x] Marcar todos os passos `[x]` (os que realmente rodaram).
+- [x] Atualizar [ai/plano-execucao.md](ai/plano-execucao.md): sessão em cookie, módulos por domínio, `features/` no web, reset local, branch deste trabalho.
+- [x] Atualizar [README.md](README.md) desta pasta, READMEs de `apps/api` e `apps/web` se URLs/auth mudaram.
+- [x] `DEPLOY.md`: cookie + `WEB_ORIGIN` + CORS credentials, se ainda falar só em JWT no front.
+- [x] Tabela de registro completa.
 
 **Como validar:** um colega lê o README e consegue logar com o modelo novo (cookie, senha 8).
 
@@ -430,7 +430,7 @@ Uma linha, para não achar que o plano acabou.
 | 9 | 2026-09-21 | IA (Cursor) | Extraídas social, users, media, stories, reviews, search, notifications, stats, music, settings. Pages finas. Comments/Reactions/Stories saíram de `components/`. Sem feature nova, sem chat realtime, sem TanStack Query. |
 | 10 | 2026-09-21 | IA (Cursor) | `PublicUser`/`UserProfile` sem e-mail. `AuthUser`/`Me` único contrato com e-mail. Sessão web importa de shared. `mapUser` tipado. Constantes intactas. Sem cookie/SQL/React no shared. Typecheck verde. |
 | 11 | 2026-09-21 | IA (Cursor) | Script `pnpm db:reset`. Apagado PGlite + uploads em `apps/api/data/`. Sem `.env`/`DATABASE_URL`; Docker daemon parado — volume `pgdata` não existia neste ambiente. Supabase/produção intocado. Commit só de script/docs. |
-| 12 | | | |
+| 12 | 2026-09-21 | IA (Cursor) | README, DEPLOY, API/web, shared, guia-equipe e plano-execucao apontam para cookie httpOnly, módulos e `features/`. Sem código de feature. Plano encerrado. |
 
 ---
 

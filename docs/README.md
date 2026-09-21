@@ -8,7 +8,7 @@ Identidade visual no ar: **Redesenha** (Design System v1.0). Dark estrutural + p
 | [guia-equipe.md](guia-equipe.md) | Onboarding da equipe |
 | [plano-correcao.md](plano-correcao.md) | Correção dos bugs de produção (passo a passo) |
 | [prompts-correcao.md](prompts-correcao.md) | Prompts prontos: colar no chat para executar um passo |
-| [plano-seguranca-e-estrutura.md](plano-seguranca-e-estrutura.md) | Segurança (cookie, CORS) + pastas por stack — em andamento |
+| [plano-seguranca-e-estrutura.md](plano-seguranca-e-estrutura.md) | Segurança (cookie, CORS) + pastas por stack — **encerrado** (0–12) |
 | [prompts-seguranca-e-estrutura.md](prompts-seguranca-e-estrutura.md) | Prompts prontos desse plano (um passo por vez) |
 | [plano-stories.md](plano-stories.md) | Stories 24h (estilo Instagram) |
 | [plano-migracao-identidade-visual.md](plano-migracao-identidade-visual.md) | Migração da identidade visual (Redesenha) — concluída |

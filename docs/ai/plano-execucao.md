@@ -1,6 +1,6 @@
 # Plano / estado atual — Resenhômetro
 
-Este arquivo é o guia de trabalho **depois** da implementação da rede social. Humanos e IAs devem seguir o que está aqui, não o MVP antigo em memória.
+Este arquivo é o guia de trabalho **depois** da implementação da rede social e **depois** do plano de segurança e estrutura. Humanos e IAs devem seguir o que está aqui, não o MVP antigo em memória.
 
 ## Como a IA deve agir
 
@@ -8,25 +8,27 @@ Este arquivo é o guia de trabalho **depois** da implementação da rede social.
 2. Não invente escopo. Mobile, desktop, mapa, chat em tempo real, pagamentos e push estão fora.
 3. Não volte atrás para store só em memória. Persistência já existe (PGlite ou PostgreSQL).
 4. Não mexa em `apps/mobile` nem `apps/desktop`.
-5. Backend: `routes` → `service` → `src/db` / storage.
-6. Frontend: identidade **Redesenha** (DS v1.0). Dark estrutural + paper `#F2F0EC`, Plus Jakarta Sans, barra superior no desktop, bottom nav 5 no mobile, ondas + grain. Sem violeta de marca. Não reintroduzir `#FF6347` / lima / Inter como fonte principal.
-7. A branch estável do produto é a **`main`**. O plano de segurança e estrutura roda na branch **`chore/security-and-modular-stacks`** até o PR. Não misturar esse trabalho na `main` passo a passo sem PR.
+5. Backend: `modules/<domínio>/` → `routes` → `service` → `src/db` / storage. Sem god-file de schema nem `helpers` de domínio.
+6. Frontend: identidade **Redesenha** (DS v1.0). Dark estrutural + paper `#F2F0EC`, Plus Jakarta Sans, barra superior no desktop, bottom nav 5 no mobile, ondas + grain. Sem violeta de marca. Não reintroduzir `#FF6347` / lima / Inter como fonte principal. Páginas em `app/` finas; telas em `src/features/`; UI genérica em `components/`.
+7. A branch estável do produto é a **`main`**. O plano de segurança e estrutura (passos 0–12) está **encerrado** na branch `chore/security-and-modular-stacks` — entra na `main` só via PR. Não reabrir esse plano passo a passo. Não misturar na `main` sem PR.
 8. Não publique deploy sozinha. Código já está no GitHub; hospedagem (Vercel + Render/Railway) só com conta e variáveis.
 9. Idioma com a equipe: português, direto.
-10. Segurança + pastas: seguir [plano-seguranca-e-estrutura.md](../plano-seguranca-e-estrutura.md), **um passo por vez**. Arquitetura alvo: monólito modular **por stacks** (web / API / shared). Cookie httpOnly no lugar de JWT no `localStorage`. Não zerar Supabase de produção sem pedido explícito.
+10. Auth: cookie httpOnly `resenhometro_session` (7 dias). Web **não** grava JWT no `localStorage`. Axios `withCredentials`. CORS com origem explícita (`WEB_ORIGIN` / `CORS_ORIGINS`) e `credentials: true`. Não zerar Supabase de produção sem pedido explícito (`pode zerar o Supabase também`).
 
 ## Onde mexer
 
 | Área | Pasta |
 |------|--------|
-| Backend | `apps/api/` |
-| Frontend | `apps/web/` |
-| Tipos | `packages/shared/` |
-| UI | `apps/web/src/components` (preferir) |
+| Backend | `apps/api/src/modules/` (auth, users, roles, social, search, notifications, stats, reviews, media, stories, music, storage) |
+| Frontend | `apps/web/src/features/` (telas) e `apps/web/src/components/` (UI genérica) |
+| Tipos | `packages/shared/` (`PublicUser` sem e-mail; `AuthUser` / `Me` com e-mail) |
+| Rotas Next | `apps/web/src/app/` (compostores finos) |
 
 ## O que o produto já faz
 
-Cadastro/login JWT, perfil com avatar e capa, rolês (CRUD + presença), feed, comentários aninhados, reações, amigos, follow, busca, explorar, resenhas, fotos, álbuns, áudios, calendário, stats, retrospectiva, conquistas, notificações in-app, Spotify (se configurado), tema claro/escuro, stories 24h.
+Cadastro/login com cookie httpOnly (senha ≥ 8 no cadastro/reset/troca), perfil com avatar e capa, rolês (CRUD + presença), feed, comentários aninhados, reações, amigos, follow, busca, explorar, resenhas, fotos, álbuns, áudios, calendário, stats, retrospectiva, conquistas, notificações in-app, Spotify (se configurado), tema claro/escuro, stories 24h.
+
+Perfil privado (`is_public = false`): conteúdo só para dono, amigo aceito ou quem segue; estranho vê payload reduzido, sem e-mail.
 
 ## Como rodar
 
@@ -40,14 +42,17 @@ pnpm --filter @resenhometro/web dev
 
 Web: http://localhost:3000 · API: http://localhost:3333
 
+Login no navegador: senha ≥ 8. Cookie `resenhometro_session` no domínio da API (`localhost:3333`). Sem `resenhometro_token` no `localStorage`.
+
 ## Persistência
 
 - Padrão: PGlite em `apps/api/data` (gitignored)
 - Opcional: `DATABASE_URL` + `docker compose up -d`
 - Mídia: `apps/api/data/uploads`
+- Reset **só local**: `pnpm --filter @resenhometro/api db:reset` (não toca Supabase)
 
 ## Pendências reais
 
-- Plano em andamento: [segurança e estrutura](../plano-seguranca-e-estrutura.md) (passos 0–12; prompts em [prompts-seguranca-e-estrutura.md](../prompts-seguranca-e-estrutura.md))
+- Plano de [segurança e estrutura](../plano-seguranca-e-estrutura.md): **encerrado** (0–12). PR da branch `chore/security-and-modular-stacks`. Prompts históricos em [prompts-seguranca-e-estrutura.md](../prompts-seguranca-e-estrutura.md).
 - Spotify só conecta com credenciais no `.env`
 - Site público depende de Vercel (front) e Render/Railway (API)

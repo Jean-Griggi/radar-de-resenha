@@ -12,16 +12,18 @@ O **Resenhômetro** é uma rede social de rolês e memórias. Dá para criar per
 
 Repositório: https://github.com/Jean-Griggi/radar-de-resenha
 
-A única branch é a **`main`**.
+A branch estável é a **`main`**. Trabalho maior entra por PR.
 
 ---
 
 ## Stack
 
-**Front:** Next.js, React, TypeScript, Tailwind CSS, Axios  
-**Back:** Fastify, TypeScript, JWT, bcrypt, Zod  
+**Front:** Next.js, React, TypeScript, Tailwind CSS, Axios (`withCredentials`)  
+**Back:** Fastify, TypeScript, cookie httpOnly + JWT, bcrypt, Zod  
 **Banco:** PGlite no disco (padrão) ou PostgreSQL  
 **Repo:** GitHub, pnpm, Turbo
+
+Sessão: cookie `resenhometro_session` no domínio da API. O web **não** guarda JWT no `localStorage`. Senha mínima **8** no cadastro.
 
 Mobile e desktop estão reservados — não mexer.
 
@@ -31,13 +33,14 @@ Mobile e desktop estão reservados — não mexer.
 
 ```
 radar-de-resenha/
-├── apps/api/        Backend
-├── apps/web/        Frontend
-├── packages/shared/ Tipos e constantes
+├── apps/api/src/modules/   Backend por domínio (auth, roles, social, …)
+├── apps/web/src/features/  Telas por domínio
+├── apps/web/src/app/       Páginas finas do Next
+├── packages/shared/        Tipos (PublicUser sem e-mail)
 ├── packages/ui/
 ├── packages/config/
 ├── docs/
-└── docker-compose.yml   (PostgreSQL opcional)
+└── docker-compose.yml      (PostgreSQL opcional)
 ```
 
 ---
@@ -97,7 +100,9 @@ pnpm --filter @resenhometro/web dev
 
 Teste: `GET http://localhost:3333/health` → `{"status":"ok"}`.
 
-Depois cadastre uma conta no navegador.
+Depois cadastre uma conta no navegador (senha com **pelo menos 8** caracteres). O login grava o cookie `resenhometro_session` em `localhost:3333`.
+
+Reset do banco **local** (não usa em produção): `pnpm --filter @resenhometro/api db:reset`.
 
 ### Comandos
 
@@ -114,7 +119,8 @@ Depois cadastre uma conta no navegador.
 | Problema | Solução |
 |----------|---------|
 | `pnpm` não encontrado | `npm install -g pnpm` |
-| Login antigo falha | Banco local vazio — cadastre de novo |
+| Login antigo falha | Banco local vazio — cadastre de novo (senha ≥ 8) |
+| Cookie de sessão não aparece | `WEB_ORIGIN` tem que ser `http://localhost:3000` |
 | Porta em uso | Feche o processo |
 
 ---
@@ -131,7 +137,7 @@ git pull
 git push
 ```
 
-Trabalhamos na **`main`**. Puxe antes de começar (`git pull`) e empurre quando terminar (`git push`).
+Trabalhamos na **`main`**. Puxe antes de começar (`git pull`) e empurre quando terminar (`git push`). Trabalho maior (segurança, pastas) entra por PR, não commit direto na `main`.
 
 ### Commits (Conventional Commits)
 
@@ -144,7 +150,7 @@ Trabalhamos na **`main`**. Puxe antes de começar (`git pull`) e empurre quando 
 | `test:` | Testes |
 | `chore:` | Manutenção |
 
-Exemplos: `feat: cria filtro de rolês` · `fix: corrige JWT` · `docs: atualiza README`
+Exemplos: `feat: cria filtro de rolês` · `fix: corrige cookie de sessão` · `docs: atualiza README`
 
 ---
 

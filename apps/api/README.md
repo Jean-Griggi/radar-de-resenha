@@ -60,14 +60,30 @@ Aí defina `DATABASE_URL=postgres://resenhometro:resenhometro@localhost:5432/res
 
 ## Padrão de código
 
-`routes` → `service` → banco (`src/db`) / arquivos (`src/lib/storage.ts`)
+Cada domínio vive em `src/modules/<domínio>/`: `routes` → `service` → banco (`src/db`) / arquivos (`src/lib/storage.ts`). O Zod do módulo fica no `*.schema.ts` dele.
+
+| Módulo | Responsabilidade |
+| ------ | ---------------- |
+| `auth` | login, cadastro, logout, `/auth/me`, senha |
+| `users` | perfil, avatar/capa, amigos, follow |
+| `roles` | rolês e presença |
+| `social` | feed, posts, comments, reactions |
+| `search` | `/search` e `/explore` |
+| `notifications` | in-app |
+| `stats` | `/calendar`, `/stats`, `/year-review` |
+| `reviews` | resenhas |
+| `media` | fotos, álbuns, áudios |
+| `stories` | stories 24h |
+| `music` | Spotify |
+| `storage` | upload assinado |
+
+`GET /me` e `PUT /auth/me` não existem mais (404). Sessão: `/auth/me`. Perfil: `/users/me`.
 
 ## Rotas principais
 
 - `GET /health`
 - `POST /auth/register` `POST /auth/login` `POST /auth/logout` `GET /auth/me` `PUT /auth/password`
 - `GET /users/:username` `PUT /users/me` `POST|DELETE /users/me/avatar` `POST|DELETE /users/me/cover`
-- `GET /me` e `PUT /auth/me` não existem mais (404). Sessão: `/auth/me`. Perfil: `/users/me`.
 - `GET /feed` `GET /explore` `GET /search`
 - `GET|POST /roles` `GET|PUT|PATCH|DELETE /roles/:id`
 - `POST /roles/:id/attendance` `POST /roles/:id/comments` `POST /roles/:id/music`

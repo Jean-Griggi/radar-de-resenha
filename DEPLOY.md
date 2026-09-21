@@ -50,18 +50,23 @@ Suba este repositório para o GitHub (sem `.env` com segredos).
 4. Env var: `NEXT_PUBLIC_API_URL` = URL da API (passo 3).
 5. Deploy.
 
-## 5. Fechar o ciclo (CORS)
+## 5. Fechar o ciclo (CORS + cookie)
 
-No projeto da **API**, atualize `WEB_ORIGIN` e `CORS_ORIGINS` com a URL final do web (`https://....vercel.app`) e faça Redeploy. Sem isso o navegador bloqueia as chamadas.
+O login **não** guarda JWT no `localStorage`. A API seta o cookie httpOnly `resenhometro_session` (Secure em produção, SameSite=Lax, path `/`, 7 dias) no **domínio da API**. O web manda esse cookie porque o Axios usa `withCredentials`.
+
+Por isso o CORS da API usa `credentials: true` e origem **explícita** — `WEB_ORIGIN` e `CORS_ORIGINS` têm que ser a URL **exata** do front (`https://....vercel.app`). Wildcard (`*` ou `*.vercel.app`) **não** funciona com cookie.
+
+No projeto da **API**, atualize `WEB_ORIGIN` e `CORS_ORIGINS` com a URL final do web e faça Redeploy. Sem isso o navegador bloqueia as chamadas **e** não envia o cookie.
 
 Ordem típica: API (com placeholder de CORS) → Web → API de novo com a URL real do web.
 
 ## Checklist rápido
 
 - [ ] `/health` responde `{"status":"ok"}`
-- [ ] Login / cadastro no site
+- [ ] Cadastro com senha ≥ 8 / login no site
+- [ ] DevTools → Application: cookie `resenhometro_session` no domínio da API; **nenhum** `resenhometro_token` no `localStorage`
 - [ ] Upload de avatar (arquivo vai para o Storage do Supabase)
-- [ ] CORS sem erro no DevTools
+- [ ] CORS sem erro no DevTools (e `Access-Control-Allow-Credentials: true`)
 
 ## Observações
 
