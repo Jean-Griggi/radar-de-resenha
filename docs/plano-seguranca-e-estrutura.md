@@ -313,10 +313,10 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Criar `apps/web/src/features/auth/` (login, cadastro, esqueci/redefinir, sessão/cliente).
-- [ ] Criar `apps/web/src/features/roles/` (lista, criar, detalhe, editar).
-- [ ] `app/login/page.tsx`, `cadastro`, `esqueci-senha`, `redefinir-senha`, `roles/*` só importam a feature e `RequireAuth` quando couber.
-- [ ] Comportamento **igual** (cookie do passo 2 já está). Sem React Query obrigatório neste passo — extrair o código que já existe.
+- [x] Criar `apps/web/src/features/auth/` (login, cadastro, esqueci/redefinir, sessão/cliente).
+- [x] Criar `apps/web/src/features/roles/` (lista, criar, detalhe, editar).
+- [x] `app/login/page.tsx`, `cadastro`, `esqueci-senha`, `redefinir-senha`, `roles/*` só importam a feature e `RequireAuth` quando couber.
+- [x] Comportamento **igual** (cookie do passo 2 já está). Sem React Query obrigatório neste passo — extrair o código que já existe.
 
 **Como validar:** fluxo login → criar rolê → abrir detalhe → editar. Visual igual.
 
@@ -426,7 +426,7 @@ Uma linha, para não achar que o plano acabou.
 | 5 | 2026-09-21 | IA (Cursor) | Zod fatiado por módulo (`auth`, `roles`, `social`, `reviews`, `media`, `stories`, `music`, `storage`, `users` para amigos). `common.schema.ts` apagado. Regras iguais ao passo 3. Sem web/cookie/SQL. |
 | 6 | 2026-09-21 | IA (Cursor) | `helpers.ts` só data/SQL. `mapUser`/`getUserRow` em `users.map`; `notify` em notifications; feed/reações em social; achievements em users. `GET /me` e `PUT /auth/me` removidos (404). Avatar/capa em `users.routes`. Web já usava URLs canônicas. |
 | 7 | 2026-09-21 | IA (Cursor) | Chat mock fora do AppShell (arquivos mantidos, não renderizados). Links só `/roles/new`; `/roles/novo` continua redirect. Visual Redesenha intacto. Sem `features/`. |
-| 8 | | | |
+| 8 | 2026-09-21 | IA (Cursor) | Pages de auth e roles viraram compostores finos. Telas em `features/auth` e `features/roles`. Sessão em `features/auth/session.ts`; `lib/auth.ts` reexporta. Sem migrar feed/amigos/fotos. Sem React Query. |
 | 9 | | | |
 | 10 | | | |
 | 11 | | | wipe local apenas, salvo autorização de prod |
