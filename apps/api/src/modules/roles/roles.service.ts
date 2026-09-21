@@ -17,7 +17,7 @@ import {
 } from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
-import type { CreateRoleInput, UpdateRoleInput } from '../common.schema.js';
+import type { CreateRoleInput, UpdateRoleInput } from './roles.schema.js';
 
 export type RoleRow = {
   id: string;

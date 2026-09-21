@@ -13,7 +13,7 @@ import {
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
 import { nestComments } from '../roles/roles.service.js';
-import type { ReviewInput } from '../common.schema.js';
+import type { ReviewInput } from './reviews.schema.js';
 
 export type ReviewRow = {
   id: string;

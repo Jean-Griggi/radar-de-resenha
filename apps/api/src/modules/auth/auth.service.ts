@@ -6,7 +6,7 @@ import { evaluateAchievements, getUserRow, mapUser, nowIso, uniqueUsername } fro
 import { badRequest, conflict, notFound, unauthorized } from '../../lib/http.js';
 import { mailConfigured, passwordResetEmail, sendMail } from '../../lib/mail.js';
 import type { ChangePasswordInput } from './auth.types.js';
-import type { LoginInput, RegisterInput, UpdateMeInput } from '../common.schema.js';
+import type { LoginInput, RegisterInput, UpdateMeInput } from './auth.schema.js';
 
 export async function registerUser(input: RegisterInput) {
   const existingEmail = await queryOne(`SELECT id FROM users WHERE email = $1`, [input.email.toLowerCase()]);

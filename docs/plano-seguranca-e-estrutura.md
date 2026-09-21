@@ -252,9 +252,9 @@ Uma linha, para não achar que o plano acabou.
 
 **O que fazer:**
 
-- [ ] Quebrar `modules/common.schema.ts` em `auth.schema.ts`, `roles.schema.ts`, `social.schema.ts`, `reviews.schema.ts`, `media.schema.ts`, `stories.schema.ts`, `music.schema.ts`, `storage.schema.ts` (só o que cada um usa).
-- [ ] Apagar ou deixar `common.schema.ts` só com pedaços realmente cruzados (ex. uuid). Sem god-file.
-- [ ] Imports das rotas atualizados. Sem mudança de regra de validação, **exceto** o que o passo 3 já definiu.
+- [x] Quebrar `modules/common.schema.ts` em `auth.schema.ts`, `roles.schema.ts`, `social.schema.ts`, `reviews.schema.ts`, `media.schema.ts`, `stories.schema.ts`, `music.schema.ts`, `storage.schema.ts` (só o que cada um usa).
+- [x] Apagar ou deixar `common.schema.ts` só com pedaços realmente cruzados (ex. uuid). Sem god-file.
+- [x] Imports das rotas atualizados. Sem mudança de regra de validação, **exceto** o que o passo 3 já definiu.
 
 **Como validar:** typecheck da API; testes; um POST `/roles` inválido ainda dá 400.
 
@@ -423,7 +423,7 @@ Uma linha, para não achar que o plano acabou.
 | 2 | 2026-09-21 | IA (Cursor) | Cookie `resenhometro_session` httpOnly, JWT `expiresIn` 7d. Logout limpa cookie. Web parou de gravar JWT no localStorage; Axios `withCredentials`. CORS `credentials: true`. Bearer só para testes. Sem fatiar módulos, sem `is_public`, banco intocado. |
 | 3 | 2026-09-21 | IA (Cursor) | E-mail só em `/auth/me` (e update/login/register do próprio). `is_public=false`: conteúdo só dono, amigo aceito ou quem segue; estranho vê payload reduzido. Senha min 8 no cadastro/reset/troca; login ainda aceita hash antigo (≥6). Sem cookie de novo, sem fatiar pastas. |
 | 4 | 2026-09-21 | IA (Cursor) | Search só `/search` e `/explore`. Feed/posts/comments/reactions em `social.routes.ts`. Notifications extraídas para módulo próprio. Calendar/stats/year-review em `stats.routes.ts`. HTTP igual; `common.schema.ts` intocado. |
-| 5 | | | |
+| 5 | 2026-09-21 | IA (Cursor) | Zod fatiado por módulo (`auth`, `roles`, `social`, `reviews`, `media`, `stories`, `music`, `storage`, `users` para amigos). `common.schema.ts` apagado. Regras iguais ao passo 3. Sem web/cookie/SQL. |
 | 6 | | | |
 | 7 | | | |
 | 8 | | | |

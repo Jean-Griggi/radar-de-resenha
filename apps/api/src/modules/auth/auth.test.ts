@@ -127,6 +127,16 @@ describe('Resenhômetro API', () => {
     expect(res.statusCode).toBe(401);
   });
 
+  it('rejects invalid role payload', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/roles',
+      headers: await authHeaders(),
+      payload: { title: 'ab' },
+    });
+    expect(res.statusCode).toBe(400);
+  });
+
   it('create, edit, attendance, comment, delete role', async () => {
     const created = await app.inject({
       method: 'POST',

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
-import { commentQuerySchema, commentSchema, createTargetCommentSchema, postSchema, reactionSchema } from '../common.schema.js';
+import { commentQuerySchema, commentSchema, createTargetCommentSchema, postSchema, reactionSchema } from './social.schema.js';
 import { nestComments } from '../roles/roles.service.js';
 import {
   addComment,

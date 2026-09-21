@@ -11,7 +11,7 @@ import {
   respondFriend,
   unfollowUser,
 } from '../social/social.service.js';
-import { friendRequestSchema, respondFriendSchema } from '../common.schema.js';
+import { friendRequestSchema, respondFriendSchema } from './users.schema.js';
 import { getUserById, getUserByUsername, listFollowers, listFollowing, listFriends, suggestions, userContent } from './users.service.js';
 
 export async function usersRoutes(app: FastifyInstance) {

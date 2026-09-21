@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
 import { takeUpload } from '../../lib/storage.js';
-import { storyReplySchema } from '../common.schema.js';
+import { storyReplySchema } from './stories.schema.js';
 import {
   createStory,
   deleteStory,

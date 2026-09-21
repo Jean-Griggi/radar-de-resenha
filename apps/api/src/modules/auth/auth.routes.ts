@@ -3,7 +3,7 @@ import { authenticate } from '../../lib/authenticate.js';
 import { consumeAuthIpLimit, consumeForgotEmailLimit } from '../../lib/auth-rate-limit.js';
 import { clearSessionCookie, setSessionCookie } from '../../lib/session.js';
 import { takeUpload } from '../../lib/storage.js';
-import { changePasswordSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, updateMeSchema } from '../common.schema.js';
+import { changePasswordSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, updateMeSchema } from './auth.schema.js';
 import { changePassword, getMe, loginUser, registerUser, requestPasswordReset, resetPassword, setUserMedia, updateMe } from './auth.service.js';
 
 function issueSession(
