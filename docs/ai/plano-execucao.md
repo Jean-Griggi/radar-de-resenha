@@ -14,6 +14,7 @@ Este arquivo é o guia de trabalho **depois** da implementação da rede social 
 8. Não publique deploy sozinha. Código já está no GitHub; hospedagem (Vercel + Render/Railway) só com conta e variáveis.
 9. Idioma com a equipe: português, direto.
 10. Auth: cookie httpOnly `resenhometro_session` (7 dias). Web **não** grava JWT no `localStorage`. Axios `withCredentials`. CORS com origem explícita (`WEB_ORIGIN` / `CORS_ORIGINS`) e `credentials: true`. Não zerar Supabase de produção sem pedido explícito (`pode zerar o Supabase também`).
+11. Segurança entra em toda spec, plano e fatia. Sem a seção Segurança, a spec volta para a `sdd-specify`. A fatia não fecha se o critério de segurança que ela toca não passou.
 
 ## Onde mexer
 

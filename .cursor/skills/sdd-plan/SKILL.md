@@ -19,9 +19,9 @@ Lê a spec que a `sdd-specify` gravou e produz o plano executável. Não altera 
 
 ## Porta
 
-A spec precisa ter Problema, Comportamento, Fora de escopo e Critério de pronto. Contrato se houver API.
+A spec precisa ter Problema, Comportamento, Segurança, Fora de escopo e Critério de pronto. Contrato se houver API.
 
-Se faltar seção ou o critério não for observável, pare. Liste o que falta e devolva para a `sdd-specify`. Não complete a spec por conta própria e não escreva o plano em cima de buraco.
+Se faltar seção, o critério não for observável, ou Segurança não disser o que não vaza e quem não autentica, pare. Liste o que falta e devolva para a `sdd-specify`. Não complete a spec por conta própria e não escreva o plano em cima de buraco.
 
 ## Plano
 
@@ -32,8 +32,8 @@ Regras das fatias:
 - Ordem obrigatória. Dependência antes (dados, depois API, depois UI).
 - Uma fatia cabe num PR.
 - Cada fatia tem o que fazer, o que não fazer e como validar.
-- "Como validar" sai do critério de pronto da spec. Inclua o orçamento se a spec tiver.
-- "O que não fazer" repete o fora de escopo que essa fatia poderia invadir.
+- "Como validar" sai do critério de pronto da spec e da seção Segurança no que a fatia toca. Inclua o orçamento se a spec tiver.
+- "O que não fazer" repete o fora de escopo que essa fatia poderia invadir e o vazamento que a Segurança proíbe.
 - Arquivos prováveis são pista, não licença para mexer em outro módulo.
 
 ## Template
