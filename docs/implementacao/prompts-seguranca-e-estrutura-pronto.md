@@ -1,9 +1,11 @@
 # Prompts — segurança e estrutura
 
+> **Pronto.** Arquivo histórico. Os passos já foram executados.
+
 Cole **um** bloco no chat do Cursor (modo **Agent**). A IA lê o plano, executa **só aquele passo**, commita, explica para você aprender e anuncia o próximo.
 
-Plano: [plano-seguranca-e-estrutura.md](plano-seguranca-e-estrutura.md)  
-Regras: [ai/plano-execucao.md](ai/plano-execucao.md)
+Plano: [plano-seguranca-e-estrutura-pronto.md](plano-seguranca-e-estrutura-pronto.md)  
+Regras: [plano-execucao.md](../ai/plano-execucao.md)
 
 Não cole dois passos de uma vez. Branch: `chore/security-and-modular-stacks`. Sem merge na `main`. Sem deploy sozinho. Sem zerar Supabase de produção, a menos que você escreva `pode zerar o Supabase também`.
 
@@ -24,7 +26,7 @@ Ordem: **0 → 12**. Não pular 1–3.
 ## Prompt genérico (troque o N)
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md, docs/prompts-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md, docs/implementacao/prompts-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo N do plano de segurança e estrutura.
 - Branch: chore/security-and-modular-stacks (não trabalhe na main; não crie outra branch).
@@ -50,7 +52,7 @@ Substitua `N` por `0` … `12`.
 ## Passo 0 — Baseline
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md, docs/prompts-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md, docs/implementacao/prompts-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 0 — Baseline.
 - Confirme que estamos na branch chore/security-and-modular-stacks.
@@ -66,7 +68,7 @@ Próximo: Passo 1 — Perímetro da API.
 ## Passo 1 — Perímetro da API
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 1 — Perímetro da API.
 - JWT_SECRET sem default fraco em produção; CORS allowlist (sem *.vercel.app); rate limit em login/register/forgot; resetUrl só fora de produção; Helmet básico; sem logar token/resetUrl em prod.
@@ -81,7 +83,7 @@ Próximo: Passo 2 — Sessão em cookie.
 ## Passo 2 — Sessão em cookie
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 2 — Sessão em cookie.
 - Cookie httpOnly + expiresIn; logout limpa cookie; Axios withCredentials; web para de guardar JWT no localStorage; CORS credentials.
@@ -96,7 +98,7 @@ Próximo: Passo 3 — Privacidade.
 ## Passo 3 — Privacidade
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 3 — Privacidade.
 - E-mail só em /auth/me; honrar is_public; senha mínima 8; testes.
@@ -111,7 +113,7 @@ Próximo: Passo 4 — Fatiar rotas da API.
 ## Passo 4 — Fatiar rotas da API
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 4 — Fatiar rotas da API.
 - search só /search e /explore; social, notifications e stats/calendar com as próprias rotas. HTTP igual.
@@ -126,7 +128,7 @@ Próximo: Passo 5 — Schemas por módulo.
 ## Passo 5 — Schemas por módulo
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 5 — Schemas por módulo.
 - Zod por domínio; sem god-file common.schema. Sem mudar regra além do passo 3.
@@ -140,7 +142,7 @@ Próximo: Passo 6 — Helpers e rotas canônicas.
 ## Passo 6 — Helpers e rotas canônicas
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 6 — Helpers e rotas canônicas.
 - helpers.ts só data/SQL helpers; notify/mapUser no módulo dono; uma URL por recurso; remover GET /me gêmeo; avatar/capa em users.
@@ -155,7 +157,7 @@ Próximo: Passo 7 — Chrome do web.
 ## Passo 7 — Chrome do web
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 7 — Chrome do web.
 - Chat mock fora do AppShell; links só /roles/new. Sem mudar o visual Redesenha. Sem features/ ainda.
@@ -169,7 +171,7 @@ Próximo: Passo 8 — features/auth e features/roles.
 ## Passo 8 — features/auth e features/roles
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 8 — features/auth e features/roles.
 - Pages finas; extrair código existente. Sem mudar comportamento. Sem migrar o resto das telas.
@@ -183,7 +185,7 @@ Próximo: Passo 9 — Resto das features.
 ## Passo 9 — Resto das features
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 9 — Resto das features.
 - Extrair social, users, media, stories, reviews, search, notifications, stats, music, settings. Sem feature nova. Sem chat realtime.
@@ -197,7 +199,7 @@ Próximo: Passo 10 — Contrato shared.
 ## Passo 10 — Contrato shared
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 10 — Contrato shared.
 - Tipos públicos sem e-mail obrigatório; shared sem React/SQL. Typecheck verde.
@@ -211,7 +213,7 @@ Próximo: Passo 11 — Reset do banco local.
 ## Passo 11 — Reset do banco local
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 11 — Reset do banco local.
 - Zerar PGlite e uploads em apps/api/data/. Se houver Postgres Docker local, zerar também.
@@ -228,7 +230,7 @@ Próximo: Passo 12 — Docs e fechamento.
 ## Passo 12 — Docs e fechamento
 
 ```
-Leia docs/plano-seguranca-e-estrutura.md e docs/ai/plano-execucao.md.
+Leia docs/implementacao/plano-seguranca-e-estrutura-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 12 — Docs e fechamento.
 - Atualize README, DEPLOY, guia da API/web e plano-execucao para cookie, módulos e features/.

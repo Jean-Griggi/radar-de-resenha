@@ -1,12 +1,14 @@
 # Plano — Segurança e estrutura (monólito modular por stacks)
 
+> **Pronto.** Passos 0–12 encerrados. Não reabrir passo a passo.
+
 Guia para endurecer a sessão, fechar o perímetro da API, reorganizar pastas/código e, no fim, zerar o banco **local**.
 
 Arquitetura travada: **2 stacks** (`apps/web`, `apps/api`) + `packages/shared` + 1 Postgres. Sem microserviço, sem Nest, sem Clerk, sem GraphQL.
 
 Branch deste plano: **`chore/security-and-modular-stacks`**. **Plano encerrado** (passos 0–12). Entra na `main` via PR.
 
-Prompts prontos: [prompts-seguranca-e-estrutura.md](prompts-seguranca-e-estrutura.md).
+Prompts prontos: [prompts-seguranca-e-estrutura-pronto.md](prompts-seguranca-e-estrutura-pronto.md).
 
 ---
 
@@ -14,7 +16,7 @@ Prompts prontos: [prompts-seguranca-e-estrutura.md](prompts-seguranca-e-estrutur
 
 1. Estar na branch `chore/security-and-modular-stacks` (já criada). Não trabalhar na `main`.
 2. Abrir o passo ainda `[ ]`.
-3. Copiar o prompt desse passo em [prompts-seguranca-e-estrutura.md](prompts-seguranca-e-estrutura.md) e colar no chat (modo Agent).
+3. Copiar o prompt desse passo em [prompts-seguranca-e-estrutura-pronto.md](prompts-seguranca-e-estrutura-pronto.md) e colar no chat (modo Agent).
 4. A IA implementa **só** aquele passo.
 5. Você valida a seção **Como validar**.
 6. Marcar o passo (`[x]`) e ir ao próximo.
@@ -24,7 +26,7 @@ Status: `[ ]` pendente · `[~]` em andamento · `[x]` feito
 Atalho:
 
 ```
-Execute o passo N de docs/plano-seguranca-e-estrutura.md. Só esse passo. Siga o prompt em docs/prompts-seguranca-e-estrutura.md.
+Execute o passo N de docs/implementacao/plano-seguranca-e-estrutura-pronto.md. Só esse passo. Siga o prompt em docs/implementacao/prompts-seguranca-e-estrutura-pronto.md.
 ```
 
 Ordem obrigatória: **0 → 12**. Não pular 1–3 (segurança) para ir direto às pastas. Senão a auth é refatorada duas vezes.
@@ -400,8 +402,8 @@ Uma linha, para não achar que o plano acabou.
 **O que fazer:**
 
 - [x] Marcar todos os passos `[x]` (os que realmente rodaram).
-- [x] Atualizar [ai/plano-execucao.md](ai/plano-execucao.md): sessão em cookie, módulos por domínio, `features/` no web, reset local, branch deste trabalho.
-- [x] Atualizar [README.md](README.md) desta pasta, READMEs de `apps/api` e `apps/web` se URLs/auth mudaram.
+- [x] Atualizar [plano-execucao.md](../ai/plano-execucao.md): sessão em cookie, módulos por domínio, `features/` no web, reset local, branch deste trabalho.
+- [x] Atualizar [README.md](../README.md) desta pasta, READMEs de `apps/api` e `apps/web` se URLs/auth mudaram.
 - [x] `DEPLOY.md`: cookie + `WEB_ORIGIN` + CORS credentials, se ainda falar só em JWT no front.
 - [x] Tabela de registro completa.
 

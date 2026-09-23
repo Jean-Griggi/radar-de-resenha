@@ -1,5 +1,7 @@
 # Plano de execução — identidade visual Redesenha
 
+> **Pronto.** Etapas 1–14 executadas. Não reabrir.
+
 Documento para executar a migração. Não altera regras de negócio. Escopo: **somente `apps/web`**.
 
 **Fonte da verdade:** [Redesenha_Design_System_v1.pdf](Redesenha_Design_System_v1.pdf) (v1.0, 22 páginas). Em conflito com briefing anterior ou com este plano, **vale o PDF**.

@@ -1,5 +1,7 @@
 # Plano de correção — bugs em produção
 
+> **Pronto.** Passos 0–9 encerrados. Não reabrir passo a passo.
+
 Guia para arrumar o Resenhômetro **depois do lançamento**. Stories (estilo Instagram) ficam no final, **só depois** destes passos.
 
 Como vamos trabalhar: um passo de cada vez. Cada passo tem causa, arquivos, o que mudar e como validar. Não misturar escopo. Mobile, desktop, chat e pagamentos continuam fora.
@@ -9,7 +11,7 @@ Como vamos trabalhar: um passo de cada vez. Cada passo tem causa, arquivos, o qu
 ## Como usar este documento
 
 1. Abrir o passo atual.
-2. Copiar o prompt desse passo em [prompts-correcao.md](prompts-correcao.md) e colar no chat (modo Agent).
+2. Copiar o prompt desse passo em [prompts-correcao-pronto.md](prompts-correcao-pronto.md) e colar no chat (modo Agent).
 3. A IA implementa **só** aquele passo.
 4. Validar com a seção **Como validar**.
 5. Marcar o passo (`[x]`) e ir para o próximo.
@@ -19,7 +21,7 @@ Status: `[ ]` pendente · `[~]` em andamento · `[x]` feito
 Atalho:
 
 ```
-Execute o passo N de docs/plano-correcao.md. Só esse passo. Siga o prompt em docs/prompts-correcao.md.
+Execute o passo N de docs/correcao/plano-correcao-pronto.md. Só esse passo. Siga o prompt em docs/correcao/prompts-correcao-pronto.md.
 ```
 
 ---
@@ -386,7 +388,7 @@ Não pular 1–2. Sem isso, 3–8 continuam “às vezes falha” em produção.
 
 ## Depois dos bugs — Stories
 
-Implementado em [plano-stories.md](plano-stories.md): 24h, amigos, upload `kind=story`, barra no home, viewer, reply e quem viu.
+Implementado em [plano-stories-pronto.md](../stories/plano-stories-pronto.md): 24h, amigos, upload `kind=story`, barra no home, viewer, reply e quem viu.
 
 ---
 
@@ -441,4 +443,4 @@ apps/api/src/modules/stories/             stories
 | 7 | 2026-08-27 | agente | cache 60s no rail (calendar/suggestions); spotify/status só se conectado (flag); unread no foco + 2min; feDropShadow só desktop sem reduced-motion |
 | 8 | 2026-08-28 | agente | searchAll tags com ILIKE+limit; explore/listReviews card leve (sem comments/fotos/áudios); userContent LIMIT 20 + serializeRoles; GET comments/attendance sem serializeRoleDetail |
 | 9 | 2026-08-28 | agente | ErrorBoundary no shell + por card do feed; MediaImage lazy; links só /roles/new; Reactions catch+toast; settings/calendar/notifications/music com loading/error. |
-| Stories | 2026-08-28 | agente | 24h, amigos, barra no feed, viewer, reply, quem viu. Ver docs/plano-stories.md. |
+| Stories | 2026-08-28 | agente | 24h, amigos, barra no feed, viewer, reply, quem viu. Ver docs/stories/plano-stories-pronto.md. |

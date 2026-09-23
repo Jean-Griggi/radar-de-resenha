@@ -1,6 +1,8 @@
 # Plano — Stories (estilo Instagram)
 
-Feature pedida depois dos bugs de produção. Passos 0–9 de [plano-correcao.md](plano-correcao.md) estão `[x]`.
+> **Pronto.** v1 no ar (24h, amigos, barra, viewer, reply, quem viu). Não reabrir.
+
+Feature pedida depois dos bugs de produção. Passos 0–9 de [plano-correcao-pronto.md](../correcao/plano-correcao-pronto.md) estão `[x]`.
 
 Escopo: **web + API**. Sem mobile/desktop.
 

@@ -51,8 +51,19 @@ Login no navegador: senha ≥ 8. Cookie `resenhometro_session` no domínio da AP
 - Mídia: `apps/api/data/uploads`
 - Reset **só local**: `pnpm --filter @resenhometro/api db:reset` (não toca Supabase)
 
+## Onde estão os planos
+
+Índice: [docs/README.md](../README.md). Arquivo com `-pronto` está encerrado.
+
+- Correção 0–9: [plano-correcao-pronto.md](../correcao/plano-correcao-pronto.md)
+- Segurança e estrutura 0–12: [plano-seguranca-e-estrutura-pronto.md](../implementacao/plano-seguranca-e-estrutura-pronto.md) (branch `chore/security-and-modular-stacks`)
+- Stories v1: [plano-stories-pronto.md](../stories/plano-stories-pronto.md)
+- Identidade visual: [plano-migracao-identidade-visual-pronto.md](../front/plano-migracao-identidade-visual-pronto.md)
+
+Spec nova: `docs/front`, `docs/back`, `docs/stories`, `docs/correcao` ou `docs/implementacao`. Fluxo: `sdd-specify` → `sdd-plan` → `sdd-execute`. Uma fatia por vez.
+
 ## Pendências reais
 
-- Plano de [segurança e estrutura](../plano-seguranca-e-estrutura.md): **encerrado** (0–12). PR da branch `chore/security-and-modular-stacks`. Prompts históricos em [prompts-seguranca-e-estrutura.md](../prompts-seguranca-e-estrutura.md).
+- Plano de segurança e estrutura: **encerrado** (0–12). Entra na `main` só via PR. Não reabrir.
 - Spotify só conecta com credenciais no `.env`
 - Site público depende de Vercel (front) e Render/Railway (API)

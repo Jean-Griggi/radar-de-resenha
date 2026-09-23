@@ -1,17 +1,19 @@
 # Prompts — executar um passo da correção
 
+> **Pronto.** Arquivo histórico. Os passos já foram executados.
+
 Cole **um** destes blocos no chat do Cursor (Agent). A IA lê o plano, pega **só aquele passo** e implementa.
 
-Plano completo: [plano-correcao.md](plano-correcao.md)  
-Regras gerais da IA: [ai/plano-execucao.md](ai/plano-execucao.md)
+Plano completo: [plano-correcao-pronto.md](plano-correcao-pronto.md)  
+Regras gerais da IA: [plano-execucao.md](../ai/plano-execucao.md)
 
-Não cole dois passos de uma vez. Stories: [plano-stories.md](plano-stories.md).
+Não cole dois passos de uma vez. Stories: [plano-stories-pronto.md](../stories/plano-stories-pronto.md).
 
 ---
 
 ## Como usar
 
-1. Abra [plano-correcao.md](plano-correcao.md) e veja o próximo passo ainda `[ ]`.
+1. Abra [plano-correcao-pronto.md](plano-correcao-pronto.md) e veja o próximo passo ainda `[ ]`.
 2. Copie o prompt correspondente abaixo (ou o genérico, trocando o número).
 3. Cole no chat em modo Agent.
 4. Quando terminar, a IA deve marcar o passo `[x]` no plano e no registro de execução.
@@ -26,14 +28,14 @@ Ordem obrigatória: **0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9**.
 Use quando quiser só dizer o número.
 
 ```
-Leia docs/plano-correcao.md e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo N do plano de correção.
 - Siga à risca as seções "O que fazer", "Como validar" e "Não fazer" desse passo.
 - Não implemente outro passo, nem stories, nem mobile/desktop.
 - Não invente escopo. Não reescreva visual/temas.
 - Idioma: português, direto.
-- Ao terminar: marque o passo como [x] em docs/plano-correcao.md, preencha a tabela "Registro de execução", e diga o que mudou + como eu valido.
+- Ao terminar: marque o passo como [x] em docs/correcao/plano-correcao-pronto.md, preencha a tabela "Registro de execução", e diga o que mudou + como eu valido.
 ```
 
 Substitua `N` por `0`, `1`, `2`, … `9`.
@@ -41,7 +43,7 @@ Substitua `N` por `0`, `1`, `2`, … `9`.
 Atalho ainda menor, se o chat já conhece o plano:
 
 ```
-Execute o passo N de docs/plano-correcao.md. Só esse passo. Siga o prompt em docs/prompts-correcao.md.
+Execute o passo N de docs/correcao/plano-correcao-pronto.md. Só esse passo. Siga o prompt em docs/correcao/prompts-correcao-pronto.md.
 ```
 
 ---
@@ -49,7 +51,7 @@ Execute o passo N de docs/plano-correcao.md. Só esse passo. Siga o prompt em do
 ## Passo 0 — Baseline (humano; a IA só orienta)
 
 ```
-Leia docs/plano-correcao.md (Passo 0) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 0) e docs/ai/plano-execucao.md.
 
 Não altere código. Me oriente a reproduzir os bugs em produção (Network, Console, amigos, filtros de rolê, upload de foto).
 
@@ -63,7 +65,7 @@ Não implemente os passos 1–9.
 ## Passo 1 — Infra da API
 
 ```
-Leia docs/plano-correcao.md (Passo 1) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 1) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 1 — Infra da API.
 
@@ -74,7 +76,7 @@ O que fazer:
 
 NÃO reescrever serializeRole, feed, amigos, fotos nem o front.
 
-Ao terminar: marcar Passo 1 como [x] em docs/plano-correcao.md, preencher o registro, listar arquivos e como validar (/health, cold start).
+Ao terminar: marcar Passo 1 como [x] em docs/correcao/plano-correcao-pronto.md, preencher o registro, listar arquivos e como validar (/health, cold start).
 ```
 
 ---
@@ -82,7 +84,7 @@ Ao terminar: marcar Passo 1 como [x] em docs/plano-correcao.md, preencher o regi
 ## Passo 2 — N+1 de rolês e feed
 
 ```
-Leia docs/plano-correcao.md (Passo 2) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 2) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 2 — matar N+1 de rolês e feed.
 
@@ -101,7 +103,7 @@ Ao terminar: marcar Passo 2 como [x], preencher o registro, dizer como validar (
 ## Passo 3 — Amigos
 
 ```
-Leia docs/plano-correcao.md (Passo 3) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 3) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 3 — amigos (API + UI).
 
@@ -128,7 +130,7 @@ Ao terminar: marcar Passo 3 como [x], preencher o registro, listar o fluxo de te
 ## Passo 4 — Timezone e filtros de rolê
 
 ```
-Leia docs/plano-correcao.md (Passo 4) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 4) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 4 — timezone e filtros de rolê.
 
@@ -147,7 +149,7 @@ Ao terminar: marcar Passo 4 como [x], preencher o registro, dizer como validar (
 ## Passo 5 — Fotos e avatars
 
 ```
-Leia docs/plano-correcao.md (Passo 5) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 5) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 5 — fotos e avatars.
 
@@ -171,7 +173,7 @@ Ao terminar: marcar Passo 5 como [x], preencher o registro, dizer como validar (
 ## Passo 6 — Front: erros, corridas, loading
 
 ```
-Leia docs/plano-correcao.md (Passo 6) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 6) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 6 — front (erros, corridas, loading).
 
@@ -189,7 +191,7 @@ Ao terminar: marcar Passo 6 como [x], preencher o registro, dizer como validar (
 ## Passo 7 — Enxugar o AppShell
 
 ```
-Leia docs/plano-correcao.md (Passo 7) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 7) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 7 — enxugar o AppShell.
 
@@ -208,7 +210,7 @@ Ao terminar: marcar Passo 7 como [x], preencher o registro, dizer como validar (
 ## Passo 8 — Busca, explorar, conteúdo do perfil
 
 ```
-Leia docs/plano-correcao.md (Passo 8) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 8) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 8 — busca, explorar, conteúdo do perfil.
 
@@ -228,7 +230,7 @@ Ao terminar: marcar Passo 8 como [x], preencher o registro, dizer como validar (
 ## Passo 9 — Hardening do front
 
 ```
-Leia docs/plano-correcao.md (Passo 9) e docs/ai/plano-execucao.md.
+Leia docs/correcao/plano-correcao-pronto.md (Passo 9) e docs/ai/plano-execucao.md.
 
 Execute SOMENTE o Passo 9 — hardening do front.
 
@@ -248,4 +250,4 @@ Ao terminar: marcar Passo 9 como [x], preencher o registro, confirmar que o back
 
 ## Stories
 
-A feature está desenhada e implementada em [plano-stories.md](plano-stories.md).
+A feature está desenhada e implementada em [plano-stories-pronto.md](../stories/plano-stories-pronto.md).
