@@ -46,6 +46,9 @@ export type UserProfile = PublicUser & {
   isFollowing: boolean;
   isMe: boolean;
   achievements: Achievement[];
+  /** Presentes juntas, ou ambas ausentes. Fora do perfil reduzido. */
+  latitude?: number;
+  longitude?: number;
 };
 
 export type UserStats = {

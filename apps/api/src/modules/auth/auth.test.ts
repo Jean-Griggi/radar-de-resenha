@@ -28,7 +28,9 @@ describe('Resenhômetro API', () => {
     expect(res.json().status).toBe('ok');
     expect(res.headers['x-content-type-options']).toBe('nosniff');
     expect(res.headers['x-frame-options']).toBe('DENY');
-    expect(String(res.headers['content-security-policy'] ?? '')).toContain("frame-ancestors 'none'");
+    expect(String(res.headers['content-security-policy'] ?? '')).toContain(
+      "frame-ancestors 'none'",
+    );
     expect(res.headers['strict-transport-security']).toBeUndefined();
   });
 
@@ -39,7 +41,9 @@ describe('Resenhômetro API', () => {
       headers: { origin: 'https://qualquer-coisa.vercel.app' },
     });
     expect(blocked.statusCode).toBe(200);
-    expect(blocked.headers['access-control-allow-origin']).not.toBe('https://qualquer-coisa.vercel.app');
+    expect(blocked.headers['access-control-allow-origin']).not.toBe(
+      'https://qualquer-coisa.vercel.app',
+    );
 
     const allowed = await app.inject({
       method: 'GET',
@@ -64,7 +68,9 @@ describe('Resenhômetro API', () => {
     const session = register.cookies.find((item) => item.name === 'resenhometro_session');
     expect(session?.value).toBeTruthy();
     expect(session?.httpOnly).toBe(true);
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()) as { exp?: number };
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()) as {
+      exp?: number;
+    };
     expect(payload.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
 
     const login = await app.inject({
@@ -126,13 +132,21 @@ describe('Resenhômetro API', () => {
     const twin = await app.inject({ method: 'GET', url: '/me', headers: await authHeaders() });
     expect(twin.statusCode).toBe(404);
 
-    const session = await app.inject({ method: 'GET', url: '/auth/me', headers: await authHeaders() });
+    const session = await app.inject({
+      method: 'GET',
+      url: '/auth/me',
+      headers: await authHeaders(),
+    });
     expect(session.statusCode).toBe(200);
     expect(session.json().email).toContain('@resenha.test');
   });
 
   it('rejects unauthorized role creation', async () => {
-    const res = await app.inject({ method: 'POST', url: '/roles', payload: { title: 'Sem token' } });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/roles',
+      payload: { title: 'Sem token' },
+    });
     expect(res.statusCode).toBe(401);
   });
 
@@ -236,12 +250,23 @@ describe('Resenhômetro API', () => {
       method: 'POST',
       url: '/reviews',
       headers: await authHeaders(),
-      payload: { roleId, title: 'Noite boa', content: 'Comida ok, música ótima', rating: 5, ratings: { fun: 5, music: 5 }, tags: ['sexta'] },
+      payload: {
+        roleId,
+        title: 'Noite boa',
+        content: 'Comida ok, música ótima',
+        rating: 5,
+        ratings: { fun: 5, music: 5 },
+        tags: ['sexta'],
+      },
     });
     expect(review.statusCode).toBe(201);
     const reviewId = review.json().id as string;
 
-    const listed = await app.inject({ method: 'GET', url: '/reviews', headers: await authHeaders() });
+    const listed = await app.inject({
+      method: 'GET',
+      url: '/reviews',
+      headers: await authHeaders(),
+    });
     expect(listed.statusCode).toBe(200);
     const listedItem = listed.json().find((item: { id: string }) => item.id === reviewId);
     expect(listedItem).toBeTruthy();
@@ -257,7 +282,11 @@ describe('Resenhômetro API', () => {
     expect(reviewDetail.statusCode).toBe(200);
     expect(Array.isArray(reviewDetail.json().comments)).toBe(true);
 
-    const search = await app.inject({ method: 'GET', url: '/search?q=s', headers: await authHeaders() });
+    const search = await app.inject({
+      method: 'GET',
+      url: '/search?q=s',
+      headers: await authHeaders(),
+    });
     expect(search.statusCode).toBe(200);
     expect(search.json().tags.length).toBeLessThanOrEqual(8);
     const searchReview = search.json().reviews.find((item: { id: string }) => item.id === reviewId);
@@ -266,9 +295,15 @@ describe('Resenhômetro API', () => {
       expect(searchReview.photos).toBeUndefined();
     }
 
-    const exploreRes = await app.inject({ method: 'GET', url: '/explore', headers: await authHeaders() });
+    const exploreRes = await app.inject({
+      method: 'GET',
+      url: '/explore',
+      headers: await authHeaders(),
+    });
     expect(exploreRes.statusCode).toBe(200);
-    const exploreReview = exploreRes.json().reviews.find((item: { id: string }) => item.id === reviewId);
+    const exploreReview = exploreRes
+      .json()
+      .reviews.find((item: { id: string }) => item.id === reviewId);
     if (exploreReview) {
       expect(exploreReview.comments).toBeUndefined();
       expect(exploreReview.photos).toBeUndefined();
@@ -338,10 +373,19 @@ describe('Resenhômetro API', () => {
       const res = await app.inject({
         method: 'POST',
         url: '/auth/register',
-        payload: { name, email: `${nick}${suffix}@resenha.test`, password: 'secret12', username: nick },
+        payload: {
+          name,
+          email: `${nick}${suffix}@resenha.test`,
+          password: 'secret12',
+          username: nick,
+        },
       });
       expect(res.statusCode).toBe(201);
-      return { token: res.json().token as string, id: res.json().user.id as string, username: res.json().user.username as string };
+      return {
+        token: res.json().token as string,
+        id: res.json().user.id as string,
+        username: res.json().user.username as string,
+      };
     }
 
     const a = await register('Amigo A', `fa${suffix}`);
@@ -355,21 +399,41 @@ describe('Resenhômetro API', () => {
       payload: { userId: b.id },
     });
     expect(created.statusCode).toBe(201);
-    expect(created.json()).toMatchObject({ requesterId: a.id, receiverId: b.id, status: 'pending' });
+    expect(created.json()).toMatchObject({
+      requesterId: a.id,
+      receiverId: b.id,
+      status: 'pending',
+    });
     expect(created.json().requester_id).toBeUndefined();
     const requestId = created.json().id as string;
 
-    const suggestionsA = await app.inject({ method: 'GET', url: '/suggestions', headers: header(a.token) });
+    const suggestionsA = await app.inject({
+      method: 'GET',
+      url: '/suggestions',
+      headers: header(a.token),
+    });
     expect(suggestionsA.statusCode).toBe(200);
     expect(suggestionsA.json().some((u: { id: string }) => u.id === b.id)).toBe(true);
 
-    const followB = await app.inject({ method: 'POST', url: `/users/${b.id}/follow`, headers: header(a.token) });
+    const followB = await app.inject({
+      method: 'POST',
+      url: `/users/${b.id}/follow`,
+      headers: header(a.token),
+    });
     expect(followB.statusCode).toBe(200);
 
-    const suggestionsAfterFollow = await app.inject({ method: 'GET', url: '/suggestions', headers: header(a.token) });
+    const suggestionsAfterFollow = await app.inject({
+      method: 'GET',
+      url: '/suggestions',
+      headers: header(a.token),
+    });
     expect(suggestionsAfterFollow.json().some((u: { id: string }) => u.id === b.id)).toBe(false);
 
-    const suggestionsB = await app.inject({ method: 'GET', url: '/suggestions', headers: header(b.token) });
+    const suggestionsB = await app.inject({
+      method: 'GET',
+      url: '/suggestions',
+      headers: header(b.token),
+    });
     expect(suggestionsB.json().some((u: { id: string }) => u.id === a.id)).toBe(true);
 
     const crossed = await app.inject({
@@ -380,7 +444,11 @@ describe('Resenhômetro API', () => {
     });
     expect(crossed.statusCode).toBe(200);
     expect(crossed.json().id).toBe(requestId);
-    expect(crossed.json()).toMatchObject({ requesterId: a.id, receiverId: b.id, status: 'pending' });
+    expect(crossed.json()).toMatchObject({
+      requesterId: a.id,
+      receiverId: b.id,
+      status: 'pending',
+    });
 
     const missingStatus = await app.inject({
       method: 'PUT',
@@ -390,8 +458,16 @@ describe('Resenhômetro API', () => {
     });
     expect(missingStatus.statusCode).toBe(400);
 
-    const profileB = await app.inject({ method: 'GET', url: `/users/${a.username}`, headers: header(b.token) });
-    expect(profileB.json().friendship).toMatchObject({ status: 'pending', requesterId: a.id, receiverId: b.id });
+    const profileB = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(b.token),
+    });
+    expect(profileB.json().friendship).toMatchObject({
+      status: 'pending',
+      requesterId: a.id,
+      receiverId: b.id,
+    });
 
     const accepted = await app.inject({
       method: 'PUT',
@@ -446,7 +522,12 @@ describe('Resenhômetro API', () => {
       payload: { userId: b.id },
     });
     expect(reopen.statusCode).toBe(201);
-    expect(reopen.json()).toMatchObject({ id: secondId, requesterId: a.id, receiverId: b.id, status: 'pending' });
+    expect(reopen.json()).toMatchObject({
+      id: secondId,
+      requesterId: a.id,
+      receiverId: b.id,
+      status: 'pending',
+    });
 
     const cancelForbidden = await app.inject({
       method: 'DELETE',
@@ -488,9 +569,15 @@ describe('Resenhômetro API', () => {
     });
     expect(album.statusCode).toBe(201);
 
-    const albums = await app.inject({ method: 'GET', url: '/albums', headers: await authHeaders() });
+    const albums = await app.inject({
+      method: 'GET',
+      url: '/albums',
+      headers: await authHeaders(),
+    });
     expect(albums.statusCode).toBe(200);
-    expect(albums.json().some((item: { name: string }) => item.name === 'Noite de testes')).toBe(true);
+    expect(albums.json().some((item: { name: string }) => item.name === 'Noite de testes')).toBe(
+      true,
+    );
 
     const boundary = '----radar-test';
     const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
@@ -504,7 +591,10 @@ describe('Resenhômetro API', () => {
     const created = await app.inject({
       method: 'POST',
       url: '/photos',
-      headers: { ...(await authHeaders()), 'content-type': `multipart/form-data; boundary=${boundary}` },
+      headers: {
+        ...(await authHeaders()),
+        'content-type': `multipart/form-data; boundary=${boundary}`,
+      },
       payload,
     });
     expect(created.statusCode).toBe(201);
@@ -514,9 +604,9 @@ describe('Resenhômetro API', () => {
 
     const feed = await app.inject({ method: 'GET', url: '/feed', headers: await authHeaders() });
     expect(feed.statusCode).toBe(200);
-    const photoEvent = (feed.json() as { type: string; photo?: { id: string; url: string } }[]).find(
-      (item) => item.type === 'photo_added' && item.photo?.id === photo.id,
-    );
+    const photoEvent = (
+      feed.json() as { type: string; photo?: { id: string; url: string } }[]
+    ).find((item) => item.type === 'photo_added' && item.photo?.id === photo.id);
     expect(photoEvent?.photo?.url).toBeTruthy();
     expect(photoEvent?.photo?.url).toContain('photos/');
 
@@ -533,7 +623,12 @@ describe('Resenhômetro API', () => {
       const res = await app.inject({
         method: 'POST',
         url: '/auth/register',
-        payload: { name, email: `${nick}${suffix}@resenha.test`, password: 'secret12', username: nick },
+        payload: {
+          name,
+          email: `${nick}${suffix}@resenha.test`,
+          password: 'secret12',
+          username: nick,
+        },
       });
       expect(res.statusCode).toBe(201);
       return { token: res.json().token as string, id: res.json().user.id as string };
@@ -590,7 +685,11 @@ describe('Resenhômetro API', () => {
     expect(story.mediaType).toBe('photo');
     expect(story.url).toContain('stories/');
 
-    const strangerRings = await app.inject({ method: 'GET', url: '/stories', headers: header(b.token) });
+    const strangerRings = await app.inject({
+      method: 'GET',
+      url: '/stories',
+      headers: header(b.token),
+    });
     expect(
       (strangerRings.json() as { author: { id: string }; stories: unknown[] }[]).some(
         (ring) => ring.author.id === a.id && ring.stories.length > 0,
@@ -619,10 +718,18 @@ describe('Resenhômetro API', () => {
     });
     expect(accepted.statusCode).toBe(200);
 
-    const friendRings = await app.inject({ method: 'GET', url: '/stories', headers: header(b.token) });
-    const aRing = (friendRings.json() as { author: { id: string }; hasUnseen: boolean; stories: { id: string; viewed: boolean }[] }[]).find(
-      (ring) => ring.author.id === a.id,
-    );
+    const friendRings = await app.inject({
+      method: 'GET',
+      url: '/stories',
+      headers: header(b.token),
+    });
+    const aRing = (
+      friendRings.json() as {
+        author: { id: string };
+        hasUnseen: boolean;
+        stories: { id: string; viewed: boolean }[];
+      }[]
+    ).find((ring) => ring.author.id === a.id);
     expect(aRing?.hasUnseen).toBe(true);
     expect(aRing?.stories[0]?.id).toBe(story.id);
 
@@ -633,10 +740,18 @@ describe('Resenhômetro API', () => {
     });
     expect(viewed.statusCode).toBe(200);
 
-    const afterView = await app.inject({ method: 'GET', url: '/stories', headers: header(b.token) });
-    const seenRing = (afterView.json() as { author: { id: string }; hasUnseen: boolean; stories: { viewed: boolean }[] }[]).find(
-      (ring) => ring.author.id === a.id,
-    );
+    const afterView = await app.inject({
+      method: 'GET',
+      url: '/stories',
+      headers: header(b.token),
+    });
+    const seenRing = (
+      afterView.json() as {
+        author: { id: string };
+        hasUnseen: boolean;
+        stories: { viewed: boolean }[];
+      }[]
+    ).find((ring) => ring.author.id === a.id);
     expect(seenRing?.hasUnseen).toBe(false);
     expect(seenRing?.stories[0]?.viewed).toBe(true);
 
@@ -645,7 +760,9 @@ describe('Resenhômetro API', () => {
       url: `/stories/${story.id}/viewers`,
       headers: header(a.token),
     });
-    expect((viewers.json() as { user: { id: string } }[]).some((item) => item.user.id === b.id)).toBe(true);
+    expect(
+      (viewers.json() as { user: { id: string } }[]).some((item) => item.user.id === b.id),
+    ).toBe(true);
 
     const viewersForbidden = await app.inject({
       method: 'GET',
@@ -662,7 +779,11 @@ describe('Resenhômetro API', () => {
     });
     expect(reply.statusCode).toBe(200);
 
-    const notes = await app.inject({ method: 'GET', url: '/notifications', headers: header(a.token) });
+    const notes = await app.inject({
+      method: 'GET',
+      url: '/notifications',
+      headers: header(a.token),
+    });
     expect(
       (notes.json() as { type: string; message: string }[]).some(
         (item) => item.type === 'story_reply' && item.message.includes('top demais'),
@@ -761,14 +882,24 @@ describe('Resenhômetro API', () => {
     const short = await app.inject({
       method: 'POST',
       url: '/auth/register',
-      payload: { name: 'Curto', email: `short${suffix}@resenha.test`, password: '1234567', username: `short${suffix}` },
+      payload: {
+        name: 'Curto',
+        email: `short${suffix}@resenha.test`,
+        password: '1234567',
+        username: `short${suffix}`,
+      },
     });
     expect(short.statusCode).toBe(400);
 
     const ok = await app.inject({
       method: 'POST',
       url: '/auth/register',
-      payload: { name: 'Oito', email: `eight${suffix}@resenha.test`, password: '12345678', username: `eight${suffix}` },
+      payload: {
+        name: 'Oito',
+        email: `eight${suffix}@resenha.test`,
+        password: '12345678',
+        username: `eight${suffix}`,
+      },
     });
     expect(ok.statusCode).toBe(201);
     expect(ok.json().user.email).toContain('@resenha.test');
@@ -779,23 +910,55 @@ describe('Resenhômetro API', () => {
       const res = await app.inject({
         method: 'POST',
         url: '/auth/register',
-        payload: { name, email: `${nick}${suffix}@resenha.test`, password: 'secret12', username: nick },
+        payload: {
+          name,
+          email: `${nick}${suffix}@resenha.test`,
+          password: 'secret12',
+          username: nick,
+        },
       });
       expect(res.statusCode).toBe(201);
-      return { token: res.json().token as string, id: res.json().user.id as string, username: res.json().user.username as string };
+      return {
+        token: res.json().token as string,
+        id: res.json().user.id as string,
+        username: res.json().user.username as string,
+      };
     }
 
     const a = await register('Priv A', `pa${suffix}`);
     const b = await register('Priv B', `pb${suffix}`);
     const header = (token: string) => ({ authorization: `Bearer ${token}` });
+    const point = { latitude: -23.5, longitude: -46.625 };
+
+    const savedPoint = await app.inject({
+      method: 'PUT',
+      url: '/users/me',
+      headers: header(a.token),
+      payload: point,
+    });
+    expect(savedPoint.statusCode).toBe(200);
+    expect(JSON.stringify(savedPoint.json())).not.toMatch(
+      /AIza|googleMaps|mapsApiKey|GOOGLE_MAPS/i,
+    );
+
+    const ownPoint = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(a.token),
+    });
+    expect(ownPoint.json().latitude).toBe(point.latitude);
+    expect(ownPoint.json().longitude).toBe(point.longitude);
+    expect(JSON.stringify(ownPoint.json())).not.toMatch(/AIza|googleMaps|mapsApiKey|GOOGLE_MAPS/i);
 
     const publicProfile = await app.inject({
       method: 'GET',
-      url: `/users/${b.username}`,
-      headers: header(a.token),
+      url: `/users/${a.username}`,
+      headers: header(b.token),
     });
     expect(publicProfile.statusCode).toBe(200);
     expect(publicProfile.json().email).toBeUndefined();
+    expect(publicProfile.json().latitude).toBe(point.latitude);
+    expect(publicProfile.json().longitude).toBe(point.longitude);
 
     const madePrivate = await app.inject({
       method: 'PUT',
@@ -806,6 +969,14 @@ describe('Resenhômetro API', () => {
     expect(madePrivate.statusCode).toBe(200);
     expect(madePrivate.json().email).toContain('@resenha.test');
     expect(madePrivate.json().isPublic).toBe(false);
+
+    const ownerAfterPrivate = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(a.token),
+    });
+    expect(ownerAfterPrivate.json().latitude).toBe(point.latitude);
+    expect(ownerAfterPrivate.json().longitude).toBe(point.longitude);
 
     const role = await app.inject({
       method: 'POST',
@@ -828,6 +999,8 @@ describe('Resenhômetro API', () => {
     expect(strangerProfile.json().email).toBeUndefined();
     expect(strangerProfile.json().username).toBe(a.username);
     expect(strangerProfile.json().stats.roles).toBe(0);
+    expect(strangerProfile.json().latitude).toBeUndefined();
+    expect(strangerProfile.json().longitude).toBeUndefined();
 
     const strangerContent = await app.inject({
       method: 'GET',
@@ -842,15 +1015,20 @@ describe('Resenhômetro API', () => {
       url: `/search?q=${a.username}`,
       headers: header(b.token),
     });
-    const person = (search.json().people as { username: string; email?: string }[]).find((item) => item.username === a.username);
+    const person = (
+      search.json().people as { username: string; email?: string; latitude?: number }[]
+    ).find((item) => item.username === a.username);
     expect(person?.email).toBeUndefined();
+    expect(person?.latitude).toBeUndefined();
 
     const ownContent = await app.inject({
       method: 'GET',
       url: `/users/${a.username}/content`,
       headers: header(a.token),
     });
-    expect(ownContent.json().roles.some((item: { title: string }) => item.title.includes('secreto'))).toBe(true);
+    expect(
+      ownContent.json().roles.some((item: { title: string }) => item.title.includes('secreto')),
+    ).toBe(true);
 
     const follow = await app.inject({
       method: 'POST',
@@ -865,5 +1043,78 @@ describe('Resenhômetro API', () => {
       headers: header(b.token),
     });
     expect(followerContent.json().roles.length).toBeGreaterThan(0);
+
+    const followerProfile = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(b.token),
+    });
+    expect(followerProfile.json().latitude).toBe(point.latitude);
+    expect(followerProfile.json().longitude).toBe(point.longitude);
+
+    const otherSession = await app.inject({
+      method: 'PUT',
+      url: '/users/me',
+      headers: header(b.token),
+      payload: { id: a.id, latitude: 10, longitude: 20 },
+    });
+    expect(otherSession.statusCode).toBe(200);
+    expect(otherSession.json().id).toBe(b.id);
+
+    const ownerUntouched = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(a.token),
+    });
+    expect(ownerUntouched.json().latitude).toBe(point.latitude);
+    expect(ownerUntouched.json().longitude).toBe(point.longitude);
+
+    async function rejectAndKeep(payload: Record<string, unknown>) {
+      const rejected = await app.inject({
+        method: 'PUT',
+        url: '/users/me',
+        headers: header(a.token),
+        payload,
+      });
+      expect(rejected.statusCode).toBe(400);
+      expect(rejected.body).not.toContain(String(point.latitude));
+      expect(rejected.body).not.toContain(String(point.longitude));
+      const after = await app.inject({
+        method: 'GET',
+        url: `/users/${a.username}`,
+        headers: header(a.token),
+      });
+      expect(after.json().latitude).toBe(point.latitude);
+      expect(after.json().longitude).toBe(point.longitude);
+    }
+
+    await rejectAndKeep({ latitude: 91, longitude: 10 });
+    await rejectAndKeep({ latitude: 10, longitude: 181 });
+    await rejectAndKeep({ latitude: 12 });
+    await rejectAndKeep({ latitude: null, longitude: 10 });
+
+    const cleared = await app.inject({
+      method: 'PUT',
+      url: '/users/me',
+      headers: header(a.token),
+      payload: { latitude: null, longitude: null },
+    });
+    expect(cleared.statusCode).toBe(200);
+
+    const gone = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(a.token),
+    });
+    expect(gone.json().latitude).toBeUndefined();
+    expect(gone.json().longitude).toBeUndefined();
+
+    const followerAfterClear = await app.inject({
+      method: 'GET',
+      url: `/users/${a.username}`,
+      headers: header(b.token),
+    });
+    expect(followerAfterClear.json().latitude).toBeUndefined();
+    expect(followerAfterClear.json().longitude).toBeUndefined();
   });
 });

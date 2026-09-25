@@ -32,7 +32,7 @@ export async function canViewProfileContent(
 
 export async function getUserByUsername(username: string, viewerId?: string): Promise<UserProfile> {
   const row = await queryOne<UserRow>(
-    `SELECT id, name, username, email, avatar, cover, bio, city, is_public, show_followers, show_interactions, created_at, updated_at
+    `SELECT id, name, username, email, avatar, cover, bio, city, latitude, longitude, is_public, show_followers, show_interactions, created_at, updated_at
      FROM users WHERE username = $1`,
     [username.toLowerCase()],
   );
@@ -65,7 +65,7 @@ export async function getUserByUsername(username: string, viewerId?: string): Pr
     : [];
   const unlocked = new Map(achievementsRows.map((item) => [item.slug, item.unlocked_at]));
 
-  return {
+  const profile = {
     ...mapUser(row),
     stats: canView
       ? {
@@ -96,6 +96,15 @@ export async function getUserByUsername(username: string, viewerId?: string): Pr
         }))
       : [],
   };
+
+  if (canView && row.latitude != null && row.longitude != null) {
+    return {
+      ...profile,
+      latitude: Number(row.latitude),
+      longitude: Number(row.longitude),
+    };
+  }
+  return profile;
 }
 
 export async function getUserById(id: string, viewerId?: string) {
@@ -202,11 +211,15 @@ export async function updateMe(id: string, input: UpdateMeInput): Promise<AuthUs
     if (taken) throw conflict('Username já está em uso');
   }
 
+  const latitude = input.latitude === undefined ? row.latitude : input.latitude;
+  const longitude = input.longitude === undefined ? row.longitude : input.longitude;
+
   await exec(
     `UPDATE users SET
       name = $1, username = $2, email = $3, bio = $4, city = $5,
-      is_public = $6, show_followers = $7, show_interactions = $8, updated_at = $9
-     WHERE id = $10`,
+      is_public = $6, show_followers = $7, show_interactions = $8,
+      latitude = $9, longitude = $10, updated_at = $11
+     WHERE id = $12`,
     [
       input.name ?? row.name,
       (input.username ?? (row.username as string)).toLowerCase(),
@@ -216,6 +229,8 @@ export async function updateMe(id: string, input: UpdateMeInput): Promise<AuthUs
       input.isPublic ?? row.is_public,
       input.showFollowers ?? row.show_followers,
       input.showInteractions ?? row.show_interactions,
+      latitude,
+      longitude,
       nowIso(),
       id,
     ],

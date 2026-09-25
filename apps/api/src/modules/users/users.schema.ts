@@ -8,15 +8,43 @@ export const respondFriendSchema = z.object({
   status: z.enum(['accepted', 'rejected']),
 });
 
-export const updateMeSchema = z.object({
-  name: z.string().min(2).max(80).optional(),
-  username: z.string().min(3).max(24).regex(/^[a-zA-Z0-9_]+$/).optional(),
-  email: z.string().email().optional(),
-  bio: z.string().max(280).nullable().optional(),
-  city: z.string().max(80).nullable().optional(),
-  isPublic: z.boolean().optional(),
-  showFollowers: z.boolean().optional(),
-  showInteractions: z.boolean().optional(),
-});
+const latitudeSchema = z
+  .number()
+  .gte(-90, { message: 'Latitude fora do intervalo' })
+  .lte(90, { message: 'Latitude fora do intervalo' })
+  .nullable();
+
+const longitudeSchema = z
+  .number()
+  .gte(-180, { message: 'Longitude fora do intervalo' })
+  .lte(180, { message: 'Longitude fora do intervalo' })
+  .nullable();
+
+export const updateMeSchema = z
+  .object({
+    name: z.string().min(2).max(80).optional(),
+    username: z.string().min(3).max(24).regex(/^[a-zA-Z0-9_]+$/).optional(),
+    email: z.string().email().optional(),
+    bio: z.string().max(280).nullable().optional(),
+    city: z.string().max(80).nullable().optional(),
+    isPublic: z.boolean().optional(),
+    showFollowers: z.boolean().optional(),
+    showInteractions: z.boolean().optional(),
+    latitude: latitudeSchema.optional(),
+    longitude: longitudeSchema.optional(),
+  })
+  .superRefine((data, ctx) => {
+    const hasLat = data.latitude !== undefined;
+    const hasLng = data.longitude !== undefined;
+    if (!hasLat && !hasLng) return;
+    const bothNull = data.latitude === null && data.longitude === null;
+    const bothNumbers = typeof data.latitude === 'number' && typeof data.longitude === 'number';
+    if (hasLat && hasLng && (bothNull || bothNumbers)) return;
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Informe latitude e longitude juntas',
+      path: ['latitude'],
+    });
+  });
 
 export type UpdateMeInput = z.infer<typeof updateMeSchema>;
