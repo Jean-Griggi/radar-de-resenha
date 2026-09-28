@@ -5,7 +5,7 @@
   "description": "Plataforma para organizar encontros entre amigos",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "node scripts/ensure-env.mjs && turbo run dev --ui=stream --filter=@resenhometro/api --filter=@resenhometro/web",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",

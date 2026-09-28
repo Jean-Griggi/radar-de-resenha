@@ -121,7 +121,10 @@ export function markerAvatar(avatar: string | null | undefined): string | null {
 }
 
 /** Sem foto o pino continua visível. A imagem é só o avatar que o perfil já mostra. O nome fica junto da foto. */
-export function pinContent(avatar: string | null | undefined, placeName?: string | null): {
+export function pinContent(
+  avatar: string | null | undefined,
+  placeName?: string | null,
+): {
   visible: true;
   imageUrl: string | null;
   label: string | null;
@@ -307,7 +310,10 @@ export async function mountLocationMap(
     attributionControl: view.attributionControl,
     cooperativeGestures: !options.interactive,
   });
-  map.addControl(new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-right');
+  map.addControl(
+    new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }),
+    'top-right',
+  );
   map.on('load', () => {
     applyBuildingVolume(map as never);
   });
@@ -349,7 +355,10 @@ export type PeopleMapControls = {
 };
 
 /** Vários pinos no mesmo mapa. Sem GPS e sem acompanhar movimento. */
-export async function mountPeopleMap(host: HTMLElement, people: PeoplePin[]): Promise<PeopleMapControls> {
+export async function mountPeopleMap(
+  host: HTMLElement,
+  people: PeoplePin[],
+): Promise<PeopleMapControls> {
   const maplibre = await import('maplibre-gl');
   const view = peopleMapView(people);
   const map = new maplibre.Map({
@@ -360,7 +369,10 @@ export async function mountPeopleMap(host: HTMLElement, people: PeoplePin[]): Pr
     maxPitch: MAP_MAX_PITCH,
     attributionControl: view.attributionControl,
   });
-  map.addControl(new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-right');
+  map.addControl(
+    new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }),
+    'top-right',
+  );
 
   let markers: Array<ReturnType<typeof placeMarker>> = [];
   let latest = people;

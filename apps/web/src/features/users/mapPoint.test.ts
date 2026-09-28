@@ -117,7 +117,14 @@ describe('mapPoint', () => {
         cover: 'https://cdn.example/capa.png',
       },
       { id: 'b', username: 'bia', placeName: 'trabalho', avatar: 'https://cdn.example/bia.png' },
-      { id: 'c', username: 'caio', latitude: -22.9, longitude: -43.2, avatar: '  ', placeName: 'rua' },
+      {
+        id: 'c',
+        username: 'caio',
+        latitude: -22.9,
+        longitude: -43.2,
+        avatar: '  ',
+        placeName: 'rua',
+      },
       { latitude: 10, longitude: 20, avatar: 'https://cdn.example/sem-id.png', placeName: 'x' },
     ]);
     assert.deepEqual(pins, [
