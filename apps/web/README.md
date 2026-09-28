@@ -72,4 +72,5 @@ Tema: botão claro/escuro no topo (salvo no `localStorage`).
 
 - Root Directory: `apps/web`
 - Variável: `NEXT_PUBLIC_API_URL` = URL pública da API
+- O minimapa usa o estilo gratuito do OpenFreeMap. Não precisa de chave de mapa.
 - Na API, `WEB_ORIGIN` / `CORS_ORIGINS` = URL **exata** deste projeto (cookie + credentials)

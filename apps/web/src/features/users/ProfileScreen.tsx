@@ -11,6 +11,8 @@ import { MediaImage } from '@/components/MediaImage';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser, setUser } from '@/lib/auth';
+import { LocationMap } from '@/features/users/LocationMap';
+import { visiblePoint } from '@/features/users/mapPoint';
 
 const TABS = ['Resumo', 'Rolês', 'Resenhas', 'Fotos', 'Áudios', 'Música', 'Estatísticas'] as const;
 
@@ -85,6 +87,7 @@ export function ProfileScreen() {
   }
 
   const meId = getUser()?.id;
+  const point = visiblePoint(profile);
   const rel = profile.friendship;
   const isFriend = rel?.status === 'accepted';
   const isPendingIn = rel?.status === 'pending' && rel.receiverId === meId;
@@ -220,6 +223,13 @@ export function ProfileScreen() {
           </div>
         </div>
       </div>
+
+      {point ? (
+        <section className="card mt-4 p-5">
+          <h2 className="mb-3 font-medium">Localização</h2>
+          <LocationMap point={point} avatar={profile.avatar} />
+        </section>
+      ) : null}
 
       <div className="mt-4 -mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:px-0">
         {TABS.map((item) => (

@@ -1,54 +1,101 @@
-# Plano — Localização no mapa
+# Plano — Localização no MapLibre
 
 Spec: docs/back/localizacao.md
 Status: aberto
 
-## Fatia 1 — Coordenadas no perfil
+O mapa sai do Google Maps. No navegador, MapLibre GL desenha o estilo gratuito do OpenFreeMap (`https://tiles.openfreemap.org/styles/liberty`). Sem chave, sem cartão e sem cobrança por uso. A assinatura © OpenStreetMap fica visível no canto do mapa. Não se esconde e não se apaga.
 
-- [x] feita
+O par `latitude` e `longitude` que o perfil já grava continua. Os dois vêm juntos ou os dois somem. Perfil privado reduzido não recebe o ponto. Coordenada fora de −90 a 90 ou −180 a 180 responde `400` e não grava o ponto anterior. Só a própria sessão altera o próprio ponto. A foto do marcador é o avatar que o perfil já mostra. O cliente não envia outra URL de imagem.
 
-2026-09-25: par válido volta no GET de quem pode ver (dono, perfil público e quem segue); `null` omite o par; latitude 91, longitude 181 e meia coordenada respondem 400 sem devolver o ponto salvo; estranho em perfil privado não recebe latitude nem longitude; outra sessão não altera o ponto; a resposta não traz chave de mapa. Verificado em `apps/api/src/modules/auth/auth.test.ts`.
+## Fatia 1 — Minimapa MapLibre
+
+- [x] feito
+
+2026-09-28 — Minimapa MapLibre sem chave, estilo OpenFreeMap, assinatura expandida. Teste do `mapPoint` passou. API: lat 91 e lng 181 respondem 400 sem mudar o par; outra sessão não altera; perfil privado reduzido não traz o ponto; limpar tira o par.
 
 **O que fazer:**
 
-Guardar a localização como par `latitude` e `longitude`, ou os dois ausentes. Migração em `users`. O `PUT` do perfil autenticado, o mesmo em que a pessoa já edita os próprios dados, aceita o par ou `null` para limpar. Latitude fora de −90 a 90 ou longitude fora de −180 a 180 responde `400` e não grava; a mensagem não devolve o ponto anterior. O `GET` do perfil que a pessoa já pode ver inclui o par quando existe. Perfil reduzido de estranho em conta privada omite `latitude` e `longitude`. O corpo não escolhe o id de outra conta.
+Na edição do próprio perfil, a pessoa logada vê um minimapa MapLibre e escolhe o lugar com um clique. Salvar grava o par. Limpar tira o ponto. No perfil que a pessoa já pode ver, o mapa abre centrado no ponto salvo, com a foto de perfil no pino. Sem foto, o pino continua visível. O mapa abre sem chave.
 
 **O que não fazer:**
 
-Mapa do local do rolê, GPS contínuo, mapa com várias pessoas, app mobile, app desktop e outro provedor de mapa. Não gravar a chave do Google Maps no banco nem devolvê-la no JSON de perfil. Não aceitar meia coordenada.
+Não carregar o script do Google Maps. Não ler `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` nem map id. Não esconder a assinatura do OpenStreetMap. Não gravar chave de mapa no banco nem devolvê-la no JSON. App mobile, app desktop, GPS contínuo e mapa do rolê ficam de fora.
 
 **Como validar:**
 
-- Par válido gravado volta no perfil de quem já pode ver, inclusive o dono.
-- `null` tira o par da resposta.
+- Sem chave de mapa, clicar, salvar, reabrir o perfil e ver o MapLibre no ponto escolhido, com a assinatura visível.
+- Quem pode ver o perfil vê o mesmo ponto e a foto. Quem só vê o perfil privado reduzido não vê o ponto.
+- Limpar tira o ponto do mapa e da resposta.
 - Latitude 91 ou longitude 181 responde `400` e o par salvo não muda.
-- Estranho em perfil privado não recebe latitude nem longitude.
-- Outra sessão não altera o ponto. A resposta não contém a chave do mapa.
+- Outra sessão não altera o ponto.
 
 **Arquivos prováveis:**
 
-`apps/api/src/db/migrate.ts`, `apps/api/src/modules/users/users.schema.ts`, `users.service.ts`, `users.map.ts`, `packages/shared/src/types.ts`
+`apps/web/src/features/users/mapPoint.ts`, `LocationMap.tsx`, `mapPoint.test.ts`, `apps/web/src/features/settings/SettingsScreen.tsx`, `apps/web/src/features/users/ProfileScreen.tsx`, `apps/web/package.json`
 
-## Fatia 2 — Minimapa na edição e no perfil
+## Fatia 2 — Foto e nome do lugar
 
 - [ ] pendente
 
 **O que fazer:**
 
-Na edição do próprio perfil, a pessoa logada vê um minimapa do Google Maps e escolhe o lugar com um clique. Salvar usa o par da fatia 1. Limpar a localização tira o ponto. No perfil que a pessoa já pode ver, o mapa abre centrado no ponto salvo. Se o marcador aceitar imagem, o ponto usa o avatar que o perfil já mostra. Se não aceitar, o ponto continua visível, sem foto. A chave vem da configuração do navegador, restrita à origem da web. Sem chave, o mapa não abre e a tela não conclui a escolha de um ponto.
+A pessoa dá um nome curto ao próprio ponto, por exemplo "casa". O nome viaja com o par: salvar o ponto grava o texto; limpar o ponto apaga o texto. No mapa, o pino é a foto de perfil e o nome aparece junto dela. Quem não recebe latitude e longitude também não recebe o nome.
 
 **O que não fazer:**
 
-Não enviar outra URL de imagem pelo mapa. Não colocar a chave na resposta de perfil, no banco ou no repositório. Não desenhar mapa de rolê, rastro ou várias pessoas. Não usar outro provedor.
+Não criar uma lista fechada de tipos de lugar. Não mostrar o nome sem o ponto. Não deixar o texto escolher o id de outra conta. Não usar o nome como endereço pesquisável nesta fatia.
 
 **Como validar:**
 
-- Com a chave configurada, clicar, salvar, reabrir o perfil e ver o mapa no ponto escolhido.
-- Quem pode ver o perfil vê o mesmo ponto. Quem só vê o perfil privado reduzido não vê o ponto.
-- Se o marcador aceitar imagem, a foto da pessoa aparece no ponto. Se não aceitar, o ponto continua visível.
-- Limpar tira o ponto do mapa.
-- Sem a chave, a tela não conclui a escolha.
+- Salvar um ponto com "casa" devolve o par e o nome para quem já pode ver o perfil.
+- Limpar tira o par e o nome.
+- Estranho em perfil privado não recebe o nome.
+- Outra sessão não grava o nome de outra pessoa.
 
 **Arquivos prováveis:**
 
-`apps/web/src/features/settings/SettingsScreen.tsx`, `apps/web/src/features/users/ProfileScreen.tsx`
+`apps/api/src/db/migrate.ts`, `apps/api/src/modules/users/users.schema.ts`, `users.service.ts`, `users.map.ts`, `packages/shared/src/types.ts`, `apps/web/src/features/settings/SettingsScreen.tsx`, `apps/web/src/features/users/LocationMap.tsx`
+
+## Fatia 3 — Várias pessoas no mesmo mapa
+
+- [ ] pendente
+
+**O que fazer:**
+
+Um mapa MapLibre mostra as pessoas que a sessão já pode ver, cada uma com a própria foto e o próprio nome do lugar. Ponto de perfil privado reduzido não entra. O mapa não acompanha movimento.
+
+**O que não fazer:**
+
+Não incluir quem a sessão não pode ver. Não fazer rastro, GPS contínuo nem mapa do rolê. Não repetir a foto de um avatar que o perfil não mostra.
+
+**Como validar:**
+
+- O mapa lista só pontos que o mesmo usuário já receberia no perfil de cada pessoa.
+- Perfil privado de quem não é permitido não aparece no mapa.
+- Cada pino usa a foto e o nome já gravados na fatia 2.
+
+**Arquivos prováveis:**
+
+`apps/api/src/modules/users/`, `apps/web/src/features/users/LocationMap.tsx`, `ProfileScreen.tsx`
+
+## Fatia 4 — Prédios em 3D
+
+- [ ] pendente
+
+**O que fazer:**
+
+No mesmo MapLibre, a câmera pode inclinar e os prédios sobem em volume com a altura que o OpenFreeMap já traz do OpenStreetMap (`fill-extrusion` na camada `building`, a partir do zoom 15). Onde o OpenStreetMap não tem altura, o prédio fica chapado. A assinatura continua visível.
+
+**O que não fazer:**
+
+Não prometer globo, relevo de morro nem vista do Google Earth. Não depender de outra chave para o 3D. Não esconder o mapa plano se o 3D não carregar.
+
+**Como validar:**
+
+- Com o mapa inclinado e zoom próximo, um centro que tem altura no OpenStreetMap mostra prédios em volume.
+- Um lugar sem altura continua com o ponto, a foto e o nome.
+- A assinatura © OpenStreetMap segue no canto.
+
+**Arquivos prováveis:**
+
+`apps/web/src/features/users/mapPoint.ts`, `LocationMap.tsx`
