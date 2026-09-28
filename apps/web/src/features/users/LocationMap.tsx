@@ -7,11 +7,13 @@ import { mountLocationMap, type MapControls, type MapPoint } from './mapPoint';
 export function LocationMap({
   point,
   avatar,
+  placeName = null,
   interactive = false,
   onPick,
 }: {
   point: MapPoint | null;
   avatar: string | null;
+  placeName?: string | null;
   interactive?: boolean;
   onPick?: (point: MapPoint) => void;
 }) {
@@ -20,10 +22,12 @@ export function LocationMap({
   const onPickRef = useRef(onPick);
   const pointRef = useRef(point);
   const avatarRef = useRef(avatar);
+  const placeNameRef = useRef(placeName);
   const [failed, setFailed] = useState(false);
   onPickRef.current = onPick;
   pointRef.current = point;
   avatarRef.current = avatar;
+  placeNameRef.current = placeName;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -34,6 +38,7 @@ export function LocationMap({
       interactive,
       point: pointRef.current,
       avatar: avatarRef.current,
+      placeName: pointRef.current ? placeNameRef.current : null,
       onPick: (picked) => onPickRef.current?.(picked),
     })
       .then((controls) => {
@@ -42,7 +47,7 @@ export function LocationMap({
           return;
         }
         controlsRef.current = controls;
-        controls.sync(pointRef.current, avatarRef.current);
+        controls.sync(pointRef.current, avatarRef.current, pointRef.current ? placeNameRef.current : null);
       })
       .catch(() => {
         if (!cancelled) setFailed(true);
@@ -55,8 +60,8 @@ export function LocationMap({
   }, [interactive]);
 
   useEffect(() => {
-    controlsRef.current?.sync(point, avatar);
-  }, [point, avatar]);
+    controlsRef.current?.sync(point, avatar, point ? placeName : null);
+  }, [point, avatar, placeName]);
 
   return (
     <div data-location-map={failed ? 'closed' : 'open'}>

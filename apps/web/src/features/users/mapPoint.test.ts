@@ -9,6 +9,7 @@ import {
   pointFromClick,
   profileLocationFields,
   saveLocationBody,
+  visiblePlaceName,
   visiblePoint,
 } from './mapPoint.ts';
 
@@ -65,18 +66,45 @@ describe('mapPoint', () => {
     assert.equal(locationMapView(null).zoom, 4);
   });
 
-  it('limpar manda os dois nulos e nada de imagem', () => {
+  it('limpar manda os dois nulos, apaga o nome e nada de imagem', () => {
     const body = clearLocationBody();
-    assert.deepEqual(body, { latitude: null, longitude: null });
+    assert.deepEqual(body, { latitude: null, longitude: null, placeName: null });
     assert.equal('avatar' in body, false);
+    assert.equal('id' in body, false);
+  });
+
+  it('salvar o ponto com casa manda o par e o nome, sem avatar e sem id', () => {
+    const point = pointFromClick(-23.5, -46.625);
+    assert.ok(point);
+    const body = profileLocationFields(point, ' casa ');
+    assert.deepEqual(body, { latitude: -23.5, longitude: -46.625, placeName: 'casa' });
+    assert.equal(body && 'avatar' in body, false);
+    assert.equal(body && 'id' in body, false);
+    assert.equal(profileLocationFields(null, 'casa'), undefined);
+    assert.deepEqual(profileLocationFields(point, '   '), {
+      latitude: -23.5,
+      longitude: -46.625,
+      placeName: null,
+    });
+  });
+
+  it('não mostra o nome sem o ponto', () => {
+    assert.equal(visiblePlaceName({ placeName: 'casa' }), null);
+    assert.equal(visiblePlaceName({ latitude: 12, placeName: 'casa' }), null);
+    assert.equal(visiblePlaceName({ latitude: -23.5, longitude: -46.6 }), null);
+    assert.equal(
+      visiblePlaceName({ latitude: -23.5, longitude: -46.6, placeName: ' casa ' }),
+      'casa',
+    );
   });
 
   it('o pino usa o avatar e continua visível sem foto', () => {
-    assert.deepEqual(pinContent(' https://cdn.example/a.png '), {
+    assert.deepEqual(pinContent(' https://cdn.example/a.png ', 'casa'), {
       visible: true,
       imageUrl: 'https://cdn.example/a.png',
+      label: 'casa',
     });
-    assert.deepEqual(pinContent('  '), { visible: true, imageUrl: null });
-    assert.deepEqual(pinContent(null), { visible: true, imageUrl: null });
+    assert.deepEqual(pinContent('  ', '  '), { visible: true, imageUrl: null, label: null });
+    assert.deepEqual(pinContent(null), { visible: true, imageUrl: null, label: null });
   });
 });

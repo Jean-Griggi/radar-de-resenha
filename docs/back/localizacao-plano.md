@@ -35,7 +35,9 @@ Não carregar o script do Google Maps. Não ler `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
 ## Fatia 2 — Foto e nome do lugar
 
-- [ ] pendente
+- [x] feito
+
+2026-09-28 — Nome curto `placeName` viaja com o par. Salvar "casa" devolve o par e o nome; limpar apaga os dois. Estranho em perfil privado não recebe o nome. Outra sessão não grava o nome alheio. No mapa, o nome fica ao lado da foto.
 
 **O que fazer:**
 

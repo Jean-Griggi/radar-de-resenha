@@ -360,6 +360,22 @@ const migrations: Migration[] = [
     )
   )`,
   },
+  {
+    id: '042_users_place_name',
+    sql: `ALTER TABLE users ADD COLUMN IF NOT EXISTS place_name TEXT`,
+  },
+  {
+    id: '043_users_place_name_with_point',
+    sql: `ALTER TABLE users ADD CONSTRAINT users_place_name_with_point CHECK (
+    place_name IS NULL
+    OR (
+      latitude IS NOT NULL
+      AND longitude IS NOT NULL
+      AND char_length(place_name) BETWEEN 1 AND 40
+      AND place_name = btrim(place_name)
+    )
+  )`,
+  },
 ]
 
 export async function applyMigrations(query: QueryFn) {

@@ -14,6 +14,7 @@ export type UserRow = {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  place_name: string | null;
   is_public: boolean;
   show_followers: boolean;
   show_interactions: boolean;
@@ -44,7 +45,7 @@ export function mapUser(row: UserRow, withEmail = false): PublicUser | AuthUser 
 
 export async function getUserRow(id: string) {
   return queryOne<UserRow>(
-    `SELECT id, name, username, email, avatar, cover, bio, city, latitude, longitude, is_public, show_followers, show_interactions, created_at, updated_at
+    `SELECT id, name, username, email, avatar, cover, bio, city, latitude, longitude, place_name, is_public, show_followers, show_interactions, created_at, updated_at
      FROM users WHERE id = $1`,
     [id],
   );
@@ -53,7 +54,7 @@ export async function getUserRow(id: string) {
 export async function getUsersByIds(ids: string[]) {
   if (ids.length === 0) return [] as UserRow[];
   return query<UserRow>(
-    `SELECT id, name, username, email, avatar, cover, bio, city, latitude, longitude, is_public, show_followers, show_interactions, created_at, updated_at
+    `SELECT id, name, username, email, avatar, cover, bio, city, latitude, longitude, place_name, is_public, show_followers, show_interactions, created_at, updated_at
      FROM users WHERE id IN (${sqlPlaceholders(ids.length)})`,
     ids,
   );

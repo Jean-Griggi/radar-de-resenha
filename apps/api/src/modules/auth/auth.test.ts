@@ -934,7 +934,7 @@ describe('Resenhômetro API', () => {
       method: 'PUT',
       url: '/users/me',
       headers: header(a.token),
-      payload: point,
+      payload: { ...point, placeName: '  casa  ' },
     });
     expect(savedPoint.statusCode).toBe(200);
     expect(JSON.stringify(savedPoint.json())).not.toMatch(
@@ -948,6 +948,7 @@ describe('Resenhômetro API', () => {
     });
     expect(ownPoint.json().latitude).toBe(point.latitude);
     expect(ownPoint.json().longitude).toBe(point.longitude);
+    expect(ownPoint.json().placeName).toBe('casa');
     expect(JSON.stringify(ownPoint.json())).not.toMatch(/AIza|googleMaps|mapsApiKey|GOOGLE_MAPS/i);
 
     const publicProfile = await app.inject({
@@ -959,6 +960,7 @@ describe('Resenhômetro API', () => {
     expect(publicProfile.json().email).toBeUndefined();
     expect(publicProfile.json().latitude).toBe(point.latitude);
     expect(publicProfile.json().longitude).toBe(point.longitude);
+    expect(publicProfile.json().placeName).toBe('casa');
 
     const madePrivate = await app.inject({
       method: 'PUT',
@@ -977,6 +979,7 @@ describe('Resenhômetro API', () => {
     });
     expect(ownerAfterPrivate.json().latitude).toBe(point.latitude);
     expect(ownerAfterPrivate.json().longitude).toBe(point.longitude);
+    expect(ownerAfterPrivate.json().placeName).toBe('casa');
 
     const role = await app.inject({
       method: 'POST',
@@ -1001,6 +1004,7 @@ describe('Resenhômetro API', () => {
     expect(strangerProfile.json().stats.roles).toBe(0);
     expect(strangerProfile.json().latitude).toBeUndefined();
     expect(strangerProfile.json().longitude).toBeUndefined();
+    expect(strangerProfile.json().placeName).toBeUndefined();
 
     const strangerContent = await app.inject({
       method: 'GET',
@@ -1016,10 +1020,16 @@ describe('Resenhômetro API', () => {
       headers: header(b.token),
     });
     const person = (
-      search.json().people as { username: string; email?: string; latitude?: number }[]
+      search.json().people as {
+        username: string;
+        email?: string;
+        latitude?: number;
+        placeName?: string;
+      }[]
     ).find((item) => item.username === a.username);
     expect(person?.email).toBeUndefined();
     expect(person?.latitude).toBeUndefined();
+    expect(person?.placeName).toBeUndefined();
 
     const ownContent = await app.inject({
       method: 'GET',
@@ -1051,12 +1061,13 @@ describe('Resenhômetro API', () => {
     });
     expect(followerProfile.json().latitude).toBe(point.latitude);
     expect(followerProfile.json().longitude).toBe(point.longitude);
+    expect(followerProfile.json().placeName).toBe('casa');
 
     const otherSession = await app.inject({
       method: 'PUT',
       url: '/users/me',
       headers: header(b.token),
-      payload: { id: a.id, latitude: 10, longitude: 20 },
+      payload: { id: a.id, latitude: 10, longitude: 20, placeName: 'trabalho' },
     });
     expect(otherSession.statusCode).toBe(200);
     expect(otherSession.json().id).toBe(b.id);
@@ -1068,6 +1079,7 @@ describe('Resenhômetro API', () => {
     });
     expect(ownerUntouched.json().latitude).toBe(point.latitude);
     expect(ownerUntouched.json().longitude).toBe(point.longitude);
+    expect(ownerUntouched.json().placeName).toBe('casa');
 
     async function rejectAndKeep(payload: Record<string, unknown>) {
       const rejected = await app.inject({
@@ -1086,12 +1098,16 @@ describe('Resenhômetro API', () => {
       });
       expect(after.json().latitude).toBe(point.latitude);
       expect(after.json().longitude).toBe(point.longitude);
+      expect(after.json().placeName).toBe('casa');
     }
 
     await rejectAndKeep({ latitude: 91, longitude: 10 });
     await rejectAndKeep({ latitude: 10, longitude: 181 });
     await rejectAndKeep({ latitude: 12 });
     await rejectAndKeep({ latitude: null, longitude: 10 });
+    await rejectAndKeep({ placeName: 'escritorio' });
+    await rejectAndKeep({ latitude: null, longitude: null, placeName: 'casa' });
+    await rejectAndKeep({ ...point, placeName: 'c'.repeat(41) });
 
     const cleared = await app.inject({
       method: 'PUT',
@@ -1108,6 +1124,7 @@ describe('Resenhômetro API', () => {
     });
     expect(gone.json().latitude).toBeUndefined();
     expect(gone.json().longitude).toBeUndefined();
+    expect(gone.json().placeName).toBeUndefined();
 
     const followerAfterClear = await app.inject({
       method: 'GET',
@@ -1116,5 +1133,6 @@ describe('Resenhômetro API', () => {
     });
     expect(followerAfterClear.json().latitude).toBeUndefined();
     expect(followerAfterClear.json().longitude).toBeUndefined();
+    expect(followerAfterClear.json().placeName).toBeUndefined();
   });
 });

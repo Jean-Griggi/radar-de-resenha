@@ -12,7 +12,7 @@ import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser, setUser } from '@/lib/auth';
 import { LocationMap } from '@/features/users/LocationMap';
-import { visiblePoint } from '@/features/users/mapPoint';
+import { visiblePlaceName, visiblePoint } from '@/features/users/mapPoint';
 
 const TABS = ['Resumo', 'Rolês', 'Resenhas', 'Fotos', 'Áudios', 'Música', 'Estatísticas'] as const;
 
@@ -227,7 +227,7 @@ export function ProfileScreen() {
       {point ? (
         <section className="card mt-4 p-5">
           <h2 className="mb-3 font-medium">Localização</h2>
-          <LocationMap point={point} avatar={profile.avatar} />
+          <LocationMap point={point} avatar={profile.avatar} placeName={visiblePlaceName(profile)} />
         </section>
       ) : null}
 

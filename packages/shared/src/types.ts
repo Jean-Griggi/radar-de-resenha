@@ -49,6 +49,8 @@ export type UserProfile = PublicUser & {
   /** Presentes juntas, ou ambas ausentes. Fora do perfil reduzido. */
   latitude?: number;
   longitude?: number;
+  /** Só existe junto do par. Ausente no perfil reduzido. */
+  placeName?: string;
 };
 
 export type UserStats = {

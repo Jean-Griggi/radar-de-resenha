@@ -10,7 +10,13 @@ import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { postFile, IMAGE_ACCEPT } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
 import { LocationMap } from '@/features/users/LocationMap';
-import { clearLocationBody, profileLocationFields, visiblePoint, type MapPoint } from '@/features/users/mapPoint';
+import {
+  clearLocationBody,
+  profileLocationFields,
+  visiblePlaceName,
+  visiblePoint,
+  type MapPoint,
+} from '@/features/users/mapPoint';
 
 export function SettingsScreen() {
   const toast = useToast();
@@ -21,6 +27,7 @@ export function SettingsScreen() {
   const [profileUsername, setProfileUsername] = useState('');
   const [draftPoint, setDraftPoint] = useState<MapPoint | null>(null);
   const [savedPoint, setSavedPoint] = useState<MapPoint | null>(null);
+  const [draftPlaceName, setDraftPlaceName] = useState('');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -37,6 +44,7 @@ export function SettingsScreen() {
         const point = visiblePoint(profile.data);
         setSavedPoint(point);
         setDraftPoint(point);
+        setDraftPlaceName(visiblePlaceName(profile.data) ?? '');
         setError('');
       })
       .catch((err) => {
@@ -53,7 +61,7 @@ export function SettingsScreen() {
     event?.preventDefault();
     if (!me) return;
     try {
-      const location = profileLocationFields(draftPoint);
+      const location = profileLocationFields(draftPoint, draftPoint ? draftPlaceName : undefined);
       const { data } = await api.put<AuthUser>('/users/me', location ? { ...me, ...location } : me);
       setMe(data);
       setUser(data);
@@ -62,6 +70,7 @@ export function SettingsScreen() {
       const point = visiblePoint(profile.data);
       setSavedPoint(point);
       setDraftPoint(point);
+      setDraftPlaceName(visiblePlaceName(profile.data) ?? '');
       toast.push('Perfil atualizado');
     } catch (err) {
       if (isApiCanceled(err)) return;
@@ -101,6 +110,7 @@ export function SettingsScreen() {
       const point = visiblePoint(data);
       setSavedPoint(point);
       setDraftPoint(point);
+      setDraftPlaceName(visiblePlaceName(data) ?? '');
       toast.push(point ? 'Não foi possível limpar a localização' : 'Localização removida', point ? 'error' : 'success');
     } catch (err) {
       if (isApiCanceled(err)) return;
@@ -171,7 +181,23 @@ export function SettingsScreen() {
             </Field>
             <div className="space-y-3">
               <p className="text-label text-muted">Localização</p>
-              <LocationMap point={draftPoint} avatar={me.avatar} interactive onPick={setDraftPoint} />
+              <LocationMap
+                point={draftPoint}
+                avatar={me.avatar}
+                placeName={draftPoint ? draftPlaceName : null}
+                interactive
+                onPick={setDraftPoint}
+              />
+              {draftPoint ? (
+                <Field label="Nome do lugar">
+                  <Input
+                    value={draftPlaceName}
+                    maxLength={40}
+                    placeholder="casa"
+                    onChange={(e) => setDraftPlaceName(e.target.value)}
+                  />
+                </Field>
+              ) : null}
               <Button variant="ghost" disabled={!savedPoint} onClick={clearLocation}>
                 Limpar localização
               </Button>

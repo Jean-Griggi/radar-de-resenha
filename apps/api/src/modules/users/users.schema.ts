@@ -20,6 +20,17 @@ const longitudeSchema = z
   .lte(180, { message: 'Longitude fora do intervalo' })
   .nullable();
 
+const placeNameSchema = z
+  .string()
+  .trim()
+  .max(40, { message: 'Nome do lugar longo demais' })
+  .nullable()
+  .optional()
+  .transform((value) => {
+    if (typeof value !== 'string') return value;
+    return value.length === 0 ? null : value;
+  });
+
 export const updateMeSchema = z
   .object({
     name: z.string().min(2).max(80).optional(),
@@ -32,18 +43,29 @@ export const updateMeSchema = z
     showInteractions: z.boolean().optional(),
     latitude: latitudeSchema.optional(),
     longitude: longitudeSchema.optional(),
+    placeName: placeNameSchema,
   })
   .superRefine((data, ctx) => {
     const hasLat = data.latitude !== undefined;
     const hasLng = data.longitude !== undefined;
-    if (!hasLat && !hasLng) return;
     const bothNull = data.latitude === null && data.longitude === null;
     const bothNumbers = typeof data.latitude === 'number' && typeof data.longitude === 'number';
-    if (hasLat && hasLng && (bothNull || bothNumbers)) return;
+    if (hasLat || hasLng) {
+      if (!(hasLat && hasLng && (bothNull || bothNumbers))) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Informe latitude e longitude juntas',
+          path: ['latitude'],
+        });
+      }
+    }
+    if (data.placeName === undefined) return;
+    const nameWithPoint = typeof data.placeName === 'string' ? bothNumbers : bothNull || bothNumbers;
+    if (nameWithPoint) return;
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'Informe latitude e longitude juntas',
-      path: ['latitude'],
+      message: 'O nome do lugar só vai com o ponto',
+      path: ['placeName'],
     });
   });
 
