@@ -36,5 +36,6 @@ Feature que mexe em front e back fica numa pasta só (a da feature), não partid
 | [correcao/prompts-correcao-pronto.md](correcao/prompts-correcao-pronto.md) | Prompts históricos da correção |
 | [implementacao/plano-seguranca-e-estrutura-pronto.md](implementacao/plano-seguranca-e-estrutura-pronto.md) | Cookie, CORS, módulos — passos 0–12 |
 | [implementacao/prompts-seguranca-e-estrutura-pronto.md](implementacao/prompts-seguranca-e-estrutura-pronto.md) | Prompts históricos desse plano |
+| [back/localizacao-pronto.md](back/localizacao-pronto.md) | Mapa MapLibre, ponto, nome e prédios |
 
 Mobile e desktop existem só como pastas reservadas. Não implementar sem pedido explícito.

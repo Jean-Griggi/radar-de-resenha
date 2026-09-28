@@ -4,6 +4,69 @@ export const PLACE_NAME_MAX = 40;
 
 export const MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
 
+/** Volume a partir deste zoom. Abaixo disso o prédio continua chapado. */
+export const BUILDING_MIN_ZOOM = 15;
+export const MAP_MAX_PITCH = 60;
+const BUILDING_LAYER = 'building';
+const BUILDING_VOLUME_LAYER = 'building-3d';
+
+/** Altura que o OpenFreeMap já traz. Sem número, o volume é zero e o prédio fica chapado. */
+export function buildingHeightExpression(): unknown[] {
+  return ['coalesce', ['to-number', ['get', 'render_height']], 0];
+}
+
+export function buildingVolumePlan(): {
+  maxPitch: number;
+  flatLayer: string;
+  volumeLayer: string;
+  minZoom: number;
+  height: unknown[];
+  base: unknown[];
+} {
+  return {
+    maxPitch: MAP_MAX_PITCH,
+    flatLayer: BUILDING_LAYER,
+    volumeLayer: BUILDING_VOLUME_LAYER,
+    minZoom: BUILDING_MIN_ZOOM,
+    height: buildingHeightExpression(),
+    base: ['coalesce', ['to-number', ['get', 'render_min_height']], 0],
+  };
+}
+
+type VolumeMap = {
+  setMaxPitch: (pitch: number) => void;
+  getLayer: (id: string) => { type?: string; minzoom?: number } | undefined;
+  setLayerZoomRange: (id: string, min: number, max: number) => void;
+  setPaintProperty: (id: string, name: string, value: unknown) => void;
+};
+
+/**
+ * Inclina a câmera e sobe o prédio onde o OpenFreeMap tem altura.
+ * Se o volume não existir, o mapa plano permanece.
+ */
+export function applyBuildingVolume(map: VolumeMap): boolean {
+  const plan = buildingVolumePlan();
+  try {
+    map.setMaxPitch(plan.maxPitch);
+  } catch {
+    return false;
+  }
+  try {
+    const volume = map.getLayer(plan.volumeLayer);
+    if (!volume || volume.type !== 'fill-extrusion') return false;
+    const flat = map.getLayer(plan.flatLayer);
+    if (flat?.type === 'fill') {
+      map.setLayerZoomRange(plan.flatLayer, flat.minzoom ?? 13, 24);
+    }
+    map.setLayerZoomRange(plan.volumeLayer, plan.minZoom, 24);
+    map.setPaintProperty(plan.volumeLayer, 'fill-extrusion-height', plan.height);
+    map.setPaintProperty(plan.volumeLayer, 'fill-extrusion-base', plan.base);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const DEFAULT_CENTER: [number, number] = [-51.9258, -14.235];
 const POINT_ZOOM = 14;
 const OVERVIEW_ZOOM = 4;
@@ -240,10 +303,14 @@ export async function mountLocationMap(
     style: view.style,
     center: view.center,
     zoom: view.zoom,
+    maxPitch: MAP_MAX_PITCH,
     attributionControl: view.attributionControl,
     cooperativeGestures: !options.interactive,
   });
-  map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-right');
+  map.addControl(new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-right');
+  map.on('load', () => {
+    applyBuildingVolume(map as never);
+  });
 
   let marker: ReturnType<typeof placeMarker> | null = options.point
     ? placeMarker(maplibre, map, options.point, options.avatar, options.placeName)
@@ -290,9 +357,10 @@ export async function mountPeopleMap(host: HTMLElement, people: PeoplePin[]): Pr
     style: view.style,
     center: view.center,
     zoom: view.zoom,
+    maxPitch: MAP_MAX_PITCH,
     attributionControl: view.attributionControl,
   });
-  map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-right');
+  map.addControl(new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-right');
 
   let markers: Array<ReturnType<typeof placeMarker>> = [];
   let latest = people;
@@ -319,7 +387,10 @@ export async function mountPeopleMap(host: HTMLElement, people: PeoplePin[]): Pr
     if (map.loaded()) moveTo(next);
   }
 
-  map.on('load', () => moveTo(latest));
+  map.on('load', () => {
+    applyBuildingVolume(map as never);
+    moveTo(latest);
+  });
   show(people);
 
   return {

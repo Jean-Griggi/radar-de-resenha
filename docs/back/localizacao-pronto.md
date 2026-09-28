@@ -1,6 +1,8 @@
+> **Pronto.** Não reabrir passo a passo.
+
 # Localização no mapa
 
-Status: aberto
+Status: pronto
 
 ## Problema
 

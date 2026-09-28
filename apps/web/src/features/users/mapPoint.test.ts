@@ -2,8 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import {
+  applyBuildingVolume,
+  BUILDING_MIN_ZOOM,
+  buildingVolumePlan,
   clearLocationBody,
   locationMapView,
+  MAP_MAX_PITCH,
   MAP_STYLE_URL,
   peopleMapView,
   pinContent,
@@ -148,6 +152,69 @@ describe('mapPoint', () => {
     assert.equal(/GeolocateControl|watchPosition|navigator\.geolocation/.test(sources), false);
     assert.equal(/GOOGLE_MAPS|maps\.googleapis/.test(sources), false);
     assert.equal(/attributionControl:\s*false/.test(sources), false);
+  });
+
+  it('inclina a câmera e extruda o prédio a partir do zoom 15, sem chave', () => {
+    const plan = buildingVolumePlan();
+    assert.equal(plan.minZoom, BUILDING_MIN_ZOOM);
+    assert.equal(plan.minZoom, 15);
+    assert.equal(plan.maxPitch, MAP_MAX_PITCH);
+    assert.equal(plan.maxPitch > 0, true);
+    assert.equal(plan.flatLayer, 'building');
+    assert.equal(plan.volumeLayer, 'building-3d');
+    assert.deepEqual(plan.height, ['coalesce', ['to-number', ['get', 'render_height']], 0]);
+    assert.equal(JSON.stringify(plan).includes('render_height'), true);
+    assert.equal(JSON.stringify(plan).includes('googleapis'), false);
+    const sources = mapSource + screenSource + peopleSource;
+    assert.equal(/terrain|hillshade|setFog|globe/.test(sources), false);
+    assert.equal(/GOOGLE_MAPS|maps\.googleapis/.test(sources), false);
+    assert.equal(/attributionControl:\s*false/.test(sources), false);
+
+    const zoom: unknown[] = [];
+    const paint: unknown[] = [];
+    const raised = applyBuildingVolume({
+      setMaxPitch(pitch) {
+        assert.equal(pitch, 60);
+      },
+      getLayer(id) {
+        if (id === 'building') return { type: 'fill', minzoom: 13 };
+        if (id === 'building-3d') return { type: 'fill-extrusion', minzoom: 14 };
+        return undefined;
+      },
+      setLayerZoomRange(id, min, max) {
+        zoom.push([id, min, max]);
+      },
+      setPaintProperty(id, name, value) {
+        paint.push([id, name, value]);
+      },
+    });
+    assert.equal(raised, true);
+    assert.deepEqual(zoom, [
+      ['building', 13, 24],
+      ['building-3d', 15, 24],
+    ]);
+    assert.deepEqual(paint[0], ['building-3d', 'fill-extrusion-height', plan.height]);
+
+    let hidFlat = false;
+    const skipped = applyBuildingVolume({
+      setMaxPitch() {},
+      getLayer() {
+        return undefined;
+      },
+      setLayerZoomRange() {
+        hidFlat = true;
+      },
+      setPaintProperty() {
+        hidFlat = true;
+      },
+    });
+    assert.equal(skipped, false);
+    assert.equal(hidFlat, false);
+    assert.deepEqual(pinContent('https://cdn.example/a.png', 'casa'), {
+      visible: true,
+      imageUrl: 'https://cdn.example/a.png',
+      label: 'casa',
+    });
   });
 
   it('o pino usa o avatar e continua visível sem foto', () => {

@@ -1,7 +1,9 @@
+> **Pronto.** Não reabrir passo a passo.
+
 # Plano — Localização no MapLibre
 
-Spec: docs/back/localizacao.md
-Status: aberto
+Spec: docs/back/localizacao-pronto.md
+Status: pronto
 
 O mapa sai do Google Maps. No navegador, MapLibre GL desenha o estilo gratuito do OpenFreeMap (`https://tiles.openfreemap.org/styles/liberty`). Sem chave, sem cartão e sem cobrança por uso. A assinatura © OpenStreetMap fica visível no canto do mapa. Não se esconde e não se apaga.
 
@@ -84,7 +86,9 @@ Não incluir quem a sessão não pode ver. Não fazer rastro, GPS contínuo nem 
 
 ## Fatia 4 — Prédios em 3D
 
-- [ ] pendente
+- [x] feito
+
+2026-09-28 — A câmera inclina até 60°. O volume `building-3d` sobe no zoom 15 com `render_height` do OpenFreeMap; sem altura o valor é 0 e a camada `building` continua chapada. Se o volume não carregar, o mapa plano permanece. A assinatura segue visível. Teste do `mapPoint` passou.
 
 **O que fazer:**
 
