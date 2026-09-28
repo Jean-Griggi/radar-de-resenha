@@ -60,7 +60,9 @@ Não criar uma lista fechada de tipos de lugar. Não mostrar o nome sem o ponto.
 
 ## Fatia 3 — Várias pessoas no mesmo mapa
 
-- [ ] pendente
+- [x] feito
+
+2026-09-28 — `GET /users/map` lista só o ponto que o mesmo usuário já receberia no perfil. Privado de estranho e pedido pendente ficam de fora; a própria sessão, amigo aceito e quem segue entram, com o avatar e o nome do lugar. Sem GPS. Teste da API e do `mapPoint` passaram.
 
 **O que fazer:**
 

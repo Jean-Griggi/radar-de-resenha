@@ -5,7 +5,9 @@ import {
   clearLocationBody,
   locationMapView,
   MAP_STYLE_URL,
+  peopleMapView,
   pinContent,
+  pinsFromPeople,
   pointFromClick,
   profileLocationFields,
   saveLocationBody,
@@ -15,6 +17,7 @@ import {
 
 const mapSource = readFileSync(new URL('./mapPoint.ts', import.meta.url), 'utf8');
 const screenSource = readFileSync(new URL('./LocationMap.tsx', import.meta.url), 'utf8');
+const peopleSource = readFileSync(new URL('./PeopleMapScreen.tsx', import.meta.url), 'utf8');
 
 describe('mapPoint', () => {
   it('abre o MapLibre sem chave e mantém a assinatura visível', () => {
@@ -96,6 +99,55 @@ describe('mapPoint', () => {
       visiblePlaceName({ latitude: -23.5, longitude: -46.6, placeName: ' casa ' }),
       'casa',
     );
+  });
+
+  it('o mapa de várias pessoas usa a foto e o nome do lugar, sem rastro', () => {
+    const pins = pinsFromPeople([
+      {
+        id: 'a',
+        username: 'ana',
+        latitude: -23.5,
+        longitude: -46.6,
+        avatar: ' https://cdn.example/ana.png ',
+        placeName: ' casa ',
+        cover: 'https://cdn.example/capa.png',
+      },
+      { id: 'b', username: 'bia', placeName: 'trabalho', avatar: 'https://cdn.example/bia.png' },
+      { id: 'c', username: 'caio', latitude: -22.9, longitude: -43.2, avatar: '  ', placeName: 'rua' },
+      { latitude: 10, longitude: 20, avatar: 'https://cdn.example/sem-id.png', placeName: 'x' },
+    ]);
+    assert.deepEqual(pins, [
+      {
+        id: 'a',
+        username: 'ana',
+        latitude: -23.5,
+        longitude: -46.6,
+        avatar: 'https://cdn.example/ana.png',
+        placeName: 'casa',
+      },
+      {
+        id: 'c',
+        username: 'caio',
+        latitude: -22.9,
+        longitude: -43.2,
+        avatar: null,
+        placeName: 'rua',
+      },
+    ]);
+    assert.equal(JSON.stringify(pins).includes('capa.png'), false);
+    assert.equal(JSON.stringify(pins).includes('bia.png'), false);
+    const view = peopleMapView(pins);
+    assert.equal(view.style, MAP_STYLE_URL);
+    assert.equal(view.attributionControl.compact, false);
+    assert.deepEqual(view.bounds, [
+      [-46.6, -23.5],
+      [-43.2, -22.9],
+    ]);
+    assert.equal(JSON.stringify(view).includes('googleapis'), false);
+    const sources = mapSource + screenSource + peopleSource;
+    assert.equal(/GeolocateControl|watchPosition|navigator\.geolocation/.test(sources), false);
+    assert.equal(/GOOGLE_MAPS|maps\.googleapis/.test(sources), false);
+    assert.equal(/attributionControl:\s*false/.test(sources), false);
   });
 
   it('o pino usa o avatar e continua visível sem foto', () => {

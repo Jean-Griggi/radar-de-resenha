@@ -53,6 +53,17 @@ export type UserProfile = PublicUser & {
   placeName?: string;
 };
 
+/** Ponto que o perfil desta sessão já mostraria. Sem e-mail e sem outra foto. */
+export type MapPerson = {
+  id: string;
+  name: string;
+  username: string;
+  avatar: string | null;
+  latitude: number;
+  longitude: number;
+  placeName?: string;
+};
+
 export type UserStats = {
   roles: number;
   reviews: number;

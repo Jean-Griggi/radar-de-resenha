@@ -47,6 +47,7 @@ const MORE_NAV = [
   { href: '/music', label: 'Música' },
   { href: '/stats', label: 'Estatísticas' },
   { href: '/amigos', label: 'Amigos' },
+  { href: '/mapa', label: 'Mapa' },
   { href: '/photos', label: 'Fotos' },
 ];
 

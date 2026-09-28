@@ -1135,4 +1135,153 @@ describe('Resenhômetro API', () => {
     expect(followerAfterClear.json().longitude).toBeUndefined();
     expect(followerAfterClear.json().placeName).toBeUndefined();
   });
+
+  it('mapa lista só os pontos que o perfil já mostraria', async () => {
+    async function register(name: string, nick: string) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/auth/register',
+        payload: {
+          name,
+          email: `${nick}${suffix}@resenha.test`,
+          password: 'secret12',
+          username: nick,
+        },
+      });
+      expect(res.statusCode).toBe(201);
+      return {
+        token: res.json().token as string,
+        id: res.json().user.id as string,
+        username: res.json().user.username as string,
+      };
+    }
+
+    const header = (token: string) => ({ authorization: `Bearer ${token}` });
+    const open = await register('Mapa Aberto', `ma${suffix}`);
+    const hidden = await register('Mapa Fechado', `mf${suffix}`);
+    const viewer = await register('Mapa Olho', `mo${suffix}`);
+    const blank = await register('Mapa Vazio', `mv${suffix}`);
+
+    const casa = { latitude: -23.55, longitude: -46.63, placeName: 'casa' };
+    const trabalho = { latitude: -22.9, longitude: -43.2, placeName: 'trabalho' };
+
+    expect(
+      (
+        await app.inject({
+          method: 'PUT',
+          url: '/users/me',
+          headers: header(open.token),
+          payload: casa,
+        })
+      ).statusCode,
+    ).toBe(200);
+    expect(
+      (
+        await app.inject({
+          method: 'PUT',
+          url: '/users/me',
+          headers: header(hidden.token),
+          payload: { ...trabalho, isPublic: false },
+        })
+      ).statusCode,
+    ).toBe(200);
+
+    const anon = await app.inject({ method: 'GET', url: '/users/map' });
+    expect(anon.statusCode).toBe(401);
+
+    type MapEntry = {
+      id: string;
+      username: string;
+      avatar: string | null;
+      latitude?: number;
+      longitude?: number;
+      placeName?: string;
+      email?: string;
+      cover?: string;
+    };
+
+    async function mapOf(token: string) {
+      const res = await app.inject({ method: 'GET', url: '/users/map', headers: header(token) });
+      expect(res.statusCode).toBe(200);
+      expect(JSON.stringify(res.json())).not.toMatch(/AIza|googleMaps|mapsApiKey|GOOGLE_MAPS/i);
+      return res.json() as MapEntry[];
+    }
+
+    async function profileOf(token: string, username: string) {
+      const res = await app.inject({
+        method: 'GET',
+        url: `/users/${username}`,
+        headers: header(token),
+      });
+      expect(res.statusCode).toBe(200);
+      return res.json() as MapEntry;
+    }
+
+    function entry(list: MapEntry[], username: string) {
+      return list.find((item) => item.username === username);
+    }
+
+    function sameAsProfile(point: MapEntry | undefined, profile: MapEntry) {
+      expect(point).toBeDefined();
+      expect(point?.latitude).toBe(profile.latitude);
+      expect(point?.longitude).toBe(profile.longitude);
+      expect(point?.placeName).toBe(profile.placeName);
+      expect(point?.avatar).toBe(profile.avatar ?? null);
+      expect(point?.email).toBeUndefined();
+      expect(point?.cover).toBeUndefined();
+      expect(JSON.stringify(point)).not.toContain('email');
+    }
+
+    const strangerMap = await mapOf(viewer.token);
+    const openProfile = await profileOf(viewer.token, open.username);
+    const hiddenProfile = await profileOf(viewer.token, hidden.username);
+    sameAsProfile(entry(strangerMap, open.username), openProfile);
+    expect(entry(strangerMap, hidden.username)).toBeUndefined();
+    expect(hiddenProfile.latitude).toBeUndefined();
+    expect(hiddenProfile.placeName).toBeUndefined();
+    expect(entry(strangerMap, blank.username)).toBeUndefined();
+    expect(entry(strangerMap, viewer.username)).toBeUndefined();
+
+    const ownHidden = await mapOf(hidden.token);
+    sameAsProfile(entry(ownHidden, hidden.username), await profileOf(hidden.token, hidden.username));
+
+    const followed = await app.inject({
+      method: 'POST',
+      url: `/users/${hidden.id}/follow`,
+      headers: header(viewer.token),
+    });
+    expect(followed.statusCode).toBe(200);
+    const followerMap = await mapOf(viewer.token);
+    sameAsProfile(entry(followerMap, hidden.username), await profileOf(viewer.token, hidden.username));
+
+    const unfollowed = await app.inject({
+      method: 'DELETE',
+      url: `/users/${hidden.id}/follow`,
+      headers: header(viewer.token),
+    });
+    expect(unfollowed.statusCode).toBe(200);
+    expect(entry(await mapOf(viewer.token), hidden.username)).toBeUndefined();
+
+    const asked = await app.inject({
+      method: 'POST',
+      url: '/friends/requests',
+      headers: header(viewer.token),
+      payload: { userId: hidden.id },
+    });
+    expect(asked.statusCode).toBe(201);
+    expect(entry(await mapOf(viewer.token), hidden.username)).toBeUndefined();
+
+    const accepted = await app.inject({
+      method: 'PUT',
+      url: `/friends/requests/${asked.json().id}`,
+      headers: header(hidden.token),
+      payload: { status: 'accepted' },
+    });
+    expect(accepted.statusCode).toBe(200);
+    const friendMap = await mapOf(viewer.token);
+    sameAsProfile(entry(friendMap, hidden.username), await profileOf(viewer.token, hidden.username));
+    expect(entry(friendMap, hidden.username)?.placeName).toBe('trabalho');
+    expect(entry(friendMap, open.username)?.placeName).toBe('casa');
+    expect(entry(friendMap, open.username)?.avatar ?? null).toBe(openProfile.avatar ?? null);
+  });
 });

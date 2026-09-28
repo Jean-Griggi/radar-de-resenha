@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { mountLocationMap, type MapControls, type MapPoint } from './mapPoint';
+import {
+  mountLocationMap,
+  mountPeopleMap,
+  type MapControls,
+  type MapPoint,
+  type PeopleMapControls,
+  type PeoplePin,
+} from './mapPoint';
 
 export function LocationMap({
   point,
@@ -73,6 +80,54 @@ export function LocationMap({
       />
       {failed ? <p className="mt-2 text-sm text-[var(--danger)]">Não foi possível abrir o mapa.</p> : null}
       {interactive && !failed ? <p className="mt-2 text-xs text-muted">Clique no mapa para escolher o lugar.</p> : null}
+    </div>
+  );
+}
+
+export function PeopleMap({ people }: { people: PeoplePin[] }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<PeopleMapControls | null>(null);
+  const peopleRef = useRef(people);
+  const [failed, setFailed] = useState(false);
+  peopleRef.current = people;
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    let cancelled = false;
+    setFailed(false);
+    mountPeopleMap(host, peopleRef.current)
+      .then((controls) => {
+        if (cancelled) {
+          controls.destroy();
+          return;
+        }
+        controlsRef.current = controls;
+        controls.sync(peopleRef.current);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+      controlsRef.current?.destroy();
+      controlsRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    controlsRef.current?.sync(people);
+  }, [people]);
+
+  return (
+    <div data-people-map={failed ? 'closed' : 'open'}>
+      <div
+        ref={hostRef}
+        className="h-[70vh] min-h-80 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]"
+        role="application"
+        aria-label="Mapa das pessoas"
+      />
+      {failed ? <p className="mt-2 text-sm text-[var(--danger)]">Não foi possível abrir o mapa.</p> : null}
     </div>
   );
 }

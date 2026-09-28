@@ -1,4 +1,4 @@
-import { ACHIEVEMENT_DEFS, type AuthUser, type FriendshipStatus, type UserProfile } from '@resenhometro/shared';
+import { ACHIEVEMENT_DEFS, type AuthUser, type FriendshipStatus, type MapPerson, type UserProfile } from '@resenhometro/shared';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso } from '../../lib/helpers.js';
 import { conflict, notFound } from '../../lib/http.js';
@@ -115,6 +115,54 @@ export async function getUserByUsername(username: string, viewerId?: string): Pr
     };
   }
   return profile;
+}
+
+/** Mesma regra do perfil: público, a própria sessão, amigo aceito ou quem ela segue. */
+export async function listMapPeople(viewerId: string): Promise<MapPerson[]> {
+  const rows = await query<UserRow>(
+    `SELECT id, name, username, email, avatar, cover, bio, city, latitude, longitude, place_name, is_public, show_followers, show_interactions, created_at, updated_at
+     FROM users u
+     WHERE u.latitude IS NOT NULL
+       AND u.longitude IS NOT NULL
+       AND (
+         u.is_public = TRUE
+         OR u.id = $1
+         OR EXISTS (
+           SELECT 1 FROM friendships f
+           WHERE f.status = 'accepted'
+             AND (
+               (f.requester_id = $1 AND f.receiver_id = u.id)
+               OR (f.requester_id = u.id AND f.receiver_id = $1)
+             )
+         )
+         OR EXISTS (
+           SELECT 1 FROM follows fl
+           WHERE fl.follower_id = $1 AND fl.following_id = u.id
+         )
+       )
+     ORDER BY u.username ASC`,
+    [viewerId],
+  );
+
+  const people: MapPerson[] = [];
+  for (const row of rows) {
+    const latitude = Number(row.latitude);
+    const longitude = Number(row.longitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) continue;
+    const user = mapUser(row);
+    const placeName = storedPlaceName(row.place_name);
+    people.push({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      avatar: user.avatar,
+      latitude,
+      longitude,
+      ...(placeName ? { placeName } : {}),
+    });
+  }
+  return people;
 }
 
 export async function getUserById(id: string, viewerId?: string) {

@@ -224,10 +224,21 @@ export function ProfileScreen() {
         </div>
       </div>
 
-      {point ? (
+      {point || profile.isMe ? (
         <section className="card mt-4 p-5">
-          <h2 className="mb-3 font-medium">Localização</h2>
-          <LocationMap point={point} avatar={profile.avatar} placeName={visiblePlaceName(profile)} />
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 className="font-medium">Localização</h2>
+            {profile.isMe ? (
+              <Link href="/mapa" className="text-sm text-muted">
+                Pessoas no mapa
+              </Link>
+            ) : null}
+          </div>
+          {point ? (
+            <LocationMap point={point} avatar={profile.avatar} placeName={visiblePlaceName(profile)} />
+          ) : (
+            <p className="text-sm text-muted">Sem ponto neste perfil.</p>
+          )}
         </section>
       ) : null}
 

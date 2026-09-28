@@ -85,6 +85,73 @@ export function profileLocationFields(
   return { ...body, placeName: placeLabel(placeName) };
 }
 
+export type PeoplePin = {
+  id: string;
+  username: string;
+  latitude: number;
+  longitude: number;
+  avatar: string | null;
+  placeName: string | null;
+};
+
+/** Só entra quem já tem o par. A foto é o avatar informado. Sem o par, o nome sai. */
+export function pinsFromPeople(
+  people: Array<{
+    id?: string;
+    username?: string;
+    latitude?: number;
+    longitude?: number;
+    avatar?: string | null;
+    placeName?: string | null;
+  }>,
+): PeoplePin[] {
+  const pins: PeoplePin[] = [];
+  for (const person of people) {
+    const point = visiblePoint(person);
+    if (!point || !person.id) continue;
+    pins.push({
+      id: person.id,
+      username: person.username?.trim() || '',
+      latitude: point.latitude,
+      longitude: point.longitude,
+      avatar: markerAvatar(person.avatar),
+      placeName: visiblePlaceName(person),
+    });
+  }
+  return pins;
+}
+
+export function peopleMapView(pins: { latitude: number; longitude: number }[]): {
+  style: string;
+  center: [number, number];
+  zoom: number;
+  attributionControl: MapAttribution;
+  bounds: [[number, number], [number, number]] | null;
+} {
+  if (pins.length === 0) return { ...locationMapView(null), bounds: null };
+  if (pins.length === 1) return { ...locationMapView(pins[0]!), bounds: null };
+  let west = pins[0]!.longitude;
+  let east = pins[0]!.longitude;
+  let south = pins[0]!.latitude;
+  let north = pins[0]!.latitude;
+  for (const pin of pins) {
+    west = Math.min(west, pin.longitude);
+    east = Math.max(east, pin.longitude);
+    south = Math.min(south, pin.latitude);
+    north = Math.max(north, pin.latitude);
+  }
+  return {
+    style: MAP_STYLE_URL,
+    center: [(west + east) / 2, (south + north) / 2],
+    zoom: OVERVIEW_ZOOM,
+    attributionControl: { compact: false },
+    bounds: [
+      [west, south],
+      [east, north],
+    ],
+  };
+}
+
 export function samePoint(a: MapPoint | null, b: MapPoint | null): boolean {
   if (!a || !b) return a === b;
   return a.latitude === b.latitude && a.longitude === b.longitude;
@@ -204,6 +271,62 @@ export async function mountLocationMap(
     destroy() {
       if (options.interactive) map.off('click', onClick);
       marker?.remove();
+      map.remove();
+    },
+  };
+}
+
+export type PeopleMapControls = {
+  sync: (people: PeoplePin[]) => void;
+  destroy: () => void;
+};
+
+/** Vários pinos no mesmo mapa. Sem GPS e sem acompanhar movimento. */
+export async function mountPeopleMap(host: HTMLElement, people: PeoplePin[]): Promise<PeopleMapControls> {
+  const maplibre = await import('maplibre-gl');
+  const view = peopleMapView(people);
+  const map = new maplibre.Map({
+    container: host,
+    style: view.style,
+    center: view.center,
+    zoom: view.zoom,
+    attributionControl: view.attributionControl,
+  });
+  map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-right');
+
+  let markers: Array<ReturnType<typeof placeMarker>> = [];
+  let latest = people;
+
+  function moveTo(next: PeoplePin[]) {
+    const frame = peopleMapView(next);
+    if (frame.bounds) {
+      map.fitBounds(frame.bounds, { padding: 48, maxZoom: POINT_ZOOM, animate: false });
+      return;
+    }
+    map.setCenter(frame.center);
+    map.setZoom(frame.zoom);
+  }
+
+  function show(next: PeoplePin[]) {
+    latest = next;
+    for (const marker of markers) marker.remove();
+    markers = [];
+    for (const person of next) {
+      const marker = placeMarker(maplibre, map, person, person.avatar, person.placeName);
+      marker.getElement().dataset.mapPerson = person.id;
+      markers.push(marker);
+    }
+    if (map.loaded()) moveTo(next);
+  }
+
+  map.on('load', () => moveTo(latest));
+  show(people);
+
+  return {
+    sync: show,
+    destroy() {
+      for (const marker of markers) marker.remove();
+      markers = [];
       map.remove();
     },
   };
