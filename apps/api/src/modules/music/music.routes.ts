@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import { z } from 'zod';
 import { env } from '../../config/env.js';
 import { authenticate, checkSession } from '../../lib/authenticate.js';
 import {
@@ -10,8 +11,11 @@ import {
   getSpotifyAccount,
   issueSpotifyState,
   listMusic,
+  searchSpotify,
   spotifyAuthUrl,
 } from './music.service.js';
+
+const searchQuerySchema = z.object({ q: z.string().trim().min(2).max(100) });
 
 export async function musicRoutes(app: FastifyInstance) {
   app.get('/music', { preHandler: [authenticate] }, async (request) => listMusic(request.user.sub));
@@ -19,6 +23,11 @@ export async function musicRoutes(app: FastifyInstance) {
   app.get('/spotify/status', { preHandler: [authenticate] }, async (request) => getSpotifyAccount(request.user.sub));
   app.get('/spotify/playlists', { preHandler: [authenticate] }, async (request) => getPlaylists(request.user.sub));
   app.get('/spotify/tracks', { preHandler: [authenticate] }, async (request) => getSavedTracks(request.user.sub));
+
+  app.get('/spotify/search', { preHandler: [authenticate] }, async (request) => {
+    const { q } = searchQuerySchema.parse(request.query);
+    return searchSpotify(request.user.sub, q);
+  });
 
   app.get('/spotify/connect', { preHandler: [authenticate] }, async (request) => {
     return { url: spotifyAuthUrl(await issueSpotifyState(request.user.sub)) };

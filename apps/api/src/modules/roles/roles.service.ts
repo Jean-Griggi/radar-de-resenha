@@ -9,7 +9,7 @@ import {
   toDateKey,
 } from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
-import { publicUrl } from '../../lib/storage.js';
+import { publicUrl, removeStored } from '../../lib/storage.js';
 import { mapMusicRows } from '../music/music.map.js';
 import { notify } from '../notifications/notifications.service.js';
 import { addFeedEvent } from '../social/feed.js';
@@ -26,6 +26,9 @@ export type RoleRow = {
   date: string | null;
   time: string | null;
   location: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  banner: string | null;
   category: string;
   estimated_cost: number | null;
   tags: string;
@@ -127,6 +130,8 @@ function mapSerializedRole(
     date,
     time: row.time,
     location: row.location,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
     category: row.category,
     estimatedCost: row.estimated_cost,
     tags: parseJson<string[]>(row.tags, []),
@@ -140,7 +145,9 @@ function mapSerializedRole(
     notGoingCount: pick('not_going'),
     commentCount: extras.comments.get(row.id) ?? 0,
     averageRating: extras.ratings.get(row.id) ?? null,
-    coverPhoto: extras.covers.get(row.id) ?? null,
+    banner: publicUrl(row.banner),
+    // O banner escolhido pelo dono vale mais que a primeira foto do rolê (listas e detalhe já usam coverPhoto).
+    coverPhoto: publicUrl(row.banner) ?? extras.covers.get(row.id) ?? null,
     myAttendance: viewerId ? (extras.myAttendance.get(row.id) ?? null) : null,
   };
 }
@@ -310,8 +317,8 @@ export async function createRole(userId: string, input: CreateRoleInput) {
   const id = randomUUID();
   const stamp = nowIso();
   await exec(
-    `INSERT INTO roles (id, title, description, date, time, location, category, estimated_cost, tags, creator_id, status, created_at, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'upcoming',$11,$12)`,
+    `INSERT INTO roles (id, title, description, date, time, location, latitude, longitude, category, estimated_cost, tags, creator_id, status, created_at, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'upcoming',$13,$14)`,
     [
       id,
       input.title,
@@ -319,6 +326,8 @@ export async function createRole(userId: string, input: CreateRoleInput) {
       input.date ?? null,
       input.time ?? null,
       input.location ?? null,
+      input.latitude ?? null,
+      input.longitude ?? null,
       input.category ?? 'Outro',
       input.estimatedCost ?? null,
       JSON.stringify(input.tags ?? []),
@@ -345,7 +354,8 @@ export async function updateRole(id: string, userId: string, input: UpdateRoleIn
   if (row.creator_id !== userId) throw forbidden();
 
   await exec(
-    `UPDATE roles SET title = $1, description = $2, date = $3, time = $4, location = $5, category = $6, estimated_cost = $7, tags = $8, updated_at = $9
+    `UPDATE roles SET title = $1, description = $2, date = $3, time = $4, location = $5, category = $6, estimated_cost = $7, tags = $8, updated_at = $9,
+       latitude = $11, longitude = $12
      WHERE id = $10`,
     [
       input.title ?? row.title,
@@ -358,6 +368,8 @@ export async function updateRole(id: string, userId: string, input: UpdateRoleIn
       JSON.stringify(input.tags ?? parseJson(row.tags, [])),
       nowIso(),
       id,
+      input.latitude === undefined ? row.latitude : input.latitude,
+      input.longitude === undefined ? row.longitude : input.longitude,
     ],
   );
 
@@ -369,6 +381,23 @@ export async function deleteRole(id: string, userId: string) {
   if (!row) throw notFound('Rolê não encontrado');
   if (row.creator_id !== userId) throw forbidden();
   await exec(`DELETE FROM roles WHERE id = $1`, [id]);
+  await removeStored(row.banner);
+}
+
+/**
+ * Troca ou remove o banner do rolê (só o dono). O arquivo novo já foi gravado por `takeUpload` antes de
+ * chegar aqui, então se a troca for recusada ele é apagado: nada de arquivo órfão. O antigo sai depois do UPDATE.
+ */
+export async function setRoleBanner(id: string, userId: string, relative: string | null) {
+  const row = await queryOne<RoleRow>(`SELECT * FROM roles WHERE id = $1`, [id]);
+  if (!row || row.creator_id !== userId) {
+    await removeStored(relative);
+    if (!row) throw notFound('Rolê não encontrado');
+    throw forbidden();
+  }
+  await exec(`UPDATE roles SET banner = $1, updated_at = $2 WHERE id = $3`, [relative, nowIso(), id]);
+  if (row.banner && row.banner !== relative) await removeStored(row.banner);
+  return serializeRoleDetail(id, userId);
 }
 
 export async function setAttendance(roleId: string, userId: string, status: 'going' | 'maybe' | 'not_going') {

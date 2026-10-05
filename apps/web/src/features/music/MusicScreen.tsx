@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { RoleMusic, SpotifyAccount, SpotifyPlaylist, SpotifyTrack } from '@resenhometro/shared';
+import type { RoleMusic, SpotifyAccount, SpotifyPlaylist, SpotifySearchResults, SpotifyTrack } from '@resenhometro/shared';
 import { Button } from '@/components/Button';
 import { Skeleton } from '@/components/Card';
+import { Input } from '@/components/Field';
 import { MediaImage } from '@/components/MediaImage';
 import { usePlayer, type PlayerTrack } from '@/components/Player';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { setCachedSpotifyStatus, setSpotifyConnectedFlag } from '@/lib/shellCache';
+import { ExpandableList } from './ExpandableList';
 import { MusicCard } from './MusicCard';
 
 type Status = SpotifyAccount & { configured?: boolean };
@@ -24,6 +26,39 @@ export function MusicScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [disconnecting, setDisconnecting] = useState(false);
+  const [query, setQuery] = useState('');
+  const [searched, setSearched] = useState('');
+  const [results, setResults] = useState<SpotifySearchResults | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState('');
+
+  async function search() {
+    const text = query.trim();
+    if (text.length < 2) {
+      setSearchError('Digite pelo menos 2 letras para pesquisar.');
+      return;
+    }
+    setSearching(true);
+    setSearchError('');
+    try {
+      const { data } = await api.get<SpotifySearchResults>('/spotify/search', { params: { q: text }, timeout: 10_000 });
+      setResults(data);
+      setSearched(text);
+    } catch (err) {
+      if (isApiCanceled(err)) return;
+      setResults(null);
+      setSearchError(apiErrorMessage(err, 'Não foi possível pesquisar no Spotify'));
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  function clearSearch() {
+    setQuery('');
+    setSearched('');
+    setResults(null);
+    setSearchError('');
+  }
 
   async function load(signal?: AbortSignal) {
     const config = signal ? { signal } : undefined;
@@ -167,6 +202,77 @@ export function MusicScreen() {
           {status?.connected ? (
             <>
               <section className="mt-5 card p-6">
+                <h2 className="mb-3 font-medium">Pesquisar no Spotify</h2>
+                <form
+                  className="flex gap-2"
+                  role="search"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void search();
+                  }}
+                >
+                  <Input
+                    type="search"
+                    value={query}
+                    maxLength={100}
+                    placeholder="Música, artista ou playlist"
+                    aria-label="Pesquisar música ou playlist no Spotify"
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                  <Button type="submit" disabled={searching}>
+                    {searching ? 'Buscando…' : 'Pesquisar'}
+                  </Button>
+                  {results || searchError ? (
+                    <Button type="button" variant="ghost" onClick={clearSearch}>
+                      Limpar
+                    </Button>
+                  ) : null}
+                </form>
+                {searchError ? <p className="mt-3 text-sm text-[var(--danger)]">{searchError}</p> : null}
+                {results ? (
+                  <div className="mt-4 space-y-5">
+                    <p className="text-sm text-muted">Resultados para "{searched}"</p>
+                    <div>
+                      <h3 className="mb-2 text-sm font-medium">Músicas</h3>
+                      {results.tracks.length === 0 ? <p className="text-sm text-muted">Nenhuma música encontrada.</p> : null}
+                      <ExpandableList
+                        items={results.tracks}
+                        label="músicas"
+                        itemKey={(item) => item.id}
+                        render={(item) => (
+                          <Tile
+                            cover={item.cover}
+                            title={item.title}
+                            subtitle={item.artist}
+                            active={isPlaying(playing, item.url)}
+                            onPlay={() => setTrack({ title: item.title, artist: item.artist, cover: item.cover, spotifyUrl: item.url })}
+                          />
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="mb-2 text-sm font-medium">Playlists</h3>
+                      {results.playlists.length === 0 ? <p className="text-sm text-muted">Nenhuma playlist encontrada.</p> : null}
+                      <ExpandableList
+                        items={results.playlists}
+                        label="playlists"
+                        itemKey={(item) => item.id}
+                        render={(list) => (
+                          <Tile
+                            cover={list.image}
+                            title={list.name}
+                            subtitle={`Playlist · ${list.tracks} faixas`}
+                            active={isPlaying(playing, list.url)}
+                            onPlay={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </section>
+
+              <section className="mt-5 card p-6">
                 <h2 className="mb-1 font-medium">Suas músicas</h2>
                 <p className="mb-3 text-sm text-muted">Escolha uma para tocar aqui, sem sair do Resenhômetro.</p>
                 {savedError ? (
@@ -180,37 +286,39 @@ export function MusicScreen() {
                 {!savedError && saved.length === 0 ? (
                   <p className="text-sm text-muted">Nenhuma música curtida na sua conta.</p>
                 ) : null}
-                <ul className="grid gap-2 sm:grid-cols-2">
-                  {saved.map((item) => (
-                    <li key={item.id}>
-                      <Tile
-                        cover={item.cover}
-                        title={item.title}
-                        subtitle={item.artist}
-                        active={isPlaying(playing, item.url)}
-                        onPlay={() => setTrack({ title: item.title, artist: item.artist, cover: item.cover, spotifyUrl: item.url })}
-                      />
-                    </li>
-                  ))}
-                </ul>
+                <ExpandableList
+                  items={saved}
+                  label="músicas"
+                  itemKey={(item) => item.id}
+                  render={(item) => (
+                    <Tile
+                      cover={item.cover}
+                      title={item.title}
+                      subtitle={item.artist}
+                      active={isPlaying(playing, item.url)}
+                      onPlay={() => setTrack({ title: item.title, artist: item.artist, cover: item.cover, spotifyUrl: item.url })}
+                    />
+                  )}
+                />
               </section>
 
               <section className="mt-5 card p-6">
                 <h2 className="mb-3 font-medium">Playlists</h2>
                 {playlists.length === 0 ? <p className="text-sm text-muted">Nenhuma playlist na sua conta.</p> : null}
-                <ul className="grid gap-2 sm:grid-cols-2">
-                  {playlists.map((list) => (
-                    <li key={list.id}>
-                      <Tile
-                        cover={list.image}
-                        title={list.name}
-                        subtitle={`Playlist · ${list.tracks} faixas`}
-                        active={isPlaying(playing, list.url)}
-                        onPlay={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
-                      />
-                    </li>
-                  ))}
-                </ul>
+                <ExpandableList
+                  items={playlists}
+                  label="playlists"
+                  itemKey={(list) => list.id}
+                  render={(list) => (
+                    <Tile
+                      cover={list.image}
+                      title={list.name}
+                      subtitle={`Playlist · ${list.tracks} faixas`}
+                      active={isPlaying(playing, list.url)}
+                      onPlay={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
+                    />
+                  )}
+                />
               </section>
             </>
           ) : null}

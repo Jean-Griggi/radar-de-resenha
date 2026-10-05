@@ -1,5 +1,5 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
-import type { MusicKind, SpotifyPlaylist, SpotifyTrack } from '@resenhometro/shared';
+import type { MusicKind, SpotifyPlaylist, SpotifySearchResults, SpotifyTrack } from '@resenhometro/shared';
 import { env } from '../../config/env.js';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso } from '../../lib/helpers.js';
@@ -49,6 +49,9 @@ export function spotifyAuthUrl(state: string) {
     response_type: 'code',
     redirect_uri: env.SPOTIFY_REDIRECT_URI!,
     state,
+    // Sempre mostra a tela de permissões: sem isso o Spotify pode reaproveitar a autorização antiga
+    // e a conta reconectada continuaria sem os escopos novos.
+    show_dialog: 'true',
     scope:
       'user-read-private user-read-email user-read-currently-playing user-read-playback-state playlist-read-private playlist-read-collaborative user-library-read',
   });
@@ -251,6 +254,34 @@ export async function getSpotifyAccount(userId: string) {
 
 // --- Leitura no Spotify com a conta conectada -------------------------------------------------
 
+/** Motivo que o Spotify manda no corpo do erro (`{ error: { message } }`). Texto dele, sem token. */
+async function spotifyErrorMessage(response: HttpResponse) {
+  try {
+    const body = (await response.json()) as { error?: { message?: unknown } | string; error_description?: unknown };
+    const raw = typeof body.error === 'string' ? body.error_description ?? body.error : body.error?.message;
+    return typeof raw === 'string' ? raw.slice(0, 160) : '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Traduz a recusa do Spotify em algo que a pessoa consegue agir em cima. O motivo vem do próprio Spotify:
+ * permissão que faltou (reconectar), conta fora da lista do app em modo de desenvolvimento, token inválido.
+ */
+export function explainSpotifyRefusal(status: number, reason: string) {
+  if (/scope/i.test(reason)) {
+    return 'Faltam permissões do Spotify nesta conta. Clique em "Reconectar Spotify" na tela de Música e aceite todas as permissões.';
+  }
+  if (/not registered|developer dashboard|user management|allowlist/i.test(reason)) {
+    return 'Esta conta do Spotify ainda não está liberada neste app. Quem administra o app precisa adicionar o seu e-mail em "User Management" no painel do Spotify.';
+  }
+  if (status === 401) {
+    return 'A sessão do Spotify venceu. Desconecte e conecte de novo na tela de Música.';
+  }
+  return `O Spotify recusou o acesso (${status})${reason ? `: ${reason}` : ''}. Se continuar, desconecte e conecte de novo na tela de Música.`;
+}
+
 async function spotifyGet<T>(accessToken: string, path: string): Promise<T> {
   let response: HttpResponse;
   try {
@@ -264,7 +295,10 @@ async function spotifyGet<T>(accessToken: string, path: string): Promise<T> {
     throw badRequest(SPOTIFY_DOWN);
   }
   if (response.status === 401 || response.status === 403) {
-    throw badRequest('O Spotify recusou o acesso. Desconecte e conecte de novo na tela de Música.');
+    const reason = await spotifyErrorMessage(response);
+    // Vai para o log do servidor (Vercel) para dar para diagnosticar; não leva token nem corpo da resposta.
+    console.warn(`spotify ${response.status} em ${path.split('?')[0]}: ${reason || 'sem motivo no corpo'}`);
+    throw badRequest(explainSpotifyRefusal(response.status, reason));
   }
   if (response.status === 404) throw badRequest('Item não encontrado na sua conta do Spotify.');
   if (!response.ok) throw badRequest(SPOTIFY_DOWN);
@@ -370,6 +404,26 @@ export async function getSavedTracks(userId: string): Promise<SpotifyTrack[]> {
     '/me/tracks?limit=50',
   );
   return (data.items ?? []).flatMap((entry) => (entry.track?.id ? [toTrack(entry.track)] : []));
+}
+
+const SEARCH_LIMIT = 10;
+
+/**
+ * Pesquisa faixas e playlists no catálogo do Spotify com a conta conectada. Serve para ouvir no player:
+ * o resultado não vira item de rolê nem de story, que continuam aceitando só o que é da conta (`resolveSpotifyItem`).
+ */
+export async function searchSpotify(userId: string, text: string): Promise<SpotifySearchResults> {
+  const row = await connectedAccount(userId);
+  const data = await spotifyGet<{
+    tracks?: { items?: Array<SpotifyTrackItem | null> };
+    playlists?: { items?: Array<SpotifyPlaylistItem | null> };
+  }>(row.access_token, `/search?q=${encodeURIComponent(text)}&type=track,playlist&limit=${SEARCH_LIMIT}`);
+
+  // O Spotify devolve `null` no meio da lista de playlists; sem id não dá para tocar, então sai.
+  return {
+    tracks: (data.tracks?.items ?? []).flatMap((item) => (item?.id ? [toTrack(item)] : [])),
+    playlists: (data.playlists?.items ?? []).flatMap((item) => (item?.id ? [toPlaylist(item)] : [])),
+  };
 }
 
 /**

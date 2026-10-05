@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
+import { takeUpload } from '../../lib/storage.js';
 import { HttpError } from '../../lib/http.js';
 import { musicSchema } from '../music/music.schema.js';
 import { commentSchema } from '../social/social.schema.js';
@@ -14,6 +15,7 @@ import {
   listRoles,
   serializeRoleDetail,
   setAttendance,
+  setRoleBanner,
   updateRole,
 } from './roles.service.js';
 
@@ -113,6 +115,25 @@ export async function rolesRoutes(app: FastifyInstance) {
     try {
       await addComment(request.user.sub, { targetType: 'role', targetId: id, content: body.content, parentId: body.parentId });
       return serializeRoleDetail(id, request.user.sub);
+    } catch (error) {
+      return handleError(error, reply);
+    }
+  });
+
+  app.post('/roles/:id/banner', { preHandler: [authenticate] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const saved = await takeUpload(request, 'cover');
+    try {
+      return await setRoleBanner(id, request.user.sub, saved.relative);
+    } catch (error) {
+      return handleError(error, reply);
+    }
+  });
+
+  app.delete('/roles/:id/banner', { preHandler: [authenticate] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    try {
+      return await setRoleBanner(id, request.user.sub, null);
     } catch (error) {
       return handleError(error, reply);
     }

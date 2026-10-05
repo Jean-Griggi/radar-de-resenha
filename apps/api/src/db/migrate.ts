@@ -419,6 +419,27 @@ const migrations: Migration[] = [
     created_at TIMESTAMPTZ NOT NULL
   )`,
   },
+  {
+    id: '051_roles_location',
+    sql: `ALTER TABLE roles
+    ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION,
+    ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION`,
+  },
+  {
+    id: '052_roles_location_pair',
+    sql: `ALTER TABLE roles ADD CONSTRAINT roles_location_pair CHECK (
+    (latitude IS NULL AND longitude IS NULL)
+    OR (
+      latitude IS NOT NULL AND longitude IS NOT NULL
+      AND latitude >= -90 AND latitude <= 90
+      AND longitude >= -180 AND longitude <= 180
+    )
+  )`,
+  },
+  {
+    id: '053_roles_banner',
+    sql: `ALTER TABLE roles ADD COLUMN IF NOT EXISTS banner TEXT`,
+  },
 ]
 
 export async function applyMigrations(query: QueryFn) {
