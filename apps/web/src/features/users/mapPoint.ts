@@ -73,7 +73,12 @@ const OVERVIEW_ZOOM = 4;
 
 export type MapAttribution = { compact: false };
 
-export function locationMapView(point: MapPoint | null): {
+export type MapFallbackView = { center: [number, number]; zoom: number };
+
+export function locationMapView(
+  point: MapPoint | null,
+  fallback?: MapFallbackView,
+): {
   style: string;
   center: [number, number];
   zoom: number;
@@ -81,8 +86,8 @@ export function locationMapView(point: MapPoint | null): {
 } {
   return {
     style: MAP_STYLE_URL,
-    center: point ? [point.longitude, point.latitude] : DEFAULT_CENTER,
-    zoom: point ? POINT_ZOOM : OVERVIEW_ZOOM,
+    center: point ? [point.longitude, point.latitude] : (fallback?.center ?? DEFAULT_CENTER),
+    zoom: point ? POINT_ZOOM : (fallback?.zoom ?? OVERVIEW_ZOOM),
     attributionControl: { compact: false },
   };
 }
@@ -297,10 +302,12 @@ export async function mountLocationMap(
     avatar: string | null;
     placeName: string | null;
     onPick: (point: MapPoint) => void;
+    /** Onde o mapa abre enquanto não há ponto (padrão: visão do Brasil). */
+    fallbackView?: MapFallbackView;
   },
 ): Promise<MapControls> {
   const maplibre = await import('maplibre-gl');
-  const view = locationMapView(options.point);
+  const view = locationMapView(options.point, options.fallbackView);
   const map = new maplibre.Map({
     container: host,
     style: view.style,
@@ -325,7 +332,7 @@ export async function mountLocationMap(
   function show(point: MapPoint | null, avatar: string | null, placeName: string | null) {
     marker?.remove();
     marker = null;
-    const next = locationMapView(point);
+    const next = locationMapView(point, options.fallbackView);
     map.setCenter(next.center);
     map.setZoom(next.zoom);
     if (!point) return;

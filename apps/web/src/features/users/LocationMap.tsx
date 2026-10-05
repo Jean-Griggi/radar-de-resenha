@@ -6,6 +6,7 @@ import {
   mountLocationMap,
   mountPeopleMap,
   type MapControls,
+  type MapFallbackView,
   type MapPoint,
   type PeopleMapControls,
   type PeoplePin,
@@ -17,12 +18,19 @@ export function LocationMap({
   placeName = null,
   interactive = false,
   onPick,
+  fallbackView,
+  heightClass = 'h-56',
+  hint = 'Clique no mapa para escolher o lugar.',
 }: {
   point: MapPoint | null;
   avatar: string | null;
   placeName?: string | null;
   interactive?: boolean;
   onPick?: (point: MapPoint) => void;
+  /** Onde o mapa abre enquanto não há ponto. */
+  fallbackView?: MapFallbackView;
+  heightClass?: string;
+  hint?: string;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<MapControls | null>(null);
@@ -30,7 +38,9 @@ export function LocationMap({
   const pointRef = useRef(point);
   const avatarRef = useRef(avatar);
   const placeNameRef = useRef(placeName);
+  const fallbackRef = useRef(fallbackView);
   const [failed, setFailed] = useState(false);
+  fallbackRef.current = fallbackView;
   onPickRef.current = onPick;
   pointRef.current = point;
   avatarRef.current = avatar;
@@ -46,6 +56,7 @@ export function LocationMap({
       point: pointRef.current,
       avatar: avatarRef.current,
       placeName: pointRef.current ? placeNameRef.current : null,
+      fallbackView: fallbackRef.current,
       onPick: (picked) => onPickRef.current?.(picked),
     })
       .then((controls) => {
@@ -74,12 +85,12 @@ export function LocationMap({
     <div data-location-map={failed ? 'closed' : 'open'}>
       <div
         ref={hostRef}
-        className="h-56 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]"
+        className={`${heightClass} w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]`}
         role="application"
         aria-label={interactive ? 'Minimapa para escolher a localização' : 'Mapa da localização'}
       />
       {failed ? <p className="mt-2 text-sm text-[var(--danger)]">Não foi possível abrir o mapa.</p> : null}
-      {interactive && !failed ? <p className="mt-2 text-xs text-muted">Clique no mapa para escolher o lugar.</p> : null}
+      {interactive && !failed ? <p className="mt-2 text-xs text-muted">{hint}</p> : null}
     </div>
   );
 }

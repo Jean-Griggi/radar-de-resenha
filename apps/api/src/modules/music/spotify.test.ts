@@ -17,7 +17,12 @@ import { resetAuthRateLimits } from '../../lib/auth-rate-limit.js';
 
 type FakeTrack = { id: string; name: string; artists: string[]; album: string; cover: string };
 type FakePlaylist = { id: string; name: string; cover: string; total: number };
-type Library = { tracks: FakeTrack[]; playlists: FakePlaylist[] };
+type Library = {
+  tracks: FakeTrack[];
+  playlists: FakePlaylist[];
+  /** Faz as chamadas de biblioteca (/me/tracks...) recusarem, como o Spotify faz sem o escopo. */
+  refuse?: { status: number; message: string };
+};
 
 const libraries = new Map<string, Library>();
 const allTracks = new Map<string, FakeTrack>();
@@ -52,6 +57,9 @@ function installFakeSpotify() {
       if (!library) return json({ error: 'invalid token' }, 401);
 
       const path = url.pathname.replace('/v1', '');
+      if (library.refuse && path.startsWith('/me/tracks')) {
+        return json({ error: { status: library.refuse.status, message: library.refuse.message } }, library.refuse.status);
+      }
       if (path === '/me') return json({ id: `sp-${bearer}`, display_name: `Conta ${bearer}`, product: 'premium' });
       if (path === '/me/player/currently-playing') return new Response(null, { status: 204 });
       if (path === '/me/playlists') {
@@ -264,6 +272,14 @@ describe('Spotify no rolê e no story', () => {
       expect(status.json().connected).toBe(false);
     });
 
+    it('a URL de conexão sempre pede a tela de permissões e inclui o escopo da biblioteca', async () => {
+      const ana = await person('sd1');
+      const res = await app.inject({ method: 'GET', url: '/spotify/connect', headers: bearer(ana) });
+      const url = new URL(res.json().url);
+      expect(url.searchParams.get('show_dialog')).toBe('true');
+      expect(url.searchParams.get('scope')).toContain('user-library-read');
+    });
+
     it('conectar, listar e desconectar exigem sessão', async () => {
       for (const [method, url] of [
         ['GET', '/spotify/status'],
@@ -275,6 +291,50 @@ describe('Spotify no rolê e no story', () => {
         const res = await app.inject({ method, url });
         expect(res.statusCode, `${method} ${url}`).toBe(401);
       }
+    });
+  });
+
+  describe('recusa do Spotify: a mensagem diz o que fazer', () => {
+    async function savedTracks(tag: string, refuse: { status: number; message: string }) {
+      const ana = await person(tag);
+      await connect(ana, `ana-${tag}`, { tracks: [TRACK_A], playlists: [], refuse });
+      return app.inject({ method: 'GET', url: '/spotify/tracks', headers: bearer(ana) });
+    }
+
+    it('falta de escopo manda reconectar', async () => {
+      const res = await savedTracks('er1', { status: 403, message: 'Insufficient client scope' });
+      expect(res.statusCode).toBe(400);
+      expect(res.json().message).toMatch(/Reconectar Spotify/);
+    });
+
+    it('conta fora da lista do app em modo de desenvolvimento manda pedir liberação', async () => {
+      const res = await savedTracks('er2', { status: 403, message: 'User not registered in the Developer Dashboard' });
+      expect(res.statusCode).toBe(400);
+      expect(res.json().message).toMatch(/User Management/);
+    });
+
+    it('token inválido avisa que a sessão do Spotify venceu', async () => {
+      const res = await savedTracks('er3', { status: 401, message: 'Invalid access token' });
+      expect(res.statusCode).toBe(400);
+      expect(res.json().message).toMatch(/venceu/);
+    });
+
+    it('motivo desconhecido aparece como o Spotify mandou, sem inventar causa e sem token', async () => {
+      const res = await savedTracks('er4', { status: 403, message: 'Forbidden for some new reason' });
+      expect(res.statusCode).toBe(400);
+      expect(res.json().message).toContain('(403): Forbidden for some new reason');
+      expect(res.body).not.toMatch(SECRET_FIELDS);
+    });
+
+    it('colocar música no rolê mostra a mesma explicação, e o rolê não ganha item', async () => {
+      const ana = await person('er5');
+      await connect(ana, 'ana-er5', { tracks: [TRACK_A], playlists: [], refuse: { status: 403, message: 'Insufficient client scope' } });
+      const roleId = await newRole(ana);
+      const res = await addMusic(ana, roleId, { kind: 'track', spotifyId: TRACK_A.id });
+      expect(res.statusCode).toBe(400);
+      expect(res.json().message).toMatch(/Reconectar Spotify/);
+      const role = await app.inject({ method: 'GET', url: `/roles/${roleId}`, headers: bearer(ana) });
+      expect(role.json().music).toHaveLength(0);
     });
   });
 

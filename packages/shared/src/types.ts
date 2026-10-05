@@ -115,6 +115,9 @@ export type Role = {
   date: string | null;
   time: string | null;
   location: string | null;
+  /** Ponto exato escolhido no mapa. Os dois vêm juntos ou os dois são nulos. */
+  latitude: number | null;
+  longitude: number | null;
   category: RoleCategory;
   estimatedCost: number | null;
   tags: string[];
@@ -128,6 +131,9 @@ export type Role = {
   notGoingCount: number;
   commentCount: number;
   averageRating: number | null;
+  /** Banner escolhido pelo dono ao criar ou editar o rolê. */
+  banner: string | null;
+  /** O que a lista e o detalhe mostram no topo: o banner, ou a primeira foto se não houver banner. */
   coverPhoto: string | null;
 };
 

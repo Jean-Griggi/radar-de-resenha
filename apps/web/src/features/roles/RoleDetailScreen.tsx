@@ -10,6 +10,7 @@ import { Field, Input, Textarea } from '@/components/Field';
 import { MediaImage } from '@/components/MediaImage';
 import { usePlayer } from '@/components/Player';
 import { MusicCard, SpotifyPicker } from '@/features/music';
+import { LocationMap } from '@/features/users/LocationMap';
 import { Comments, Reactions } from '@/features/social';
 import { Skeleton } from '@/components/Card';
 import { useToast } from '@/components/Toast';
@@ -121,6 +122,13 @@ export function RoleDetailScreen() {
           </div>
         </div>
       </div>
+
+      {role.latitude != null && role.longitude != null ? (
+        <section className="card space-y-2 p-5">
+          <h2 className="font-medium">Onde é</h2>
+          <LocationMap point={{ latitude: role.latitude, longitude: role.longitude }} avatar={null} heightClass="h-64" />
+        </section>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-3">
         {(['going', 'maybe', 'not_going'] as const).map((status) => (
