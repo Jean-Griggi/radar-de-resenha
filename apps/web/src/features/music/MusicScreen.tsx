@@ -1,22 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { SpotifyAccount, SpotifyPlaylist } from '@resenhometro/shared';
+import type { RoleMusic, SpotifyAccount, SpotifyPlaylist } from '@resenhometro/shared';
 import { Button } from '@/components/Button';
 import { Skeleton } from '@/components/Card';
 import { usePlayer } from '@/components/Player';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { setCachedSpotifyStatus, setSpotifyConnectedFlag } from '@/lib/shellCache';
-
-type MusicTrack = { id: string; title: string; artist: string; cover?: string | null; spotifyUrl?: string | null };
+import { MusicCard } from './MusicCard';
 
 export function MusicScreen() {
   const toast = useToast();
   const { setTrack } = usePlayer();
   const [status, setStatus] = useState<(SpotifyAccount & { configured?: boolean }) | null>(null);
   const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
-  const [tracks, setTracks] = useState<MusicTrack[]>([]);
+  const [tracks, setTracks] = useState<RoleMusic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [disconnecting, setDisconnecting] = useState(false);
@@ -25,7 +24,7 @@ export function MusicScreen() {
     const config = signal ? { signal } : undefined;
     const [accountResult, musicResult] = await Promise.allSettled([
       api.get<SpotifyAccount & { configured?: boolean }>('/spotify/status', { ...config, timeout: 8_000 }),
-      api.get<MusicTrack[]>('/music', config),
+      api.get<RoleMusic[]>('/music', config),
     ]);
 
     if (accountResult.status === 'fulfilled') {
@@ -146,7 +145,7 @@ export function MusicScreen() {
                   </p>
                 ) : (
                   <>
-                    <p className="text-sm text-muted">Conecte sua conta para ver a música atual, playlists e abrir no Spotify.</p>
+                    <p className="text-sm text-muted">Conecte sua conta para ver a música atual e colocar faixas e playlists nos seus rolês e stories.</p>
                     <Button className="mt-3" onClick={connect}>
                       Conectar Spotify
                     </Button>
@@ -177,9 +176,12 @@ export function MusicScreen() {
             <ul className="space-y-2">
               {tracks.map((track) => (
                 <li key={track.id}>
-                  <button type="button" onClick={() => setTrack(track)}>
-                    {track.title} — {track.artist}
-                  </button>
+                  <MusicCard
+                    item={track}
+                    onSelect={() =>
+                      setTrack({ title: track.title, artist: track.artist ?? 'Playlist', cover: track.cover, spotifyUrl: track.spotifyUrl })
+                    }
+                  />
                 </li>
               ))}
             </ul>

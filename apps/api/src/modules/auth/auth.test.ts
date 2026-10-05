@@ -23,7 +23,6 @@ vi.mock('../../lib/mail.js', async (importOriginal) => {
 
 let app: FastifyInstance;
 let token = '';
-let userId = '';
 let roleId = '';
 const suffix = Date.now();
 
@@ -86,7 +85,6 @@ describe('Resenhômetro API', () => {
     });
     expect(register.statusCode).toBe(201);
     token = register.json().token;
-    userId = register.json().user.id;
 
     const session = register.cookies.find((item) => item.name === 'resenhometro_session');
     expect(session?.value).toBeTruthy();

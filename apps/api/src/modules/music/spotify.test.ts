@@ -163,6 +163,9 @@ describe('Spotify no rolê e no story', () => {
   });
 
   afterAll(async () => {
+    // O banco local é persistente e a listagem de rolês tem limite: o que este arquivo cria não pode ficar
+    // e empurrar rolês de outros testes para fora. Apagar o usuário leva junto rolês, músicas, stories e conexões.
+    await exec(`DELETE FROM users WHERE username LIKE $1`, [`%${suffix}`]);
     await app.close();
   });
 
@@ -415,7 +418,7 @@ describe('Spotify no rolê e no story', () => {
 
     async function storiesOf(viewer: Person, authorId: string) {
       const res = await app.inject({ method: 'GET', url: '/stories', headers: bearer(viewer) });
-      const rings = res.json() as Array<{ author: { id: string }; stories: Array<Record<string, any>> }>;
+      const rings = res.json() as Array<{ author: { id: string }; stories: Array<{ music: unknown }> }>;
       return rings.find((ring) => ring.author.id === authorId)?.stories ?? [];
     }
 

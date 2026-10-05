@@ -26,7 +26,6 @@ Se não existir plano, pare e peça a `sdd-plan`. Se a spec e o plano discordare
 - Antes de marcar a fatia feita, confira a seção Segurança da spec no que a fatia toca. Token, cookie, e-mail, mapa ou dado de outra pessoa só fecham se o critério correspondente passou.
 - Não comece a próxima fatia.
 - Não traga item de **Fora de escopo** da spec.
-- Não reabra arquivo `-pronto`.
 - Backend: `apps/api/src/modules/<domínio>/` → routes → service. Web: página fina em `app/`, tela em `features/`.
 - Idioma com a equipe: português, direto.
 - Não faça deploy. Não zere Supabase.
@@ -36,9 +35,8 @@ Marque a fatia `- [~]` ao começar e `- [x]` só depois da validação da própr
 ## Quando a última fatia fechar
 
 1. Status do plano e da spec: `Status: pronto`.
-2. Renomeie os dois arquivos com sufixo `-pronto` antes de `.md` (`foo-plano.md` → `foo-plano-pronto.md`, `foo.md` → `foo-pronto.md`).
-3. Atualize o link da spec dentro do plano e a tabela **Pronto** em `docs/README.md`.
-4. Coloque no topo de cada um: `> **Pronto.** Não reabrir passo a passo.`
+2. Apague a spec e o plano (o histórico fica no git) e tire a feature da tabela **Abertos** em `docs/README.md`.
+3. Passe o que a feature entregou para `docs/ai/plano-execucao.md`, que guarda o estado atual do produto.
 
 ## Encerrar
 
