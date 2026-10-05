@@ -1,5 +1,5 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
-import type { MusicKind, SpotifyPlaylist, SpotifyTrack } from '@resenhometro/shared';
+import type { MusicKind, SpotifyPlaylist, SpotifySearchResults, SpotifyTrack } from '@resenhometro/shared';
 import { env } from '../../config/env.js';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso } from '../../lib/helpers.js';
@@ -404,6 +404,26 @@ export async function getSavedTracks(userId: string): Promise<SpotifyTrack[]> {
     '/me/tracks?limit=50',
   );
   return (data.items ?? []).flatMap((entry) => (entry.track?.id ? [toTrack(entry.track)] : []));
+}
+
+const SEARCH_LIMIT = 10;
+
+/**
+ * Pesquisa faixas e playlists no catálogo do Spotify com a conta conectada. Serve para ouvir no player:
+ * o resultado não vira item de rolê nem de story, que continuam aceitando só o que é da conta (`resolveSpotifyItem`).
+ */
+export async function searchSpotify(userId: string, text: string): Promise<SpotifySearchResults> {
+  const row = await connectedAccount(userId);
+  const data = await spotifyGet<{
+    tracks?: { items?: Array<SpotifyTrackItem | null> };
+    playlists?: { items?: Array<SpotifyPlaylistItem | null> };
+  }>(row.access_token, `/search?q=${encodeURIComponent(text)}&type=track,playlist&limit=${SEARCH_LIMIT}`);
+
+  // O Spotify devolve `null` no meio da lista de playlists; sem id não dá para tocar, então sai.
+  return {
+    tracks: (data.tracks?.items ?? []).flatMap((item) => (item?.id ? [toTrack(item)] : [])),
+    playlists: (data.playlists?.items ?? []).flatMap((item) => (item?.id ? [toPlaylist(item)] : [])),
+  };
 }
 
 /**

@@ -60,6 +60,30 @@ function installFakeSpotify() {
       if (library.refuse && path.startsWith('/me/tracks')) {
         return json({ error: { status: library.refuse.status, message: library.refuse.message } }, library.refuse.status);
       }
+      if (path === '/search') {
+        const q = (url.searchParams.get('q') ?? '').toLowerCase();
+        const lists = [PLAYLIST_A, PLAYLIST_B].filter((item) => item.name.toLowerCase().includes(q));
+        return json({
+          tracks: {
+            items: [...allTracks.values()]
+              .filter((item) => item.name.toLowerCase().includes(q))
+              .map(spotifyTrack),
+          },
+          // o Spotify real devolve null no meio da lista de playlists
+          playlists: {
+            items: [
+              null,
+              ...lists.map((item) => ({
+                id: item.id,
+                name: item.name,
+                images: [{ url: item.cover }],
+                tracks: { total: item.total },
+                external_urls: { spotify: `https://open.spotify.com/playlist/${item.id}` },
+              })),
+            ],
+          },
+        });
+      }
       if (path === '/me') return json({ id: `sp-${bearer}`, display_name: `Conta ${bearer}`, product: 'premium' });
       if (path === '/me/player/currently-playing') return new Response(null, { status: 204 });
       if (path === '/me/playlists') {
@@ -291,6 +315,64 @@ describe('Spotify no rolê e no story', () => {
         const res = await app.inject({ method, url });
         expect(res.statusCode, `${method} ${url}`).toBe(401);
       }
+    });
+  });
+
+  describe('pesquisa no Spotify', () => {
+    function search(p: Person | null, q: string) {
+      return app.inject({
+        method: 'GET',
+        url: `/spotify/search?q=${encodeURIComponent(q)}`,
+        headers: p ? bearer(p) : {},
+      });
+    }
+
+    it('acha faixas e playlists do catálogo, mesmo as que não estão na biblioteca da conta', async () => {
+      const ana = await person('pq1');
+      await connect(ana, 'ana-pq1', { tracks: [], playlists: [] });
+
+      const faixa = await search(ana, 'Faixa do Beto');
+      expect(faixa.statusCode).toBe(200);
+      expect(faixa.json().tracks).toEqual([
+        { id: TRACK_B.id, title: TRACK_B.name, artist: 'Banda B', cover: TRACK_B.cover, url: `https://open.spotify.com/track/${TRACK_B.id}` },
+      ]);
+
+      const lista = await search(ana, 'Lista da Ana');
+      expect(lista.json().playlists.map((item: { id: string }) => item.id)).toEqual([PLAYLIST_A.id]);
+      expect(faixa.body + lista.body).not.toMatch(SECRET_FIELDS);
+    });
+
+    it('ignora o null que o Spotify manda no meio das playlists e responde vazio sem resultado', async () => {
+      const ana = await person('pq2');
+      await connect(ana, 'ana-pq2', { tracks: [], playlists: [] });
+      const res = await search(ana, 'zzzzzz-nada');
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toEqual({ tracks: [], playlists: [] });
+    });
+
+    it('exige sessão, conta conectada e texto de 2 a 100 letras', async () => {
+      const ana = await person('pq3');
+      expect((await search(null, 'faixa')).statusCode).toBe(401);
+      expect((await search(ana, 'faixa')).statusCode).toBe(400); // sem Spotify conectado
+
+      await connect(ana, 'ana-pq3', { tracks: [], playlists: [] });
+      expect((await search(ana, 'a')).statusCode).toBe(400);
+      expect((await search(ana, ' ')).statusCode).toBe(400);
+      expect((await search(ana, 'x'.repeat(101))).statusCode).toBe(400);
+      expect((await app.inject({ method: 'GET', url: '/spotify/search', headers: bearer(ana) })).statusCode).toBe(400);
+    });
+
+    it('a pesquisa não abre brecha para colocar no rolê o que não é da conta', async () => {
+      const ana = await person('pq4');
+      await connect(ana, 'ana-pq4', { tracks: [], playlists: [] });
+      const found = await search(ana, 'Faixa do Beto');
+      expect(found.json().tracks).toHaveLength(1);
+
+      const roleId = await newRole(ana);
+      const res = await addMusic(ana, roleId, { kind: 'track', spotifyId: TRACK_B.id });
+      expect(res.statusCode).toBe(400);
+      const role = await app.inject({ method: 'GET', url: `/roles/${roleId}`, headers: bearer(ana) });
+      expect(role.json().music).toHaveLength(0);
     });
   });
 

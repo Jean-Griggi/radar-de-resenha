@@ -159,6 +159,12 @@ export type RoleMusic = MusicItem & {
   spotifyId: string | null;
 };
 
+/** Resultado de `GET /spotify/search`: itens públicos do Spotify, não só os da biblioteca da conta. */
+export type SpotifySearchResults = {
+  tracks: SpotifyTrack[];
+  playlists: SpotifyPlaylist[];
+};
+
 /** Faixa da biblioteca da conta conectada, como o servidor resolveu no Spotify. */
 export type SpotifyTrack = {
   id: string;
