@@ -1,20 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { RoleMusic, SpotifyAccount, SpotifyPlaylist } from '@resenhometro/shared';
+import type { RoleMusic, SpotifyAccount, SpotifyPlaylist, SpotifyTrack } from '@resenhometro/shared';
 import { Button } from '@/components/Button';
 import { Skeleton } from '@/components/Card';
-import { usePlayer } from '@/components/Player';
+import { MediaImage } from '@/components/MediaImage';
+import { usePlayer, type PlayerTrack } from '@/components/Player';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { setCachedSpotifyStatus, setSpotifyConnectedFlag } from '@/lib/shellCache';
 import { MusicCard } from './MusicCard';
 
+type Status = SpotifyAccount & { configured?: boolean };
+
 export function MusicScreen() {
   const toast = useToast();
-  const { setTrack } = usePlayer();
-  const [status, setStatus] = useState<(SpotifyAccount & { configured?: boolean }) | null>(null);
+  const { track: playing, setTrack } = usePlayer();
+  const [status, setStatus] = useState<Status | null>(null);
   const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
+  const [saved, setSaved] = useState<SpotifyTrack[]>([]);
+  const [savedError, setSavedError] = useState('');
   const [tracks, setTracks] = useState<RoleMusic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,7 +28,7 @@ export function MusicScreen() {
   async function load(signal?: AbortSignal) {
     const config = signal ? { signal } : undefined;
     const [accountResult, musicResult] = await Promise.allSettled([
-      api.get<SpotifyAccount & { configured?: boolean }>('/spotify/status', { ...config, timeout: 8_000 }),
+      api.get<Status>('/spotify/status', { ...config, timeout: 8_000 }),
       api.get<RoleMusic[]>('/music', config),
     ]);
 
@@ -34,14 +39,22 @@ export function MusicScreen() {
       setCachedSpotifyStatus(account);
       if (account.nowPlaying) setTrack(account.nowPlaying);
       if (account.connected) {
-        try {
-          const lists = await api.get<SpotifyPlaylist[]>('/spotify/playlists', { ...config, timeout: 8_000 });
-          setPlaylists(lists.data);
-        } catch {
-          setPlaylists([]);
+        const [lists, library] = await Promise.allSettled([
+          api.get<SpotifyPlaylist[]>('/spotify/playlists', { ...config, timeout: 8_000 }),
+          api.get<SpotifyTrack[]>('/spotify/tracks', { ...config, timeout: 8_000 }),
+        ]);
+        setPlaylists(lists.status === 'fulfilled' ? lists.value.data : []);
+        if (library.status === 'fulfilled') {
+          setSaved(library.value.data);
+          setSavedError('');
+        } else if (!isApiCanceled(library.reason)) {
+          setSaved([]);
+          setSavedError(apiErrorMessage(library.reason, 'Não foi possível ler suas músicas curtidas'));
         }
       } else {
         setPlaylists([]);
+        setSaved([]);
+        setSavedError('');
       }
     }
 
@@ -116,19 +129,13 @@ export function MusicScreen() {
               <div className="mt-3 space-y-3">
                 <p>Conectado como {status.displayName}</p>
                 {status.nowPlaying ? (
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-3 rounded-xl bg-[var(--overlay)] p-3 text-left"
-                    onClick={() => setTrack(status.nowPlaying!)}
-                  >
-                    {status.nowPlaying.cover ? (
-                      <img src={status.nowPlaying.cover} alt="" className="h-12 w-12 rounded-lg object-cover" />
-                    ) : null}
-                    <div>
-                      <p>{status.nowPlaying.title}</p>
-                      <p className="text-sm text-muted">{status.nowPlaying.artist}</p>
-                    </div>
-                  </button>
+                  <Tile
+                    cover={status.nowPlaying.cover}
+                    title={status.nowPlaying.title}
+                    subtitle={`${status.nowPlaying.artist} · tocando agora no Spotify`}
+                    active={isPlaying(playing, status.nowPlaying.spotifyUrl)}
+                    onPlay={() => setTrack(status.nowPlaying!)}
+                  />
                 ) : (
                   <p className="text-sm text-muted">Nenhuma faixa tocando agora.</p>
                 )}
@@ -145,7 +152,9 @@ export function MusicScreen() {
                   </p>
                 ) : (
                   <>
-                    <p className="text-sm text-muted">Conecte sua conta para ver a música atual e colocar faixas e playlists nos seus rolês e stories.</p>
+                    <p className="text-sm text-muted">
+                      Conecte sua conta para ouvir suas músicas e playlists aqui e colocá-las nos seus rolês e stories.
+                    </p>
                     <Button className="mt-3" onClick={connect}>
                       Conectar Spotify
                     </Button>
@@ -155,19 +164,55 @@ export function MusicScreen() {
             )}
           </section>
 
-          {playlists.length > 0 ? (
-            <section className="mt-5 card p-6">
-              <h2 className="mb-3 font-medium">Playlists</h2>
-              <ul className="space-y-2">
-                {playlists.map((list) => (
-                  <li key={list.id}>
-                    <a href={list.url} target="_blank" rel="noreferrer" className="text-sm hover:text-[var(--accent)]">
-                      {list.name} · {list.tracks} faixas
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </section>
+          {status?.connected ? (
+            <>
+              <section className="mt-5 card p-6">
+                <h2 className="mb-1 font-medium">Suas músicas</h2>
+                <p className="mb-3 text-sm text-muted">Escolha uma para tocar aqui, sem sair do Resenhômetro.</p>
+                {savedError ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-[var(--danger)]">{savedError}</p>
+                    <Button variant="secondary" onClick={connect}>
+                      Reconectar Spotify
+                    </Button>
+                  </div>
+                ) : null}
+                {!savedError && saved.length === 0 ? (
+                  <p className="text-sm text-muted">Nenhuma música curtida na sua conta.</p>
+                ) : null}
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {saved.map((item) => (
+                    <li key={item.id}>
+                      <Tile
+                        cover={item.cover}
+                        title={item.title}
+                        subtitle={item.artist}
+                        active={isPlaying(playing, item.url)}
+                        onPlay={() => setTrack({ title: item.title, artist: item.artist, cover: item.cover, spotifyUrl: item.url })}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section className="mt-5 card p-6">
+                <h2 className="mb-3 font-medium">Playlists</h2>
+                {playlists.length === 0 ? <p className="text-sm text-muted">Nenhuma playlist na sua conta.</p> : null}
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {playlists.map((list) => (
+                    <li key={list.id}>
+                      <Tile
+                        cover={list.image}
+                        title={list.name}
+                        subtitle={`Playlist · ${list.tracks} faixas`}
+                        active={isPlaying(playing, list.url)}
+                        onPlay={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </>
           ) : null}
 
           <section className="mt-5 card p-6">
@@ -189,5 +234,48 @@ export function MusicScreen() {
         </>
       ) : null}
     </>
+  );
+}
+
+function isPlaying(current: PlayerTrack | null, url: string | null | undefined) {
+  return Boolean(current?.spotifyUrl && url && current.spotifyUrl === url);
+}
+
+/** Linha clicável com capa: escolher = tocar no player do rodapé. */
+function Tile({
+  cover,
+  title,
+  subtitle,
+  active,
+  onPlay,
+}: {
+  cover: string | null | undefined;
+  title: string;
+  subtitle: string;
+  active: boolean;
+  onPlay: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onPlay}
+      aria-label={`Tocar ${title}`}
+      aria-pressed={active}
+      className={`flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-[var(--overlay)] ${
+        active ? 'bg-[var(--overlay)] ring-2 ring-[#1DB954]' : ''
+      }`}
+    >
+      <MediaImage src={cover} alt={`Capa de ${title}`} className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium">{title}</span>
+        <span className="block truncate text-xs text-muted">{subtitle}</span>
+      </span>
+      <span
+        aria-hidden
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1DB954] text-black"
+      >
+        {active ? '♪' : '▶'}
+      </span>
+    </button>
   );
 }

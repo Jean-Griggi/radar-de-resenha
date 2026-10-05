@@ -44,6 +44,7 @@ export function StoryViewer({
   const [ringIndex, setRingIndex] = useState(() => Math.min(startRing, Math.max(0, playable.length - 1)));
   const [storyIndex, setStoryIndex] = useState(startStory);
   const [paused, setPaused] = useState(false);
+  const [musicOpen, setMusicOpen] = useState(false);
   const [holding, setHolding] = useState(false);
   const [composing, setComposing] = useState(false);
   const [reply, setReply] = useState('');
@@ -59,7 +60,7 @@ export function StoryViewer({
   const ring = playable[ringIndex];
   const story: Story | undefined = ring?.stories[storyIndex];
   const isOwn = story?.authorId === meId;
-  const frozen = paused || holding || composing || viewers !== null;
+  const frozen = paused || holding || composing || musicOpen || viewers !== null;
 
   function go(delta: number) {
     if (!ring) return;
@@ -96,6 +97,7 @@ export function StoryViewer({
     setViewers(null);
     setVideoProgress(0);
     setHolding(false);
+    setMusicOpen(false);
     if (marked.current.has(story.id)) return;
     marked.current.add(story.id);
     api
@@ -298,7 +300,7 @@ export function StoryViewer({
             </div>
             {story.music ? (
               <div className="pointer-events-auto mt-2" onPointerDown={(event) => event.stopPropagation()}>
-                <MusicCard item={story.music} tone="story" />
+                <MusicCard key={story.id} item={story.music} tone="story" inline onOpenChange={setMusicOpen} />
               </div>
             ) : null}
           </div>
