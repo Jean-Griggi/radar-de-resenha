@@ -1,12 +1,12 @@
 import type { AuthUser } from '@resenhometro/shared';
 import bcrypt from 'bcryptjs';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { env } from '../../config/env.js';
+import { env, isProductionLike } from '../../config/env.js';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso } from '../../lib/helpers.js';
 import { getUserRow, mapUser, uniqueUsername } from '../users/users.map.js';
 import { badRequest, conflict, notFound, unauthorized } from '../../lib/http.js';
-import { mailConfigured, passwordResetEmail, sendMail } from '../../lib/mail.js';
+import { passwordResetEmail, sendMail } from '../../lib/mail.js';
 import type { ChangePasswordInput } from './auth.types.js';
 import type { LoginInput, RegisterInput } from './auth.schema.js';
 
@@ -67,6 +67,8 @@ export async function changePassword(id: string, input: ChangePasswordInput) {
   await exec(`UPDATE users SET password_hash = $1, updated_at = $2 WHERE id = $3`, [hash, nowIso(), id]);
 }
 
+const RESET_TTL_MS = 60 * 60 * 1000;
+
 function hashResetToken(token: string) {
   return createHash('sha256').update(token).digest('hex');
 }
@@ -87,48 +89,48 @@ export async function requestPasswordReset(email: string) {
 
   const token = randomBytes(32).toString('hex');
   const stamp = nowIso();
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const expiresAt = new Date(Date.now() + RESET_TTL_MS).toISOString();
   await exec(
     `INSERT INTO password_resets (id, user_id, token_hash, expires_at, created_at)
      VALUES ($1,$2,$3,$4,$5)`,
     [randomUUID(), user.id, hashResetToken(token), expiresAt, stamp],
   );
 
+  // O link cru só existe aqui: vai no e-mail e em mais nenhum lugar (nem resposta, nem tela).
   const resetUrl = `${env.WEB_ORIGIN}/redefinir-senha?token=${token}`;
   let emailSent = false;
   try {
     emailSent = await sendMail(user.email, 'Redefinir senha — Resenhômetro', passwordResetEmail(user.name, resetUrl));
   } catch (error) {
-    console.error('Falha ao enviar e-mail de redefinição', error);
+    console.error('Falha ao enviar e-mail de redefinição:', error instanceof Error ? error.message : 'erro desconhecido');
   }
 
-  const isProduction = process.env.NODE_ENV === 'production';
-  if (!emailSent && !isProduction) {
-    console.info(`Link de redefinição (SMTP não configurado ou falhou): ${resetUrl}`);
+  // Só em dev local, para quem não configurou SMTP conseguir testar. Em produção o log nunca carrega o token.
+  if (!emailSent && !isProductionLike()) {
+    console.info(`[dev] Link de redefinição (SMTP não configurado ou falhou): ${resetUrl}`);
   }
 
-  if (isProduction) {
-    return generic;
-  }
-
-  return mailConfigured()
-    ? { ...generic, emailSent }
-    : { ...generic, emailSent, resetUrl };
+  return generic;
 }
 
 export async function resetPassword(token: string, password: string) {
-  const row = await queryOne<{ id: string; user_id: string }>(
-    `SELECT id, user_id FROM password_resets
-     WHERE token_hash = $1 AND used_at IS NULL AND expires_at > $2`,
-    [hashResetToken(token), nowIso()],
+  const stamp = nowIso();
+  // Consome o token numa só instrução: dois usos simultâneos do mesmo link não passam os dois.
+  const used = await queryOne<{ user_id: string }>(
+    `UPDATE password_resets SET used_at = $1
+     WHERE token_hash = $2 AND used_at IS NULL AND expires_at > $1
+     RETURNING user_id`,
+    [stamp, hashResetToken(token)],
   );
-  if (!row) throw badRequest('Link inválido ou expirado. Peça outro e-mail.');
+  if (!used) throw badRequest('Link inválido ou expirado. Peça outro e-mail.');
 
   const hash = await bcrypt.hash(password, 10);
-  const stamp = nowIso();
-  await exec(`UPDATE users SET password_hash = $1, updated_at = $2 WHERE id = $3`, [hash, stamp, row.user_id]);
-  await exec(`UPDATE password_resets SET used_at = $1 WHERE id = $2`, [stamp, row.id]);
-  await exec(`DELETE FROM password_resets WHERE user_id = $1 AND used_at IS NULL`, [row.user_id]);
+  // password_changed_at derruba qualquer sessão emitida antes desta troca (ver lib/authenticate.ts).
+  await exec(
+    `UPDATE users SET password_hash = $1, password_changed_at = $2, updated_at = $2 WHERE id = $3`,
+    [hash, stamp, used.user_id],
+  );
+  await exec(`DELETE FROM password_resets WHERE user_id = $1 AND used_at IS NULL`, [used.user_id]);
 }
 
 export async function listUsers(q?: string) {

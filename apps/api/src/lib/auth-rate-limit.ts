@@ -36,3 +36,8 @@ export function consumeForgotEmailLimit(email: string) {
     AUTH_RATE_LIMIT_WINDOW_MS,
   );
 }
+
+/** Zera os contadores. Só para testes: o processo da suíte registra mais contas do que o limite por IP. */
+export function resetAuthRateLimits() {
+  buckets.clear();
+}

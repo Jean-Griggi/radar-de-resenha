@@ -13,18 +13,16 @@ export function EsqueciSenhaScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
-  const [resetUrl, setResetUrl] = useState('');
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.post<{ ok: boolean; resetUrl?: string }>('/auth/forgot-password', { email });
+      await api.post('/auth/forgot-password', { email });
       setDone(true);
-      setResetUrl(data.resetUrl ?? '');
     } catch (err) {
-      setError(apiErrorMessage(err, 'Não foi possível enviar o e-mail'));
+      setError(apiErrorMessage(err, 'Não foi possível fazer o pedido. Tente de novo.'));
     } finally {
       setLoading(false);
     }
@@ -37,18 +35,12 @@ export function EsqueciSenhaScreen() {
         <BrandWordmark large />
       </div>
       <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Esqueceu a senha?</h1>
-      <p className="mt-3 mb-8 text-muted">Informe o e-mail da conta. Se ele existir, mandamos um link de redefinição.</p>
+      <p className="mt-3 mb-8 text-muted">Informe o e-mail da conta e peça o link de redefinição.</p>
       {done ? (
         <div className="card space-y-4 p-6">
-          <p className="text-sm text-fg">Se o e-mail existir, o link já foi enviado. Confira a caixa de entrada e o spam.</p>
-          {resetUrl ? (
-            <p className="text-sm text-muted">
-              SMTP ainda não está configurado, então use este link local:{' '}
-              <Link href={resetUrl} className="break-all text-[var(--accent)] hover:underline">
-                redefinir senha
-              </Link>
-            </p>
-          ) : null}
+          <p className="text-sm text-fg">
+            Pedido recebido. Se esse e-mail tiver conta, o link de redefinição chega por e-mail. Confira a caixa de entrada e o spam.
+          </p>
           <Link href="/login" className="block text-center text-sm text-[var(--accent)] hover:underline">
             Voltar ao login
           </Link>
@@ -60,7 +52,7 @@ export function EsqueciSenhaScreen() {
           </Field>
           {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
           <Button type="submit" loading={loading} className="w-full">
-            {loading ? 'Enviando...' : 'Enviar link'}
+            {loading ? 'Enviando...' : 'Pedir link'}
           </Button>
         </form>
       )}

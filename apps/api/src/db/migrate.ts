@@ -376,6 +376,10 @@ const migrations: Migration[] = [
     )
   )`,
   },
+  {
+    id: '044_users_password_changed_at',
+    sql: `ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ`,
+  },
 ]
 
 export async function applyMigrations(query: QueryFn) {
