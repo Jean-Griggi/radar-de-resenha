@@ -1,10 +1,15 @@
 import { z } from 'zod';
 
+/** Id do Spotify: só letras e números (base62). Barra, ponto e `spotify:` ficam de fora. */
+export const spotifyIdSchema = z.string().regex(/^[A-Za-z0-9]{1,64}$/, 'Id do Spotify inválido');
+
+export const musicKindSchema = z.enum(['track', 'playlist']);
+
+/**
+ * Corpo de `POST /roles/:id/music`: só identifica o item. Título, artista, capa e link
+ * não são lidos do cliente (o servidor busca no Spotify), e `addedBy` é sempre a sessão.
+ */
 export const musicSchema = z.object({
-  title: z.string().min(1).max(160),
-  artist: z.string().min(1).max(160),
-  album: z.string().max(160).optional().nullable(),
-  cover: z.string().url().optional().nullable(),
-  spotifyUrl: z.string().url().optional().nullable(),
-  spotifyId: z.string().optional().nullable(),
+  kind: musicKindSchema,
+  spotifyId: spotifyIdSchema,
 });

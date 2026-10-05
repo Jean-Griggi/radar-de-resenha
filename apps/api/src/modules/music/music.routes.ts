@@ -1,14 +1,15 @@
 import type { FastifyInstance } from 'fastify';
 import { env } from '../../config/env.js';
-import { authenticate } from '../../lib/authenticate.js';
+import { authenticate, checkSession } from '../../lib/authenticate.js';
 import {
   completeSpotifyAuth,
-  createSpotifyState,
+  consumeSpotifyState,
   disconnectSpotify,
   getPlaylists,
+  getSavedTracks,
   getSpotifyAccount,
+  issueSpotifyState,
   listMusic,
-  parseSpotifyState,
   spotifyAuthUrl,
 } from './music.service.js';
 
@@ -17,9 +18,10 @@ export async function musicRoutes(app: FastifyInstance) {
 
   app.get('/spotify/status', { preHandler: [authenticate] }, async (request) => getSpotifyAccount(request.user.sub));
   app.get('/spotify/playlists', { preHandler: [authenticate] }, async (request) => getPlaylists(request.user.sub));
+  app.get('/spotify/tracks', { preHandler: [authenticate] }, async (request) => getSavedTracks(request.user.sub));
 
   app.get('/spotify/connect', { preHandler: [authenticate] }, async (request) => {
-    return { url: spotifyAuthUrl(createSpotifyState(request.user.sub)) };
+    return { url: spotifyAuthUrl(await issueSpotifyState(request.user.sub)) };
   });
 
   app.delete('/spotify', { preHandler: [authenticate] }, async (request, reply) => {
@@ -27,17 +29,21 @@ export async function musicRoutes(app: FastifyInstance) {
     return reply.send({ ok: true });
   });
 
+  // O browser volta do Spotify com o cookie de sessão: só conclui se for a mesma pessoa que pediu a conexão.
+  // Em qualquer falha o redirect é sempre para a origem da web já configurada, sem gravar conta.
   app.get('/spotify/callback', async (request, reply) => {
     const { code, state } = request.query as { code?: string; state?: string };
-    const userId = parseSpotifyState(state);
-    if (!code || !userId) {
-      return reply.redirect(`${env.WEB_ORIGIN}/music?spotify=error`);
-    }
+    const fail = () => reply.redirect(`${env.WEB_ORIGIN}/music?spotify=error`);
+
+    const sessionUserId = await checkSession(request);
+    if (!code || !sessionUserId) return fail();
+    if (!(await consumeSpotifyState(state, sessionUserId))) return fail();
+
     try {
-      await completeSpotifyAuth(userId, code);
+      await completeSpotifyAuth(sessionUserId, code);
       return reply.redirect(`${env.WEB_ORIGIN}/music?spotify=connected`);
     } catch {
-      return reply.redirect(`${env.WEB_ORIGIN}/music?spotify=error`);
+      return fail();
     }
   });
 }

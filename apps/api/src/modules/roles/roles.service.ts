@@ -10,6 +10,7 @@ import {
 } from '../../lib/helpers.js';
 import { forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
+import { mapMusicRows } from '../music/music.map.js';
 import { notify } from '../notifications/notifications.service.js';
 import { addFeedEvent } from '../social/feed.js';
 import { getReactionSummary } from '../social/reactions.js';
@@ -251,15 +252,7 @@ export async function serializeRoleDetail(id: string, viewerId?: string) {
       authorId: audio.author_id,
       createdAt: String(audio.created_at),
     })),
-    music: music.map((track) => ({
-      id: track.id,
-      title: track.title,
-      artist: track.artist,
-      album: track.album,
-      cover: track.cover,
-      spotifyUrl: track.spotify_url,
-      spotifyId: track.spotify_id,
-    })),
+    music: await mapMusicRows(music),
     review: reviewRow
       ? {
           id: reviewRow.id,
