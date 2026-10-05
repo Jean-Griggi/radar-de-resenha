@@ -35,7 +35,9 @@ Nome: `docs/<pasta>/<slug>.md`. Sem `-pronto`. Sem `-plano`.
 
 Comportamento e contrato. Sem passos de implementação, sem "abra o arquivo X e troque a função Y".
 
-Se faltar quem usa, o que é proibido, ou como saber que acabou, pergunte só isso. Não invente regra de produto.
+Se faltar quem usa, o que é proibido, como saber que acabou, ou o que a segurança recusa, pergunte só isso. Não invente regra de produto.
+
+Toda spec tem a seção Segurança. Sem ela, a spec não fecha.
 
 Fora de escopo fixo, a menos que a pessoa peça: mobile, desktop, mapa, chat em tempo real, pagamentos, push.
 
@@ -58,6 +60,10 @@ Quem sofre, o que acontece hoje, por que importa.
 ## Contrato
 
 Rotas, status HTTP, limites e dados. Omita esta seção se não houver API.
+
+## Segurança
+
+O que não vaza, quem não autentica, o que expira e o que a resposta não confirma. Cada item dá para checar sem ler o diff.
 
 ## Fora de escopo
 

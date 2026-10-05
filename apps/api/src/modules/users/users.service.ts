@@ -1,4 +1,4 @@
-import { ACHIEVEMENT_DEFS, type AuthUser, type FriendshipStatus, type UserProfile } from '@resenhometro/shared';
+import { ACHIEVEMENT_DEFS, type AuthUser, type FriendshipStatus, type MapPerson, type UserProfile } from '@resenhometro/shared';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso } from '../../lib/helpers.js';
 import { conflict, notFound } from '../../lib/http.js';
@@ -9,6 +9,14 @@ import type { UpdateMeInput } from './users.schema.js';
 import { getUserRow, mapUser, type UserRow } from './users.map.js';
 
 const HIDDEN_STATS = { roles: 0, reviews: 0, friends: 0, followers: 0, following: 0 };
+const PLACE_NAME_MAX = 40;
+
+function storedPlaceName(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const text = value.trim();
+  if (!text || text.length > PLACE_NAME_MAX) return null;
+  return text;
+}
 
 /**
  * Perfil privado (`is_public = false`): conteúdo (rolês, fotos, resenhas, etc.)
@@ -32,7 +40,7 @@ export async function canViewProfileContent(
 
 export async function getUserByUsername(username: string, viewerId?: string): Promise<UserProfile> {
   const row = await queryOne<UserRow>(
-    `SELECT id, name, username, email, avatar, cover, bio, city, is_public, show_followers, show_interactions, created_at, updated_at
+    `SELECT id, name, username, email, avatar, cover, bio, city, latitude, longitude, place_name, is_public, show_followers, show_interactions, created_at, updated_at
      FROM users WHERE username = $1`,
     [username.toLowerCase()],
   );
@@ -65,7 +73,7 @@ export async function getUserByUsername(username: string, viewerId?: string): Pr
     : [];
   const unlocked = new Map(achievementsRows.map((item) => [item.slug, item.unlocked_at]));
 
-  return {
+  const profile = {
     ...mapUser(row),
     stats: canView
       ? {
@@ -96,6 +104,65 @@ export async function getUserByUsername(username: string, viewerId?: string): Pr
         }))
       : [],
   };
+
+  if (canView && row.latitude != null && row.longitude != null) {
+    const placeName = storedPlaceName(row.place_name);
+    return {
+      ...profile,
+      latitude: Number(row.latitude),
+      longitude: Number(row.longitude),
+      ...(placeName ? { placeName } : {}),
+    };
+  }
+  return profile;
+}
+
+/** Mesma regra do perfil: público, a própria sessão, amigo aceito ou quem ela segue. */
+export async function listMapPeople(viewerId: string): Promise<MapPerson[]> {
+  const rows = await query<UserRow>(
+    `SELECT id, name, username, email, avatar, cover, bio, city, latitude, longitude, place_name, is_public, show_followers, show_interactions, created_at, updated_at
+     FROM users u
+     WHERE u.latitude IS NOT NULL
+       AND u.longitude IS NOT NULL
+       AND (
+         u.is_public = TRUE
+         OR u.id = $1
+         OR EXISTS (
+           SELECT 1 FROM friendships f
+           WHERE f.status = 'accepted'
+             AND (
+               (f.requester_id = $1 AND f.receiver_id = u.id)
+               OR (f.requester_id = u.id AND f.receiver_id = $1)
+             )
+         )
+         OR EXISTS (
+           SELECT 1 FROM follows fl
+           WHERE fl.follower_id = $1 AND fl.following_id = u.id
+         )
+       )
+     ORDER BY u.username ASC`,
+    [viewerId],
+  );
+
+  const people: MapPerson[] = [];
+  for (const row of rows) {
+    const latitude = Number(row.latitude);
+    const longitude = Number(row.longitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) continue;
+    const user = mapUser(row);
+    const placeName = storedPlaceName(row.place_name);
+    people.push({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      avatar: user.avatar,
+      latitude,
+      longitude,
+      ...(placeName ? { placeName } : {}),
+    });
+  }
+  return people;
 }
 
 export async function getUserById(id: string, viewerId?: string) {
@@ -202,11 +269,21 @@ export async function updateMe(id: string, input: UpdateMeInput): Promise<AuthUs
     if (taken) throw conflict('Username já está em uso');
   }
 
+  const latitude = input.latitude === undefined ? row.latitude : input.latitude;
+  const longitude = input.longitude === undefined ? row.longitude : input.longitude;
+  const placeName =
+    latitude == null || longitude == null
+      ? null
+      : input.placeName === undefined
+        ? storedPlaceName(row.place_name)
+        : input.placeName;
+
   await exec(
     `UPDATE users SET
       name = $1, username = $2, email = $3, bio = $4, city = $5,
-      is_public = $6, show_followers = $7, show_interactions = $8, updated_at = $9
-     WHERE id = $10`,
+      is_public = $6, show_followers = $7, show_interactions = $8,
+      latitude = $9, longitude = $10, place_name = $11, updated_at = $12
+     WHERE id = $13`,
     [
       input.name ?? row.name,
       (input.username ?? (row.username as string)).toLowerCase(),
@@ -216,6 +293,9 @@ export async function updateMe(id: string, input: UpdateMeInput): Promise<AuthUs
       input.isPublic ?? row.is_public,
       input.showFollowers ?? row.show_followers,
       input.showInteractions ?? row.show_interactions,
+      latitude,
+      longitude,
+      placeName,
       nowIso(),
       id,
     ],

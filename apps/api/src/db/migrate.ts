@@ -343,6 +343,39 @@ const migrations: Migration[] = [
     PRIMARY KEY (story_id, user_id)
   )`,
   },
+  {
+    id: '040_users_location',
+    sql: `ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION,
+    ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION`,
+  },
+  {
+    id: '041_users_location_pair',
+    sql: `ALTER TABLE users ADD CONSTRAINT users_location_pair CHECK (
+    (latitude IS NULL AND longitude IS NULL)
+    OR (
+      latitude IS NOT NULL AND longitude IS NOT NULL
+      AND latitude >= -90 AND latitude <= 90
+      AND longitude >= -180 AND longitude <= 180
+    )
+  )`,
+  },
+  {
+    id: '042_users_place_name',
+    sql: `ALTER TABLE users ADD COLUMN IF NOT EXISTS place_name TEXT`,
+  },
+  {
+    id: '043_users_place_name_with_point',
+    sql: `ALTER TABLE users ADD CONSTRAINT users_place_name_with_point CHECK (
+    place_name IS NULL
+    OR (
+      latitude IS NOT NULL
+      AND longitude IS NOT NULL
+      AND char_length(place_name) BETWEEN 1 AND 40
+      AND place_name = btrim(place_name)
+    )
+  )`,
+  },
 ]
 
 export async function applyMigrations(query: QueryFn) {

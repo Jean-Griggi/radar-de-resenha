@@ -14,6 +14,7 @@ Este arquivo é o guia de trabalho **depois** da implementação da rede social 
 8. Não publique deploy sozinha. Código já está no GitHub; hospedagem (Vercel + Render/Railway) só com conta e variáveis.
 9. Idioma com a equipe: português, direto.
 10. Auth: cookie httpOnly `resenhometro_session` (7 dias). Web **não** grava JWT no `localStorage`. Axios `withCredentials`. CORS com origem explícita (`WEB_ORIGIN` / `CORS_ORIGINS`) e `credentials: true`. Não zerar Supabase de produção sem pedido explícito (`pode zerar o Supabase também`).
+11. Segurança entra em toda spec, plano e fatia. Sem a seção Segurança, a spec volta para a `sdd-specify`. A fatia não fecha se o critério de segurança que ela toca não passou.
 
 ## Onde mexer
 
@@ -53,14 +54,9 @@ Login no navegador: senha ≥ 8. Cookie `resenhometro_session` no domínio da AP
 
 ## Onde estão os planos
 
-Índice: [docs/README.md](../README.md). Arquivo com `-pronto` está encerrado.
+Índice: [docs/README.md](../README.md). Só planos abertos ficam em `docs/`; os encerrados foram apagados e o histórico está no git.
 
-- Correção 0–9: [plano-correcao-pronto.md](../correcao/plano-correcao-pronto.md)
-- Segurança e estrutura 0–12: [plano-seguranca-e-estrutura-pronto.md](../implementacao/plano-seguranca-e-estrutura-pronto.md) (branch `chore/security-and-modular-stacks`)
-- Stories v1: [plano-stories-pronto.md](../stories/plano-stories-pronto.md)
-- Identidade visual: [plano-migracao-identidade-visual-pronto.md](../front/plano-migracao-identidade-visual-pronto.md)
-
-Spec nova: `docs/front`, `docs/back`, `docs/stories`, `docs/correcao` ou `docs/implementacao`. Fluxo: `sdd-specify` → `sdd-plan` → `sdd-execute`. Uma fatia por vez.
+Spec nova: `docs/front` ou `docs/back`. Fluxo: `sdd-specify` → `sdd-plan` → `sdd-execute`. Uma fatia por vez.
 
 ## Pendências reais
 

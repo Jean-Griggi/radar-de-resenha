@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import type { UserProfile } from '@resenhometro/shared';
 import { Button } from '@/components/Button';
 import { Skeleton } from '@/components/Card';
 import { Field, Input, Textarea } from '@/components/Field';
@@ -8,6 +9,14 @@ import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { postFile, IMAGE_ACCEPT } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
+import { LocationMap } from '@/features/users/LocationMap';
+import {
+  clearLocationBody,
+  profileLocationFields,
+  visiblePlaceName,
+  visiblePoint,
+  type MapPoint,
+} from '@/features/users/mapPoint';
 
 export function SettingsScreen() {
   const toast = useToast();
@@ -15,16 +24,27 @@ export function SettingsScreen() {
   const [password, setPassword] = useState({ currentPassword: '', newPassword: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [profileUsername, setProfileUsername] = useState('');
+  const [draftPoint, setDraftPoint] = useState<MapPoint | null>(null);
+  const [savedPoint, setSavedPoint] = useState<MapPoint | null>(null);
+  const [draftPlaceName, setDraftPlaceName] = useState('');
 
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     api
       .get<AuthUser>('/auth/me', { signal: controller.signal })
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (controller.signal.aborted) return;
         setMe(data);
         setUser(data);
+        setProfileUsername(data.username);
+        const profile = await api.get<UserProfile>(`/users/${data.username}`, { signal: controller.signal });
+        if (controller.signal.aborted) return;
+        const point = visiblePoint(profile.data);
+        setSavedPoint(point);
+        setDraftPoint(point);
+        setDraftPlaceName(visiblePlaceName(profile.data) ?? '');
         setError('');
       })
       .catch((err) => {
@@ -41,9 +61,16 @@ export function SettingsScreen() {
     event?.preventDefault();
     if (!me) return;
     try {
-      const { data } = await api.put<AuthUser>('/users/me', me);
+      const location = profileLocationFields(draftPoint, draftPoint ? draftPlaceName : undefined);
+      const { data } = await api.put<AuthUser>('/users/me', location ? { ...me, ...location } : me);
       setMe(data);
       setUser(data);
+      setProfileUsername(data.username);
+      const profile = await api.get<UserProfile>(`/users/${data.username}`);
+      const point = visiblePoint(profile.data);
+      setSavedPoint(point);
+      setDraftPoint(point);
+      setDraftPlaceName(visiblePlaceName(profile.data) ?? '');
       toast.push('Perfil atualizado');
     } catch (err) {
       if (isApiCanceled(err)) return;
@@ -72,6 +99,22 @@ export function SettingsScreen() {
     } catch (err) {
       if (isApiCanceled(err)) return;
       toast.push(apiErrorMessage(err, 'Não foi possível remover'), 'error');
+    }
+  }
+
+  async function clearLocation() {
+    if (!profileUsername) return;
+    try {
+      await api.put('/users/me', clearLocationBody());
+      const { data } = await api.get<UserProfile>(`/users/${profileUsername}`);
+      const point = visiblePoint(data);
+      setSavedPoint(point);
+      setDraftPoint(point);
+      setDraftPlaceName(visiblePlaceName(data) ?? '');
+      toast.push(point ? 'Não foi possível limpar a localização' : 'Localização removida', point ? 'error' : 'success');
+    } catch (err) {
+      if (isApiCanceled(err)) return;
+      toast.push(apiErrorMessage(err), 'error');
     }
   }
 
@@ -136,6 +179,29 @@ export function SettingsScreen() {
             <Field label="Cidade">
               <Input value={me.city ?? ''} onChange={(e) => setMe({ ...me, city: e.target.value })} />
             </Field>
+            <div className="space-y-3">
+              <p className="text-label text-muted">Localização</p>
+              <LocationMap
+                point={draftPoint}
+                avatar={me.avatar}
+                placeName={draftPoint ? draftPlaceName : null}
+                interactive
+                onPick={setDraftPoint}
+              />
+              {draftPoint ? (
+                <Field label="Nome do lugar">
+                  <Input
+                    value={draftPlaceName}
+                    maxLength={40}
+                    placeholder="casa"
+                    onChange={(e) => setDraftPlaceName(e.target.value)}
+                  />
+                </Field>
+              ) : null}
+              <Button variant="ghost" disabled={!savedPoint} onClick={clearLocation}>
+                Limpar localização
+              </Button>
+            </div>
             <Button onClick={save}>Salvar perfil</Button>
           </section>
 

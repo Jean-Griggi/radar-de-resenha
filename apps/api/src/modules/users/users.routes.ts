@@ -18,6 +18,7 @@ import {
   listFollowers,
   listFollowing,
   listFriends,
+  listMapPeople,
   setUserMedia,
   suggestions,
   updateMe,
@@ -47,6 +48,8 @@ export async function usersRoutes(app: FastifyInstance) {
   app.delete('/users/me/cover', { preHandler: [authenticate] }, async (request) => {
     return setUserMedia(request.user.sub, 'cover', null);
   });
+
+  app.get('/users/map', { preHandler: [authenticate] }, async (request) => listMapPeople(request.user.sub));
 
   app.get('/users/:username', { preHandler: [authenticate] }, async (request) => {
     const { username } = request.params as { username: string };

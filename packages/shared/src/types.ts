@@ -46,6 +46,22 @@ export type UserProfile = PublicUser & {
   isFollowing: boolean;
   isMe: boolean;
   achievements: Achievement[];
+  /** Presentes juntas, ou ambas ausentes. Fora do perfil reduzido. */
+  latitude?: number;
+  longitude?: number;
+  /** Só existe junto do par. Ausente no perfil reduzido. */
+  placeName?: string;
+};
+
+/** Ponto que o perfil desta sessão já mostraria. Sem e-mail e sem outra foto. */
+export type MapPerson = {
+  id: string;
+  name: string;
+  username: string;
+  avatar: string | null;
+  latitude: number;
+  longitude: number;
+  placeName?: string;
 };
 
 export type UserStats = {

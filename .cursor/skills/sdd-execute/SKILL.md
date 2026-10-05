@@ -23,6 +23,7 @@ Se não existir plano, pare e peça a `sdd-plan`. Se a spec e o plano discordare
 ## Durante
 
 - Siga **O que fazer**, **O que não fazer** e **Como validar** da fatia.
+- Antes de marcar a fatia feita, confira a seção Segurança da spec no que a fatia toca. Token, cookie, e-mail, mapa ou dado de outra pessoa só fecham se o critério correspondente passou.
 - Não comece a próxima fatia.
 - Não traga item de **Fora de escopo** da spec.
 - Não reabra arquivo `-pronto`.

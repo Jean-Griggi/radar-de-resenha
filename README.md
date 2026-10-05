@@ -86,36 +86,10 @@ Docker é opcional (só se quiser PostgreSQL de verdade). Sem Docker a API já p
 git clone https://github.com/Jean-Griggi/radar-de-resenha.git
 cd radar-de-resenha
 pnpm install
+npm run dev
 ```
 
-**Windows (PowerShell):**
-
-```powershell
-Copy-Item .env.example .env
-Copy-Item .env.example apps/web/.env.local
-```
-
-**Linux / macOS:**
-
-```bash
-cp .env.example .env
-cp .env.example apps/web/.env.local
-```
-
-No `apps/web/.env.local` deixe só (ou pelo menos):
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:3333
-```
-
-Dois terminais:
-
-```bash
-pnpm --filter @resenhometro/api dev
-pnpm --filter @resenhometro/web dev
-```
-
-Ou, na raiz, `pnpm dev` (sobe os apps do monorepo).
+Na primeira vez o comando cria `.env` e `apps/web/.env.local` se ainda não existirem. Sobe a API e o web no mesmo terminal.
 
 | App | URL |
 | --- | --- |
@@ -143,8 +117,7 @@ Não use isso contra Supabase / produção.
 | Comando | O que faz |
 | ------- | --------- |
 | `pnpm install` | Dependências |
-| `pnpm --filter @resenhometro/api dev` | API |
-| `pnpm --filter @resenhometro/web dev` | Web |
+| `npm run dev` | API e web juntos |
 | `pnpm build` | Build |
 | `pnpm lint` | Lint |
 | `pnpm typecheck` | TypeScript |
