@@ -131,14 +131,35 @@ export type Role = {
   coverPhoto: string | null;
 };
 
-export type RoleMusic = {
+export type MusicKind = 'track' | 'playlist';
+
+/** Quem colocou a música. Sempre a pessoa da sessão: o servidor nunca lê isso do corpo. */
+export type MusicAddedBy = Pick<PublicUser, 'id' | 'name' | 'username' | 'avatar'>;
+
+/** Item de música no rolê e no story. Sem nenhum campo de token do Spotify. */
+export type MusicItem = {
+  id: string;
+  kind: MusicKind;
+  title: string;
+  /** Nulo na playlist. */
+  artist: string | null;
+  cover: string | null;
+  spotifyUrl: string | null;
+  addedBy: MusicAddedBy;
+};
+
+export type RoleMusic = MusicItem & {
+  album: string | null;
+  spotifyId: string | null;
+};
+
+/** Faixa da biblioteca da conta conectada, como o servidor resolveu no Spotify. */
+export type SpotifyTrack = {
   id: string;
   title: string;
   artist: string;
-  album: string | null;
   cover: string | null;
-  spotifyUrl: string | null;
-  spotifyId: string | null;
+  url: string;
 };
 
 export type RoleDetail = Role & {
@@ -345,6 +366,8 @@ export type Story = {
   createdAt: string;
   viewed: boolean;
   viewCount?: number;
+  /** Música do story. Mesma audiência e mesmas 24 horas do story. */
+  music: MusicItem | null;
 };
 
 export type StoryRing = {

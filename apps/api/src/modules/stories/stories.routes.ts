@@ -1,6 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
-import { takeUpload } from '../../lib/storage.js';
+import { removeStored, takeUpload } from '../../lib/storage.js';
+import { musicKindSchema, spotifyIdSchema } from '../music/music.schema.js';
+import { resolveSpotifyItem } from '../music/music.service.js';
 import { storyReplySchema } from './stories.schema.js';
 import {
   createStory,
@@ -16,12 +18,24 @@ export async function storiesRoutes(app: FastifyInstance) {
 
   app.post('/stories', { preHandler: [authenticate] }, async (request, reply) => {
     const saved = await takeUpload(request, 'story');
-    return reply.status(201).send(
-      await createStory(request.user.sub, {
-        url: saved.relative,
-        caption: saved.fields.caption,
-      }),
-    );
+    try {
+      // Faixa ou playlist: só o tipo e o id vêm do cliente; título, capa e link o servidor busca no Spotify.
+      const { musicKind, musicId } = saved.fields;
+      const music =
+        musicKind || musicId
+          ? await resolveSpotifyItem(
+              request.user.sub,
+              musicKindSchema.parse(musicKind),
+              spotifyIdSchema.parse(musicId),
+            )
+          : null;
+      return reply.status(201).send(
+        await createStory(request.user.sub, { url: saved.relative, caption: saved.fields.caption, music }),
+      );
+    } catch (error) {
+      await removeStored(saved.relative); // id rejeitado: o arquivo enviado não fica órfão
+      throw error;
+    }
   });
 
   app.delete('/stories/:id', { preHandler: [authenticate] }, async (request, reply) => {

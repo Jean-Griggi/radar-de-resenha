@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { StoryRing } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { SpotifyPicker, type SpotifyChoice } from '@/features/music';
 import { StoryViewer, StoryPhone } from './StoryViewer';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
@@ -21,6 +22,8 @@ export function StoriesBar() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [caption, setCaption] = useState('');
   const [publishing, setPublishing] = useState(false);
+  const [music, setMusic] = useState<SpotifyChoice | null>(null);
+  const [pickingMusic, setPickingMusic] = useState(false);
   const [viewer, setViewer] = useState<{ ring: number; story: number } | null>(null);
 
   async function load(signal?: AbortSignal) {
@@ -71,15 +74,24 @@ export function StoriesBar() {
       isVideo: file.type.startsWith('video/') || /\.(mp4|webm|mov)$/i.test(file.name),
     });
     setCaption('');
+    setMusic(null);
+    setPickingMusic(false);
   }
 
   async function publish() {
     if (!draft) return;
     setPublishing(true);
     try {
-      await postFile('/stories', 'story', draft.file, { caption: caption.trim() || undefined });
+      // A música vai só como tipo + id; o servidor busca título, capa e link no Spotify.
+      await postFile('/stories', 'story', draft.file, {
+        caption: caption.trim() || undefined,
+        musicKind: music?.kind,
+        musicId: music?.id,
+      });
       URL.revokeObjectURL(draft.preview);
       setDraft(null);
+      setMusic(null);
+      setPickingMusic(false);
       toast.push('Story publicado');
       await load();
     } catch (err) {
@@ -193,6 +205,25 @@ export function StoriesBar() {
                   placeholder="Legenda (opcional)"
                   className="w-full rounded-full border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
                 />
+                {music ? (
+                  <div className="mt-2 flex items-center gap-2 rounded-full bg-black/50 px-3 py-1.5 text-xs text-white">
+                    <span aria-hidden>♪</span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {music.title} · {music.subtitle}
+                    </span>
+                    <button type="button" className="text-white/70" aria-label="Tirar música" onClick={() => setMusic(null)}>
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="mt-2 rounded-full border border-white/25 px-3 py-1.5 text-xs text-white"
+                    onClick={() => setPickingMusic(true)}
+                  >
+                    ♪ Adicionar música
+                  </button>
+                )}
                 <div className="mt-3 flex justify-end gap-2">
                   <Button
                     type="button"
@@ -200,6 +231,8 @@ export function StoriesBar() {
                     onClick={() => {
                       URL.revokeObjectURL(draft.preview);
                       setDraft(null);
+                      setMusic(null);
+                      setPickingMusic(false);
                     }}
                   >
                     Cancelar
@@ -211,6 +244,17 @@ export function StoriesBar() {
               </div>
             </StoryPhone>
           </div>
+          {pickingMusic ? (
+            <div className="absolute inset-x-3 bottom-3 z-10 mx-auto max-w-md">
+              <SpotifyPicker
+                onClose={() => setPickingMusic(false)}
+                onPick={(choice) => {
+                  setMusic(choice);
+                  setPickingMusic(false);
+                }}
+              />
+            </div>
+          ) : null}
         </div>
       ) : null}
 

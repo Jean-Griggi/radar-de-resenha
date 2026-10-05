@@ -1,4 +1,5 @@
 import { query, queryOne } from '../../db/client.js';
+import { mapMusicRows } from '../music/music.map.js';
 import { mapUser } from '../users/users.map.js';
 import { publicUrl } from '../../lib/storage.js';
 import type { RoleRow } from '../roles/roles.service.js';
@@ -58,15 +59,7 @@ export async function searchAll(q: string, _viewerId?: string) {
     })),
     tags: collectMatchingTags(tagsRows, q),
     places: places.map((row) => row.location),
-    music: music.map((row) => ({
-      id: row.id,
-      title: row.title,
-      artist: row.artist,
-      album: row.album,
-      cover: row.cover,
-      spotifyUrl: row.spotify_url,
-      spotifyId: row.spotify_id,
-    })),
+    music: await mapMusicRows(music),
   };
 }
 

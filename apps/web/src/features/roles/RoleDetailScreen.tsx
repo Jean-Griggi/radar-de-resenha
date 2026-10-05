@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import { Field, Input, Textarea } from '@/components/Field';
 import { MediaImage } from '@/components/MediaImage';
 import { usePlayer } from '@/components/Player';
+import { MusicCard, SpotifyPicker } from '@/features/music';
 import { Comments, Reactions } from '@/features/social';
 import { Skeleton } from '@/components/Card';
 import { useToast } from '@/components/Toast';
@@ -26,7 +27,8 @@ export function RoleDetailScreen() {
   const [review, setReview] = useState({ title: '', content: '', rating: 5 });
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [tags, setTags] = useState('');
-  const [music, setMusic] = useState({ title: '', artist: '', spotifyUrl: '' });
+  const [picking, setPicking] = useState(false);
+  const [addingMusic, setAddingMusic] = useState(false);
   const me = getUser();
 
   const load = useCallback(async () => {
@@ -183,36 +185,39 @@ export function RoleDetailScreen() {
 
       <section className="card space-y-3 p-5">
         <h2 className="font-medium">Música</h2>
+        {role.music.length === 0 ? <p className="text-sm text-muted">Nenhuma música colocada ainda.</p> : null}
         {role.music.map((track) => (
-          <button
+          <MusicCard
             key={track.id}
-            type="button"
-            className="flex w-full items-center justify-between rounded-xl bg-[var(--overlay)] px-3 py-2 text-left"
-            onClick={() => setTrack({ title: track.title, artist: track.artist, cover: track.cover, spotifyUrl: track.spotifyUrl })}
-          >
-            <span>
-              {track.title} — {track.artist}
-            </span>
-            {track.spotifyUrl ? (
-              <a href={track.spotifyUrl} className="text-xs text-[#1DB954]" onClick={(e) => e.stopPropagation()}>
-                Spotify
-              </a>
-            ) : null}
-          </button>
+            item={track}
+            onSelect={() =>
+              setTrack({ title: track.title, artist: track.artist ?? 'Playlist', cover: track.cover, spotifyUrl: track.spotifyUrl })
+            }
+          />
         ))}
-        <form
-          className="grid gap-2 sm:grid-cols-3"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            await api.post(`/roles/${role.id}/music`, music);
-            setMusic({ title: '', artist: '', spotifyUrl: '' });
-            load();
-          }}
-        >
-          <Input placeholder="Música" value={music.title} onChange={(e) => setMusic({ ...music, title: e.target.value })} required />
-          <Input placeholder="Artista" value={music.artist} onChange={(e) => setMusic({ ...music, artist: e.target.value })} required />
-          <Button type="submit">Associar</Button>
-        </form>
+        {picking ? (
+          <SpotifyPicker
+            disabled={addingMusic}
+            onClose={() => setPicking(false)}
+            onPick={async (choice) => {
+              setAddingMusic(true);
+              try {
+                await api.post(`/roles/${role.id}/music`, { kind: choice.kind, spotifyId: choice.id });
+                toast.push(choice.kind === 'playlist' ? 'Playlist colocada no rolê' : 'Faixa colocada no rolê');
+                setPicking(false);
+                await load();
+              } catch (err) {
+                toast.push(apiErrorMessage(err, 'Não foi possível colocar a música'), 'error');
+              } finally {
+                setAddingMusic(false);
+              }
+            }}
+          />
+        ) : (
+          <Button type="button" variant="secondary" onClick={() => setPicking(true)}>
+            Colocar música do Spotify
+          </Button>
+        )}
       </section>
 
       <section className="card p-5">

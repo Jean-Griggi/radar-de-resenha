@@ -1,10 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { STORY_MAX_ACTIVE, STORY_TTL_MS, type PublicUser } from '@resenhometro/shared';
+import { STORY_MAX_ACTIVE, STORY_TTL_MS, type MusicItem, type PublicUser } from '@resenhometro/shared';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso, sqlPlaceholders } from '../../lib/helpers.js';
 import { badRequest, forbidden, notFound } from '../../lib/http.js';
 import { publicUrl, removeStored } from '../../lib/storage.js';
 import { notify } from '../notifications/notifications.service.js';
+import type { ResolvedSpotifyItem } from '../music/music.service.js';
 import { getUserRow, getUsersByIds, mapUser } from '../users/users.map.js';
 
 type StoryRow = {
@@ -15,6 +16,12 @@ type StoryRow = {
   caption: string | null;
   expires_at: string;
   created_at: string;
+  music_kind?: string | null;
+  music_spotify_id?: string | null;
+  music_title?: string | null;
+  music_artist?: string | null;
+  music_cover?: string | null;
+  music_url?: string | null;
 };
 
 function storyMediaType(relative: string): 'photo' | 'video' {
@@ -56,6 +63,20 @@ async function assertCanSee(story: StoryRow, userId: string) {
   }
 }
 
+/** Música do story: mesma linha do story, então some junto às 24 horas e vale para a mesma audiência. */
+function storyMusic(row: StoryRow, author: PublicUser): MusicItem | null {
+  if (!row.music_kind || !row.music_title) return null;
+  return {
+    id: row.id,
+    kind: row.music_kind === 'playlist' ? 'playlist' : 'track',
+    title: row.music_title,
+    artist: row.music_artist ?? null,
+    cover: row.music_cover ?? null,
+    spotifyUrl: row.music_url ?? null,
+    addedBy: { id: author.id, name: author.name, username: author.username, avatar: author.avatar },
+  };
+}
+
 function serializeStory(
   row: StoryRow,
   author: PublicUser,
@@ -72,6 +93,7 @@ function serializeStory(
     expiresAt: String(row.expires_at),
     createdAt: String(row.created_at),
     viewed,
+    music: storyMusic(row, author),
     ...(viewCount != null ? { viewCount } : {}),
   };
 }
@@ -147,7 +169,10 @@ export async function listStoryRings(userId: string) {
   ];
 }
 
-export async function createStory(userId: string, input: { url: string; caption?: string | null }) {
+export async function createStory(
+  userId: string,
+  input: { url: string; caption?: string | null; music?: ResolvedSpotifyItem | null },
+) {
   const active = await queryOne<{ count: string }>(
     `SELECT COUNT(*)::text AS count FROM stories WHERE author_id = $1 AND expires_at > NOW()`,
     [userId],
@@ -161,11 +186,17 @@ export async function createStory(userId: string, input: { url: string; caption?
   const createdAt = nowIso();
   const expiresAt = new Date(Date.now() + STORY_TTL_MS).toISOString();
   const mediaType = storyMediaType(input.url);
+  const music = input.music ?? null;
 
   await exec(
-    `INSERT INTO stories (id, author_id, url, media_type, caption, expires_at, created_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [id, userId, input.url, mediaType, caption, expiresAt, createdAt],
+    `INSERT INTO stories (id, author_id, url, media_type, caption, expires_at, created_at,
+       music_kind, music_spotify_id, music_title, music_artist, music_cover, music_url)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+    [
+      id, userId, input.url, mediaType, caption, expiresAt, createdAt,
+      music?.kind ?? null, music?.spotifyId ?? null, music?.title ?? null,
+      music?.artist ?? null, music?.cover ?? null, music?.spotifyUrl ?? null,
+    ],
   );
 
   const author = mapUser((await getUserRow(userId))!);
@@ -178,6 +209,12 @@ export async function createStory(userId: string, input: { url: string; caption?
       caption,
       expires_at: expiresAt,
       created_at: createdAt,
+      music_kind: music?.kind ?? null,
+      music_spotify_id: music?.spotifyId ?? null,
+      music_title: music?.title ?? null,
+      music_artist: music?.artist ?? null,
+      music_cover: music?.cover ?? null,
+      music_url: music?.spotifyUrl ?? null,
     },
     author,
     false,

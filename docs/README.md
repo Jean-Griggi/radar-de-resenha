@@ -25,9 +25,6 @@ Feature que mexe em front e back fica numa pasta só (a da feature), não partid
 
 ## Abertos
 
-| Spec | Plano |
-| ---- | ----- |
-| [back/spotify.md](back/spotify.md) | [back/spotify-plano.md](back/spotify-plano.md) |
-| [back/recuperar-senha.md](back/recuperar-senha.md) | [back/recuperar-senha-plano.md](back/recuperar-senha-plano.md) |
+Nenhum plano aberto. Spec nova: `docs/front` ou `docs/back`.
 
 Mobile e desktop existem só como pastas reservadas. Não implementar sem pedido explícito.

@@ -1,9 +1,11 @@
-import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import type { MusicKind, SpotifyPlaylist, SpotifyTrack } from '@resenhometro/shared';
 import { env } from '../../config/env.js';
 import { exec, query, queryOne } from '../../db/client.js';
 import { nowIso } from '../../lib/helpers.js';
 import { addFeedEvent } from '../social/feed.js';
 import { badRequest, notFound } from '../../lib/http.js';
+import { mapMusicRows } from './music.map.js';
 
 type HttpResponse = {
   ok: boolean;
@@ -25,6 +27,17 @@ type SpotifyTokens = {
   spotify_id: string | null;
 };
 
+/** Item já resolvido no Spotify com a conta conectada: é isto que o servidor grava, nunca o que o cliente mandou. */
+export type ResolvedSpotifyItem = {
+  kind: MusicKind;
+  spotifyId: string;
+  title: string;
+  artist: string | null;
+  album: string | null;
+  cover: string | null;
+  spotifyUrl: string;
+};
+
 function configured() {
   return Boolean(env.SPOTIFY_CLIENT_ID && env.SPOTIFY_CLIENT_SECRET && env.SPOTIFY_REDIRECT_URI);
 }
@@ -36,19 +49,36 @@ export function spotifyAuthUrl(state: string) {
     response_type: 'code',
     redirect_uri: env.SPOTIFY_REDIRECT_URI!,
     state,
-    scope: 'user-read-private user-read-email user-read-currently-playing user-read-playback-state playlist-read-private playlist-read-collaborative',
+    scope:
+      'user-read-private user-read-email user-read-currently-playing user-read-playback-state playlist-read-private playlist-read-collaborative user-library-read',
   });
   return `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
 const SPOTIFY_FETCH_MS = 5_000;
 const SPOTIFY_STATE_TTL_MS = 10 * 60 * 1000;
+const PLAYLIST_PAGE = 50;
+const PLAYLIST_MAX_PAGES = 6;
+const SPOTIFY_DOWN = 'Não foi possível falar com o Spotify agora. Tente de novo.';
 
-export function createSpotifyState(userId: string) {
+function signState(payload: string) {
+  return createHmac('sha256', env.JWT_SECRET).update(`spotify-oauth:${payload}`).digest('hex');
+}
+
+/**
+ * Estado do OAuth: `userId.exp.nonce` assinado. A assinatura prova que o servidor emitiu e que
+ * ninguém alterou; o `nonce` guardado em `spotify_oauth_states` prova que ainda não foi usado.
+ */
+export async function issueSpotifyState(userId: string) {
+  const nonce = randomBytes(16).toString('hex');
   const exp = Date.now() + SPOTIFY_STATE_TTL_MS;
-  const payload = `${userId}.${exp}`;
-  const sig = createHmac('sha256', env.JWT_SECRET).update(`spotify-oauth:${payload}`).digest('hex');
-  return Buffer.from(`${payload}.${sig}`).toString('base64url');
+  await exec(`DELETE FROM spotify_oauth_states WHERE expires_at < NOW() - INTERVAL '1 day'`);
+  await exec(
+    `INSERT INTO spotify_oauth_states (nonce, user_id, expires_at, created_at) VALUES ($1,$2,$3,$4)`,
+    [nonce, userId, new Date(exp).toISOString(), nowIso()],
+  );
+  const payload = `${userId}.${exp}.${nonce}`;
+  return Buffer.from(`${payload}.${signState(payload)}`).toString('base64url');
 }
 
 export function parseSpotifyState(state: string | undefined) {
@@ -56,20 +86,34 @@ export function parseSpotifyState(state: string | undefined) {
   try {
     const raw = Buffer.from(state, 'base64url').toString('utf8');
     const parts = raw.split('.');
-    if (parts.length !== 3) return null;
-    const [userId, expRaw, sig] = parts;
-    if (!userId || !expRaw || !sig) return null;
+    if (parts.length !== 4) return null;
+    const [userId, expRaw, nonce, sig] = parts;
+    if (!userId || !expRaw || !nonce || !sig) return null;
     const exp = Number(expRaw);
     if (Number.isNaN(exp) || Date.now() > exp) return null;
-    const payload = `${userId}.${expRaw}`;
-    const expected = createHmac('sha256', env.JWT_SECRET).update(`spotify-oauth:${payload}`).digest('hex');
     const a = Buffer.from(sig);
-    const b = Buffer.from(expected);
+    const b = Buffer.from(signState(`${userId}.${expRaw}.${nonce}`));
     if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
-    return userId;
+    return { userId, nonce };
   } catch {
     return null;
   }
+}
+
+/**
+ * Gasta o estado do callback. Só devolve `true` se a assinatura confere, foi emitido para a
+ * mesma pessoa logada, não expirou e nunca foi usado (o UPDATE troca `used_at` numa instrução só).
+ */
+export async function consumeSpotifyState(state: string | undefined, sessionUserId: string) {
+  const parsed = parseSpotifyState(state);
+  if (!parsed || parsed.userId !== sessionUserId) return false;
+  const row = await queryOne(
+    `UPDATE spotify_oauth_states SET used_at = $1
+     WHERE nonce = $2 AND user_id = $3 AND used_at IS NULL AND expires_at > $1
+     RETURNING nonce`,
+    [nowIso(), parsed.nonce, sessionUserId],
+  );
+  return Boolean(row);
 }
 
 async function tokenRequest(body: Record<string, string>) {
@@ -136,8 +180,10 @@ export async function completeSpotifyAuth(userId: string, code: string) {
   );
 }
 
+/** Apaga os tokens guardados (access e refresh) e os estados de OAuth pendentes da pessoa. */
 export async function disconnectSpotify(userId: string) {
   await exec(`DELETE FROM spotify_connections WHERE user_id = $1`, [userId]);
+  await exec(`DELETE FROM spotify_oauth_states WHERE user_id = $1`, [userId]);
 }
 
 export async function getSpotifyAccount(userId: string) {
@@ -203,55 +249,189 @@ export async function getSpotifyAccount(userId: string) {
   };
 }
 
-export async function getPlaylists(userId: string) {
-  const row = await ensureAccessToken(userId);
-  if (!row) return [];
-  const response = asHttp(
-    await fetch('https://api.spotify.com/v1/me/playlists?limit=20', {
-      headers: { Authorization: `Bearer ${row.access_token}` },
-      signal: AbortSignal.timeout(SPOTIFY_FETCH_MS),
-    }),
-  );
-  if (!response.ok) return [];
-  const data = (await response.json()) as {
-    items: { id: string; name: string; images?: { url: string }[]; tracks?: { total: number }; external_urls?: { spotify: string } }[];
-  };
-  return (data.items ?? []).map((item) => ({
+// --- Leitura no Spotify com a conta conectada -------------------------------------------------
+
+async function spotifyGet<T>(accessToken: string, path: string): Promise<T> {
+  let response: HttpResponse;
+  try {
+    response = asHttp(
+      await fetch(`https://api.spotify.com/v1${path}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(SPOTIFY_FETCH_MS),
+      }),
+    );
+  } catch {
+    throw badRequest(SPOTIFY_DOWN);
+  }
+  if (response.status === 401 || response.status === 403) {
+    throw badRequest('O Spotify recusou o acesso. Desconecte e conecte de novo na tela de Música.');
+  }
+  if (response.status === 404) throw badRequest('Item não encontrado na sua conta do Spotify.');
+  if (!response.ok) throw badRequest(SPOTIFY_DOWN);
+  return (await response.json()) as T;
+}
+
+type SpotifyImage = { url?: string };
+
+/** Capa e link só entram se vierem em https do Spotify; nada de URL solta ou HTML. */
+function safeCover(images: SpotifyImage[] | undefined) {
+  const url = images?.find((image) => typeof image?.url === 'string')?.url;
+  if (!url) return null;
+  try {
+    return new URL(url).protocol === 'https:' ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeSpotifyUrl(value: string | undefined, kind: MusicKind, id: string) {
+  try {
+    const url = new URL(value ?? '');
+    if (url.protocol === 'https:' && url.hostname === 'open.spotify.com') return url.toString();
+  } catch {
+    // cai no link montado a partir do id (que já foi validado como base62)
+  }
+  return `https://open.spotify.com/${kind}/${id}`;
+}
+
+type SpotifyPlaylistItem = {
+  id: string;
+  name: string;
+  images?: SpotifyImage[];
+  tracks?: { total?: number };
+  external_urls?: { spotify?: string };
+};
+
+type SpotifyTrackItem = {
+  id: string;
+  name: string;
+  album?: { name?: string; images?: SpotifyImage[] };
+  artists?: { name: string }[];
+  external_urls?: { spotify?: string };
+};
+
+function toPlaylist(item: SpotifyPlaylistItem): SpotifyPlaylist {
+  return {
     id: item.id,
     name: item.name,
-    image: item.images?.[0]?.url ?? null,
+    image: safeCover(item.images),
     tracks: item.tracks?.total ?? 0,
-    url: item.external_urls?.spotify ?? `https://open.spotify.com/playlist/${item.id}`,
-  }));
+    url: safeSpotifyUrl(item.external_urls?.spotify, 'playlist', item.id),
+  };
 }
+
+function toTrack(item: SpotifyTrackItem): SpotifyTrack {
+  return {
+    id: item.id,
+    title: item.name,
+    artist: item.artists?.map((artist) => artist.name).join(', ') ?? '',
+    cover: safeCover(item.album?.images),
+    url: safeSpotifyUrl(item.external_urls?.spotify, 'track', item.id),
+  };
+}
+
+async function connectedAccount(userId: string) {
+  const row = await ensureAccessToken(userId);
+  if (!row) throw badRequest('Conecte sua conta do Spotify antes de escolher música.');
+  return row;
+}
+
+async function listPlaylistItems(accessToken: string, stopAt?: string) {
+  const found: SpotifyPlaylistItem[] = [];
+  for (let page = 0; page < PLAYLIST_MAX_PAGES; page += 1) {
+    const data = await spotifyGet<{ items?: Array<SpotifyPlaylistItem | null>; next?: string | null }>(
+      accessToken,
+      `/me/playlists?limit=${PLAYLIST_PAGE}&offset=${page * PLAYLIST_PAGE}`,
+    );
+    for (const item of data.items ?? []) {
+      if (item?.id) found.push(item);
+    }
+    if (stopAt && found.some((item) => item.id === stopAt)) break;
+    if (!data.next) break;
+  }
+  return found;
+}
+
+export async function getPlaylists(userId: string): Promise<SpotifyPlaylist[]> {
+  const row = await ensureAccessToken(userId);
+  if (!row) return [];
+  try {
+    return (await listPlaylistItems(row.access_token)).map(toPlaylist);
+  } catch {
+    return [];
+  }
+}
+
+/** Faixas da biblioteca (músicas curtidas) da conta conectada. */
+export async function getSavedTracks(userId: string): Promise<SpotifyTrack[]> {
+  const row = await connectedAccount(userId);
+  const data = await spotifyGet<{ items?: Array<{ track?: SpotifyTrackItem | null }> }>(
+    row.access_token,
+    '/me/tracks?limit=50',
+  );
+  return (data.items ?? []).flatMap((entry) => (entry.track?.id ? [toTrack(entry.track)] : []));
+}
+
+/**
+ * Resolve no Spotify, com a conta conectada, a faixa ou playlist que a pessoa escolheu.
+ * Id que não é da conta responde 400 e nada é gravado.
+ */
+export async function resolveSpotifyItem(
+  userId: string,
+  kind: MusicKind,
+  spotifyId: string,
+): Promise<ResolvedSpotifyItem> {
+  const row = await connectedAccount(userId);
+
+  if (kind === 'playlist') {
+    const item = (await listPlaylistItems(row.access_token, spotifyId)).find((entry) => entry.id === spotifyId);
+    if (!item) throw badRequest('Essa playlist não é da sua conta do Spotify.');
+    const playlist = toPlaylist(item);
+    return {
+      kind,
+      spotifyId,
+      title: playlist.name,
+      artist: null,
+      album: null,
+      cover: playlist.image,
+      spotifyUrl: playlist.url,
+    };
+  }
+
+  const contains = await spotifyGet<boolean[]>(row.access_token, `/me/tracks/contains?ids=${spotifyId}`);
+  if (!contains?.[0]) throw badRequest('Essa faixa não está na biblioteca da sua conta do Spotify.');
+  const item = await spotifyGet<SpotifyTrackItem>(row.access_token, `/tracks/${spotifyId}`);
+  const track = toTrack(item);
+  return {
+    kind,
+    spotifyId,
+    title: track.title,
+    artist: track.artist || null,
+    album: item.album?.name ?? null,
+    cover: track.cover,
+    spotifyUrl: track.url,
+  };
+}
+
+// --- Música no rolê ---------------------------------------------------------------------------
 
 export async function addMusicToRole(
   roleId: string,
   userId: string,
-  input: { title: string; artist: string; album?: string | null; cover?: string | null; spotifyUrl?: string | null; spotifyId?: string | null },
+  input: { kind: MusicKind; spotifyId: string },
 ) {
   const role = await queryOne(`SELECT id FROM roles WHERE id = $1`, [roleId]);
   if (!role) throw notFound('Rolê não encontrado');
+
+  const item = await resolveSpotifyItem(userId, input.kind, input.spotifyId);
   const id = randomUUID();
   await exec(
-    `INSERT INTO music (id, role_id, title, artist, album, cover, spotify_url, spotify_id, added_by, created_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-    [id, roleId, input.title, input.artist, input.album ?? null, input.cover ?? null, input.spotifyUrl ?? null, input.spotifyId ?? null, userId, nowIso()],
+    `INSERT INTO music (id, role_id, kind, title, artist, album, cover, spotify_url, spotify_id, added_by, created_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+    [id, roleId, item.kind, item.title, item.artist, item.album, item.cover, item.spotifyUrl, item.spotifyId, userId, nowIso()],
   );
   await addFeedEvent({ type: 'music_added', actorId: userId, roleId, musicId: id });
-  return { id, ...input };
-}
-
-function mapTrack(row: Record<string, unknown>) {
-  return {
-    id: row.id,
-    title: row.title,
-    artist: row.artist,
-    album: row.album,
-    cover: row.cover,
-    spotifyUrl: row.spotify_url,
-    spotifyId: row.spotify_id,
-  };
+  return { id };
 }
 
 export async function listMusic(userId?: string) {
@@ -261,5 +441,5 @@ export async function listMusic(userId?: string) {
         [userId],
       )
     : await query(`SELECT * FROM music ORDER BY created_at DESC LIMIT 40`);
-  return rows.map(mapTrack);
+  return mapMusicRows(rows);
 }

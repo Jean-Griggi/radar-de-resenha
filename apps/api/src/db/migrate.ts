@@ -376,6 +376,49 @@ const migrations: Migration[] = [
     )
   )`,
   },
+  {
+    id: '044_users_password_changed_at',
+    sql: `ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ`,
+  },
+  {
+    id: '045_music_kind',
+    sql: `ALTER TABLE music ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'track'`,
+  },
+  {
+    id: '046_music_kind_valid',
+    sql: `ALTER TABLE music ADD CONSTRAINT music_kind_valid CHECK (kind IN ('track', 'playlist'))`,
+  },
+  {
+    id: '047_music_artist_nullable',
+    sql: `ALTER TABLE music ALTER COLUMN artist DROP NOT NULL`,
+  },
+  {
+    id: '048_stories_music',
+    sql: `ALTER TABLE stories
+    ADD COLUMN IF NOT EXISTS music_kind TEXT,
+    ADD COLUMN IF NOT EXISTS music_spotify_id TEXT,
+    ADD COLUMN IF NOT EXISTS music_title TEXT,
+    ADD COLUMN IF NOT EXISTS music_artist TEXT,
+    ADD COLUMN IF NOT EXISTS music_cover TEXT,
+    ADD COLUMN IF NOT EXISTS music_url TEXT`,
+  },
+  {
+    id: '049_stories_music_valid',
+    sql: `ALTER TABLE stories ADD CONSTRAINT stories_music_valid CHECK (
+    music_kind IS NULL
+    OR (music_kind IN ('track', 'playlist') AND music_spotify_id IS NOT NULL AND music_title IS NOT NULL)
+  )`,
+  },
+  {
+    id: '050_spotify_oauth_states',
+    sql: `CREATE TABLE IF NOT EXISTS spotify_oauth_states (
+    nonce TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL
+  )`,
+  },
 ]
 
 export async function applyMigrations(query: QueryFn) {

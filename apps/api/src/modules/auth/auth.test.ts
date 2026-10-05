@@ -1,11 +1,28 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../../app.js';
-import { AUTH_RATE_LIMIT_MESSAGE } from '../../lib/auth-rate-limit.js';
+import { exec } from '../../db/client.js';
+import { AUTH_RATE_LIMIT_MESSAGE, resetAuthRateLimits } from '../../lib/auth-rate-limit.js';
+
+const mailbox = vi.hoisted(() => ({
+  sent: [] as Array<{ to: string; subject: string; html: string }>,
+  fail: false,
+}));
+
+vi.mock('../../lib/mail.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../lib/mail.js')>();
+  return {
+    ...actual,
+    sendMail: vi.fn(async (to: string, subject: string, html: string) => {
+      if (mailbox.fail) throw new Error('smtp fora do ar');
+      mailbox.sent.push({ to, subject, html });
+      return true;
+    }),
+  };
+});
 
 let app: FastifyInstance;
 let token = '';
-let userId = '';
 let roleId = '';
 const suffix = Date.now();
 
@@ -20,6 +37,11 @@ describe('Resenhômetro API', () => {
 
   afterAll(async () => {
     await app.close();
+  });
+
+  // O limite por IP é por processo; a suíte registra mais contas do que ele permite.
+  beforeEach(() => {
+    resetAuthRateLimits();
   });
 
   it('health', async () => {
@@ -63,7 +85,6 @@ describe('Resenhômetro API', () => {
     });
     expect(register.statusCode).toBe(201);
     token = register.json().token;
-    userId = register.json().user.id;
 
     const session = register.cookies.find((item) => item.name === 'resenhometro_session');
     expect(session?.value).toBeTruthy();
@@ -798,61 +819,213 @@ describe('Resenhômetro API', () => {
     expect(removedStory.statusCode).toBe(204);
   });
 
-  it('forgot password + reset', async () => {
-    const email = `qa${suffix}@resenha.test`;
-    const forgotUnknown = await app.inject({
-      method: 'POST',
-      url: '/auth/forgot-password',
-      payload: { email: `missing${suffix}@resenha.test` },
-    });
-    expect(forgotUnknown.statusCode).toBe(200);
+  describe('recuperar senha', () => {
+    const FORGOT = '/auth/forgot-password';
+    const RESET = '/auth/reset-password';
 
-    const forgot = await app.inject({
-      method: 'POST',
-      url: '/auth/forgot-password',
-      payload: { email },
-    });
-    expect(forgot.statusCode).toBe(200);
-    const resetUrl = forgot.json().resetUrl as string;
-    expect(resetUrl).toContain('token=');
-    const resetToken = new URL(resetUrl).searchParams.get('token');
-    expect(resetToken).toBeTruthy();
-
-    const reset = await app.inject({
-      method: 'POST',
-      url: '/auth/reset-password',
-      payload: { token: resetToken, password: 'novaSenha9' },
-    });
-    expect(reset.statusCode).toBe(200);
-
-    const oldLogin = await app.inject({
-      method: 'POST',
-      url: '/auth/login',
-      payload: { email, password: 'secret12' },
-    });
-    expect(oldLogin.statusCode).toBe(401);
-
-    const newLogin = await app.inject({
-      method: 'POST',
-      url: '/auth/login',
-      payload: { email, password: 'novaSenha9' },
-    });
-    expect(newLogin.statusCode).toBe(200);
-    expect(newLogin.json().token).toBeTruthy();
-
-    const previous = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
-    try {
-      const prodForgot = await app.inject({
+    async function newAccount(tag: string) {
+      const email = `${tag}${suffix}@resenha.test`;
+      const res = await app.inject({
         method: 'POST',
-        url: '/auth/forgot-password',
-        payload: { email },
+        url: '/auth/register',
+        payload: { name: `Reset ${tag}`, email, password: 'secret12', username: `${tag}${suffix}` },
       });
-      expect(prodForgot.statusCode).toBe(200);
-      expect(prodForgot.json().resetUrl).toBeUndefined();
-    } finally {
-      process.env.NODE_ENV = previous;
+      expect(res.statusCode).toBe(201);
+      return { email, id: res.json().user.id as string };
     }
+
+    function forgot(email: string) {
+      return app.inject({ method: 'POST', url: FORGOT, payload: { email } });
+    }
+
+    function reset(token: string, password: string) {
+      return app.inject({ method: 'POST', url: RESET, payload: { token, password } });
+    }
+
+    function login(email: string, password: string) {
+      return app.inject({ method: 'POST', url: '/auth/login', payload: { email, password } });
+    }
+
+    function tokenFrom(html: string) {
+      const match = html.match(/redefinir-senha\?token=([a-f0-9]+)/);
+      expect(match).toBeTruthy();
+      return match![1];
+    }
+
+    beforeEach(() => {
+      mailbox.sent.length = 0;
+      mailbox.fail = false;
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('responde igual com e sem conta, sem link nem token, e só manda e-mail para conta real', async () => {
+      const { email } = await newAccount('rp1');
+      const known = await forgot(email);
+      const unknown = await forgot(`ninguem${suffix}@resenha.test`);
+
+      expect(known.statusCode).toBe(200);
+      expect(unknown.statusCode).toBe(200);
+      expect(known.json()).toEqual(unknown.json());
+      expect(Object.keys(known.json()).sort()).toEqual(['message', 'ok']);
+
+      expect(mailbox.sent).toHaveLength(1);
+      expect(mailbox.sent[0].to).toBe(email);
+      const token = tokenFrom(mailbox.sent[0].html);
+      expect(known.body).not.toContain(token);
+      expect(known.body).not.toContain('redefinir-senha');
+    });
+
+    it('e-mail usa a origem da web, a marca Redesenha e não usa violeta', async () => {
+      const { email } = await newAccount('rp2');
+      await forgot(email);
+      const { html } = mailbox.sent[0];
+      expect(html).toContain('http://localhost:3000/redefinir-senha?token=');
+      expect(html).toContain('RESENHÔMETRO');
+      expect(html).not.toMatch(/#8b5cf6|#a78bfa|#d946ef|violet|purple/i);
+    });
+
+    it('envio que falha não muda a resposta nem entrega o link', async () => {
+      const { email } = await newAccount('rp3');
+      mailbox.fail = true;
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.spyOn(console, 'info').mockImplementation(() => {});
+      const res = await forgot(email);
+      expect(res.statusCode).toBe(200);
+      expect(Object.keys(res.json()).sort()).toEqual(['message', 'ok']);
+      expect(res.body).not.toContain('token');
+    });
+
+    it('em produção o token não aparece em nenhum log', async () => {
+      const { email } = await newAccount('rp4');
+      const logs: string[] = [];
+      for (const level of ['log', 'info', 'warn', 'error'] as const) {
+        vi.spyOn(console, level).mockImplementation((...args: unknown[]) => {
+          logs.push(args.map(String).join(' '));
+        });
+      }
+      const previous = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+      try {
+        mailbox.fail = true; // pior caso: o e-mail não saiu
+        await forgot(email);
+        mailbox.fail = false;
+        await forgot(email);
+      } finally {
+        process.env.NODE_ENV = previous;
+      }
+      const token = tokenFrom(mailbox.sent[0].html);
+      expect(logs.join('\n')).not.toContain(token);
+      expect(logs.join('\n')).not.toContain('redefinir-senha');
+    });
+
+    it('novo pedido invalida o link anterior que não foi usado', async () => {
+      const { email } = await newAccount('rp5');
+      await forgot(email);
+      await forgot(email);
+      const [first, second] = mailbox.sent.map((mail) => tokenFrom(mail.html));
+      expect(first).not.toBe(second);
+
+      expect((await reset(first, 'novaSenha9')).statusCode).toBe(400);
+      expect((await reset(second, 'novaSenha9')).statusCode).toBe(200);
+    });
+
+    it('o sexto pedido do mesmo e-mail em 15 min responde 429 sem revelar a conta', async () => {
+      const { email } = await newAccount('rp6');
+      const missing = `fantasma${suffix}@resenha.test`;
+
+      async function sixth(target: string) {
+        resetAuthRateLimits(); // cada e-mail numa janela de IP limpa: aqui só o limite por e-mail pode disparar
+        for (let i = 0; i < 5; i += 1) expect((await forgot(target)).statusCode).toBe(200);
+        return forgot(target);
+      }
+
+      const real = await sixth(email);
+      const fake = await sixth(missing);
+      expect(real.statusCode).toBe(429);
+      expect(fake.statusCode).toBe(429);
+      expect(real.json()).toEqual(fake.json());
+    });
+
+    it('o décimo primeiro pedido do mesmo IP responde 429 sem revelar a conta', async () => {
+      const { email } = await newAccount('rp7');
+      for (let i = 0; i < 10; i += 1) {
+        expect((await forgot(i === 0 ? email : `x${i}${suffix}@resenha.test`)).statusCode).toBe(200);
+      }
+      const limited = await forgot(`y${suffix}@resenha.test`);
+      expect(limited.statusCode).toBe(429);
+      expect(limited.json().message).toBe(AUTH_RATE_LIMIT_MESSAGE);
+    });
+
+    it('troca a senha pelo link: a nova entra, a antiga não, e o link não serve de novo', async () => {
+      const { email } = await newAccount('rp8');
+      await forgot(email);
+      const token = tokenFrom(mailbox.sent[0].html);
+
+      const done = await reset(token, 'novaSenha9');
+      expect(done.statusCode).toBe(200);
+      expect(done.body).not.toContain('novaSenha9');
+      expect(done.body).not.toContain(token);
+
+      expect((await login(email, 'secret12')).statusCode).toBe(401);
+      expect((await login(email, 'novaSenha9')).statusCode).toBe(200);
+
+      expect((await reset(token, 'outraSenha1')).statusCode).toBe(400);
+      expect((await login(email, 'novaSenha9')).statusCode).toBe(200);
+    });
+
+    it('senha curta responde 400, não grava e o link continua valendo', async () => {
+      const { email } = await newAccount('rp9');
+      await forgot(email);
+      const token = tokenFrom(mailbox.sent[0].html);
+
+      expect((await reset(token, '1234567')).statusCode).toBe(400);
+      expect((await login(email, 'secret12')).statusCode).toBe(200);
+      expect((await reset(token, 'novaSenha9')).statusCode).toBe(200);
+    });
+
+    it('token inválido ou expirado responde 400 sem trocar a senha', async () => {
+      const { email, id } = await newAccount('rp10');
+      const invalid = await reset('f'.repeat(64), 'novaSenha9');
+      expect(invalid.statusCode).toBe(400);
+      expect(invalid.json().message).toMatch(/outro e-mail/i);
+
+      await forgot(email);
+      const token = tokenFrom(mailbox.sent[0].html);
+      await exec(`UPDATE password_resets SET expires_at = $1 WHERE user_id = $2`, [
+        new Date(Date.now() - 1000).toISOString(),
+        id,
+      ]);
+
+      const expired = await reset(token, 'novaSenha9');
+      expect(expired.statusCode).toBe(400);
+      expect(expired.json().message).toBe(invalid.json().message);
+      expect((await login(email, 'secret12')).statusCode).toBe(200);
+    });
+
+    it('sessão emitida antes do reset deixa de autenticar; a nova entra', async () => {
+      const { email, id } = await newAccount('rp11');
+      const before = app.jwt.sign({ sub: id, email, iat: Math.floor(Date.now() / 1000) - 120 });
+      const headers = { authorization: `Bearer ${before}` };
+      expect((await app.inject({ method: 'GET', url: '/auth/me', headers })).statusCode).toBe(200);
+
+      await forgot(email);
+      const token = tokenFrom(mailbox.sent[0].html);
+      expect((await reset(token, 'novaSenha9')).statusCode).toBe(200);
+
+      expect((await app.inject({ method: 'GET', url: '/auth/me', headers })).statusCode).toBe(401);
+
+      const fresh = await login(email, 'novaSenha9');
+      expect(fresh.statusCode).toBe(200);
+      const after = await app.inject({
+        method: 'GET',
+        url: '/auth/me',
+        headers: { authorization: `Bearer ${fresh.json().token}` },
+      });
+      expect(after.statusCode).toBe(200);
+    });
   });
 
   it('rate-limits 20 login attempts from the same IP', async () => {

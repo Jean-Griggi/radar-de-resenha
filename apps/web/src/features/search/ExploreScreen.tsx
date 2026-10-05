@@ -15,7 +15,7 @@ type ExploreData = {
   categories: { name: string; count: number }[];
   tags: { name: string; count: number }[];
   places: { name: string; count: number }[];
-  music: { id: string; title: string; artist: string }[];
+  music: { id: string; title: string; artist: string | null }[];
 };
 
 function searchIsEmpty(results: SearchResults) {
@@ -115,7 +115,8 @@ export function ExploreScreen() {
           <Section title="Músicas">
             {search.music.map((track) => (
               <p key={track.id}>
-                {track.title} — {track.artist}
+                {track.title}
+                {track.artist ? ` — ${track.artist}` : ' · Playlist'}
               </p>
             ))}
           </Section>
@@ -172,7 +173,8 @@ export function ExploreScreen() {
           <Section title="Músicas">
             {explore.music.map((item) => (
               <p key={item.id}>
-                {item.title} — {item.artist}
+                {item.title}
+                {item.artist ? ` — ${item.artist}` : ' · Playlist'}
               </p>
             ))}
           </Section>

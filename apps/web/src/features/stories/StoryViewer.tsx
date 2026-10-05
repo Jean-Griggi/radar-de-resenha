@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import type { Story, StoryRing, StoryViewer as StoryViewerUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
+import { MusicCard } from '@/features/music';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 
 export function StoryPhone({ children }: { children: ReactNode }) {
@@ -295,6 +296,11 @@ export function StoryViewer({
                 ✕
               </button>
             </div>
+            {story.music ? (
+              <div className="pointer-events-auto mt-2" onPointerDown={(event) => event.stopPropagation()}>
+                <MusicCard item={story.music} tone="story" />
+              </div>
+            ) : null}
           </div>
 
           {!isOwn ? (
