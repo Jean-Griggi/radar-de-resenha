@@ -10,6 +10,7 @@ import {
   type MapPoint,
   type PeopleMapControls,
   type PeoplePin,
+  type RoutePin,
 } from './mapPoint';
 
 export function LocationMap({
@@ -105,12 +106,14 @@ export function PeopleMap({
   route = null,
   me = null,
   follow = false,
+  routePins = [],
 }: {
   people: PeoplePin[];
   target?: MapTarget | null;
   route?: MapRoute | null;
   me?: MapPoint | null;
   follow?: boolean;
+  routePins?: RoutePin[];
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<PeopleMapControls | null>(null);
@@ -121,6 +124,8 @@ export function PeopleMap({
   routeRef.current = route;
   const meRef = useRef(me);
   meRef.current = me;
+  const pinsRef = useRef(routePins);
+  pinsRef.current = routePins;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -137,6 +142,7 @@ export function PeopleMap({
         controls.sync(peopleRef.current);
         controls.setRoute(routeRef.current?.coordinates ?? null, routeRef.current?.fit ?? false);
         controls.setMe(meRef.current, false);
+        controls.setRoutePins(pinsRef.current);
       })
       .catch(() => {
         if (!cancelled) setFailed(true);
@@ -163,6 +169,10 @@ export function PeopleMap({
   useEffect(() => {
     controlsRef.current?.setMe(me, follow);
   }, [me, follow]);
+
+  useEffect(() => {
+    controlsRef.current?.setRoutePins(routePins);
+  }, [routePins]);
 
   return (
     <div data-people-map={failed ? 'closed' : 'open'}>

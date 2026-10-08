@@ -11,7 +11,7 @@ import { Input } from '@/components/Field';
 import { isCep, searchAddress, type PlaceResult } from '@/lib/geocode';
 import { PeopleMap, type MapRoute, type MapTarget } from '@/features/users/LocationMap';
 import { RoutePanel } from '@/features/users/RoutePanel';
-import type { MapPoint } from '@/features/users/mapPoint';
+import type { MapPoint, RoutePin } from '@/features/users/mapPoint';
 import { pinsFromPeople } from '@/features/users/mapPoint';
 
 export function PeopleMapScreen() {
@@ -26,6 +26,7 @@ export function PeopleMapScreen() {
   const [route, setRoute] = useState<MapRoute | null>(null);
   const [me, setMe] = useState<MapPoint | null>(null);
   const [follow, setFollow] = useState(false);
+  const [routePins, setRoutePins] = useState<RoutePin[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -116,13 +117,14 @@ export function PeopleMapScreen() {
       {!loading && !error ? (
         <>
           <RoutePanel
+            onPins={setRoutePins}
             onRoute={(coordinates, fit) => setRoute(coordinates ? { coordinates, fit } : null)}
             onMe={(point, following) => {
               setMe(point);
               setFollow(following);
             }}
           />
-          <PeopleMap people={pins} target={target} route={route} me={me} follow={follow} />
+          <PeopleMap people={pins} target={target} route={route} me={me} follow={follow} routePins={routePins} />
           {pins.length === 0 ? (
             <p className="mt-3 text-sm text-muted">Nenhuma pessoa com localização visível.</p>
           ) : (

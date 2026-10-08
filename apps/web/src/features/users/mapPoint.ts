@@ -306,11 +306,15 @@ export async function mountLocationMap(
   };
 }
 
+export type RoutePin = MapPoint & { kind: 'from' | 'to'; label: string };
+
 export type PeopleMapControls = {
   sync: (people: PeoplePin[]) => void;
   flyTo: (point: MapPoint, zoom: number) => void;
   /** Desenha (ou apaga, com `null`) a linha da rota. `fit` enquadra a rota inteira. */
   setRoute: (coordinates: [number, number][] | null, fit: boolean) => void;
+  /** Marcadores A (origem) e B (destino) da rota. Com os dois, enquadra os dois; com um, voa até ele. */
+  setRoutePins: (pins: RoutePin[]) => void;
   /** Bolinha azul de "você está aqui". `follow` leva a câmera junto. */
   setMe: (point: MapPoint | null, follow: boolean) => void;
   destroy: () => void;
@@ -365,6 +369,7 @@ export async function mountPeopleMap(
   let loaded = false;
   let route: [number, number][] | null = null;
   let meMarker: ReturnType<typeof placeMarker> | null = null;
+  let routeMarkers: Array<InstanceType<MapLibreModule['Marker']>> = [];
 
   function drawRoute() {
     const data = {
@@ -402,6 +407,24 @@ export async function mountPeopleMap(
       for (const coord of coordinates) bounds.extend(coord);
       map.fitBounds(bounds, { padding: 64, animate: true });
     },
+    setRoutePins(pins) {
+      for (const marker of routeMarkers) marker.remove();
+      routeMarkers = pins.map((pin) => {
+        const el = document.createElement('div');
+        el.dataset.routePin = pin.kind;
+        el.title = pin.label;
+        el.textContent = pin.kind === 'from' ? 'A' : 'B';
+        el.style.cssText = `width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 14px/1 system-ui,sans-serif;color:#fff;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.45);background:${pin.kind === 'from' ? '#16a34a' : '#dc2626'}`;
+        return new maplibre.Marker({ element: el, anchor: 'center' }).setLngLat([pin.longitude, pin.latitude]).addTo(map);
+      });
+      if (pins.length === 1) {
+        map.flyTo({ center: [pins[0]!.longitude, pins[0]!.latitude], zoom: 14, essential: true });
+      } else if (pins.length === 2) {
+        const bounds = new maplibre.LngLatBounds([pins[0]!.longitude, pins[0]!.latitude], [pins[0]!.longitude, pins[0]!.latitude]);
+        bounds.extend([pins[1]!.longitude, pins[1]!.latitude]);
+        map.fitBounds(bounds, { padding: 80, maxZoom: 15, animate: true });
+      }
+    },
     setMe(point, follow) {
       meMarker?.remove();
       meMarker = null;
@@ -413,6 +436,7 @@ export async function mountPeopleMap(
       if (follow) map.easeTo({ center: [point.longitude, point.latitude], duration: 600 });
     },
     destroy() {
+      for (const marker of routeMarkers) marker.remove();
       meMarker?.remove();
       for (const marker of markers) marker.remove();
       markers = [];

@@ -6,7 +6,7 @@ import { Input } from '@/components/Field';
 import { searchAddress, type PlaceResult } from '@/lib/geocode';
 import { fetchRoute, formatDistance, formatDuration, metersBetween, type Route } from '@/lib/routing';
 import { loadSavedPlaces, removePlace, savePlace, type SavedPlace } from '@/lib/savedPlaces';
-import type { MapPoint } from './mapPoint';
+import type { MapPoint, RoutePin } from './mapPoint';
 
 type Spot = { label: string; point: MapPoint };
 
@@ -163,7 +163,9 @@ function SpotPicker({
 export function RoutePanel({
   onRoute,
   onMe,
+  onPins,
 }: {
+  onPins: (pins: RoutePin[]) => void;
   onRoute: (coordinates: [number, number][] | null, fit: boolean) => void;
   onMe: (point: MapPoint | null, follow: boolean) => void;
 }) {
@@ -189,6 +191,26 @@ export function RoutePanel({
   }
 
   useEffect(() => () => stopWatching(), []);
+
+  // Marca A e B no mapa assim que cada ponto é escolhido. Seguindo a posição, a origem anda junto e o
+  // enquadramento não muda.
+  const fromLat = from?.point.latitude;
+  const fromLng = from?.point.longitude;
+  const toLat = to?.point.latitude;
+  const toLng = to?.point.longitude;
+  useEffect(() => {
+    if (following) return;
+    const pins: RoutePin[] = [];
+    if (from) pins.push({ ...from.point, kind: 'from', label: from.label });
+    if (to) pins.push({ ...to.point, kind: 'to', label: to.label });
+    onPins(pins);
+  }, [fromLat, fromLng, toLat, toLng, following]);
+
+  // Com origem e destino escolhidos, a rota é traçada sozinha (o botão fica para refazer).
+  useEffect(() => {
+    if (following || !from || !to) return;
+    void trace(from.point, to.point, true);
+  }, [fromLat, fromLng, toLat, toLng]);
 
   async function trace(origin: MapPoint, destination: MapPoint, fit: boolean) {
     busyRef.current = true;
@@ -272,6 +294,7 @@ export function RoutePanel({
     lastCalc.current = null;
     onRoute(null, false);
     onMe(null, false);
+    onPins([]);
   }
 
   const shared = {
@@ -287,7 +310,7 @@ export function RoutePanel({
       <SpotPicker title="Para onde vou (destino)" spot={to} onPick={setTo} {...shared} />
       <div className="flex flex-wrap gap-2">
         <Button type="button" disabled={!from || !to || busy} onClick={() => from && to && void trace(from.point, to.point, true)}>
-          {busy ? 'Calculando…' : 'Traçar rota'}
+          {busy ? 'Calculando…' : route ? 'Refazer rota' : 'Traçar rota'}
         </Button>
         {route ? (
           <Button type="button" variant="secondary" onClick={following ? stopWatching : startFollowing}>
