@@ -2,70 +2,28 @@ export type MapPoint = { latitude: number; longitude: number };
 
 export const PLACE_NAME_MAX = 40;
 
-export const MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
-
-/** Volume a partir deste zoom. Abaixo disso o prédio continua chapado. */
-export const BUILDING_MIN_ZOOM = 15;
-export const MAP_MAX_PITCH = 60;
-const BUILDING_LAYER = 'building';
-const BUILDING_VOLUME_LAYER = 'building-3d';
-
-/** Altura que o OpenFreeMap já traz. Sem número, o volume é zero e o prédio fica chapado. */
-export function buildingHeightExpression(): unknown[] {
-  return ['coalesce', ['to-number', ['get', 'render_height']], 0];
-}
-
-export function buildingVolumePlan(): {
-  maxPitch: number;
-  flatLayer: string;
-  volumeLayer: string;
-  minZoom: number;
-  height: unknown[];
-  base: unknown[];
-} {
-  return {
-    maxPitch: MAP_MAX_PITCH,
-    flatLayer: BUILDING_LAYER,
-    volumeLayer: BUILDING_VOLUME_LAYER,
-    minZoom: BUILDING_MIN_ZOOM,
-    height: buildingHeightExpression(),
-    base: ['coalesce', ['to-number', ['get', 'render_min_height']], 0],
-  };
-}
-
-type VolumeMap = {
-  setMaxPitch: (pitch: number) => void;
-  getLayer: (id: string) => { type?: string; minzoom?: number } | undefined;
-  setLayerZoomRange: (id: string, min: number, max: number) => void;
-  setPaintProperty: (id: string, name: string, value: unknown) => void;
-};
-
 /**
- * Inclina a câmera e sobe o prédio onde o OpenFreeMap tem altura.
- * Se o volume não existir, o mapa plano permanece.
+ * Mapa raster (imagens prontas, CARTO Voyager/OpenStreetMap): leve, traz nome de cidades e ruas
+ * e não precisa de chave. Antes era vetorial com prédios 3D, que travava e deixava as cidades ilegíveis.
  */
-export function applyBuildingVolume(map: VolumeMap): boolean {
-  const plan = buildingVolumePlan();
-  try {
-    map.setMaxPitch(plan.maxPitch);
-  } catch {
-    return false;
-  }
-  try {
-    const volume = map.getLayer(plan.volumeLayer);
-    if (!volume || volume.type !== 'fill-extrusion') return false;
-    const flat = map.getLayer(plan.flatLayer);
-    if (flat?.type === 'fill') {
-      map.setLayerZoomRange(plan.flatLayer, flat.minzoom ?? 13, 24);
-    }
-    map.setLayerZoomRange(plan.volumeLayer, plan.minZoom, 24);
-    map.setPaintProperty(plan.volumeLayer, 'fill-extrusion-height', plan.height);
-    map.setPaintProperty(plan.volumeLayer, 'fill-extrusion-base', plan.base);
-    return true;
-  } catch {
-    return false;
-  }
-}
+export const MAP_STYLE = {
+  version: 8 as const,
+  sources: {
+    base: {
+      type: 'raster' as const,
+      tiles: [
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+      ],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+    },
+  },
+  layers: [{ id: 'base', type: 'raster' as const, source: 'base' }],
+};
 
 const DEFAULT_CENTER: [number, number] = [-51.9258, -14.235];
 const POINT_ZOOM = 14;
@@ -79,13 +37,13 @@ export function locationMapView(
   point: MapPoint | null,
   fallback?: MapFallbackView,
 ): {
-  style: string;
+  style: typeof MAP_STYLE;
   center: [number, number];
   zoom: number;
   attributionControl: MapAttribution;
 } {
   return {
-    style: MAP_STYLE_URL,
+    style: MAP_STYLE,
     center: point ? [point.longitude, point.latitude] : (fallback?.center ?? DEFAULT_CENTER),
     zoom: point ? POINT_ZOOM : (fallback?.zoom ?? OVERVIEW_ZOOM),
     attributionControl: { compact: false },
@@ -193,7 +151,7 @@ export function pinsFromPeople(
 }
 
 export function peopleMapView(pins: { latitude: number; longitude: number }[]): {
-  style: string;
+  style: typeof MAP_STYLE;
   center: [number, number];
   zoom: number;
   attributionControl: MapAttribution;
@@ -212,7 +170,7 @@ export function peopleMapView(pins: { latitude: number; longitude: number }[]): 
     north = Math.max(north, pin.latitude);
   }
   return {
-    style: MAP_STYLE_URL,
+    style: MAP_STYLE,
     center: [(west + east) / 2, (south + north) / 2],
     zoom: OVERVIEW_ZOOM,
     attributionControl: { compact: false },
@@ -313,18 +271,15 @@ export async function mountLocationMap(
     style: view.style,
     center: view.center,
     zoom: view.zoom,
-    maxPitch: MAP_MAX_PITCH,
+    maxPitch: 0,
+    fadeDuration: 0,
     attributionControl: view.attributionControl,
     cooperativeGestures: !options.interactive,
   });
   map.addControl(
-    new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }),
+    new maplibre.NavigationControl({ showCompass: false }),
     'top-right',
   );
-  map.on('load', () => {
-    applyBuildingVolume(map as never);
-  });
-
   let marker: ReturnType<typeof placeMarker> | null = options.point
     ? placeMarker(maplibre, map, options.point, options.avatar, options.placeName)
     : null;
@@ -373,11 +328,12 @@ export async function mountPeopleMap(
     style: view.style,
     center: view.center,
     zoom: view.zoom,
-    maxPitch: MAP_MAX_PITCH,
+    maxPitch: 0,
+    fadeDuration: 0,
     attributionControl: view.attributionControl,
   });
   map.addControl(
-    new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }),
+    new maplibre.NavigationControl({ showCompass: false }),
     'top-right',
   );
 
@@ -407,7 +363,6 @@ export async function mountPeopleMap(
   }
 
   map.on('load', () => {
-    applyBuildingVolume(map as never);
     moveTo(latest);
   });
   show(people);
