@@ -1,11 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import type { PublicUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import { Input } from '@/components/Field';
 import { EmptyState, Skeleton } from '@/components/Card';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+import { getUser } from '@/lib/auth';
 import { formatTimeAgo } from '@/lib/format';
 import type { ChatMessage } from './types';
 
@@ -16,6 +19,25 @@ export function ChatListScreen() {
   const [friends, setFriends] = useState<PublicUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [q, setQ] = useState('');
+  const [found, setFound] = useState<PublicUser[] | null>(null);
+  const [searching, setSearching] = useState(false);
+
+  async function searchPeople(event: FormEvent) {
+    event.preventDefault();
+    const term = q.trim();
+    if (term.length < 2) return;
+    setSearching(true);
+    try {
+      const { data } = await api.get<{ people: PublicUser[] }>('/search', { params: { q: term } });
+      const meId = getUser()?.id;
+      setFound(data.people.filter((person) => person.id !== meId));
+    } catch (err) {
+      if (!isApiCanceled(err)) setFound([]);
+    } finally {
+      setSearching(false);
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -41,6 +63,30 @@ export function ChatListScreen() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="text-2xl font-semibold sm:text-3xl">Mensagens</h1>
+      <form onSubmit={searchPeople} className="flex gap-2">
+        <Input value={q} placeholder="Procurar uma pessoa para conversar" aria-label="Procurar pessoa" onChange={(e) => setQ(e.target.value)} />
+        <Button type="submit" variant="secondary" disabled={searching || q.trim().length < 2}>
+          {searching ? 'Buscando…' : 'Buscar'}
+        </Button>
+      </form>
+      {found ? (
+        found.length === 0 ? (
+          <p className="text-sm text-muted">Ninguém encontrado.</p>
+        ) : (
+          <ul className="card divide-y divide-[var(--border)] overflow-hidden" aria-label="Pessoas encontradas">
+            {found.map((person) => (
+              <li key={person.id}>
+                <Link href={`/chat/${person.username}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--overlay)]">
+                  <Avatar src={person.avatar} name={person.name} size="sm" />
+                  <span className="min-w-0 truncate">
+                    {person.name} <span className="text-muted">@{person.username}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )
+      ) : null}
       {loading ? <Skeleton className="h-40" /> : null}
       {error ? <p className="text-[var(--danger)]">{error}</p> : null}
 
@@ -49,7 +95,7 @@ export function ChatListScreen() {
           {conversations.length === 0 ? (
             <EmptyState
               title="Nenhuma conversa ainda"
-              description={friends.length === 0 ? 'Adicione amigos para conversar com eles.' : 'Escolha um amigo abaixo para começar.'}
+              description="Procure uma pessoa acima ou escolha um amigo abaixo para começar."
             />
           ) : (
             <ul className="card divide-y divide-[var(--border)] overflow-hidden">

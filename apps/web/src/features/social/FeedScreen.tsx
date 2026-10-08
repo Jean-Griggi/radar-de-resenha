@@ -11,6 +11,7 @@ import { FeedComments } from './Comments';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { MediaImage } from '@/components/MediaImage';
 import { Reactions } from './Reactions';
+import { ChatPreview } from '@/features/chat';
 import { StoriesBar } from '@/features/stories';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
@@ -101,6 +102,7 @@ export function FeedScreen() {
           <div className="space-y-5">
         <h1 className="sr-only">Feed</h1>
         <StoriesBar />
+        <ChatPreview />
 
         <form onSubmit={publish} className="card composer p-4">
           <div className="flex gap-3">

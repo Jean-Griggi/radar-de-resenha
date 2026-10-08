@@ -1,11 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { exec, query, queryOne } from '../../db/client.js';
-import { forbidden, notFound } from '../../lib/http.js';
+import { forbidden, HttpError, notFound } from '../../lib/http.js';
 import { nowIso } from '../../lib/helpers.js';
 import { getUserRow, mapUser } from '../users/users.map.js';
 import { notify } from '../notifications/notifications.service.js';
 
 export const MESSAGE_MAX = 1000;
+
+function tooManyRequests() {
+  return new HttpError(429, 'Muitas mensagens em pouco tempo. Aguarde um instante.');
+}
 const PAGE = 200;
 
 type MessageRow = {
@@ -34,15 +38,15 @@ async function findPeer(username: string) {
   return row.id;
 }
 
-/** Só conversa quem é amigo (pedido de amizade aceito, em qualquer sentido). */
-async function assertFriends(a: string, b: string) {
-  const row = await queryOne(
-    `SELECT 1 FROM friendships
-     WHERE status = 'accepted'
-       AND ((requester_id = $1 AND receiver_id = $2) OR (requester_id = $2 AND receiver_id = $1))`,
-    [a, b],
+/** Teto de mensagens por minuto de cada pessoa, para o chat aberto não virar spam. */
+const SENDS_PER_MINUTE = 30;
+
+async function assertNotFlooding(userId: string) {
+  const row = await queryOne<{ count: string }>(
+    `SELECT COUNT(*)::text AS count FROM messages WHERE sender_id = $1 AND created_at > $2`,
+    [userId, new Date(Date.now() - 60_000).toISOString()],
   );
-  if (!row) throw forbidden('Só é possível conversar com amigos');
+  if (Number(row?.count ?? 0) >= SENDS_PER_MINUTE) throw tooManyRequests();
 }
 
 export async function listConversations(userId: string) {
@@ -69,7 +73,6 @@ export async function listConversations(userId: string) {
 /** Mensagens da conversa, da mais antiga para a mais nova. `after` devolve só as novas (polling). */
 export async function listMessages(userId: string, username: string, after?: string) {
   const peerId = await findPeer(username);
-  await assertFriends(userId, peerId);
   const rows = await query<MessageRow>(
     `SELECT * FROM (
        SELECT * FROM messages
@@ -90,7 +93,12 @@ export async function listMessages(userId: string, username: string, after?: str
 export async function sendMessage(userId: string, username: string, content: string) {
   const peerId = await findPeer(username);
   if (peerId === userId) throw forbidden('Não dá para enviar mensagem para você mesmo');
-  await assertFriends(userId, peerId);
+  await assertNotFlooding(userId);
+  // Notifica só na primeira mensagem não lida, para quem recebe não ser inundado de avisos.
+  const pending = await queryOne<{ count: string }>(
+    `SELECT COUNT(*)::text AS count FROM messages WHERE sender_id = $1 AND receiver_id = $2 AND read_at IS NULL`,
+    [userId, peerId],
+  );
   const id = randomUUID();
   const createdAt = nowIso();
   await exec(
@@ -98,7 +106,7 @@ export async function sendMessage(userId: string, username: string, content: str
     [id, userId, peerId, content, createdAt],
   );
   const sender = await getUserRow(userId);
-  await notify({
+  if (Number(pending?.count ?? 0) === 0) await notify({
     userId: peerId,
     actorId: userId,
     type: 'message',
