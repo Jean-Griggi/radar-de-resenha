@@ -26,8 +26,8 @@ export function LoginScreen() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.post<{ user: AuthUser }>('/auth/login', { email, password });
-      setAuth(data.user);
+      const { data } = await api.post<{ user: AuthUser; token?: string }>('/auth/login', { email, password });
+      setAuth(data.user, data.token);
       router.replace('/');
     } catch (err) {
       setError(apiErrorMessage(err, 'E-mail ou senha inválidos'));

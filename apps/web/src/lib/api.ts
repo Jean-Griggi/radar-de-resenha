@@ -1,9 +1,15 @@
 import axios from 'axios';
-import { clearAuth } from './auth';
+import { clearAuth, getToken } from './auth';
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333',
   withCredentials: true,
+});
+
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) config.headers.set('Authorization', `Bearer ${token}`);
+  return config;
 });
 
 const PUBLIC_AUTH_PREFIXES = ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha'];

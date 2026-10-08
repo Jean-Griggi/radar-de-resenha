@@ -28,13 +28,13 @@ export function CadastroScreen() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.post<{ user: AuthUser }>('/auth/register', {
+      const { data } = await api.post<{ user: AuthUser; token?: string }>('/auth/register', {
         name,
         email,
         password,
         username: username || undefined,
       });
-      setAuth(data.user);
+      setAuth(data.user, data.token);
       router.replace('/');
     } catch (err) {
       setError(apiErrorMessage(err, 'Não foi possível cadastrar'));

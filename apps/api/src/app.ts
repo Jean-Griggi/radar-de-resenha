@@ -31,6 +31,9 @@ export async function buildApp() {
 
   const productionLike = isProductionLike();
   const app = Fastify({
+    // Atrás do proxy da Vercel o IP real vem em X-Forwarded-For. Sem isso, o limite de tentativas de login
+    // (por IP) enxerga todo mundo como o mesmo IP e bloqueia pessoas que nunca erraram a senha.
+    trustProxy: true,
     logger: process.env.VITEST
       ? false
       : {
