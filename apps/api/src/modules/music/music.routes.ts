@@ -11,6 +11,7 @@ import {
   getSpotifyAccount,
   issueSpotifyState,
   listMusic,
+  parseSpotifyState,
   searchSpotify,
   spotifyAuthUrl,
 } from './music.service.js';
@@ -38,18 +39,20 @@ export async function musicRoutes(app: FastifyInstance) {
     return reply.send({ ok: true });
   });
 
-  // O browser volta do Spotify com o cookie de sessão: só conclui se for a mesma pessoa que pediu a conexão.
-  // Em qualquer falha o redirect é sempre para a origem da web já configurada, sem gravar conta.
+  // O browser volta do Spotify numa navegação normal: leva o cookie de sessão, se o navegador guarda cookie de outro
+  // domínio, e não leva nada se ele bloqueia (Safari/iPhone, Brave). O `state` é assinado, de uso único, expira e foi
+  // emitido para uma pessoa logada, então ele sozinho identifica quem pediu a conexão. Com sessão, ela precisa ser a
+  // mesma do `state`. Em qualquer falha o redirect é sempre para a origem da web já configurada, sem gravar conta.
   app.get('/spotify/callback', async (request, reply) => {
     const { code, state } = request.query as { code?: string; state?: string };
     const fail = () => reply.redirect(`${env.WEB_ORIGIN}/music?spotify=error`);
 
-    const sessionUserId = await checkSession(request);
-    if (!code || !sessionUserId) return fail();
-    if (!(await consumeSpotifyState(state, sessionUserId))) return fail();
+    const userId = (await checkSession(request)) ?? parseSpotifyState(state)?.userId ?? null;
+    if (!code || !userId) return fail();
+    if (!(await consumeSpotifyState(state, userId))) return fail();
 
     try {
-      await completeSpotifyAuth(sessionUserId, code);
+      await completeSpotifyAuth(userId, code);
       return reply.redirect(`${env.WEB_ORIGIN}/music?spotify=connected`);
     } catch {
       return fail();

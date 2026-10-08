@@ -274,13 +274,30 @@ describe('Spotify no rolê e no story', () => {
       expect(await hasConnection(ana)).toBe(false);
     });
 
-    it('callback sem sessão não grava conta', async () => {
+    it('sem cookie de sessão (navegador que bloqueia cookie de outro domínio) o estado assinado conecta quem o pediu', async () => {
       const ana = await person('oa5');
-      libraries.set('AT-code-x', { tracks: [], playlists: [] });
+      libraries.set('AT-code-oa5', { tracks: [], playlists: [] });
       const state = await stateFor(ana);
 
-      const res = await callback(null, state);
-      expect(res.headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      const res = await callback(null, state, 'code-oa5');
+      expect(res.headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=connected`);
+      expect(await hasConnection(ana)).toBe(true);
+    });
+
+    it('sem sessão, estado adulterado, lixo ou já usado não grava conta', async () => {
+      const ana = await person('oa6');
+      libraries.set('AT-code-x', { tracks: [], playlists: [] });
+      const state = await stateFor(ana);
+      const flipped = state.slice(0, -2) + (state.endsWith('A') ? 'BB' : 'AA');
+
+      expect((await callback(null, flipped)).headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect((await callback(null, 'lixo')).headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect((await callback(null, '')).headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect(await hasConnection(ana)).toBe(false);
+
+      expect((await callback(null, state)).headers.location).toContain('spotify=connected');
+      await exec(`DELETE FROM spotify_connections WHERE user_id = $1`, [ana.id]);
+      expect((await callback(null, state)).headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
       expect(await hasConnection(ana)).toBe(false);
     });
 
