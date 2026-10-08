@@ -14,10 +14,23 @@ const SHOWN = 4;
 const REFRESH_MS = 20_000;
 
 /** Atalho das mensagens no feed: últimas conversas, quantas não lidas e o caminho para todas. */
-export function ChatPreview() {
+export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
   const [conversations, setConversations] = useState<Conversation[] | null>(null);
+  // O painel lateral só aparece em tela larga (xl). Cada lugar renderiza só quando é o visível,
+  // para não buscar as conversas duas vezes.
+  const [wide, setWide] = useState(false);
+  const visible = placement === 'rail' ? wide : !wide;
 
   useEffect(() => {
+    const query = window.matchMedia('(min-width: 1280px)');
+    const update = () => setWide(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
     const controller = new AbortController();
 
     async function load() {
@@ -37,9 +50,9 @@ export function ChatPreview() {
       controller.abort();
       window.clearInterval(timer);
     };
-  }, []);
+  }, [visible]);
 
-  if (conversations === null) return null;
+  if (!visible || conversations === null) return null;
 
   const unread = conversations.reduce((sum, item) => sum + item.unread, 0);
 
@@ -77,7 +90,7 @@ export function ChatPreview() {
                   <p className="truncate text-sm font-medium">{user.name}</p>
                   <p className={`truncate text-xs ${count > 0 ? 'font-medium text-fg' : 'text-muted'}`}>
                     {last.senderId === user.id ? '' : 'Você: '}
-                    {last.content}
+                    {last.content || '📷 Foto'}
                   </p>
                 </div>
                 <span className="shrink-0 text-xs text-muted">{formatTimeAgo(last.createdAt)}</span>

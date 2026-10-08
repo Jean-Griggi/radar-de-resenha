@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { ImagePlus, X } from 'lucide-react';
 import type { PublicUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Field';
 import { Skeleton } from '@/components/Card';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+import { IMAGE_ACCEPT, postFile, shrinkImage } from '@/lib/upload';
 import type { ChatMessage } from './types';
 
 const POLL_MS = 4000;
@@ -30,6 +32,8 @@ export function ConversationScreen() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
+  const [photo, setPhoto] = useState<{ file: File; url: string } | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const lastRef = useRef<string | undefined>(undefined);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -83,13 +87,34 @@ export function ConversationScreen() {
     endRef.current?.scrollIntoView({ block: 'end' });
   }, [messages.length]);
 
+  function pickPhoto(file: File) {
+    setPhoto((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return { file, url: URL.createObjectURL(file) };
+    });
+  }
+
+  function dropPhoto() {
+    setPhoto((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return null;
+    });
+  }
+
   async function send(event: FormEvent) {
     event.preventDefault();
     const content = text.trim();
-    if (!content || sending) return;
+    if ((!content && !photo) || sending) return;
     setSending(true);
     try {
-      const { data } = await api.post<ChatMessage>(`/chat/${username}/messages`, { content });
+      let data: ChatMessage;
+      if (photo) {
+        const small = await shrinkImage(photo.file, 1600);
+        data = await postFile<ChatMessage>(`/chat/${username}/image`, 'chat', small, { content });
+        dropPhoto();
+      } else {
+        ({ data } = await api.post<ChatMessage>(`/chat/${username}/messages`, { content }));
+      }
       merge([data]);
       setText('');
       setError('');
@@ -133,6 +158,11 @@ export function ConversationScreen() {
                   mine ? 'bg-[var(--primary)] text-[var(--paper)]' : 'bg-[var(--secondary)] text-fg'
                 }`}
               >
+                {message.image ? (
+                  <a href={message.image} target="_blank" rel="noreferrer">
+                    <img src={message.image} alt="Foto enviada na conversa" className="mb-1 max-h-72 w-full rounded-xl object-cover" />
+                  </a>
+                ) : null}
                 {message.content}
                 <span className={`mt-1 block text-right text-[11px] ${mine ? 'text-white/70' : 'text-muted'}`}>
                   {timeLabel(message.createdAt)}
@@ -146,15 +176,39 @@ export function ConversationScreen() {
 
       {error ? <p className="mt-2 text-sm text-[var(--danger)]">{error}</p> : null}
 
+      {photo ? (
+        <div className="mt-3 flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-2">
+          <img src={photo.url} alt="Prévia da foto a enviar" className="h-16 w-16 rounded-lg object-cover" />
+          <p className="min-w-0 flex-1 truncate text-sm text-muted">{photo.file.name}</p>
+          <button type="button" className="icon-btn" aria-label="Tirar a foto" onClick={dropPhoto}>
+            <X size={18} aria-hidden />
+          </button>
+        </div>
+      ) : null}
+
       <form onSubmit={send} className="mt-3 flex gap-2">
+        <input
+          ref={fileRef}
+          type="file"
+          accept={IMAGE_ACCEPT}
+          className="sr-only"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) pickPhoto(file);
+            e.target.value = '';
+          }}
+        />
+        <button type="button" className="icon-btn" aria-label="Enviar foto" onClick={() => fileRef.current?.click()}>
+          <ImagePlus size={20} aria-hidden />
+        </button>
         <Input
           value={text}
           maxLength={MESSAGE_MAX}
-          placeholder="Escreva uma mensagem"
+          placeholder={photo ? 'Legenda (opcional)' : 'Escreva uma mensagem'}
           aria-label="Mensagem"
           onChange={(e) => setText(e.target.value)}
         />
-        <Button type="submit" disabled={sending || !text.trim()}>
+        <Button type="submit" disabled={sending || (!text.trim() && !photo)}>
           Enviar
         </Button>
       </form>

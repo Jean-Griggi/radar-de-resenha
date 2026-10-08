@@ -25,6 +25,7 @@ import {
 import { Avatar } from './Avatar';
 import { BrandWordmark } from './BrandWordmark';
 import { ErrorBoundary } from './ErrorBoundary';
+import { ChatPreview } from '@/features/chat';
 import { usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
 
@@ -381,6 +382,9 @@ function DefaultRail() {
             </li>
           ))}
         </ul>
+      </div>
+      <div className="sm:col-span-2 xl:col-span-1">
+        <ChatPreview placement="rail" />
       </div>
     </div>
   );

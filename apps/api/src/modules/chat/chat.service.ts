@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { exec, query, queryOne } from '../../db/client.js';
 import { forbidden, HttpError, notFound } from '../../lib/http.js';
 import { nowIso } from '../../lib/helpers.js';
+import { publicUrl } from '../../lib/storage.js';
 import { getUserRow, mapUser } from '../users/users.map.js';
 import { notify } from '../notifications/notifications.service.js';
 
@@ -17,6 +18,7 @@ type MessageRow = {
   sender_id: string;
   receiver_id: string;
   content: string;
+  image?: string | null;
   created_at: unknown;
   read_at: unknown;
 };
@@ -27,6 +29,7 @@ function mapMessage(row: MessageRow) {
     senderId: row.sender_id,
     receiverId: row.receiver_id,
     content: row.content,
+    image: publicUrl(row.image),
     createdAt: new Date(String(row.created_at)).toISOString(),
     read: row.read_at != null,
   };
@@ -90,7 +93,8 @@ export async function listMessages(userId: string, username: string, after?: str
   return { user: peer ? mapUser(peer) : null, messages: rows.map(mapMessage) };
 }
 
-export async function sendMessage(userId: string, username: string, content: string) {
+/** Mensagem de texto, de foto (`image` = caminho já enviado) ou as duas juntas (a legenda). */
+export async function sendMessage(userId: string, username: string, content: string, image: string | null = null) {
   const peerId = await findPeer(username);
   if (peerId === userId) throw forbidden('Não dá para enviar mensagem para você mesmo');
   await assertNotFlooding(userId);
@@ -102,18 +106,18 @@ export async function sendMessage(userId: string, username: string, content: str
   const id = randomUUID();
   const createdAt = nowIso();
   await exec(
-    `INSERT INTO messages (id, sender_id, receiver_id, content, created_at) VALUES ($1,$2,$3,$4,$5)`,
-    [id, userId, peerId, content, createdAt],
+    `INSERT INTO messages (id, sender_id, receiver_id, content, image, created_at) VALUES ($1,$2,$3,$4,$5,$6)`,
+    [id, userId, peerId, content, image, createdAt],
   );
   const sender = await getUserRow(userId);
   if (Number(pending?.count ?? 0) === 0) await notify({
     userId: peerId,
     actorId: userId,
     type: 'message',
-    message: `${sender?.name ?? 'Alguém'} enviou uma mensagem`,
+    message: `${sender?.name ?? 'Alguém'} enviou ${image ? 'uma foto' : 'uma mensagem'}`,
     link: `/chat/${sender?.username ?? ''}`,
   });
-  return mapMessage({ id, sender_id: userId, receiver_id: peerId, content, created_at: createdAt, read_at: null });
+  return mapMessage({ id, sender_id: userId, receiver_id: peerId, content, image, created_at: createdAt, read_at: null });
 }
 
 export async function chatUnreadCount(userId: string) {

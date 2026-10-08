@@ -1,6 +1,6 @@
 import { api } from './api';
 
-type UploadKind = 'avatar' | 'cover' | 'photo' | 'audio' | 'story';
+type UploadKind = 'avatar' | 'cover' | 'photo' | 'audio' | 'story' | 'chat';
 
 type SignResponse = {
   mode: 'multipart' | 'signed';

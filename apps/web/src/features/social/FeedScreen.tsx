@@ -102,7 +102,7 @@ export function FeedScreen() {
           <div className="space-y-5">
         <h1 className="sr-only">Feed</h1>
         <StoriesBar />
-        <ChatPreview />
+        <ChatPreview placement="feed" />
 
         <form onSubmit={publish} className="card composer p-4">
           <div className="flex gap-3">

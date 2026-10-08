@@ -27,6 +27,7 @@ const LIMITS = {
   avatar: 5 * 1024 * 1024,
   cover: 8 * 1024 * 1024,
   photo: 8 * 1024 * 1024,
+  chat: 8 * 1024 * 1024,
   audio: 12 * 1024 * 1024,
   story: 12 * 1024 * 1024,
 };
@@ -89,7 +90,7 @@ export async function ensureStorage() {
   }
 
   const root = storageRoot();
-  for (const folder of ['avatars', 'covers', 'photos', 'audios', 'stories']) {
+  for (const folder of ['avatars', 'covers', 'photos', 'audios', 'stories', 'chats']) {
     await mkdir(join(root, folder), { recursive: true });
   }
 }
@@ -99,6 +100,7 @@ function folderFor(kind: UploadKind) {
   if (kind === 'cover') return 'covers';
   if (kind === 'audio') return 'audios';
   if (kind === 'story') return 'stories';
+  if (kind === 'chat') return 'chats';
   return 'photos';
 }
 
@@ -154,7 +156,7 @@ function issueConfirmToken(relative: string, userId: string, kind: UploadKind) {
 
 function assertConfirmToken(relative: string, token: string, userId: string, kind: UploadKind) {
   const safePath =
-    /^(avatars|covers|photos|audios|stories)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{2,5}$/i;
+    /^(avatars|covers|photos|audios|stories|chats)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{2,5}$/i;
   if (!safePath.test(relative)) {
     throw new Error('INVALID_UPLOAD_TOKEN');
   }

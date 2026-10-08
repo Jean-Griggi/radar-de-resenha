@@ -110,7 +110,7 @@ export function ChatListScreen() {
                       </div>
                       <p className={`truncate text-sm ${unread > 0 ? 'font-medium text-fg' : 'text-muted'}`}>
                         {last.senderId === user.id ? '' : 'Você: '}
-                        {last.content}
+                        {last.content || '📷 Foto'}
                       </p>
                     </div>
                     {unread > 0 ? (

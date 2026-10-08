@@ -459,6 +459,10 @@ const migrations: Migration[] = [
     id: '056_idx_messages_unread',
     sql: `CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages (receiver_id, read_at)`,
   },
+  {
+    id: '057_messages_image',
+    sql: `ALTER TABLE messages ADD COLUMN IF NOT EXISTS image TEXT`,
+  },
 ]
 
 export async function applyMigrations(query: QueryFn) {
