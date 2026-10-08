@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { UserProfile } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
@@ -126,7 +127,10 @@ export function SettingsScreen() {
       toast.push(kind === 'avatar' ? 'Foto de perfil salva' : 'Capa salva');
       return true;
     } catch (err) {
-      if (!isApiCanceled(err)) toast.push(apiErrorMessage(err, 'Falha no envio do arquivo'), 'error');
+      if (!isApiCanceled(err)) {
+        const offline = axios.isAxiosError(err) && !err.response;
+        toast.push(offline ? 'Sem conexão com a API. Ela está rodando (porta 3333)?' : apiErrorMessage(err, 'Falha no envio do arquivo'), 'error');
+      }
       return false;
     }
   }
