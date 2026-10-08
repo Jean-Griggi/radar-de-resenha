@@ -116,3 +116,29 @@ export async function postFile<T>(
   const { data } = await api.post<T>(endpoint, body);
   return data;
 }
+
+/**
+ * Reduz a imagem (lado maior = `maxSide`) e salva como JPEG. Foto de celular passa fácil do limite
+ * de 5 MB (foto de perfil) e 8 MB (capa) do servidor; reduzida, sempre cabe e carrega mais rápido.
+ */
+export async function shrinkImage(file: File, maxSide: number) {
+  const ready = await prepareImageFile(file);
+  if (ready.type === 'image/gif') return ready;
+  try {
+    const bitmap = await createImageBitmap(ready);
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return ready;
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.88));
+    if (!blob) return ready;
+    const base = ready.name.replace(/\.[^.]+$/, '') || 'foto';
+    return new File([blob], `${base}.jpg`, { type: 'image/jpeg' });
+  } catch {
+    return ready;
+  }
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { UserProfile } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/Card';
 import { Field, Input, Textarea } from '@/components/Field';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
-import { postFile, IMAGE_ACCEPT } from '@/lib/upload';
+import { postFile, shrinkImage, IMAGE_ACCEPT } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
 import { LocationMap } from '@/features/users/LocationMap';
 import {
@@ -19,13 +19,15 @@ import {
   type MapPoint,
 } from '@/features/users/mapPoint';
 
+type PendingImage = { file: File; url: string };
+
 export function SettingsScreen() {
   const toast = useToast();
   const [me, setMe] = useState<AuthUser | null>(null);
   const [password, setPassword] = useState({ currentPassword: '', newPassword: '' });
   const [loading, setLoading] = useState(true);
-  const [pendingAvatar, setPendingAvatar] = useState<{ file: File; url: string } | null>(null);
-  const [savingAvatar, setSavingAvatar] = useState(false);
+  const [pending, setPending] = useState<{ avatar?: PendingImage; cover?: PendingImage }>({});
+  const [savingMedia, setSavingMedia] = useState(false);
   const [error, setError] = useState('');
   const [profileUsername, setProfileUsername] = useState('');
   const [draftPoint, setDraftPoint] = useState<MapPoint | null>(null);
@@ -81,34 +83,51 @@ export function SettingsScreen() {
     }
   }
 
-  useEffect(() => {
-    const url = pendingAvatar?.url;
-    return () => {
-      if (url) URL.revokeObjectURL(url);
-    };
-  }, [pendingAvatar]);
+  const pendingRef = useRef(pending);
+  pendingRef.current = pending;
+  useEffect(
+    () => () => {
+      for (const item of Object.values(pendingRef.current)) URL.revokeObjectURL(item.url);
+    },
+    [],
+  );
 
-  function pickAvatar(file: File) {
-    setPendingAvatar({ file, url: URL.createObjectURL(file) });
+  function pick(kind: 'avatar' | 'cover', file: File) {
+    setPending((current) => {
+      if (current[kind]) URL.revokeObjectURL(current[kind].url);
+      return { ...current, [kind]: { file, url: URL.createObjectURL(file) } };
+    });
   }
 
-  async function confirmAvatar() {
-    if (!pendingAvatar) return;
-    setSavingAvatar(true);
-    await upload('avatar', pendingAvatar.file);
-    setSavingAvatar(false);
-    setPendingAvatar(null);
+  function discard(kind: 'avatar' | 'cover') {
+    setPending((current) => {
+      if (current[kind]) URL.revokeObjectURL(current[kind].url);
+      const { [kind]: _removed, ...rest } = current;
+      return rest;
+    });
   }
 
-  async function upload(kind: 'avatar' | 'cover', file: File) {
+  async function confirmMedia() {
+    setSavingMedia(true);
+    for (const kind of ['avatar', 'cover'] as const) {
+      const item = pending[kind];
+      if (!item) continue;
+      if (await upload(kind, item.file)) discard(kind);
+    }
+    setSavingMedia(false);
+  }
+
+  async function upload(kind: 'avatar' | 'cover', file: File): Promise<boolean> {
     try {
-      const data = await postFile<AuthUser>(`/users/me/${kind}`, kind, file);
+      const small = await shrinkImage(file, kind === 'avatar' ? 800 : 1800);
+      const data = await postFile<AuthUser>(`/users/me/${kind}`, kind, small);
       setMe(data);
       setUser(data);
       toast.push(kind === 'avatar' ? 'Foto de perfil salva' : 'Capa salva');
+      return true;
     } catch (err) {
-      if (isApiCanceled(err)) return;
-      toast.push(apiErrorMessage(err, 'Falha no envio do arquivo'), 'error');
+      if (!isApiCanceled(err)) toast.push(apiErrorMessage(err, 'Falha no envio do arquivo'), 'error');
+      return false;
     }
   }
 
@@ -188,45 +207,65 @@ export function SettingsScreen() {
                 accept={IMAGE_ACCEPT}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) pickAvatar(file);
+                  if (file) pick('avatar', file);
                   e.target.value = '';
                 }}
               />
             </Field>
-            {pendingAvatar ? (
-              <div className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--overlay)] p-4">
-                <p className="text-sm font-medium">Prévia: assim vai ficar no seu perfil</p>
-                <div className="flex items-center gap-4">
-                  <Avatar src={pendingAvatar.url} name={me.name} size="xl" glow />
-                  <div className="min-w-0">
-                    <p className="truncate text-lg font-semibold">{me.name}</p>
-                    <p className="truncate text-muted">@{me.username}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted">
-                  <Avatar src={pendingAvatar.url} name={me.name} size="sm" />
-                  <span>Assim aparece nos comentários e no menu</span>
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={confirmAvatar} disabled={savingAvatar}>
-                    Usar esta foto
-                  </Button>
-                  <Button variant="ghost" onClick={() => setPendingAvatar(null)} disabled={savingAvatar}>
-                    Cancelar
-                  </Button>
-                </div>
-              </div>
-            ) : null}
             <Button variant="ghost" onClick={() => removeMedia('avatar')}>
               Remover avatar
             </Button>
             <Field label="Capa">
-              <Input type="file" accept={IMAGE_ACCEPT} onChange={(e) => e.target.files?.[0] && upload('cover', e.target.files[0])} />
+              <Input
+                type="file"
+                accept={IMAGE_ACCEPT}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) pick('cover', file);
+                  e.target.value = '';
+                }}
+              />
               <p className="mt-1 text-xs text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
             </Field>
             <Button variant="ghost" onClick={() => removeMedia('cover')}>
               Remover capa
             </Button>
+            {pending.avatar || pending.cover ? (
+              <div className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--overlay)] p-4">
+                <p className="text-sm font-medium">Prévia: assim vai ficar no seu perfil</p>
+                <div className="overflow-hidden rounded-2xl border border-[var(--border)]">
+                  <div className="h-28 bg-[var(--brand-red-dark)] sm:h-40">
+                    {(pending.cover?.url ?? me.cover) ? (
+                      <img src={pending.cover?.url ?? me.cover ?? ''} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </div>
+                  <div className="flex items-end gap-3 bg-[var(--bg-elevated)] px-4 pb-4">
+                    <div className="-mt-8">
+                      <Avatar src={pending.avatar?.url ?? me.avatar} name={me.name} size="xl" glow />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-lg font-semibold">{me.name}</p>
+                      <p className="truncate text-sm text-muted">@{me.username}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={confirmMedia} disabled={savingMedia}>
+                    {savingMedia ? 'Salvando…' : 'Salvar'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      discard('avatar');
+                      discard('cover');
+                    }}
+                    disabled={savingMedia}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : null}
             <Field label="Bio">
               <Textarea value={me.bio ?? ''} onChange={(e) => setMe({ ...me, bio: e.target.value })} />
             </Field>
