@@ -25,7 +25,7 @@ import {
 import { Avatar } from './Avatar';
 import { BrandWordmark } from './BrandWordmark';
 import { ErrorBoundary } from './ErrorBoundary';
-import { MiniPlayer, usePlayer } from './Player';
+import { usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
 
 const TOP_NAV = [
@@ -250,7 +250,6 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
           <ShellAside right={right} />
         </aside>
       </div>
-      <MiniPlayer />
       <nav className="shell-chrome fixed inset-x-0 bottom-0 z-50 border-t border-line pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Principal">
         <ul className="grid grid-cols-5">
           {BOTTOM_NAV.map((item) => {

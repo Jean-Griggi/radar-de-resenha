@@ -18,7 +18,13 @@ const PlayerContext = createContext<{
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const [track, setTrack] = useState<PlayerTrack | null>(null);
   const value = useMemo(() => ({ track, setTrack }), [track]);
-  return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
+  return (
+    <PlayerContext.Provider value={value}>
+      {children}
+      {/* No layout raiz: não desmonta ao trocar de página, então o iframe não reinicia. */}
+      <MiniPlayer />
+    </PlayerContext.Provider>
+  );
 }
 
 export function usePlayer() {
