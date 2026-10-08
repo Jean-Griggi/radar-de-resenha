@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import type { UserProfile } from '@resenhometro/shared';
+import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Skeleton } from '@/components/Card';
 import { Field, Input, Textarea } from '@/components/Field';
@@ -23,6 +24,8 @@ export function SettingsScreen() {
   const [me, setMe] = useState<AuthUser | null>(null);
   const [password, setPassword] = useState({ currentPassword: '', newPassword: '' });
   const [loading, setLoading] = useState(true);
+  const [pendingAvatar, setPendingAvatar] = useState<{ file: File; url: string } | null>(null);
+  const [savingAvatar, setSavingAvatar] = useState(false);
   const [error, setError] = useState('');
   const [profileUsername, setProfileUsername] = useState('');
   const [draftPoint, setDraftPoint] = useState<MapPoint | null>(null);
@@ -76,6 +79,25 @@ export function SettingsScreen() {
       if (isApiCanceled(err)) return;
       toast.push(apiErrorMessage(err), 'error');
     }
+  }
+
+  useEffect(() => {
+    const url = pendingAvatar?.url;
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [pendingAvatar]);
+
+  function pickAvatar(file: File) {
+    setPendingAvatar({ file, url: URL.createObjectURL(file) });
+  }
+
+  async function confirmAvatar() {
+    if (!pendingAvatar) return;
+    setSavingAvatar(true);
+    await upload('avatar', pendingAvatar.file);
+    setSavingAvatar(false);
+    setPendingAvatar(null);
   }
 
   async function upload(kind: 'avatar' | 'cover', file: File) {
@@ -161,8 +183,40 @@ export function SettingsScreen() {
           <section className="card space-y-4 p-6">
             <h2 className="text-lg font-medium">Perfil</h2>
             <Field label="Foto de perfil">
-              <Input type="file" accept={IMAGE_ACCEPT} onChange={(e) => e.target.files?.[0] && upload('avatar', e.target.files[0])} />
+              <Input
+                type="file"
+                accept={IMAGE_ACCEPT}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) pickAvatar(file);
+                  e.target.value = '';
+                }}
+              />
             </Field>
+            {pendingAvatar ? (
+              <div className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--overlay)] p-4">
+                <p className="text-sm font-medium">Prévia: assim vai ficar no seu perfil</p>
+                <div className="flex items-center gap-4">
+                  <Avatar src={pendingAvatar.url} name={me.name} size="xl" glow />
+                  <div className="min-w-0">
+                    <p className="truncate text-lg font-semibold">{me.name}</p>
+                    <p className="truncate text-muted">@{me.username}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted">
+                  <Avatar src={pendingAvatar.url} name={me.name} size="sm" />
+                  <span>Assim aparece nos comentários e no menu</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={confirmAvatar} disabled={savingAvatar}>
+                    Usar esta foto
+                  </Button>
+                  <Button variant="ghost" onClick={() => setPendingAvatar(null)} disabled={savingAvatar}>
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : null}
             <Button variant="ghost" onClick={() => removeMedia('avatar')}>
               Remover avatar
             </Button>
