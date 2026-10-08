@@ -309,6 +309,10 @@ export async function mountLocationMap(
 export type PeopleMapControls = {
   sync: (people: PeoplePin[]) => void;
   flyTo: (point: MapPoint, zoom: number) => void;
+  /** Desenha (ou apaga, com `null`) a linha da rota. `fit` enquadra a rota inteira. */
+  setRoute: (coordinates: [number, number][] | null, fit: boolean) => void;
+  /** Bolinha azul de "você está aqui". `follow` leva a câmera junto. */
+  setMe: (point: MapPoint | null, follow: boolean) => void;
   destroy: () => void;
 };
 
@@ -358,17 +362,58 @@ export async function mountPeopleMap(
     if (map.loaded()) moveTo(next);
   }
 
+  let loaded = false;
+  let route: [number, number][] | null = null;
+  let meMarker: ReturnType<typeof placeMarker> | null = null;
+
+  function drawRoute() {
+    const data = {
+      type: 'Feature' as const,
+      properties: {},
+      geometry: { type: 'LineString' as const, coordinates: route ?? [] },
+    };
+    const source = map.getSource('route') as import('maplibre-gl').GeoJSONSource | undefined;
+    if (source) {
+      source.setData(data);
+      return;
+    }
+    map.addSource('route', { type: 'geojson', data });
+    const line = { 'line-cap': 'round' as const, 'line-join': 'round' as const };
+    map.addLayer({ id: 'route-casing', type: 'line', source: 'route', layout: line, paint: { 'line-color': '#ffffff', 'line-width': 9 } });
+    map.addLayer({ id: 'route-line', type: 'line', source: 'route', layout: line, paint: { 'line-color': '#2563eb', 'line-width': 5 } });
+  }
+
   map.on('load', () => {
+    loaded = true;
     moveTo(latest);
+    if (route) drawRoute();
   });
-  show(people);
 
   return {
     sync: show,
     flyTo(point, zoom) {
       map.flyTo({ center: [point.longitude, point.latitude], zoom, essential: true });
     },
+    setRoute(coordinates, fit) {
+      route = coordinates;
+      if (loaded) drawRoute();
+      if (!coordinates || coordinates.length === 0 || !fit) return;
+      const bounds = new maplibre.LngLatBounds(coordinates[0], coordinates[0]);
+      for (const coord of coordinates) bounds.extend(coord);
+      map.fitBounds(bounds, { padding: 64, animate: true });
+    },
+    setMe(point, follow) {
+      meMarker?.remove();
+      meMarker = null;
+      if (!point) return;
+      const dot = document.createElement('div');
+      dot.style.cssText =
+        'width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.25)';
+      meMarker = new maplibre.Marker({ element: dot, anchor: 'center' }).setLngLat([point.longitude, point.latitude]).addTo(map);
+      if (follow) map.easeTo({ center: [point.longitude, point.latitude], duration: 600 });
+    },
     destroy() {
+      meMarker?.remove();
       for (const marker of markers) marker.remove();
       markers = [];
       map.remove();

@@ -97,12 +97,30 @@ export function LocationMap({
 
 export type MapTarget = MapPoint & { zoom: number; key: number };
 
-export function PeopleMap({ people, target = null }: { people: PeoplePin[]; target?: MapTarget | null }) {
+export type MapRoute = { coordinates: [number, number][]; fit: boolean };
+
+export function PeopleMap({
+  people,
+  target = null,
+  route = null,
+  me = null,
+  follow = false,
+}: {
+  people: PeoplePin[];
+  target?: MapTarget | null;
+  route?: MapRoute | null;
+  me?: MapPoint | null;
+  follow?: boolean;
+}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<PeopleMapControls | null>(null);
   const peopleRef = useRef(people);
   const [failed, setFailed] = useState(false);
   peopleRef.current = people;
+  const routeRef = useRef(route);
+  routeRef.current = route;
+  const meRef = useRef(me);
+  meRef.current = me;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -117,6 +135,8 @@ export function PeopleMap({ people, target = null }: { people: PeoplePin[]; targ
         }
         controlsRef.current = controls;
         controls.sync(peopleRef.current);
+        controls.setRoute(routeRef.current?.coordinates ?? null, routeRef.current?.fit ?? false);
+        controls.setMe(meRef.current, false);
       })
       .catch(() => {
         if (!cancelled) setFailed(true);
@@ -135,6 +155,14 @@ export function PeopleMap({ people, target = null }: { people: PeoplePin[]; targ
   useEffect(() => {
     if (target) controlsRef.current?.flyTo(target, target.zoom);
   }, [target]);
+
+  useEffect(() => {
+    controlsRef.current?.setRoute(route?.coordinates ?? null, route?.fit ?? false);
+  }, [route]);
+
+  useEffect(() => {
+    controlsRef.current?.setMe(me, follow);
+  }, [me, follow]);
 
   return (
     <div data-people-map={failed ? 'closed' : 'open'}>

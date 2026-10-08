@@ -9,7 +9,9 @@ import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Field';
 import { isCep, searchAddress, type PlaceResult } from '@/lib/geocode';
-import { PeopleMap, type MapTarget } from '@/features/users/LocationMap';
+import { PeopleMap, type MapRoute, type MapTarget } from '@/features/users/LocationMap';
+import { RoutePanel } from '@/features/users/RoutePanel';
+import type { MapPoint } from '@/features/users/mapPoint';
 import { pinsFromPeople } from '@/features/users/mapPoint';
 
 export function PeopleMapScreen() {
@@ -21,6 +23,9 @@ export function PeopleMapScreen() {
   const [searching, setSearching] = useState(false);
   const [message, setMessage] = useState('');
   const [target, setTarget] = useState<MapTarget | null>(null);
+  const [route, setRoute] = useState<MapRoute | null>(null);
+  const [me, setMe] = useState<MapPoint | null>(null);
+  const [follow, setFollow] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -110,7 +115,14 @@ export function PeopleMapScreen() {
       {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
       {!loading && !error ? (
         <>
-          <PeopleMap people={pins} target={target} />
+          <RoutePanel
+            onRoute={(coordinates, fit) => setRoute(coordinates ? { coordinates, fit } : null)}
+            onMe={(point, following) => {
+              setMe(point);
+              setFollow(following);
+            }}
+          />
+          <PeopleMap people={pins} target={target} route={route} me={me} follow={follow} />
           {pins.length === 0 ? (
             <p className="mt-3 text-sm text-muted">Nenhuma pessoa com localização visível.</p>
           ) : (
