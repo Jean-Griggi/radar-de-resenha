@@ -62,3 +62,43 @@ export async function searchPlaces(query: string, signal?: AbortSignal): Promise
   if (!response.ok) throw new Error('Busca de lugares indisponível');
   return parsePlaces(await response.json());
 }
+
+const CEP_PATTERN = /^\d{5}-?\d{3}$/;
+
+export function isCep(text: string) {
+  return CEP_PATTERN.test(text.trim());
+}
+
+/** Consulta o CEP no ViaCEP (grátis, sem chave) e acha o ponto do endereço no Nominatim. */
+export async function searchCep(text: string, signal?: AbortSignal): Promise<PlaceResult[]> {
+  const cep = text.replace(/\D/g, '');
+  const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { signal });
+  if (!response.ok) throw new Error('Consulta de CEP indisponível');
+  const data = (await response.json()) as {
+    erro?: unknown;
+    logradouro?: string;
+    bairro?: string;
+    localidade?: string;
+    uf?: string;
+  };
+  if (data.erro || !data.localidade) return [];
+  const city = [data.localidade, data.uf, 'Brasil'].join(', ');
+  // Do mais exato ao mais amplo: rua+bairro, rua sem bairro, só a cidade (CEP geral ou rua que o OpenStreetMap não conhece).
+  const tries = [
+    [data.logradouro, data.bairro, city],
+    [data.logradouro, city],
+    [city],
+  ]
+    .map((parts) => parts.filter(Boolean).join(', '))
+    .filter((text, index, all) => all.indexOf(text) === index && (index === 0 || data.logradouro || text === city));
+  for (const text of tries) {
+    const found = await searchPlaces(text, signal);
+    if (found.length > 0) return found;
+  }
+  return [];
+}
+
+/** Nome de cidade/endereço ou CEP (com ou sem hífen). */
+export function searchAddress(query: string, signal?: AbortSignal): Promise<PlaceResult[]> {
+  return isCep(query) ? searchCep(query, signal) : searchPlaces(query, signal);
+}

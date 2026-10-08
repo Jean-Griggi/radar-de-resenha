@@ -95,7 +95,9 @@ export function LocationMap({
   );
 }
 
-export function PeopleMap({ people }: { people: PeoplePin[] }) {
+export type MapTarget = MapPoint & { zoom: number; key: number };
+
+export function PeopleMap({ people, target = null }: { people: PeoplePin[]; target?: MapTarget | null }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<PeopleMapControls | null>(null);
   const peopleRef = useRef(people);
@@ -129,6 +131,10 @@ export function PeopleMap({ people }: { people: PeoplePin[] }) {
   useEffect(() => {
     controlsRef.current?.sync(people);
   }, [people]);
+
+  useEffect(() => {
+    if (target) controlsRef.current?.flyTo(target, target.zoom);
+  }, [target]);
 
   return (
     <div data-people-map={failed ? 'closed' : 'open'}>

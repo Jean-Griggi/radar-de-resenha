@@ -308,6 +308,7 @@ export async function mountLocationMap(
 
 export type PeopleMapControls = {
   sync: (people: PeoplePin[]) => void;
+  flyTo: (point: MapPoint, zoom: number) => void;
   destroy: () => void;
 };
 
@@ -364,6 +365,9 @@ export async function mountPeopleMap(
 
   return {
     sync: show,
+    flyTo(point, zoom) {
+      map.flyTo({ center: [point.longitude, point.latitude], zoom, essential: true });
+    },
     destroy() {
       for (const marker of markers) marker.remove();
       markers = [];
