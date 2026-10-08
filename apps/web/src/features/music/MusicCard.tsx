@@ -111,6 +111,7 @@ export function MusicCard({
           src={spotifyEmbedSrc(ref)}
           height={spotifyEmbedHeight(ref.kind)}
           className="mt-2 w-full rounded-xl border-0"
+          style={{ colorScheme: 'normal' }}
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"
         />

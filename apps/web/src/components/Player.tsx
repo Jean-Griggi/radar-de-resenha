@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ChevronDown, Music, X } from 'lucide-react';
 import { parseSpotifyUrl, spotifyEmbedHeight, spotifyEmbedSrc } from '@/lib/spotifyEmbed';
 
@@ -38,9 +38,29 @@ type LyricsState = { status: 'idle' | 'loading' | 'found' | 'missing'; text: str
 
 /** Tira "(feat. ...)", "- Remastered" etc. e fica só com o primeiro artista: o serviço de letras acha melhor assim. */
 function lyricsQuery(track: PlayerTrack) {
-  const title = track.title.replace(/s*[([].*?[)]]/g, '').replace(/s+-s+.*$/, '').trim();
-  const artist = track.artist.split(/,|&| feat.?/i)[0]!.trim();
+  const title = track.title.replace(/\s*[([].*?[)\]]/g, '').replace(/\s+-\s+.*$/, '').trim();
+  const artist = track.artist.split(/,|&|\sfeat\.?\s/i)[0]!.trim();
   return { title, artist };
+}
+
+type LrclibItem = { plainLyrics?: string | null };
+
+/** Letra no LRCLIB: primeiro por título + artista; se não achar, por busca livre (`q`). */
+async function findLyrics(track: PlayerTrack, signal: AbortSignal): Promise<string> {
+  const { title, artist } = lyricsQuery(track);
+  const attempts = [
+    new URLSearchParams({ track_name: title, artist_name: artist }),
+    new URLSearchParams({ q: `${artist} ${title}` }),
+    new URLSearchParams({ q: title }),
+  ];
+  for (const params of attempts) {
+    const response = await fetch(`https://lrclib.net/api/search?${params.toString()}`, { signal });
+    if (!response.ok) continue;
+    const data = (await response.json()) as LrclibItem[];
+    const text = data.find((item) => item.plainLyrics?.trim())?.plainLyrics?.trim();
+    if (text) return text;
+  }
+  return '';
 }
 
 /**
@@ -60,28 +80,34 @@ export function MiniPlayer() {
     setOpen(Boolean(track));
     setShowLyrics(false);
     setLyrics({ status: 'idle', text: '' });
+    fetchedFor.current = '';
   }, [track?.spotifyUrl, track?.title]);
 
   const ref = track ? parseSpotifyUrl(track.spotifyUrl) : null;
   const isPlaylist = ref?.kind === 'playlist';
 
+  // Busca a letra quando o painel de letra abre. `fetchedFor` evita buscar de novo a mesma faixa; se a busca
+  // for cancelada no meio (fechou a letra, trocou de faixa), libera para tentar de novo.
+  const fetchedFor = useRef('');
   useEffect(() => {
-    if (!track || !showLyrics || isPlaylist || lyrics.status !== 'idle') return;
+    if (!track || !showLyrics || isPlaylist) return;
+    const key = `${track.title}|${track.artist}`;
+    if (fetchedFor.current === key) return;
+    fetchedFor.current = key;
     const controller = new AbortController();
-    const { title, artist } = lyricsQuery(track);
     setLyrics({ status: 'loading', text: '' });
-    const params = new URLSearchParams({ track_name: title, artist_name: artist });
-    fetch(`https://lrclib.net/api/search?${params.toString()}`, { signal: controller.signal })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data: Array<{ plainLyrics?: string | null; instrumental?: boolean }> | null) => {
-        const text = data?.find((item) => item.plainLyrics?.trim())?.plainLyrics?.trim() ?? '';
-        setLyrics(text ? { status: 'found', text } : { status: 'missing', text: '' });
-      })
+    findLyrics(track, controller.signal)
+      .then((text) => setLyrics(text ? { status: 'found', text } : { status: 'missing', text: '' }))
       .catch(() => {
-        if (!controller.signal.aborted) setLyrics({ status: 'missing', text: '' });
+        if (controller.signal.aborted) return;
+        setLyrics({ status: 'missing', text: '' });
       });
-    return () => controller.abort();
-  }, [track, showLyrics, isPlaylist, lyrics.status]);
+    return () => {
+      if (controller.signal.aborted) return;
+      controller.abort();
+      fetchedFor.current = '';
+    };
+  }, [track, showLyrics, isPlaylist]);
 
   if (!track) return null;
 
@@ -132,6 +158,7 @@ export function MiniPlayer() {
             src={spotifyEmbedSrc(ref)}
             height={spotifyEmbedHeight(ref.kind)}
             className="block w-full border-0"
+            style={{ colorScheme: 'normal' }}
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="eager"
           />
