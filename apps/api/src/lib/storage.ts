@@ -95,6 +95,32 @@ export async function ensureStorage() {
   }
 }
 
+/** O Supabase responde assim quando o bucket não existe (`Bucket not found` / `The related resource does not exist`). */
+function isMissingBucket(message: string | undefined) {
+  return /bucket not found|related resource does not exist|not found/i.test(message ?? '');
+}
+
+let bucketCreation: Promise<void> | null = null;
+
+/**
+ * Cria o bucket público quando ele não existe (projeto Supabase novo). Roda só depois de uma recusa de
+ * "bucket inexistente", então não pesa no caminho normal. A chave de serviço tem permissão para criar.
+ * Várias requisições juntas esperam a mesma criação; depois dela, se o bucket sumir de novo, cria outra vez.
+ */
+function createBucketOnce() {
+  bucketCreation ??= (async () => {
+    try {
+      const { error } = await supabase!.storage.createBucket(env.SUPABASE_STORAGE_BUCKET, { public: true });
+      if (error && !/already exists|duplicate/i.test(error.message)) {
+        throw new Error(`UPLOAD_FAILED: não foi possível criar o bucket "${env.SUPABASE_STORAGE_BUCKET}" (${error.message})`);
+      }
+    } finally {
+      bucketCreation = null;
+    }
+  })();
+  return bucketCreation;
+}
+
 function folderFor(kind: UploadKind) {
   if (kind === 'avatar') return 'avatars';
   if (kind === 'cover') return 'covers';
@@ -203,9 +229,12 @@ export async function signUpload(
   }
 
   const relative = `${folderFor(kind)}/${randomUUID()}${extensionFor(filename, mime, defaultExtension(kind, mime))}`;
-  const { data, error } = await supabase!.storage
-    .from(env.SUPABASE_STORAGE_BUCKET)
-    .createSignedUploadUrl(relative);
+  const sign = () => supabase!.storage.from(env.SUPABASE_STORAGE_BUCKET).createSignedUploadUrl(relative);
+  let { data, error } = await sign();
+  if (error && isMissingBucket(error.message)) {
+    await createBucketOnce();
+    ({ data, error } = await sign());
+  }
 
   if (error || !data?.signedUrl) {
     throw new Error(`UPLOAD_FAILED: ${error?.message ?? 'sign'}`);
@@ -260,9 +289,13 @@ export async function saveUpload(
   }
 
   if (useSupabase) {
-    const { error } = await supabase!.storage
-      .from(env.SUPABASE_STORAGE_BUCKET)
-      .upload(relative, buffer, { contentType: mime, upsert: false });
+    const put = () =>
+      supabase!.storage.from(env.SUPABASE_STORAGE_BUCKET).upload(relative, buffer, { contentType: mime, upsert: false });
+    let { error } = await put();
+    if (error && isMissingBucket(error.message)) {
+      await createBucketOnce();
+      ({ error } = await put());
+    }
 
     if (error) {
       throw new Error(`UPLOAD_FAILED: ${error.message}`);
