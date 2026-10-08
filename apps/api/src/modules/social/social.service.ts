@@ -5,6 +5,8 @@ import { badRequest, forbidden, notFound } from '../../lib/http.js';
 import { publicUrl } from '../../lib/storage.js';
 import { notify } from '../notifications/notifications.service.js';
 import { nestComments, serializeRoles, type RoleRow } from '../roles/roles.service.js';
+import type { PublicUser } from '@resenhometro/shared';
+import type { ResolvedSpotifyItem } from '../music/music.service.js';
 import { getUserRow, getUsersByIds, mapUser } from '../users/users.map.js';
 import { addFeedEvent } from './feed.js';
 import { getReactionSummaries, getReactionSummary } from './reactions.js';
@@ -141,11 +143,33 @@ export async function deleteReaction(id: string, userId: string) {
   await exec(`DELETE FROM reactions WHERE id = $1`, [id]);
 }
 
-export async function createPost(userId: string, content: string) {
+export async function createPost(userId: string, content: string, music: ResolvedSpotifyItem | null = null) {
   const id = randomUUID();
-  await exec(`INSERT INTO posts (id, author_id, content, created_at) VALUES ($1,$2,$3,$4)`, [id, userId, content, nowIso()]);
+  await exec(
+    `INSERT INTO posts (id, author_id, content, created_at, music_kind, music_spotify_id, music_title, music_artist, music_cover, music_url)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+    [
+      id, userId, content, nowIso(),
+      music?.kind ?? null, music?.spotifyId ?? null, music?.title ?? null,
+      music?.artist ?? null, music?.cover ?? null, music?.spotifyUrl ?? null,
+    ],
+  );
   await addFeedEvent({ type: 'post_created', actorId: userId, postId: id });
   return id;
+}
+
+/** Música do post: mesma linha do post, no formato que o card de música do site já entende. */
+function postMusic(row: Record<string, unknown>, author: PublicUser | undefined) {
+  if (!row.music_kind || !row.music_title || !author) return null;
+  return {
+    id: String(row.id),
+    kind: row.music_kind === 'playlist' ? ('playlist' as const) : ('track' as const),
+    title: String(row.music_title),
+    artist: row.music_artist ? String(row.music_artist) : null,
+    cover: row.music_cover ? String(row.music_cover) : null,
+    spotifyUrl: row.music_url ? String(row.music_url) : null,
+    addedBy: { id: author.id, name: author.name, username: author.username, avatar: author.avatar },
+  };
 }
 
 type FeedEventRow = {
@@ -284,6 +308,7 @@ export async function getFeed(userId: string) {
                 author: userMap.get(postRow.author_id),
                 content: postRow.content,
                 createdAt: String(postRow.created_at),
+                music: postMusic(postRow, userMap.get(postRow.author_id)),
               },
             }
           : {}),

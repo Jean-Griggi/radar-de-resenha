@@ -1,5 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../lib/authenticate.js';
+import { musicKindSchema, spotifyIdSchema } from '../music/music.schema.js';
+import { resolveSpotifyItem } from '../music/music.service.js';
 import { commentQuerySchema, commentSchema, createTargetCommentSchema, postSchema, reactionSchema } from './social.schema.js';
 import { nestComments } from '../roles/roles.service.js';
 import {
@@ -17,7 +19,11 @@ export async function socialRoutes(app: FastifyInstance) {
 
   app.post('/posts', { preHandler: [authenticate] }, async (request, reply) => {
     const body = postSchema.parse(request.body);
-    const id = await createPost(request.user.sub, body.content);
+    // Faixa ou playlist: só o tipo e o id vêm do cliente; título, capa e link o servidor busca no Spotify.
+    const music = body.musicId
+      ? await resolveSpotifyItem(request.user.sub, musicKindSchema.parse(body.musicKind), spotifyIdSchema.parse(body.musicId))
+      : null;
+    const id = await createPost(request.user.sub, body.content, music);
     return reply.status(201).send({ id });
   });
 

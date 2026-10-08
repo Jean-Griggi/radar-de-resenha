@@ -463,6 +463,16 @@ const migrations: Migration[] = [
     id: '057_messages_image',
     sql: `ALTER TABLE messages ADD COLUMN IF NOT EXISTS image TEXT`,
   },
+  {
+    id: '058_posts_music',
+    sql: `ALTER TABLE posts
+    ADD COLUMN IF NOT EXISTS music_kind TEXT,
+    ADD COLUMN IF NOT EXISTS music_spotify_id TEXT,
+    ADD COLUMN IF NOT EXISTS music_title TEXT,
+    ADD COLUMN IF NOT EXISTS music_artist TEXT,
+    ADD COLUMN IF NOT EXISTS music_cover TEXT,
+    ADD COLUMN IF NOT EXISTS music_url TEXT`,
+  },
 ]
 
 export async function applyMigrations(query: QueryFn) {

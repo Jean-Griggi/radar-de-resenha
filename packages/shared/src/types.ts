@@ -273,6 +273,8 @@ export type SocialPost = {
   author: PublicUser;
   content: string;
   createdAt: string;
+  /** Música anexada ao post (opcional). */
+  music?: MusicItem | null;
 };
 
 export type Notification = {

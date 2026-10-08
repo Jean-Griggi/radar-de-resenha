@@ -23,9 +23,13 @@ export const reactionSchema = z.object({
   type: z.enum(['heart', 'laugh', 'cry', 'fire', 'eyes']),
 });
 
-export const postSchema = z.object({
-  content: z.string().min(1).max(500),
-});
+export const postSchema = z
+  .object({
+    content: z.string().trim().max(500).default(''),
+    musicKind: z.string().optional(),
+    musicId: z.string().optional(),
+  })
+  .refine((post) => post.content.length > 0 || Boolean(post.musicId), { message: 'Escreva algo ou escolha uma música' });
 
 export const composerSchema = z.object({
   kind: z.enum(['post', 'role', 'review', 'photo', 'audio', 'music']),

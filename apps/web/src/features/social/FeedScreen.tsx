@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { CalendarPlus, Image as ImageIcon, Link2, Music } from 'lucide-react';
 import type { FeedItem, ReactionSummary } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
+import { usePlayer } from '@/components/Player';
 import { Button } from '@/components/Button';
 import { EmptyState, Skeleton } from '@/components/Card';
 import { FeedComments } from './Comments';
@@ -12,6 +13,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { MediaImage } from '@/components/MediaImage';
 import { Reactions } from './Reactions';
 import { ChatPreview } from '@/features/chat';
+import { MusicCard, SpotifyPicker, type SpotifyChoice } from '@/features/music';
 import { StoriesBar } from '@/features/stories';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
@@ -42,6 +44,10 @@ export function FeedScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [content, setContent] = useState('');
+  const [music, setMusic] = useState<SpotifyChoice | null>(null);
+  const [pickingMusic, setPickingMusic] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const { setTrack } = usePlayer();
   const toast = useToast();
   const me = getUser();
 
@@ -67,15 +73,20 @@ export function FeedScreen() {
 
   async function publish(event: FormEvent) {
     event.preventDefault();
-    if (!content.trim()) return;
+    if ((!content.trim() && !music) || publishing) return;
+    setPublishing(true);
     try {
-      await api.post('/posts', { content });
+      await api.post('/posts', { content, musicKind: music?.kind, musicId: music?.id });
       setContent('');
+      setMusic(null);
+      setPickingMusic(false);
       toast.push('Publicado no feed');
       await load();
     } catch (err) {
       if (isApiCanceled(err)) return;
       toast.push(apiErrorMessage(err), 'error');
+    } finally {
+      setPublishing(false);
     }
   }
 
@@ -114,6 +125,30 @@ export function FeedScreen() {
               className="min-h-20 min-w-0 flex-1 resize-none bg-transparent text-sm text-fg outline-none placeholder:text-muted"
             />
           </div>
+          {music ? (
+            <div className="mt-3 flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-2">
+              <MediaImage src={music.cover} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{music.title}</p>
+                <p className="truncate text-xs text-muted">{music.subtitle}</p>
+              </div>
+              <button type="button" className="icon-btn" aria-label="Tirar a música" onClick={() => setMusic(null)}>
+                ✕
+              </button>
+            </div>
+          ) : null}
+          {pickingMusic ? (
+            <div className="mt-3">
+              <SpotifyPicker
+                disabled={publishing}
+                onClose={() => setPickingMusic(false)}
+                onPick={(choice) => {
+                  setMusic(choice);
+                  setPickingMusic(false);
+                }}
+              />
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
             <div className="flex flex-wrap gap-1.5">
               <Link href="/roles/new" className="composer-chip">
@@ -124,12 +159,14 @@ export function FeedScreen() {
                 <ImageIcon size={16} strokeWidth={2} aria-hidden />
                 Foto
               </Link>
-              <Link href="/music" className="composer-chip">
+              <button type="button" className="composer-chip" aria-pressed={pickingMusic} onClick={() => setPickingMusic((open) => !open)}>
                 <Music size={16} strokeWidth={2} aria-hidden />
                 Música
-              </Link>
+              </button>
             </div>
-            <Button type="submit">Compartilhar</Button>
+            <Button type="submit" loading={publishing} disabled={!content.trim() && !music}>
+              Compartilhar
+            </Button>
           </div>
         </form>
 
@@ -193,7 +230,18 @@ export function FeedScreen() {
                             <p className="mt-1 line-clamp-2 text-sm text-muted">{item.review.content}</p>
                           </Link>
                         ) : null}
-                        {item.post ? <p className="mt-3 text-sm leading-6 text-fg">{item.post.content}</p> : null}
+                        {item.post?.content ? <p className="mt-3 text-sm leading-6 text-fg">{item.post.content}</p> : null}
+                        {item.post?.music ? (
+                          <div className="mt-3">
+                            <MusicCard
+                              item={item.post.music}
+                              onSelect={() => {
+                                const track = item.post!.music!;
+                                setTrack({ title: track.title, artist: track.artist ?? 'Playlist', cover: track.cover, spotifyUrl: track.spotifyUrl });
+                              }}
+                            />
+                          </div>
+                        ) : null}
                         {item.photo ? (
                           <MediaImage
                             src={item.photo.url}
