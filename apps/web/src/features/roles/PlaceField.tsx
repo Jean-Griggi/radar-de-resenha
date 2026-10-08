@@ -5,7 +5,7 @@ import { Button } from '@/components/Button';
 import { Field, Input } from '@/components/Field';
 import { LocationMap } from '@/features/users/LocationMap';
 import type { MapPoint } from '@/features/users/mapPoint';
-import { CUIABA_VIEW, searchPlaces, type PlaceResult } from '@/lib/geocode';
+import { CUIABA_VIEW, searchAddress, type PlaceResult } from '@/lib/geocode';
 
 /**
  * Campo "Local" do rolê: texto livre + mapa aberto em Cuiabá. A pessoa pesquisa um endereço e escolhe
@@ -34,14 +34,14 @@ export function PlaceField({
     setSearching(true);
     setMessage('');
     try {
-      const found = await searchPlaces(location, controller.signal);
+      const found = await searchAddress(location, controller.signal);
       if (controller.signal.aborted) return;
       setResults(found);
       if (found.length === 0) {
         setMessage(
           location.trim().length < 3
-            ? 'Digite pelo menos 3 letras para pesquisar.'
-            : 'Nada encontrado. Tente outro nome ou clique no mapa.',
+            ? 'Digite pelo menos 3 letras (ou um CEP) para pesquisar.'
+            : 'Nada encontrado. Tente outro nome, um CEP ou clique no mapa.',
         );
       }
     } catch {
@@ -64,7 +64,7 @@ export function PlaceField({
           <Input
             value={location}
             maxLength={160}
-            placeholder="Ex.: Praça Alencastro, Cuiabá"
+            placeholder="Ex.: Praça Alencastro, Cuiabá ou um CEP"
             onChange={(e) => onChange({ location: e.target.value, point })}
             onKeyDown={(e) => {
               if (e.key !== 'Enter') return;

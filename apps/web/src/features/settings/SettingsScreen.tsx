@@ -12,6 +12,7 @@ import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { postFile, shrinkImage, IMAGE_ACCEPT } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
 import { LocationMap } from '@/features/users/LocationMap';
+import { PlaceSearch } from '@/features/users/PlaceSearch';
 import {
   clearLocationBody,
   profileLocationFields,
@@ -278,6 +279,12 @@ export function SettingsScreen() {
             </Field>
             <div className="space-y-3">
               <p className="text-label text-muted">Localização</p>
+              <PlaceSearch
+                onPick={(place) => {
+                  setDraftPoint({ latitude: place.latitude, longitude: place.longitude });
+                  if (!draftPlaceName.trim()) setDraftPlaceName(place.name.slice(0, 40));
+                }}
+              />
               <LocationMap
                 point={draftPoint}
                 avatar={me.avatar}
