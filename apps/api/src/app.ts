@@ -12,6 +12,7 @@ import { HttpError } from './lib/http.js';
 import { SESSION_COOKIE_NAME, SESSION_EXPIRES_IN } from './lib/session.js';
 import { ensureStorage, storageRoot, isSupabaseStorage } from './lib/storage.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
+import { chatRoutes } from './modules/chat/chat.routes.js';
 import { mediaRoutes } from './modules/media/media.routes.js';
 import { storageRoutes } from './modules/storage/storage.routes.js';
 import { musicRoutes } from './modules/music/music.routes.js';
@@ -129,6 +130,7 @@ export async function buildApp() {
   await app.register(searchRoutes);
   await app.register(statsRoutes);
   await app.register(notificationsRoutes);
+  await app.register(chatRoutes);
 
   return app;
 }

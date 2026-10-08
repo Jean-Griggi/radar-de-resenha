@@ -171,6 +171,9 @@ export function ProfileScreen() {
                 <>
                   {isFriend ? (
                     <>
+                      <Link href={`/chat/${profile.username}`} className="button button--primary">
+                        Mensagem
+                      </Link>
                       <Button variant="secondary" disabled={busy} onClick={unfriend}>
                         Amigos
                       </Button>

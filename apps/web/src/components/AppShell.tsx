@@ -43,6 +43,7 @@ const BOTTOM_NAV = [
 ];
 
 const MORE_NAV = [
+  { href: '/chat', label: 'Mensagens' },
   { href: '/calendar', label: 'Calendário' },
   { href: '/music', label: 'Música' },
   { href: '/stats', label: 'Estatísticas' },

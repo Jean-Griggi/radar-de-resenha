@@ -440,6 +440,25 @@ const migrations: Migration[] = [
     id: '053_roles_banner',
     sql: `ALTER TABLE roles ADD COLUMN IF NOT EXISTS banner TEXT`,
   },
+  {
+    id: '054_messages',
+    sql: `CREATE TABLE IF NOT EXISTS messages (
+    id TEXT PRIMARY KEY,
+    sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    read_at TIMESTAMPTZ
+  )`,
+  },
+  {
+    id: '055_idx_messages_pair',
+    sql: `CREATE INDEX IF NOT EXISTS idx_messages_pair ON messages (sender_id, receiver_id, created_at)`,
+  },
+  {
+    id: '056_idx_messages_unread',
+    sql: `CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages (receiver_id, read_at)`,
+  },
 ]
 
 export async function applyMigrations(query: QueryFn) {
