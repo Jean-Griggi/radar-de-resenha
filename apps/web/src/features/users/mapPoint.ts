@@ -3,23 +3,18 @@ export type MapPoint = { latitude: number; longitude: number };
 export const PLACE_NAME_MAX = 40;
 
 /**
- * Mapa raster (imagens prontas, CARTO Voyager/OpenStreetMap): leve, traz nome de cidades e ruas
- * e não precisa de chave. Antes era vetorial com prédios 3D, que travava e deixava as cidades ilegíveis.
+ * Mapa raster do OpenStreetMap: leve, traz nome de cidades e ruas e não precisa de chave.
+ * (O CARTO passou a exigir chave de API; o vetorial com prédios 3D travava.)
  */
 export const MAP_STYLE = {
   version: 8 as const,
   sources: {
     base: {
       type: 'raster' as const,
-      tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-      ],
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
       tileSize: 256,
       maxzoom: 19,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     },
   },
   layers: [{ id: 'base', type: 'raster' as const, source: 'base' }],
