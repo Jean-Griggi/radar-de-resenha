@@ -45,7 +45,7 @@ export function ConversationScreen() {
 
   useEffect(() => {
     const controller = new AbortController();
-    let timer: number | undefined;
+
     setLoading(true);
     setMessages([]);
     lastRef.current = undefined;
@@ -69,7 +69,7 @@ export function ConversationScreen() {
     }
 
     void pull(true);
-    timer = window.setInterval(() => {
+    const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') void pull(false);
     }, POLL_MS);
 
