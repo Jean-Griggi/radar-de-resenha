@@ -404,6 +404,8 @@ export async function setAttendance(roleId: string, userId: string, status: 'goi
   const row = await queryOne<RoleRow>(`SELECT * FROM roles WHERE id = $1`, [roleId]);
   if (!row) throw notFound('Rolê não encontrado');
 
+  const before = await queryOne<{ status: string }>(`SELECT status FROM attendances WHERE role_id = $1 AND user_id = $2`, [roleId, userId]);
+
   await exec(
     `INSERT INTO attendances (id, role_id, user_id, status, created_at) VALUES ($1,$2,$3,$4,$5)
      ON CONFLICT (role_id, user_id) DO UPDATE SET status = EXCLUDED.status`,
@@ -411,7 +413,11 @@ export async function setAttendance(roleId: string, userId: string, status: 'goi
   );
 
   if (status === 'going') {
-    await addFeedEvent({ type: 'attendance_going', actorId: userId, roleId });
+    // Evento no feed só quando a pessoa passa a ir (não a cada clique) e não para o próprio rolê: cada evento
+    // mostra o cartão do rolê inteiro, e repetir virava o mesmo rolê duas ou três vezes no feed.
+    if (before?.status !== 'going' && row.creator_id !== userId) {
+      await addFeedEvent({ type: 'attendance_going', actorId: userId, roleId });
+    }
     await notify({
       userId: row.creator_id,
       actorId: userId,

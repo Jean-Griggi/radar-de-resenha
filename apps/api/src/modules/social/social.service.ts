@@ -194,8 +194,62 @@ function feedReactionTarget(row: FeedEventRow) {
   return { targetType: 'post', targetId: row.id };
 }
 
+/** Quanto menor, mais o evento "é" a coisa: o rolê criado vale mais que "fulano vai" ou "música no rolê". */
+const EVENT_PRIORITY: Record<string, number> = {
+  role_created: 0,
+  review_published: 0,
+  photo_added: 0,
+  audio_added: 0,
+  post_created: 0,
+  achievement_unlocked: 0,
+  music_added: 1,
+  attendance_going: 2,
+};
+
+/** O que o evento mostra: resenha, foto, áudio, post, conquista ou, sem nenhum desses, o rolê. */
+function feedThingKey(row: FeedEventRow) {
+  if (row.review_id) return `review:${row.review_id}`;
+  if (row.photo_id) return `photo:${row.photo_id}`;
+  if (row.audio_id) return `audio:${row.audio_id}`;
+  if (row.post_id) return `post:${row.post_id}`;
+  if (row.achievement_slug) return `achievement:${row.actor_id}:${row.achievement_slug}`;
+  if (row.role_id) return `role:${row.role_id}`;
+  return `event:${row.id}`;
+}
+
+/**
+ * Uma entrada por coisa: cada evento mostra o cartão inteiro, então "rolê criado", "fulano vai" e "música no
+ * rolê" apareciam como o mesmo rolê várias vezes. Fica o evento que mais representa a coisa (o mais recente
+ * em caso de empate) e a ordem do feed segue a data desse evento.
+ */
+function onePerThing(rows: FeedEventRow[]) {
+  const best = new Map<string, FeedEventRow>();
+  for (const row of rows) {
+    const key = feedThingKey(row);
+    const current = best.get(key);
+    const rank = EVENT_PRIORITY[row.type] ?? 1;
+    if (!current || rank < (EVENT_PRIORITY[current.type] ?? 1)) best.set(key, row);
+  }
+  const time = (row: FeedEventRow) => new Date(row.created_at as unknown as string).getTime();
+  return [...best.values()].sort((a, b) => time(b) - time(a));
+}
+
 export async function getFeed(userId: string) {
-  const rows = await query<FeedEventRow>(`SELECT * FROM feed_events ORDER BY created_at DESC LIMIT 40`);
+  // Eventos idênticos (mesmo tipo, mesma pessoa, mesmo alvo) viram o mais recente, inclusive as repetições que já
+  // estão no banco. Depois, `onePerThing` deixa uma entrada só por rolê, resenha, foto, áudio, post e conquista.
+  const recent = await query<FeedEventRow>(
+    `SELECT * FROM (
+       SELECT DISTINCT ON (type, actor_id, COALESCE(role_id,''), COALESCE(review_id,''), COALESCE(photo_id,''),
+                           COALESCE(audio_id,''), COALESCE(music_id,''), COALESCE(post_id,''), COALESCE(achievement_slug,''))
+         *
+       FROM feed_events
+       ORDER BY type, actor_id, COALESCE(role_id,''), COALESCE(review_id,''), COALESCE(photo_id,''),
+                COALESCE(audio_id,''), COALESCE(music_id,''), COALESCE(post_id,''), COALESCE(achievement_slug,''),
+                created_at DESC
+     ) unique_events
+     ORDER BY created_at DESC LIMIT 300`,
+  );
+  const rows = onePerThing(recent).slice(0, 40);
   if (rows.length === 0) return [];
 
   const roleIds = [...new Set(rows.map((row) => row.role_id).filter((id): id is string => Boolean(id)))];
