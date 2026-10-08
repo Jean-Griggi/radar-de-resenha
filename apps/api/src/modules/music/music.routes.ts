@@ -44,18 +44,26 @@ export async function musicRoutes(app: FastifyInstance) {
   // emitido para uma pessoa logada, então ele sozinho identifica quem pediu a conexão. Com sessão, ela precisa ser a
   // mesma do `state`. Em qualquer falha o redirect é sempre para a origem da web já configurada, sem gravar conta.
   app.get('/spotify/callback', async (request, reply) => {
-    const { code, state } = request.query as { code?: string; state?: string };
-    const fail = () => reply.redirect(`${env.WEB_ORIGIN}/music?spotify=error`);
+    const { code, state, error } = request.query as { code?: string; state?: string; error?: string };
+    // `reason` é um código fixo (a tela tem o texto de cada um): nunca devolve texto vindo de fora para a página.
+    const fail = (reason: string) => {
+      request.log.warn({ reason }, 'spotify: conexão não concluída');
+      return reply.redirect(`${env.WEB_ORIGIN}/music?spotify=error&reason=${reason}`);
+    };
+
+    if (error) return fail(error === 'access_denied' ? 'denied' : 'other');
 
     const userId = (await checkSession(request)) ?? parseSpotifyState(state)?.userId ?? null;
-    if (!code || !userId) return fail();
-    if (!(await consumeSpotifyState(state, userId))) return fail();
+    if (!code || !userId) return fail('state');
+    if (!(await consumeSpotifyState(state, userId))) return fail('state');
 
     try {
       await completeSpotifyAuth(userId, code);
       return reply.redirect(`${env.WEB_ORIGIN}/music?spotify=connected`);
-    } catch {
-      return fail();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      if (message.startsWith('Esta conta do Spotify ainda não')) return fail('allowlist');
+      return fail(message.startsWith('Falha ao conectar') ? 'token' : 'profile');
     }
   });
 }

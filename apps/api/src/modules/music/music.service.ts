@@ -132,7 +132,11 @@ async function tokenRequest(body: Record<string, string>) {
       signal: AbortSignal.timeout(SPOTIFY_FETCH_MS),
     }),
   );
-  if (!response.ok) throw badRequest('Falha ao conectar com o Spotify');
+  if (!response.ok) {
+    // Vai para o log do servidor (Vercel): o motivo do Spotify (ex.: redirect_uri diferente do painel) diz o que corrigir.
+    console.warn(`spotify token ${response.status}: ${(await spotifyErrorMessage(response)) || 'sem motivo no corpo'}`);
+    throw badRequest('Falha ao conectar com o Spotify');
+  }
   return response.json() as Promise<{ access_token: string; refresh_token?: string; expires_in: number }>;
 }
 
@@ -163,7 +167,11 @@ export async function completeSpotifyAuth(userId: string, code: string) {
       signal: AbortSignal.timeout(SPOTIFY_FETCH_MS),
     }),
   );
-  if (!meResponse.ok) throw badRequest('Falha ao ler o perfil do Spotify');
+  if (!meResponse.ok) {
+    const reason = await spotifyErrorMessage(meResponse);
+    console.warn(`spotify /me ${meResponse.status}: ${reason || 'sem motivo no corpo'}`);
+    throw badRequest(explainSpotifyRefusal(meResponse.status, reason));
+  }
   const profile = (await meResponse.json()) as { id: string; display_name: string; product?: string };
 
   const stamp = nowIso();

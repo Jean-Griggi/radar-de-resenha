@@ -22,6 +22,8 @@ type Library = {
   playlists: FakePlaylist[];
   /** Faz as chamadas de biblioteca (/me/tracks...) recusarem, como o Spotify faz sem o escopo. */
   refuse?: { status: number; message: string };
+  /** Faz o /me recusar, como o Spotify faz com conta fora da lista do app em modo de desenvolvimento. */
+  refuseMe?: { status: number; message: string };
 };
 
 const libraries = new Map<string, Library>();
@@ -83,6 +85,9 @@ function installFakeSpotify() {
             ],
           },
         });
+      }
+      if (path === '/me' && library.refuseMe) {
+        return json({ error: { status: library.refuseMe.status, message: library.refuseMe.message } }, library.refuseMe.status);
       }
       if (path === '/me') return json({ id: `sp-${bearer}`, display_name: `Conta ${bearer}`, product: 'premium' });
       if (path === '/me/player/currently-playing') return new Response(null, { status: 204 });
@@ -239,11 +244,11 @@ describe('Spotify no rolê e no story', () => {
       const flipped = state.slice(0, -2) + (state.endsWith('A') ? 'BB' : 'AA');
 
       const res = await callback(ana, flipped);
-      expect(res.headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect(res.headers.location).toContain(`${env.WEB_ORIGIN}/music?spotify=error`);
       expect(await hasConnection(ana)).toBe(false);
 
       const junk = await callback(ana, 'lixo');
-      expect(junk.headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect(junk.headers.location).toContain(`${env.WEB_ORIGIN}/music?spotify=error`);
       expect(await hasConnection(ana)).toBe(false);
     });
 
@@ -254,7 +259,7 @@ describe('Spotify no rolê e no story', () => {
       const anaState = await stateFor(ana);
 
       const res = await callback(beto, anaState);
-      expect(res.headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect(res.headers.location).toContain(`${env.WEB_ORIGIN}/music?spotify=error`);
       expect(await hasConnection(beto)).toBe(false);
       expect(await hasConnection(ana)).toBe(false);
     });
@@ -270,7 +275,7 @@ describe('Spotify no rolê e no story', () => {
       expect(await hasConnection(ana)).toBe(false);
 
       const again = await callback(ana, state);
-      expect(again.headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect(again.headers.location).toContain(`${env.WEB_ORIGIN}/music?spotify=error`);
       expect(await hasConnection(ana)).toBe(false);
     });
 
@@ -290,15 +295,39 @@ describe('Spotify no rolê e no story', () => {
       const state = await stateFor(ana);
       const flipped = state.slice(0, -2) + (state.endsWith('A') ? 'BB' : 'AA');
 
-      expect((await callback(null, flipped)).headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
-      expect((await callback(null, 'lixo')).headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
-      expect((await callback(null, '')).headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect((await callback(null, flipped)).headers.location).toContain(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect((await callback(null, 'lixo')).headers.location).toContain(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect((await callback(null, '')).headers.location).toContain(`${env.WEB_ORIGIN}/music?spotify=error`);
       expect(await hasConnection(ana)).toBe(false);
 
       expect((await callback(null, state)).headers.location).toContain('spotify=connected');
       await exec(`DELETE FROM spotify_connections WHERE user_id = $1`, [ana.id]);
-      expect((await callback(null, state)).headers.location).toBe(`${env.WEB_ORIGIN}/music?spotify=error`);
+      expect((await callback(null, state)).headers.location).toContain(`${env.WEB_ORIGIN}/music?spotify=error`);
       expect(await hasConnection(ana)).toBe(false);
+    });
+
+    it('o retorno de erro diz o motivo: cancelou, estado inválido, conta fora da lista e perfil recusado', async () => {
+      const ana = await person('oa7');
+      const reasonOf = (res: { headers: Record<string, unknown> }) => new URL(String(res.headers.location)).searchParams.get('reason');
+
+      // Cancelou na tela do Spotify: ele volta com ?error=access_denied e sem code.
+      const denied = await app.inject({ method: 'GET', url: '/spotify/callback?error=access_denied', headers: cookie(ana) });
+      expect(reasonOf(denied)).toBe('denied');
+
+      expect(reasonOf(await callback(ana, 'lixo'))).toBe('state');
+
+      libraries.set('AT-code-oa7', {
+        tracks: [],
+        playlists: [],
+        refuseMe: { status: 403, message: 'User not registered in the Developer Dashboard' },
+      });
+      const state = await stateFor(ana);
+      expect(reasonOf(await callback(ana, state, 'code-oa7'))).toBe('allowlist');
+      expect(await hasConnection(ana)).toBe(false);
+
+      // Token que o Spotify não reconhece no /me: perfil recusado.
+      const state2 = await stateFor(ana);
+      expect(reasonOf(await callback(ana, state2, 'code-sem-biblioteca'))).toBe('profile');
     });
 
     it('desconectar apaga os tokens guardados', async () => {

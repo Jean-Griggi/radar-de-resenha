@@ -26,6 +26,7 @@ export function MusicScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [disconnecting, setDisconnecting] = useState(false);
+  const [connectError, setConnectError] = useState('');
   const [query, setQuery] = useState('');
   const [searched, setSearched] = useState('');
   const [results, setResults] = useState<SpotifySearchResults | null>(null);
@@ -121,6 +122,28 @@ export function MusicScreen() {
     return () => controller.abort();
   }, []);
 
+  // Volta do Spotify: ?spotify=connected ou ?spotify=error&reason=... (código fixo; o texto de cada um fica aqui).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get('spotify');
+    if (!result) return;
+    window.history.replaceState(null, '', window.location.pathname);
+    if (result === 'connected') {
+      toast.push('Spotify conectado');
+      return;
+    }
+    const reasons: Record<string, string> = {
+      denied: 'Você cancelou a conexão com o Spotify.',
+      state: 'A conexão expirou ou foi aberta em outro navegador. Clique em conectar de novo e termine no mesmo navegador.',
+      allowlist:
+        'Esta conta do Spotify ainda não está liberada neste app. Quem administra o app precisa adicionar o seu e-mail em "User Management" no painel do Spotify.',
+      token: 'O Spotify recusou a conexão. Quem administra o app precisa conferir as chaves e a URL de retorno no painel do Spotify.',
+    };
+    const message = reasons[params.get('reason') ?? ''] ?? 'Não foi possível ler o seu perfil do Spotify. Tente conectar de novo.';
+    setConnectError(message);
+    toast.push(message, 'error');
+  }, []);
+
   async function connect() {
     try {
       const { data } = await api.get<{ url: string }>('/spotify/connect');
@@ -154,6 +177,11 @@ export function MusicScreen() {
           <Skeleton className="h-40" />
           <Skeleton className="h-32" />
         </div>
+      ) : null}
+      {connectError ? (
+        <p role="alert" className="mb-5 rounded-[var(--radius-md)] border border-[var(--danger)] p-3 text-[var(--danger)]">
+          {connectError}
+        </p>
       ) : null}
       {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
       {!loading && !error ? (
