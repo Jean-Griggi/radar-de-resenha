@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { ChevronDown, Music, X } from 'lucide-react';
 import { parseSpotifyUrl, spotifyEmbedHeight, spotifyEmbedSrc } from '@/lib/spotifyEmbed';
 
 export type PlayerTrack = {
@@ -33,51 +34,140 @@ export function usePlayer() {
   return ctx;
 }
 
+type LyricsState = { status: 'idle' | 'loading' | 'found' | 'missing'; text: string };
+
+/** Tira "(feat. ...)", "- Remastered" etc. e fica só com o primeiro artista: o serviço de letras acha melhor assim. */
+function lyricsQuery(track: PlayerTrack) {
+  const title = track.title.replace(/s*[([].*?[)]]/g, '').replace(/s+-s+.*$/, '').trim();
+  const artist = track.artist.split(/,|&| feat.?/i)[0]!.trim();
+  return { title, artist };
+}
+
 /**
- * Player fixo no rodapé. Toca dentro da página com o player incorporado do Spotify (sem redirecionar).
- * A faixa só é tocada por quem está logado no Spotify neste navegador; sem login o Spotify toca prévias de 30 s.
+ * Player no canto: um ícone de música que expande e mostra capa, nome, cantor, link para o Spotify e a letra.
+ * O player do Spotify fica sempre montado (fora da tela quando recolhido) para a música não parar.
+ * Letras vêm do LRCLIB (grátis, sem chave, nem toda música tem). A faixa só toca inteira para quem está
+ * logado no Spotify neste navegador; sem login o Spotify toca prévias de 30 s.
  */
 export function MiniPlayer() {
   const { track, setTrack } = usePlayer();
+  const [open, setOpen] = useState(false);
+  const [lyrics, setLyrics] = useState<LyricsState>({ status: 'idle', text: '' });
+  const [showLyrics, setShowLyrics] = useState(false);
+
+  // Faixa nova: abre o painel (a pessoa precisa apertar play dentro do player do Spotify) e zera a letra.
+  useEffect(() => {
+    setOpen(Boolean(track));
+    setShowLyrics(false);
+    setLyrics({ status: 'idle', text: '' });
+  }, [track?.spotifyUrl, track?.title]);
+
+  const ref = track ? parseSpotifyUrl(track.spotifyUrl) : null;
+  const isPlaylist = ref?.kind === 'playlist';
+
+  useEffect(() => {
+    if (!track || !showLyrics || isPlaylist || lyrics.status !== 'idle') return;
+    const controller = new AbortController();
+    const { title, artist } = lyricsQuery(track);
+    setLyrics({ status: 'loading', text: '' });
+    const params = new URLSearchParams({ track_name: title, artist_name: artist });
+    fetch(`https://lrclib.net/api/search?${params.toString()}`, { signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: Array<{ plainLyrics?: string | null; instrumental?: boolean }> | null) => {
+        const text = data?.find((item) => item.plainLyrics?.trim())?.plainLyrics?.trim() ?? '';
+        setLyrics(text ? { status: 'found', text } : { status: 'missing', text: '' });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setLyrics({ status: 'missing', text: '' });
+      });
+    return () => controller.abort();
+  }, [track, showLyrics, isPlaylist, lyrics.status]);
+
   if (!track) return null;
 
-  const ref = parseSpotifyUrl(track.spotifyUrl);
-
   return (
-    <div className="shell-chrome fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-line px-3 py-2 lg:bottom-0 lg:pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-4">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 sm:gap-4">
+    <div className="pointer-events-none fixed right-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-[60] flex flex-col items-end gap-2 lg:right-5 lg:bottom-5">
+      <div
+        className={
+          open
+            ? 'pointer-events-auto w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] shadow-[var(--shadow-lg)]'
+            : 'pointer-events-none fixed top-0 -left-[9999px] w-[22rem]'
+        }
+        aria-hidden={!open}
+      >
+        <div className="flex items-center gap-3 p-3">
+          {track.cover ? (
+            <img src={track.cover} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+          ) : (
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-soft)]">
+              <Music size={22} aria-hidden />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-semibold">{track.title}</p>
+            <p className="truncate text-sm text-muted">{track.artist}</p>
+            {track.spotifyUrl ? (
+              <a href={track.spotifyUrl} target="_blank" rel="noreferrer" className="text-xs text-[var(--accent)] hover:underline">
+                Abrir no Spotify
+              </a>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Recolher player"
+            onClick={() => setOpen(false)}
+          >
+            <ChevronDown size={20} aria-hidden />
+          </button>
+          <button type="button" className="icon-btn" aria-label="Fechar player" onClick={() => setTrack(null)}>
+            <X size={20} aria-hidden />
+          </button>
+        </div>
+
         {ref ? (
           <iframe
             key={`${ref.kind}:${ref.id}`}
             title={`Tocando: ${track.title}`}
             src={spotifyEmbedSrc(ref)}
             height={spotifyEmbedHeight(ref.kind)}
-            className="min-w-0 flex-1 rounded-xl border-0"
+            className="block w-full border-0"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
+            loading="eager"
           />
-        ) : (
-          <>
-            {track.cover ? (
-              <img src={track.cover} alt="" className="h-10 w-10 rounded-lg object-cover" />
-            ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--accent-soft)]">♪</div>
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-fg">{track.title}</p>
-              <p className="truncate text-xs text-muted">{track.artist}</p>
-            </div>
-          </>
-        )}
-        <button
-          type="button"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted hover:text-fg"
-          aria-label="Fechar player"
-          onClick={() => setTrack(null)}
-        >
-          ✕
-        </button>
+        ) : null}
+
+        {!isPlaylist ? (
+          <div className="border-t border-[var(--border)]">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium hover:bg-[var(--overlay)]"
+              aria-expanded={showLyrics}
+              onClick={() => setShowLyrics((value) => !value)}
+            >
+              Letra
+              <ChevronDown size={16} className={showLyrics ? 'rotate-180' : ''} aria-hidden />
+            </button>
+            {showLyrics ? (
+              <div className="max-h-64 overflow-y-auto px-3 pb-3 text-sm whitespace-pre-line">
+                {lyrics.status === 'loading' ? <p className="text-muted">Procurando a letra…</p> : null}
+                {lyrics.status === 'missing' ? <p className="text-muted">Não encontrei a letra desta música.</p> : null}
+                {lyrics.status === 'found' ? lyrics.text : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
+
+      <button
+        type="button"
+        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#1DB954] text-black shadow-[var(--shadow-lg)] hover:brightness-110"
+        aria-label={open ? 'Recolher player de música' : `Abrir player de música: ${track.title}`}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <Music size={22} aria-hidden />
+      </button>
     </div>
   );
 }
