@@ -87,17 +87,23 @@ export async function postFile<T>(
   });
 
   if (signed.mode === 'signed' && signed.signedUrl && signed.relative && signed.confirmToken) {
-    const put = await fetch(signed.signedUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': ready.type || 'application/octet-stream',
-        'x-upsert': 'false',
-      },
-      body: ready,
-    });
+    let put: Response;
+    try {
+      put = await fetch(signed.signedUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': ready.type || 'application/octet-stream',
+          'x-upsert': 'false',
+        },
+        body: ready,
+      });
+    } catch {
+      throw new Error('Não foi possível enviar o arquivo ao armazenamento (rede ou bloqueio do navegador).');
+    }
 
     if (!put.ok) {
-      throw new Error('Falha no envio do arquivo');
+      const detail = (await put.text().catch(() => '')).slice(0, 140);
+      throw new Error(`O armazenamento recusou o arquivo (erro ${put.status}). ${detail}`.trim());
     }
 
     const { data } = await api.post<T>(endpoint, {

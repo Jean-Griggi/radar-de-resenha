@@ -109,7 +109,10 @@ export async function buildApp() {
       return reply.status(400).send({ message: 'Upload expirado ou inválido' });
     }
     if (error instanceof Error && error.message.startsWith('UPLOAD_FAILED')) {
-      return reply.status(502).send({ message: 'Falha ao enviar arquivo' });
+      // O motivo do Supabase (ex.: bucket inexistente, chave inválida) ajuda a achar o problema de configuração.
+      request.log.error({ err: error }, 'upload falhou no armazenamento');
+      const detail = error.message.replace(/^UPLOAD_FAILED:?\s*/, '').slice(0, 140);
+      return reply.status(502).send({ message: detail ? `Falha ao enviar arquivo (${detail})` : 'Falha ao enviar arquivo' });
     }
     if (error instanceof Error && error.message === 'AUDIO_TOO_LONG') {
       return reply.status(400).send({ message: 'Áudio deve ter no máximo 5 minutos' });

@@ -30,6 +30,7 @@ export function SettingsScreen() {
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState<{ avatar?: PendingImage; cover?: PendingImage }>({});
   const [savingMedia, setSavingMedia] = useState(false);
+  const [mediaError, setMediaError] = useState('');
   const [error, setError] = useState('');
   const [profileUsername, setProfileUsername] = useState('');
   const [draftPoint, setDraftPoint] = useState<MapPoint | null>(null);
@@ -120,6 +121,7 @@ export function SettingsScreen() {
   }
 
   async function upload(kind: 'avatar' | 'cover', file: File): Promise<boolean> {
+    setMediaError('');
     try {
       const small = await shrinkImage(file, kind === 'avatar' ? 800 : 1800);
       const data = await postFile<AuthUser>(`/users/me/${kind}`, kind, small);
@@ -130,7 +132,9 @@ export function SettingsScreen() {
     } catch (err) {
       if (!isApiCanceled(err)) {
         const offline = axios.isAxiosError(err) && !err.response;
-        toast.push(offline ? 'Sem conexão com a API. Ela está rodando (porta 3333)?' : apiErrorMessage(err, 'Falha no envio do arquivo'), 'error');
+        const reason = offline ? 'Sem conexão com a API. Ela está rodando (porta 3333)?' : apiErrorMessage(err, 'Falha no envio do arquivo');
+        setMediaError(reason);
+        toast.push(reason, 'error');
       }
       return false;
     }
@@ -254,6 +258,7 @@ export function SettingsScreen() {
                     </div>
                   </div>
                 </div>
+                {mediaError ? <p className="text-sm text-[var(--danger)]">{mediaError}</p> : null}
                 <div className="flex gap-2">
                   <Button onClick={confirmMedia} disabled={savingMedia}>
                     {savingMedia ? 'Salvando…' : 'Salvar'}
