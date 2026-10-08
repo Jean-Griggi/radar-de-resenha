@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const W = 1440;
 const H = 1024;
@@ -67,15 +67,12 @@ function pathsAt(time: number) {
 const INITIAL = pathsAt(0);
 
 export function WaveBackground() {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const [reduceMotion, setReduceMotion] = useState(false);
   const [lite, setLite] = useState(true);
 
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const narrow = window.matchMedia('(max-width: 767px)');
     const update = () => {
-      setReduceMotion(motion.matches);
       setLite(motion.matches || narrow.matches);
     };
     update();
@@ -87,29 +84,10 @@ export function WaveBackground() {
     };
   }, []);
 
-  useEffect(() => {
-    if (reduceMotion) return;
-    const svg = svgRef.current;
-    if (!svg) return;
-    const fills = svg.querySelectorAll<SVGPathElement>('[data-wave="fill"]');
-    const shine = svg.querySelector<SVGPathElement>('[data-wave="shine"]');
-    let frame = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const t = (now - start) / 1000;
-      const next = pathsAt(t);
-      next.forEach((p, i) => fills.item(i)?.setAttribute('d', p.fill));
-      shine?.setAttribute('d', next[0]?.shine ?? '');
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [reduceMotion]);
-
   return (
     <>
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
-        <svg ref={svgRef} className="h-full w-full" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+        <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
           <defs>
             <linearGradient id="wave-sky" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--wave-sky-start)" />
@@ -140,7 +118,7 @@ export function WaveBackground() {
           </g>
         </svg>
       </div>
-      <div className="grain-overlay pointer-events-none fixed inset-0 z-[1]" aria-hidden />
+      
     </>
   );
 }

@@ -9,13 +9,8 @@ import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 export function StoryPhone({ children }: { children: ReactNode }) {
   return (
     <div className="relative">
-      <span className="absolute -left-[3px] top-[22%] h-8 w-[3px] rounded-l-sm bg-zinc-600" />
-      <span className="absolute -left-[3px] top-[32%] h-12 w-[3px] rounded-l-sm bg-zinc-600" />
-      <span className="absolute -right-[3px] top-[28%] h-16 w-[3px] rounded-r-sm bg-zinc-600" />
-      <div className="story-phone relative overflow-hidden rounded-[2.35rem] border-[9px] border-zinc-800 bg-black shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/15">
-        <span className="absolute left-1/2 top-2 z-30 h-[22px] w-[92px] -translate-x-1/2 rounded-full bg-zinc-950" />
-        <div className="absolute inset-0 overflow-hidden rounded-[1.75rem]">{children}</div>
-        <span className="pointer-events-none absolute bottom-2 left-1/2 z-30 h-1 w-[108px] -translate-x-1/2 rounded-full bg-white/40" />
+      <div className="story-phone relative overflow-hidden rounded-3xl bg-black shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/15">
+        <div className="absolute inset-0 overflow-hidden rounded-3xl">{children}</div>
       </div>
     </div>
   );
@@ -245,7 +240,7 @@ export function StoryViewer({
             ) : null}
           </div>
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-9">
+          <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-4">
             <div className="flex gap-1">
               {ring.stories.map((item, index) => (
                 <div key={item.id} className="h-0.5 flex-1 overflow-hidden rounded-full bg-white/30">

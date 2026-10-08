@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { MusicItem } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { MediaImage } from '@/components/MediaImage';
 import { parseSpotifyUrl, spotifyEmbedHeight, spotifyEmbedSrc } from '@/lib/spotifyEmbed';
+import { mountAutoplayEmbed } from '@/lib/spotifyIframeApi';
 
 /**
  * Card de faixa ou playlist: capa, nome e, na faixa, o artista. A playlist deixa o tipo explícito.
@@ -28,8 +29,37 @@ export function MusicCard({
   /** Avisa quando o player inline abre ou fecha (o story pausa enquanto toca). */
   onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const ref = parseSpotifyUrl(item.spotifyUrl);
+  // No story a música abre sozinha e já toca; nas demais telas só quando a pessoa pede.
+  const autoplay = inline && tone === 'story' && Boolean(ref);
+  const [open, setOpen] = useState(autoplay);
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [embedFailed, setEmbedFailed] = useState(false);
+  const onOpenChangeRef = useRef(onOpenChange);
+  onOpenChangeRef.current = onOpenChange;
+
+  useEffect(() => {
+    if (autoplay) onOpenChangeRef.current?.(true);
+  }, [autoplay]);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!autoplay || !open || !ref || !host) return;
+    let cancelled = false;
+    let destroy: (() => void) | null = null;
+    mountAutoplayEmbed(host, ref, spotifyEmbedHeight(ref.kind))
+      .then((fn) => {
+        if (cancelled) fn();
+        else destroy = fn;
+      })
+      .catch(() => {
+        if (!cancelled) setEmbedFailed(true);
+      });
+    return () => {
+      cancelled = true;
+      destroy?.();
+    };
+  }, [autoplay, open, ref?.kind, ref?.id]);
   const canPlay = Boolean(onSelect) || (inline && Boolean(ref));
   const onMedia = tone === 'story';
   const surface = onMedia ? 'bg-black/45 backdrop-blur-sm' : 'bg-[var(--overlay)]';
@@ -74,7 +104,8 @@ export function MusicCard({
           </button>
         ) : null}
       </div>
-      {inline && open && ref ? (
+      {autoplay && open && !embedFailed ? <div ref={hostRef} className="mt-2 w-full overflow-hidden rounded-xl" /> : null}
+      {inline && open && ref && (!autoplay || embedFailed) ? (
         <iframe
           title={`Tocando: ${item.title}`}
           src={spotifyEmbedSrc(ref)}

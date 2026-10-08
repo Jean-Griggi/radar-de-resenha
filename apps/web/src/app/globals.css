@@ -47,10 +47,10 @@
 :root,
 html[data-theme="dark"] {
   color-scheme: dark;
-  --background: #0b0b0f;
-  --surface: #14141a;
-  --surface-elevated: #1c1c26;
-  --primary: #e31d3c;
+  --background: #12121a;
+  --surface: #1a1a24;
+  --surface-elevated: #232330;
+  --primary: #ef4561;
   --primary-hover: #c41833;
   --secondary: #252532;
   --secondary-hover: #2e2e3e;
@@ -87,7 +87,7 @@ html[data-theme="dark"] {
   --focus: var(--shadow-focus);
   --bg: var(--background);
   --bg-elevated: var(--surface-elevated);
-  --card: color-mix(in srgb, var(--surface) 82%, transparent);
+  --card: var(--surface);
   --card-2: var(--secondary);
   --line: var(--border);
   --muted: var(--text-muted);
@@ -96,7 +96,7 @@ html[data-theme="dark"] {
   --accent-soft: color-mix(in srgb, var(--primary) 14%, transparent);
   --overlay: rgba(255, 255, 255, 0.045);
   --glow: none;
-  --header: color-mix(in srgb, var(--background) 48%, transparent);
+  --header: color-mix(in srgb, var(--background) 94%, transparent);
   --input: var(--surface);
   --info: var(--accent-cool);
   --brand-red: var(--primary);
@@ -115,10 +115,10 @@ html[data-theme="dark"] {
   --wave-5: #222230;
   --wave-line: color-mix(in srgb, var(--accent-cool) 14%, transparent);
   --wave-shine: color-mix(in srgb, var(--accent-cool) 16%, transparent);
-  --grain-opacity: 0.055;
+  --grain-opacity: 0;
   --card-blur: 18px;
   --chrome-blur: 20px;
-  --wave-fill-opacity: 0.72;
+  --wave-fill-opacity: 0.35;
   --primary-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   --lift-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
@@ -610,7 +610,6 @@ a {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  backdrop-filter: blur(var(--card-blur));
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -626,7 +625,6 @@ a {
 
 .shell-chrome {
   background: var(--header);
-  backdrop-filter: blur(var(--chrome-blur));
 }
 
 html[data-theme="light"] .shell-chrome {
