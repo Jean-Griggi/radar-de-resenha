@@ -18,7 +18,8 @@ import { StoriesBar } from '@/features/stories';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
-import { formatDate, formatTimeAgo, plural } from '@/lib/format';
+import { formatMeta, formatTimeAgo, plural } from '@/lib/format';
+import { peekUpcomingRoles, setCachedUpcomingRoles, withInflight, type RailRole } from '@/lib/shellCache';
 
 const LABELS: Record<string, string> = {
   role_created: 'criou um novo rolê',
@@ -30,6 +31,50 @@ const LABELS: Record<string, string> = {
   achievement_unlocked: 'ganhou uma conquista',
   post_created: 'publicou algo',
 };
+
+function UpcomingStrip() {
+  const [roles, setRoles] = useState<RailRole[]>(() => peekUpcomingRoles() ?? []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const next =
+          peekUpcomingRoles() ??
+          (await withInflight('calendar', async () => {
+            const { data } = await api.get<{ upcoming: RailRole[] }>('/calendar');
+            const upcoming = data.upcoming ?? [];
+            setCachedUpcomingRoles(upcoming);
+            return upcoming;
+          }));
+        if (!cancelled) setRoles(next);
+      } catch {
+        /* a faixa some se a agenda não carregar */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (roles.length === 0) return null;
+
+  return (
+    <section className="feed-next xl:hidden" aria-label="Próximos">
+      <h2 className="k-meta">Próximos</h2>
+      <ul>
+        {roles.map((role) => (
+          <li key={role.id}>
+            <Link href={`/roles/${role.id}`}>
+              <span className="k-meta">{formatMeta(role.date, role.time)}</span>
+              <span className="k-display feed-next__name">{role.title}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 function commentTarget(item: FeedItem) {
   if (item.post?.id) return { targetType: 'post', targetId: item.post.id };
@@ -109,13 +154,58 @@ export function FeedScreen() {
     }
   }
 
-  return (
-          <div className="space-y-5">
-        <h1 className="sr-only">Feed</h1>
-        <StoriesBar />
-        <ChatPreview placement="feed" />
+  const future = items.filter((item) => item.role?.status === 'upcoming');
+  const past = items.filter((item) => item.role?.status !== 'upcoming');
 
-        <form onSubmit={publish} className="card composer p-4">
+  return (
+    <div className="feed">
+      <h1 className="sr-only">Feed</h1>
+      {!loading && !error
+        ? future.map((item) =>
+            item.role ? (
+              <article key={item.id} className="feed-future">
+                <div className="feed-future__when">
+                  <span className="feed-future__day">{item.role.date ? item.role.date.slice(8, 10) : '—'}</span>
+                  <span className="k-meta">{formatMeta(item.role.date, item.role.time)}</span>
+                </div>
+                <div>
+                  {item.role.coverPhoto ? <MediaImage src={item.role.coverPhoto} alt="" className="feed-future__cover" /> : null}
+                  {item.photo ? <MediaImage src={item.photo.url} alt={item.photo.caption || 'Foto'} className="feed-future__cover" /> : null}
+                  <p>
+                    <Link href={`/perfil/${item.actor?.username}`}>{item.actor?.name}</Link>{' '}
+                    <span>{LABELS[item.type] ?? item.type}</span>
+                  </p>
+                  <h2 className="k-display feed-future__title">
+                    <Link href={`/roles/${item.role.id}`}>{item.role.title}</Link>
+                  </h2>
+                  <p className="feed-future__place">{item.role.location || 'Local a combinar'}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button onClick={() => bora(item.role!.id)}>Bora</Button>
+                    <button type="button" className="button button--ghost" onClick={() => saveLink(`/roles/${item.role!.id}`)}>
+                      Salvar
+                    </button>
+                  </div>
+                  <Reactions
+                    targetType="role"
+                    targetId={item.role.id}
+                    items={item.reactions ?? []}
+                    onChange={(reactions: ReactionSummary[]) => {
+                      setItems((current) => current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)));
+                    }}
+                  />
+                  {commentTarget(item) ? (
+                    <FeedComments targetType={commentTarget(item)!.targetType} targetId={commentTarget(item)!.targetId} />
+                  ) : null}
+                </div>
+              </article>
+            ) : null,
+          )
+        : null}
+      <StoriesBar />
+      <UpcomingStrip />
+      <ChatPreview placement="feed" />
+
+      <form onSubmit={publish} className="card p-4">
           <div className="flex gap-3">
             <Avatar src={me?.avatar} name={me?.name} />
             <textarea
@@ -126,11 +216,11 @@ export function FeedScreen() {
             />
           </div>
           {music ? (
-            <div className="mt-3 flex items-center gap-3 rounded-none border border-[var(--border)] p-2">
-              <MediaImage src={music.cover} alt="" className="h-12 w-12 shrink-0 rounded-none object-cover" />
+            <div className="mt-3 flex items-center gap-3 border border-[var(--k-line)] p-2">
+              <MediaImage src={music.cover} alt="" className="h-12 w-12 shrink-0 object-cover" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{music.title}</p>
-                <p className="truncate text-xs text-muted">{music.subtitle}</p>
+                <p className="k-meta truncate">{music.subtitle}</p>
               </div>
               <button type="button" className="icon-btn" aria-label="Tirar a música" onClick={() => setMusic(null)}>
                 ✕
@@ -176,21 +266,20 @@ export function FeedScreen() {
             <Skeleton className="h-32" />
           </div>
         ) : null}
-        {error ? <p className="text-[var(--danger)]">{error}</p> : null}
+        {error ? <p className="feed-error">{error}</p> : null}
         {!loading && !error && items.length === 0 ? (
           <EmptyState
-            title="O feed ainda está quieto"
-            description="Crie o primeiro rolê e comece a registrar a resenha."
+            title="Ninguém marcou nada ainda."
             action={
               <Link href="/roles/new" className="button button--primary">
-                Criar primeiro rolê
+                Marcar um rolê
               </Link>
             }
           />
         ) : null}
 
         {!loading
-          ? items.map((item) => {
+          ? past.map((item) => {
               const target = commentTarget(item);
               return (
               <ErrorBoundary
@@ -201,7 +290,7 @@ export function FeedScreen() {
                   </article>
                 }
               >
-                <article className="card card--lift overflow-hidden p-0">
+                <article className={item.type === 'post_created' ? 'feed-post' : 'card feed-memory k-corners'}>
                   <div className="min-w-0 p-4">
                     <div className="flex items-start gap-3">
                       <Avatar src={item.actor?.avatar} name={item.actor?.name} size="sm" />
@@ -212,19 +301,17 @@ export function FeedScreen() {
                           </Link>{' '}
                           <span className="text-muted">{LABELS[item.type] ?? item.type}</span>
                         </p>
-                        <p className="text-xs text-muted">{formatTimeAgo(item.createdAt)}</p>
-                        {item.role ? (
-                          <Link href={`/roles/${item.role.id}`} className="mt-3 block rounded-none border border-line bg-[var(--overlay)] p-3 hover:border-[color-mix(in_srgb,var(--accent-cool)_35%,var(--border))]">
-                            <p className="text-xs font-semibold text-muted">
-                              {formatDate(item.role.date)} {item.role.time}
-                            </p>
-                            <h2 className="mt-1 text-base font-semibold text-fg">{item.role.title}</h2>
-                            <p className="mt-0.5 text-xs text-muted">{item.role.location || 'Local a combinar'}</p>
-                            <p className="mt-1 text-xs text-muted">{item.role.goingCount === 1 ? '1 pessoa confirmou' : `${plural(item.role.goingCount, 'pessoa', 'pessoas')} confirmaram`}</p>
+                        <p className="k-meta">{formatTimeAgo(item.createdAt)}</p>
+                        {item.type !== 'post_created' && item.role ? (
+                          <Link href={`/roles/${item.role.id}`} className="mt-3 block border border-[var(--k-line)] p-3">
+                            <p className="k-meta">{formatMeta(item.role.date, item.role.time)}</p>
+                            <h2 className="k-display feed-memory__title">{item.role.title}</h2>
+                            <p>{item.role.location || 'Local a combinar'}</p>
+                            <p className="k-meta">{plural(item.role.goingCount, 'pessoa confirmou', 'pessoas confirmaram')}</p>
                           </Link>
                         ) : null}
                         {item.review ? (
-                          <Link href={`/reviews/${item.review.id}`} className="mt-3 block rounded-none border border-line bg-[var(--overlay)] p-3">
+                          <Link href={`/reviews/${item.review.id}`} className="mt-3 block border border-[var(--k-line)] p-3">
                             <p className="text-[var(--primary)]">{'★'.repeat(item.review.rating)}</p>
                             <h2 className="text-base font-semibold text-fg">{item.review.title}</h2>
                             <p className="mt-1 line-clamp-2 text-sm text-muted">{item.review.content}</p>
@@ -246,7 +333,7 @@ export function FeedScreen() {
                           <MediaImage
                             src={item.photo.url}
                             alt={item.photo.caption || 'Foto'}
-                            className="mt-3 h-48 w-full rounded-none object-cover"
+                            className="mt-3 h-48 w-full object-cover"
                           />
                         ) : null}
                         <div className="mt-3 flex flex-wrap items-center gap-1">
