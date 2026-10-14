@@ -1,0 +1,48 @@
+---
+description: Identidade visual Kina — regras obrigatórias para qualquer alteração de UI, estilos, componentes ou textos de interface
+globs:
+alwaysApply: true
+---
+
+# Identidade visual Kina
+
+Fonte de verdade: @docs/kina/PLANO-IMPLEMENTACAO.md, @docs/kina/design/components-spec.md e @docs/kina/design/tokens.css.
+Referência visual: docs/kina/design/reference/ (PDF e mockups HTML).
+
+## Escopo
+- O redesign é só visual. NÃO alterar rotas, chamadas de API, contratos de dados, autenticação, validação, estado global ou nomes de campos.
+- NÃO criar funcionalidades que o design descreve mas o código não tem. Registrar em docs/kina/AUDITORIA.md (seção "Divergências").
+- Antes de editar: listar os arquivos que serão tocados e o plano em poucas linhas.
+
+## Tokens
+- Usar apenas variáveis `--k-*` (ou classes `k-*` do preset Tailwind). Proibido hexadecimal, rgb() ou nomes de cor em componentes.
+- Tema via `data-theme` no <html>. Proibido duplicar valores com `dark:`; os tokens já trocam.
+
+## Forma
+- Raio: 0 em superfícies e imagens; 2px (`--k-radius-control`) em controles; círculo só para pessoas (avatares, presença) e o botão "Criar".
+- Sem box-shadow, exceto overlays (`--k-shadow-overlay`). Sem gradientes decorativos. Sem backdrop-filter. Sem chips/pílulas coloridas (usar Tag: ponto + texto mono).
+- Memória (publicação, rolê passado) leva `.k-corners`. Presente (story, convite, rolê futuro) não.
+- Separar conteúdo com espaço e fios de 1px `--k-line`, não com cartões.
+
+## Tipografia
+- `.k-display` (Fraunces) para nomes de pessoas, nomes de rolês e títulos >= 20px.
+- Schibsted Grotesk (`--k-font-ui`) para interface e texto.
+- `.k-meta` (IBM Plex Mono, caixa alta) para datas, horas, contagens e durações. Formato de data: `SÁB 18 OUT · 18H`.
+
+## Cor
+- Uma ação principal por tela com `--k-brand`. `--k-accent` só em links de texto e "você" no mapa.
+- Estado nunca indicado só por cor: sempre ícone, forma (ponto) ou texto junto.
+
+## Movimento
+- Só `transform` e `opacity`. Durações e curvas dos tokens (`--k-dur-*`, `--k-ease-*`).
+- Respeitar `prefers-reduced-motion` (sem magnetismo, parallax ou loops).
+
+## Acessibilidade
+- Rótulo visível em todo campo; erro com ícone + texto + `aria-describedby`.
+- Foco visível com `:focus-visible`; alvos >= 44px; contraste AA.
+
+## Mídia
+- Fotos de usuários sem filtro. Capas de álbum do Spotify intactas, com atribuição; cantoneiras só por fora.
+
+## Textos
+"Cola?" (confirmar presença), "Marcar um rolê" (criar), "Ninguém chegou ainda." (vazio), "Essa rua não existe." (404). Nome do produto: Kina.

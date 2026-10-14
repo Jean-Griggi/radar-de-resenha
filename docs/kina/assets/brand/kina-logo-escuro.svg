@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 130" role="img" aria-labelledby="t"><title id="t">Kina</title>
+<!-- ATENÇÃO: o wordmark usa a fonte Fraunces como texto vivo. Para uso fora do app (lojas, redes),
+     converta o texto em curvas num editor vetorial. O pingo do "i" é o círculo sódio, não a fonte. -->
+<g transform="translate(5 5)"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="#FF7A3D"/></g>
+<text x="150" y="112" font-family="Fraunces, Georgia, serif" font-size="128" font-weight="500" style="font-variation-settings:'SOFT' 100,'opsz' 144" letter-spacing="-2" fill="#EFE8DC">k<tspan>ı</tspan>na</text>
+<circle cx="229" cy="27" r="12" fill="#FF7A3D"/></svg>

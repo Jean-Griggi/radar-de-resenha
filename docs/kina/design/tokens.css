@@ -1,0 +1,228 @@
+/* =========================================================================
+   KINA — Design tokens  v1.0
+   Fonte única de verdade para cores, tipografia, espaço, raio, linha e movimento.
+   Regra: componentes usam SOMENTE os tokens semânticos (--k-*). Nunca hexadecimais.
+   Ajuste o caminho das fontes (url(...)) para onde o projeto servir os arquivos.
+   ========================================================================= */
+
+/* ---------- Fontes (auto-hospedadas, SIL OFL) ---------- */
+@font-face { font-family: "Fraunces"; src: url("/fonts/fraunces-latin-full-normal.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Fraunces"; src: url("/fonts/fraunces-latin-full-italic.woff2") format("woff2"); font-weight: 100 900; font-style: italic; font-display: swap; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("/fonts/schibsted-grotesk-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("/fonts/schibsted-grotesk-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("/fonts/schibsted-grotesk-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("/fonts/schibsted-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("/fonts/ibm-plex-mono-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+
+/* ---------- Primitivos (não usar direto em componentes) ---------- */
+:root {
+  --k-papel-50:  #FBF8F2;
+  --k-papel-100: #F3EEE4;
+  --k-papel-200: #E9E2D5;
+  --k-papel-300: #D6CDBE;
+  --k-tinta-500: #8A8073;
+  --k-tinta-600: #6B6357;
+  --k-tinta-700: #5E574D;
+  --k-tinta-900: #1C1A17;
+
+  --k-asfalto-900: #14120F;
+  --k-asfalto-800: #1E1B17;
+  --k-asfalto-700: #29251F;
+  --k-asfalto-600: #2E2923;
+  --k-asfalto-400: #7A7063;
+  --k-luz-500: #918778;
+  --k-luz-400: #A99F90;
+  --k-luz-100: #EFE8DC;
+
+  --k-sodio-700: #A93A12;
+  --k-sodio-600: #C8461A;
+  --k-sodio-400: #FF7A3D;
+  --k-sodio-50:  #FFF8EE;
+
+  --k-anil-700: #2E3F8F;
+  --k-anil-300: #9DAEF2;
+
+  --k-erro-700: #A8231C;  --k-erro-300: #FF7F72;
+  --k-ok-700:   #2D6A45;  --k-ok-300:   #6CC08B;
+  --k-alerta-700: #8A5A00; --k-alerta-300: #E8B04A;
+}
+
+/* ---------- Semânticos: TEMA CLARO (padrão) — "o álbum de dia" ---------- */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --k-bg:             var(--k-papel-100);
+  --k-bg-sunken:      var(--k-papel-200);
+  --k-surface-raised: var(--k-papel-50);
+  --k-text:           var(--k-tinta-900);
+  --k-text-muted:     var(--k-tinta-700);
+  --k-text-subtle:    var(--k-tinta-600);
+  --k-line:           var(--k-papel-300);   /* decorativo: nunca a única fronteira de um controle */
+  --k-line-strong:    var(--k-tinta-500);   /* bordas de controles, >= 3:1 */
+  --k-brand:          var(--k-sodio-600);   /* botão principal, ponto, seleção, marcador */
+  --k-brand-hover:    #B83F17;
+  --k-brand-press:    #AC3B15;
+  --k-brand-text:     var(--k-sodio-700);   /* texto na cor da marca (5.5:1) */
+  --k-on-brand:       var(--k-sodio-50);    /* texto sobre --k-brand (4.58:1) */
+  --k-accent:         var(--k-anil-700);    /* links em texto, "você" no mapa */
+  --k-focus:          var(--k-anil-700);
+  --k-danger:         var(--k-erro-700);
+  --k-success:        var(--k-ok-700);
+  --k-warning:        var(--k-alerta-700);
+  --k-corner:         var(--k-tinta-900);   /* cor das cantoneiras */
+  --k-overlay:        rgba(28, 26, 23, .45);
+  --k-scrim-photo:    linear-gradient(transparent 40%, rgba(20, 18, 15, .6)); /* texto sobre foto */
+  --k-shadow-overlay: 0 8px 24px rgba(28, 26, 23, .12);
+  --k-grain-opacity:  .035;
+  --k-glow:           none;
+}
+
+/* ---------- Semânticos: TEMA ESCURO — "o álbum à noite" (não é inversão) ---------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --k-bg:             var(--k-asfalto-900);
+  --k-bg-sunken:      var(--k-asfalto-800);
+  --k-surface-raised: var(--k-asfalto-700);
+  --k-text:           var(--k-luz-100);
+  --k-text-muted:     var(--k-luz-400);
+  --k-text-subtle:    var(--k-luz-500);     /* em --k-surface-raised só texto >= 18.66px bold / 24px */
+  --k-line:           var(--k-asfalto-600);
+  --k-line-strong:    var(--k-asfalto-400);
+  --k-brand:          var(--k-sodio-400);   /* sódio "aceso" */
+  --k-brand-hover:    #FF8C56;
+  --k-brand-press:    #FF9D6E;
+  --k-brand-text:     var(--k-sodio-400);
+  --k-on-brand:       var(--k-asfalto-900);
+  --k-accent:         var(--k-anil-300);
+  --k-focus:          var(--k-anil-300);
+  --k-danger:         var(--k-erro-300);
+  --k-success:        var(--k-ok-300);
+  --k-warning:        var(--k-alerta-300);
+  --k-corner:         rgba(239, 232, 220, .7);
+  --k-overlay:        rgba(0, 0, 0, .6);
+  --k-scrim-photo:    linear-gradient(transparent 40%, rgba(20, 18, 15, .75));
+  --k-shadow-overlay: none;                 /* no escuro, elevação = superfície mais clara + fio */
+  --k-grain-opacity:  0;
+  --k-glow:           radial-gradient(circle at 50% 40%, rgba(255, 122, 61, .06), transparent 60%);
+}
+
+/* Seguir o sistema quando o usuário não escolheu um tema */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --k-bg: var(--k-asfalto-900); --k-bg-sunken: var(--k-asfalto-800); --k-surface-raised: var(--k-asfalto-700);
+    --k-text: var(--k-luz-100); --k-text-muted: var(--k-luz-400); --k-text-subtle: var(--k-luz-500);
+    --k-line: var(--k-asfalto-600); --k-line-strong: var(--k-asfalto-400);
+    --k-brand: var(--k-sodio-400); --k-brand-hover: #FF8C56; --k-brand-press: #FF9D6E;
+    --k-brand-text: var(--k-sodio-400); --k-on-brand: var(--k-asfalto-900);
+    --k-accent: var(--k-anil-300); --k-focus: var(--k-anil-300);
+    --k-danger: var(--k-erro-300); --k-success: var(--k-ok-300); --k-warning: var(--k-alerta-300);
+    --k-corner: rgba(239, 232, 220, .7); --k-overlay: rgba(0, 0, 0, .6);
+    --k-scrim-photo: linear-gradient(transparent 40%, rgba(20, 18, 15, .75));
+    --k-shadow-overlay: none; --k-grain-opacity: 0;
+    --k-glow: radial-gradient(circle at 50% 40%, rgba(255, 122, 61, .06), transparent 60%);
+  }
+}
+
+/* ---------- Tipografia, espaço, forma e movimento (iguais nos dois temas) ---------- */
+:root {
+  --k-font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --k-font-ui: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --k-font-mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  --k-display-axes: "SOFT" 50, "WONK" 0;          /* usar com font-variation-settings */
+
+  /* escala 1.25 sobre 16px — Fraunces só a partir de 20px */
+  --k-fs-12: .75rem;  --k-fs-14: .875rem; --k-fs-16: 1rem;   --k-fs-20: 1.25rem;
+  --k-fs-25: 1.5625rem; --k-fs-31: 1.9375rem; --k-fs-39: 2.4375rem; --k-fs-49: 3.0625rem;
+  --k-fs-61: 3.8125rem; --k-fs-76: 4.75rem;  --k-fs-96: 6rem;
+  --k-lh-tight: 1.02; --k-lh-title: 1.15; --k-lh-body: 1.5;
+  --k-meta-tracking: .05em;                       /* mono em caixa alta */
+
+  /* espaço — base 4 */
+  --k-space-1: 4px;  --k-space-2: 8px;  --k-space-3: 12px; --k-space-4: 16px;
+  --k-space-6: 24px; --k-space-8: 32px; --k-space-12: 48px; --k-space-16: 64px;
+  --k-space-24: 96px; --k-space-32: 128px;
+
+  /* forma: pessoas são redondas, todo o resto é reto */
+  --k-radius-none: 0;
+  --k-radius-control: 2px;
+  --k-radius-person: 9999px;
+  --k-line-hair: 1px;      /* fios */
+  --k-line-corner: 1.5px;  /* cantoneiras e ícones */
+  --k-line-focus: 2px;     /* foco e erro */
+
+  /* cantoneiras */
+  --k-corner-size: 12px;   /* 16px no desktop para imagens grandes */
+  --k-corner-offset: 6px;
+
+  /* alvos e layout */
+  --k-touch: 44px;
+  --k-container: 1200px;
+  --k-rail: 76px;
+  --k-tabbar: 84px;
+
+  /* movimento — verbo único: "chegar" */
+  --k-dur-instant: 100ms; --k-dur-quick: 160ms; --k-dur-base: 240ms;
+  --k-dur-move: 360ms;    --k-dur-scene: 520ms;
+  --k-ease-arrive: cubic-bezier(.2, 0, 0, 1);
+  --k-ease-leave:  cubic-bezier(.4, 0, 1, 1);
+
+  /* palco: stories e visualizadores de mídia, escuros nos dois temas */
+  --k-stage-bg: #14120F; --k-stage-text: #EFE8DC; --k-stage-progress: rgba(239, 232, 220, .35);
+
+  --k-z-nav: 50; --k-z-overlay: 100; --k-z-toast: 200;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --k-dur-quick: 0ms; --k-dur-base: 160ms; --k-dur-move: 160ms; --k-dur-scene: 160ms; }
+}
+
+/* ---------- Base mínima ---------- */
+html { background: var(--k-bg); color: var(--k-text); }
+body { font-family: var(--k-font-ui); font-size: var(--k-fs-16); line-height: var(--k-lh-body); background: var(--k-bg); color: var(--k-text); -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: var(--k-line-focus) solid var(--k-focus); outline-offset: 2px; }
+
+/* ---------- Utilitários da linguagem gráfica ---------- */
+
+/* Cantoneiras: envolva qualquer memória (publicação, rolê passado, capa de álbum por FORA) */
+.k-corners { position: relative; }
+.k-corners::after {
+  content: ""; position: absolute; pointer-events: none;
+  inset: calc(var(--k-corner-offset) * -1);
+  --c: var(--k-corner); --s: var(--k-corner-size); --w: var(--k-line-corner);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--s) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / var(--w) var(--s) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--s) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--w) var(--s) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--s) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--s) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--s) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--s) no-repeat;
+  transition: inset var(--k-dur-quick) var(--k-ease-arrive);
+}
+/* Cantos "fecham" no hover/foco: indicam clicável sem sombra */
+a.k-corners:hover::after, button.k-corners:hover::after,
+.k-corners:focus-visible::after, .k-corners[data-interactive]:hover::after {
+  inset: calc((var(--k-corner-offset) - 4px) * -1);
+}
+
+/* Texto de metadados: datas, horários, contagens */
+.k-meta { font-family: var(--k-font-mono); font-size: var(--k-fs-12); text-transform: uppercase; letter-spacing: var(--k-meta-tracking); color: var(--k-text-muted); font-variant-numeric: tabular-nums; }
+
+/* Títulos display (nomes de pessoas e rolês) */
+.k-display { font-family: var(--k-font-display); font-variation-settings: var(--k-display-axes); font-weight: 400; line-height: var(--k-lh-title); letter-spacing: -.01em; }
+
+/* Grão de papel (só tema claro, só em superfícies de página — nunca sobre fotos) */
+.k-grain { position: relative; isolation: isolate; }
+.k-grain::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: url("/textures/grain.png") repeat; background-size: 160px; opacity: var(--k-grain-opacity); }
+
+/* Grade de quarteirões (só login, landing e mapa) */
+.k-street-grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--k-text) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--k-text) 7%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+}

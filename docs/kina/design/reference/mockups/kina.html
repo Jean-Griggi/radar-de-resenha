@@ -1,0 +1,944 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"><title>Kina — Plano de design</title></head><body><section class="page dark" style="padding:0">
+<div style="position:absolute;inset:0" class="gridbg n"></div>
+<div style="position:absolute;left:0;right:0;top:118mm;height:46mm;display:flex;gap:3mm;padding-left:4mm;opacity:.95">
+ <div class="ph" style="flex:none;width:62mm;height:46mm;background-image:url(img/p_sunset.jpg)"></div><div class="ph" style="flex:none;width:62mm;height:46mm;background-image:url(img/p_party.jpg)"></div><div class="ph" style="flex:none;width:62mm;height:46mm;background-image:url(img/p_beach.jpg)"></div><div class="ph" style="flex:none;width:62mm;height:46mm;background-image:url(img/p_stage.jpg)"></div>
+</div>
+<div style="position:absolute;top:0;bottom:0;left:120mm;width:46mm;display:flex;flex-direction:column;gap:3mm;padding-top:6mm">
+ <div class="ph" style="flex:none;width:46mm;height:34mm;background-image:url(img/p_cafe.jpg)"></div><div class="ph" style="flex:none;width:46mm;height:34mm;background-image:url(img/p_night.jpg)"></div><div class="ph" style="flex:none;width:46mm;height:34mm;background-image:url(img/p_park.jpg)"></div><div class="ph" style="flex:none;width:46mm;height:34mm;background-image:url(img/p_dusk.jpg)"></div><div class="ph" style="flex:none;width:46mm;height:34mm;background-image:url(img/p_sunset.jpg)"></div><div class="ph" style="flex:none;width:46mm;height:34mm;background-image:url(img/p_party.jpg)"></div><div class="ph" style="flex:none;width:46mm;height:34mm;background-image:url(img/p_stage.jpg)"></div><div class="ph" style="flex:none;width:46mm;height:34mm;background-image:url(img/p_beach.jpg)"></div>
+</div>
+<div style="position:absolute;left:131mm;top:129mm;width:24mm;height:24mm;border-radius:50%;background:var(--sodioD);display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--asf);font-size:11pt;box-shadow:0 0 0 3mm rgba(20,18,15,.6)">Entrar</div>
+<div style="position:absolute;left:18mm;top:22mm"><span style="display:inline-flex;align-items:center;gap:12.88px"><svg width="48.300000000000004" height="48.300000000000004" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--txD)"/><rect x="10" y="94" width="100" height="16" fill="var(--txD)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodioD)"/></svg><span class="wm dk" style="font-size:46px;color:var(--txD)"><span>k</span><span class="i">ı</span><span>na</span></span></span></div>
+<div style="position:absolute;left:18mm;top:52mm;width:95mm">
+ <div class="serif" style="font-size:40pt;line-height:1;font-variation-settings:'SOFT' 50,'opsz' 144;color:var(--txD)">Te vejo<br>na <i>Kina.</i></div>
+</div>
+<div style="position:absolute;left:18mm;bottom:22mm;right:18mm;display:flex;justify-content:space-between;align-items:flex-end;color:var(--txD2)">
+ <div><div class="meta" style="color:var(--sodioD);margin-bottom:2mm">Plano de design · Rebranding e redesign</div>
+ <div style="font-size:10pt;max-width:95mm">Nome, marca, direção visual, cores, tipografia, telas, movimento e design system da rede privada antes chamada Redesinha.</div></div>
+ <div class="meta" style="text-align:right">Versão 2<br>14 out 2026</div>
+</div>
+</section><section class="page grain">
+<div class="kicker">00 · Antes de começar</div>
+<h1>Um álbum da turma.<br>Pessoas são pontos,<br>lugares são cantos.</h1>
+<p class="lead">A recomendação é rebatizar o produto como <b>Kina</b> e construir toda a identidade sobre uma ideia: a quina, a esquina, é onde a gente se encontra. Tudo que foi vivido fica preso por cantoneiras, como fotos num álbum.</p>
+<div class="cols" style="margin-top:8mm">
+<div>
+<h3>Escopo e fontes</h3>
+<p>Este plano se baseia no briefing e nas três referências enviadas. Não houve acesso ao repositório nem à aplicação em execução. Tudo que depende do código (framework, biblioteca de mapa, método de login, modelo de dados de rolês, stories e publicações) está marcado como <i>a confirmar</i> e vira a Fase 0 da implementação.</p>
+<h3>Sobre as imagens</h3>
+<p>Os exemplos visuais são mockups de direção, montados em HTML com as fontes e cores reais da proposta. As fotografias são ilustrações geradas para indicar tom e enquadramento; capas de álbum, músicas e pessoas são fictícias.</p>
+<h3>O que mudou nesta versão</h3>
+<p>O nome Esquina, da primeira versão, foi substituído por <b>Kina</b>: mais curto, com grafia própria e cara de apelido. O conceito, o símbolo e o sistema foram mantidos, porque o novo nome nasce da mesma palavra.</p>
+</div>
+<div>
+<h3>Sumário</h3>
+<table class="t">
+<tr><td class="mono">01</td><td>Diagnóstico</td><td class="mono">03</td></tr>
+<tr><td class="mono">02</td><td>Estratégia de marca e nome</td><td class="mono">04</td></tr>
+<tr><td class="mono">03</td><td>Direções criativas</td><td class="mono">06</td></tr>
+<tr><td class="mono">04</td><td>Identidade visual</td><td class="mono">07</td></tr>
+<tr><td class="mono">05</td><td>Sistema de cores</td><td class="mono">09</td></tr>
+<tr><td class="mono">06</td><td>Telas e experiências</td><td class="mono">11</td></tr>
+<tr><td class="mono">07</td><td>Interações e movimento</td><td class="mono">21</td></tr>
+<tr><td class="mono">08</td><td>Design system</td><td class="mono">22</td></tr>
+<tr><td class="mono">09</td><td>Plano de implementação</td><td class="mono">24</td></tr>
+<tr><td class="mono">10</td><td>Direção final</td><td class="mono">25</td></tr>
+</table>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Introdução</span><span>02</span></div>
+</section><section class="page grain">
+<div class="kicker">01 · Diagnóstico</div>
+<h1>Uma proposta rara,<br>sem uma marca que a diga.</h1>
+<p class="lead">Rede privada para combinar rolês entre amigos, com música e lugares. O produto tem uma ideia clara; falta uma identidade que a expresse. O redesign dá forma a essa ideia, não decora telas.</p>
+<table class="t">
+<tr><th>Área</th><th>Situação descrita</th><th>Status técnico</th></tr>
+<tr><td><b>Rolês</b></td><td>Pilar central: capa, nome, data, local, música</td><td>A confirmar no código</td></tr>
+<tr><td><b>Música / Spotify</b></td><td>Conectar conta, adicionar músicas, vincular a rolê</td><td>A confirmar: escopos de API e OAuth</td></tr>
+<tr><td><b>Perfis</b></td><td>Visíveis para outras pessoas</td><td>A confirmar: campos existentes</td></tr>
+<tr><td><b>Publicações e stories</b></td><td>Existem</td><td>A confirmar: expiração, curtidas, comentários</td></tr>
+<tr><td><b>Mapa</b></td><td>Existe</td><td>A confirmar: Leaflet, Mapbox, MapLibre ou Google</td></tr>
+<tr><td><b>Login</b></td><td>Existe</td><td>A confirmar: e-mail e senha, link mágico ou OAuth</td></tr>
+<tr><td><b>Temas</b></td><td>Claro e escuro insatisfatórios</td><td>A confirmar: CSS variables, Tailwind ou outro</td></tr>
+</table>
+<div class="cols">
+<div>
+<h2>Problemas</h2>
+<ul class="l">
+<li><b>De apresentação:</b> nome provisório, sem marca, paleta e componentes sem conceito, temas que não convencem.</li>
+<li><b>Funcionais:</b> nenhum relatado. O redesign não deve mexer em regras de negócio.</li>
+<li><b>Desconhecidos:</b> sem capturas da interface atual não há como apontar falhas de hierarquia específicas.</li>
+</ul>
+<h2>Oportunidades</h2>
+<ul class="l">
+<li>Nenhuma rede grande trata o rolê combinado como centro. Instagram é vitrine, WhatsApp é conversa, Partiful e Luma são convites.</li>
+<li>O vocabulário brasileiro (rolê, quina, cola aí) dá personalidade que produtos globais não têm.</li>
+<li>A música vinculada ao rolê permite uma linguagem de encarte de disco, editorial por natureza.</li>
+</ul></div>
+<div>
+<h2>O que as referências ensinam</h2>
+<div style="display:grid;grid-template-columns:22mm 1fr;gap:3mm 4mm;align-items:start">
+<div class="meta">Ref. 1<br>Perfil</div><div><b>Levar:</b> a pessoa apresentada dentro de um lugar, com profundidade. <b>Deixar:</b> cartão branco centralizado, neon e vidro.</div>
+<div class="meta">Ref. 2<br>Duel</div><div><b>Levar:</b> um ponto de atenção, um chão com regras e um botão com física própria. A grade já parece um mapa de quarteirões. <b>Deixar:</b> o pergaminho e o tom de jogo.</div>
+<div class="meta">Ref. 3<br>Cicada</div><div><b>Levar:</b> tipografia grande, respiro e um objeto artístico incomum no centro. <b>Deixar:</b> a árvore 3D e o lilás.</div>
+</div></div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Diagnóstico</span><span>03</span></div>
+</section><section class="page grain">
+<div class="kicker">02 · Estratégia de marca</div>
+<div style="display:flex;align-items:center;gap:10mm;margin:2mm 0 8mm">
+ <span style="display:inline-flex;align-items:center;gap:21.840000000000003px"><svg width="81.9" height="81.9" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--tinta)"/><rect x="10" y="94" width="100" height="16" fill="var(--tinta)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><span class="wm " style="font-size:78px;color:var(--tinta)"><span>k</span><span class="i">ı</span><span>na</span></span></span>
+ <div style="border-left:1px solid var(--linha);padding-left:8mm"><div class="meta">Pronúncia</div><div class="serif" style="font-size:16pt">/ˈki.na/ · “quí-na”</div><div class="meta" style="margin-top:2mm">Origem</div><div style="font-size:9pt">es<b>quina</b> → quina → <b>Kina</b></div></div>
+</div>
+<p class="lead">Kina vem de <i>quina</i>, o canto, a esquina. Duas sílabas, grafia própria com K, cara de apelido. Funciona como Yeezy funciona: um nome curto que soa como gíria, mas que pertence a uma marca só.</p>
+<div class="cols">
+<div>
+<h3>Por que Kina</h3>
+<ul class="l">
+<li><b>Significado escondido:</b> “te vejo na Kina” soa exatamente como “te vejo na quina”. Quem é daqui entende; quem não é, só acha bonito.</li>
+<li><b>Simples:</b> quatro letras, uma pronúncia, impossível escrever errado depois de ouvir uma vez.</li>
+<li><b>Diferente:</b> o K transforma uma palavra comum em um nome próprio, como o Y de Yeezy.</li>
+<li><b>Mantém o sistema:</b> o símbolo de canto e ponto, as cantoneiras e o mapa continuam fazendo sentido.</li>
+<li><b>Viaja:</b> funciona em inglês e espanhol sem tradução.</li>
+</ul>
+</div>
+<div>
+<h3>Outras opções na mesma pegada</h3>
+<table class="t">
+<tr><th>Nome</th><th>Origem</th><th>Leitura</th></tr>
+<tr><td class="serif" style="font-size:11pt"><b>Kina</b></td><td>quina, esquina</td><td>Favorito: curto, com significado</td></tr>
+<tr><td class="serif" style="font-size:11pt">Bory</td><td>“bora”</td><td>Convite direto; pode ser lido como “bóri” ou “bôri”</td></tr>
+<tr><td class="serif" style="font-size:11pt">Colé</td><td>“qual é”, gíria carioca</td><td>Muito carismático, mas regional</td></tr>
+<tr><td class="serif" style="font-size:11pt">Rolly</td><td>rolê</td><td>Óbvio para quem fala português; lembra marcas de patins</td></tr>
+<tr><td class="serif" style="font-size:11pt">Zuê</td><td>zoeira</td><td>Divertido, mas limita o tom ao humor</td></tr>
+<tr><td class="serif" style="font-size:11pt">Yolê</td><td>yo + rolê</td><td>Mais próximo de Yeezy no som; acento atrapalha domínios</td></tr>
+</table>
+<p class="note">Verificações ainda não feitas: INPI nas classes 9, 38, 42 e 45; domínios (kina.app, kina.social, usekina.com.br); handles @kina e @usekina; apps homônimos nas lojas. Kina é palavra existente em outros idiomas, então a busca de anterioridade é obrigatória.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Marca</span><span>04</span></div>
+</section><section class="page grain">
+<div class="kicker">02 · Posicionamento</div>
+<h1 style="font-size:48pt">Te vejo<br>na Kina.</h1>
+<p class="lead">O lugar onde a turma se encontra: antes, durante e depois do rolê.</p>
+<div class="cols">
+<div>
+<table class="t">
+<tr><th style="width:34mm">Essência</th><td>O ponto de encontro da turma.</td></tr>
+<tr><th>Proposta de valor</th><td>Combinar o rolê, chegar junto e guardar o que aconteceu, no mesmo lugar e só entre quem estava.</td></tr>
+<tr><th>Personalidade</th><td>Calorosa sem ser fofa, urbana sem ser fria, editorial sem ser esnobe. Fala como o amigo que organiza bem as coisas.</td></tr>
+<tr><th>Sentimentos</th><td>Pertencimento, expectativa antes, saudade boa depois.</td></tr>
+<tr><th>Percepção</th><td>Um álbum da turma, não uma vitrine pública.</td></tr>
+<tr><th>Diferença visual</th><td>Papel, tinta, cantoneiras, mapas e encartes no lugar de cartões arredondados e gradientes.</td></tr>
+</table></div>
+<div>
+<h3>Constantes em toda tela</h3>
+<ul class="l">
+<li>O <b>ponto sódio</b>: a ação principal e as pessoas.</li>
+<li>O <b>canto</b>: molduras, foco e o símbolo.</li>
+<li>A <b>serifa display</b> nos nomes de pessoas e rolês.</li>
+<li><b>Datas em monoespaçada</b>, como ficha técnica.</li>
+<li>A regra <b>memória com moldura, presente sem moldura</b>.</li>
+</ul>
+<h3>Tom de voz</h3>
+<table class="t">
+<tr><th>Em vez de</th><th>A Kina diz</th></tr>
+<tr><td>Confirmar presença</td><td><b>Cola?</b></td></tr>
+<tr><td>Nenhum resultado</td><td><b>Ninguém chegou ainda.</b></td></tr>
+<tr><td>Criar evento</td><td><b>Marcar um rolê</b></td></tr>
+<tr><td>Página não encontrada</td><td><b>Essa rua não existe.</b></td></tr>
+<tr><td>Erro de senha</td><td>Senha incorreta. Tente de novo ou peça um link de acesso.</td></tr>
+</table>
+<p style="font-size:8.4pt;color:var(--tinta2)">Erros continuam diretos e sem piada.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Marca</span><span>05</span></div>
+</section><section class="page grain">
+<div class="kicker">03 · Direções criativas</div>
+<h1>Três caminhos.<br>Um álbum venceu.</h1>
+<div class="cols3" style="margin-top:4mm">
+<div>
+ <div style="height:52mm;background:var(--papel2);position:relative;padding:6mm" class="cant">
+  <div class="cant" style="--o:4px;--sz:8px;width:30mm;height:22mm;background:url(img/p_sunset.jpg) center/cover"></div>
+  <div class="serif" style="font-size:15pt;margin-top:4mm">Pôr do sol<br>na laje</div>
+  <div class="m" style="font-size:6pt;color:var(--tinta2);margin-top:1mm">SÁB 18 OUT · 18H</div>
+  <div style="position:absolute;right:6mm;bottom:6mm;width:6mm;height:6mm;border-radius:50%;background:var(--sodio)"></div>
+ </div>
+ <div style="display:flex;margin-top:2mm"><div style="flex:1;height:14mm;background:#F3EEE4;color:#1C1A17;font-family:var(--mono);font-size:6pt;padding:1.5mm">papel</div><div style="flex:1;height:14mm;background:#1C1A17;color:#F3EEE4;font-family:var(--mono);font-size:6pt;padding:1.5mm">tinta</div><div style="flex:1;height:14mm;background:#C8461A;color:#FFF8EE;font-family:var(--mono);font-size:6pt;padding:1.5mm">sódio</div><div style="flex:1;height:14mm;background:#2E3F8F;color:#FFF8EE;font-family:var(--mono);font-size:6pt;padding:1.5mm">anil</div></div>
+ <h2>A · Cantoneira <span class="meta" style="color:var(--sodioT)">escolhida</span></h2>
+ <p>Álbum de memórias da turma. Papel, tinta e cantos que seguram fotos. Sem cartões: memória tem moldura, presente não tem.</p>
+ <p><b>Forte:</b> nasce do significado do produto; funciona de dia e de noite. <b>Risco:</b> virar papelaria se o grão e a serifa forem exagerados.</p>
+</div>
+<div>
+ <div style="height:52mm;background:#121110;position:relative;overflow:hidden;padding:6mm">
+  <div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(255,122,61,.45),transparent 55%)"></div>
+  <div style="position:relative;font-family:var(--sans);font-weight:700;font-size:18pt;letter-spacing:-.01em;color:#EFE8DC;line-height:.95;text-transform:uppercase">Hoje<br>23h</div>
+  <div style="position:absolute;left:6mm;bottom:6mm;right:6mm;height:16mm;background:url(img/p_night.jpg) center/cover;opacity:.85"></div>
+ </div>
+ <div style="display:flex;margin-top:2mm"><div style="flex:1;height:14mm;background:#121110;color:#EFE8DC;font-family:var(--mono);font-size:6pt;padding:1.5mm">asfalto</div><div style="flex:1;height:14mm;background:#FF7A3D;color:#1C1A17;font-family:var(--mono);font-size:6pt;padding:1.5mm">sódio</div><div style="flex:1;height:14mm;background:#8C877F;color:#1C1A17;font-family:var(--mono);font-size:6pt;padding:1.5mm">concreto</div></div>
+ <h2>B · Sódio</h2>
+ <p>A esquina às 23h. Escuro por padrão, halos laranja onde há ação, perfis em paisagens urbanas com parallax.</p>
+ <p><b>Forte:</b> atmosfera musical. <b>Risco:</b> depende do escuro, custa desempenho e se aproxima do clichê de app de balada.</p>
+</div>
+<div>
+ <div style="height:52mm;background:#FAFAF7;position:relative;padding:6mm;border:1px solid var(--linha)">
+  <div style="background:#1F3C88;color:#fff;padding:3mm 4mm;font-weight:700;font-size:10pt;display:inline-block;border:2px solid #fff;outline:1px solid #1F3C88">R. PÔR DO SOL</div>
+  <div style="margin-top:3mm;background:#F2C230;padding:2mm 3mm;font-weight:700;font-size:8pt;display:inline-block">SÁB · 18H</div>
+  <div style="position:absolute;left:6mm;right:6mm;bottom:6mm;height:3mm;background:repeating-linear-gradient(90deg,#1C1A17 0 6mm,transparent 6mm 9mm)"></div>
+ </div>
+ <div style="display:flex;margin-top:2mm"><div style="flex:1;height:14mm;background:#1F3C88;color:#fff;font-family:var(--mono);font-size:6pt;padding:1.5mm">azul-placa</div><div style="flex:1;height:14mm;background:#FAFAF7;color:#1C1A17;font-family:var(--mono);font-size:6pt;padding:1.5mm">esmalte</div><div style="flex:1;height:14mm;background:#F2C230;color:#1C1A17;font-family:var(--mono);font-size:6pt;padding:1.5mm">sinal</div></div>
+ <h2>C · Placa</h2>
+ <p>Sinalização urbana: rolês como nomes de rua, navegação como placas, tipografia estilo DIN.</p>
+ <p><b>Forte:</b> muito legível, ótima no mapa. <b>Risco:</b> fria e institucional; azul e amarelo lembram banco.</p>
+</div></div>
+<table class="t" style="margin-top:4mm">
+<tr><th>Critério</th><th>Cantoneira</th><th>Sódio</th><th>Placa</th></tr>
+<tr><td>Originalidade</td><td><b>Alta</b></td><td>Média</td><td>Média</td></tr>
+<tr><td>Adequação a amizade e memória</td><td><b>Alta</b></td><td>Média</td><td>Baixa</td></tr>
+<tr><td>Funciona nos dois temas</td><td><b>Sim: dia e noite do mesmo álbum</b></td><td>Fraca no claro</td><td>Fraca no escuro</td></tr>
+<tr><td>Escala para novas funções</td><td><b>Alta</b></td><td>Média</td><td>Alta</td></tr>
+<tr><td>Custo de implementação</td><td><b>Baixo: CSS, SVG, fontes livres</b></td><td>Alto</td><td>Baixo</td></tr>
+</table>
+<p class="note">Da Sódio, aproveita-se só a temperatura da noite para o tema escuro, porque o próprio conceito a pede: é o mesmo álbum, à noite.</p>
+<div class="folio"><span>Kina · Plano de design</span><span>Direções</span><span>06</span></div>
+</section><section class="page grain">
+<div class="kicker">04 · Identidade visual · Símbolo e logotipo</div>
+<h1>Duas ruas e alguém<br>que acabou de chegar.</h1>
+<div style="display:grid;grid-template-columns:78mm 1fr;gap:8mm;margin-top:2mm">
+<div style="background:var(--elev);height:78mm;position:relative" class="gridbg">
+ <svg viewBox="0 0 120 120" style="position:absolute;inset:8mm;width:62mm;height:62mm">
+  <rect x="10" y="10" width="16" height="100" fill="#1C1A17"/><rect x="10" y="94" width="100" height="16" fill="#1C1A17"/>
+  <line x1="26" y1="94" x2="70" y2="50" stroke="#C8461A" stroke-width=".5" stroke-dasharray="2 2"/>
+  <circle cx="47.2" cy="72.8" r="11" fill="#C8461A"/>
+  <text x="58" y="116" font-size="4.5" font-family="Plex" fill="#5E574D">100 u</text>
+  <text x="29" y="40" font-size="4.5" font-family="Plex" fill="#5E574D">16 u</text>
+  <text x="60" y="76" font-size="4.5" font-family="Plex" fill="#A93A12">ø 22 u</text>
+ </svg>
+</div>
+<div>
+ <p><b>Geometria.</b> Dois traços iguais (100 × 16 unidades) formam um ângulo reto de terminais retos. Um círculo de 22 u fica na bissetriz, a 30 u do vértice interno, sem tocar os traços. Esse vão é o “espaço de chegada”.</p>
+ <p><b>Leitura.</b> O canto inferior esquerdo de uma moldura, onde a foto apoia no álbum; e uma quina vista de cima, com uma pessoa parada nela.</p>
+ <p><b>Wordmark.</b> “kina” em caixa baixa, em Fraunces com eixo SOFT no máximo. O pingo do <i>i</i> é o mesmo ponto sódio do símbolo. Recomenda-se redesenhar o <i>k</i> para a versão final.</p>
+ <p><b>Não fazer:</b> girar o símbolo, arredondar o L, tirar o ponto da bissetriz, aplicar gradiente.</p>
+</div></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:7mm">
+ <div style="height:36mm;background:var(--papel2);display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;gap:9.520000000000001px"><svg width="35.7" height="35.7" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--tinta)"/><rect x="10" y="94" width="100" height="16" fill="var(--tinta)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><span class="wm " style="font-size:34px;color:var(--tinta)"><span>k</span><span class="i">ı</span><span>na</span></span></span></div>
+ <div style="height:36mm;background:var(--asf);display:flex;align-items:center;justify-content:center" class="dark"><span style="display:inline-flex;align-items:center;gap:9.520000000000001px"><svg width="35.7" height="35.7" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="#FF7A3D"/></svg><span class="wm dk" style="font-size:34px;color:#EFE8DC"><span>k</span><span class="i">ı</span><span>na</span></span></span></div>
+ <div style="height:36mm;background:#C8461A;display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;gap:9.520000000000001px"><svg width="35.7" height="35.7" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#FFF8EE"/><rect x="10" y="94" width="100" height="16" fill="#FFF8EE"/><circle cx="47.2" cy="72.8" r="11" fill="#FFF8EE"/></svg><span class="wm mono" style="font-size:34px;color:#FFF8EE"><span>k</span><span class="i">ı</span><span>na</span></span></span></div>
+ <div class="cap">Principal sobre papel</div><div class="cap">Principal sobre asfalto</div><div class="cap">Monocromática</div>
+</div>
+<div style="display:flex;gap:8mm;align-items:flex-end;margin-top:6mm">
+ <div><div style="width:30mm;height:30mm;border-radius:7mm;background:#C8461A;display:flex;align-items:center;justify-content:center"><svg width="64" height="64" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#FFF8EE"/><rect x="10" y="94" width="100" height="16" fill="#FFF8EE"/><circle cx="47.2" cy="72.8" r="11" fill="#FFF8EE"/></svg></div><div class="cap">Ícone do app</div></div>
+ <div><div style="width:22mm;height:22mm;border-radius:5mm;background:#14120F;display:flex;align-items:center;justify-content:center"><svg width="46" height="46" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="#FF7A3D"/></svg></div><div class="cap">Ícone escuro</div></div>
+ <div><div style="display:flex;gap:4mm;align-items:flex-end"><svg width="32" height="32" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--tinta)"/><rect x="10" y="94" width="100" height="16" fill="var(--tinta)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><svg width="16" height="16" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--tinta)"/><rect x="10" y="94" width="100" height="16" fill="var(--tinta)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><svg width="16" height="16" viewBox="0 0 16 16"><rect x="1" y="1" width="3" height="14" fill="#1C1A17"/><rect x="1" y="12" width="14" height="3" fill="#1C1A17"/><circle cx="7.5" cy="8.5" r="2.2" fill="#C8461A"/></svg></div><div class="cap">Símbolo 32 · 16 · favicon redesenhado</div></div>
+ <div><div style="display:flex;align-items:center;gap:3mm"><svg width="30" height="30" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--tinta)"/><rect x="10" y="94" width="100" height="16" fill="var(--tinta)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><span class="wm" style="font-size:26px">k</span></div><div class="cap">Compacta</div></div>
+</div>
+<div class="folio"><span>Kina · Plano de design</span><span>Identidade</span><span>07</span></div>
+</section><section class="page grain">
+<div class="kicker">04 · Tipografia e linguagem gráfica</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6mm;border-bottom:1px solid var(--tinta);padding-bottom:5mm">
+ <div><div class="serif" style="font-size:44pt;line-height:1;font-variation-settings:'SOFT' 50,'opsz' 144">Aa</div><b>Fraunces</b><div style="font-size:8pt;color:var(--tinta2)">Display e editorial: logo, nomes de pessoas e rolês, títulos. Serifa de alto contraste com eixo SOFT. SIL OFL.</div></div>
+ <div><div style="font-family:var(--sans);font-size:44pt;line-height:1;font-weight:500">Aa</div><b>Schibsted Grotesk</b><div style="font-size:8pt;color:var(--tinta2)">Interface e corpo. Desenhada para um grupo de jornais: editorial, sóbria e não é a Inter de todo app. SIL OFL.</div></div>
+ <div><div class="mono" style="font-size:38pt;line-height:1.1">18:00</div><b>IBM Plex Mono</b><div style="font-size:8pt;color:var(--tinta2)">Datas, horários, contagens, faixas, coordenadas. Tom de ficha técnica e encarte. SIL OFL.</div></div>
+</div>
+<div style="margin-top:5mm">
+ <div style="display:grid;grid-template-columns:24mm 1fr;align-items:baseline;gap:2mm 4mm">
+  <div class="meta">display-xl 96</div><div class="serif" style="font-size:40pt;line-height:1;font-variation-settings:'SOFT' 50,'opsz' 144">Pôr do sol na laje</div>
+  <div class="meta">display-m 39</div><div class="serif" style="font-size:20pt;line-height:1.1">Lia Moraes</div>
+  <div class="meta">title 25</div><div class="serif" style="font-size:13pt"><i>em</i> Aniversário da Duda</div>
+  <div class="meta">body 16</div><div style="font-size:10pt">Quem levar caixa de som ganha a primeira cerveja. Laje da Bia, a partir das 18h.</div>
+  <div class="meta">meta 12</div><div class="m" style="font-size:7.5pt;color:var(--tinta2)">SÁB 18 OUT · 18H · 12 PESSOAS · 03:41</div>
+ </div>
+ <p style="font-size:8pt;color:var(--tinta2);margin-top:3mm">Escala 1,25 sobre 16 px: 12 · 14 · 16 · 20 · 25 · 31 · 39 · 49 · 61 · 76 · 96. Fraunces só a partir de 20 px. Alternativas: Newsreader, Hanken Grotesk, JetBrains Mono. A verificar: numerais tabulares da Schibsted e peso total abaixo de 150 KB.</p>
+</div>
+<h2>Quatro peças gráficas</h2>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6mm;align-items:end">
+ <div><div style="height:30mm;display:flex;align-items:center;justify-content:center"><div class="cant" style="width:30mm;height:22mm;background:url(img/p_beach.jpg) center/cover"></div></div><b>Canto</b><div style="font-size:8pt;color:var(--tinta2)">Cantoneiras de 12 px, traço 1,5 px, 6 px para fora. Moldura de toda memória. Substituem cartão, borda e sombra.</div></div>
+ <div><div style="height:30mm;display:flex;align-items:center;justify-content:center;gap:2mm"><div class="av" style="width:14mm;height:14mm;background-image:url(img/av0.jpg)"></div><div class="av" style="width:10mm;height:10mm;background-image:url(img/av1.jpg)"></div><div class="av" style="width:7mm;height:7mm;background-image:url(img/av2.jpg)"></div><div class="av" style="width:5mm;height:5mm;background-image:url(img/av3.jpg)"></div><div style="width:4mm;height:4mm;border-radius:50%;background:var(--sodio)"></div></div><b>Ponto</b><div style="font-size:8pt;color:var(--tinta2)">Tudo que é pessoa é redondo. Tudo que não é pessoa é reto. A regra resolve o excesso de cantos arredondados.</div></div>
+ <div><div style="height:30mm;display:flex;flex-direction:column;justify-content:center;gap:3mm"><div style="height:1px;background:var(--tinta)"></div><div style="height:1px;background:var(--linha)"></div><div style="height:1px;background:var(--linha)"></div></div><b>Fio</b><div style="font-size:8pt;color:var(--tinta2)">Separadores de 1 px. Seções se separam por espaço; fios só onde há lista.</div></div>
+ <div><div style="height:30mm;display:flex;flex-direction:column;justify-content:center;font-size:8pt">
+  <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--linha);padding:1mm 0"><span class="m" style="font-size:6pt;color:var(--tinta2)">Quando</span><span class="mono">SÁB 18 · 18H</span></div>
+  <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--linha);padding:1mm 0"><span class="m" style="font-size:6pt;color:var(--tinta2)">Onde</span><span>Laje da Bia</span></div>
+  <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--linha);padding:1mm 0"><span class="m" style="font-size:6pt;color:var(--tinta2)">Trilha</span><span>Os Postes</span></div></div><b>Ficha</b><div style="font-size:8pt;color:var(--tinta2)">Rótulo mono à esquerda, valor à direita, fio abaixo. Base de rolês, agenda, música e configurações.</div></div>
+</div>
+<div class="cols" style="margin-top:4mm">
+<div><h3>Raios e linhas</h3><p style="font-size:8.6pt">0 para imagens e superfícies; 2 px para controles; 50% só para pessoas. Ícones de traço 1,5 px, cantos retos, grade de 24 px (base Phosphor Light, licença MIT, ajustada).</p></div>
+<div><h3>Fotografia e textura</h3><p style="font-size:8.6pt">Fotos de usuários sempre em cor natural. Duotone só em imagens institucionais. Grão de papel a 3% no claro; no escuro, uma luz quente difusa só no ponto focal. A grade de quarteirões aparece apenas no login, na landing e no mapa.</p></div>
+</div>
+<div class="folio"><span>Kina · Plano de design</span><span>Identidade</span><span>08</span></div>
+</section><section class="page grain">
+<div class="kicker">05 · Sistema de cores</div>
+<h1>Uma cor de marca:<br>a luz do poste.</h1>
+<p class="lead">Sódio é o laranja da lâmpada que ilumina a esquina. Todo o resto é papel e tinta de dia, asfalto e luz à noite. As fotos dos usuários são a principal fonte de cor do app.</p>
+<div class="cols">
+<div>
+ <div class="meta" style="margin-bottom:2mm">Claro · o álbum de dia</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5mm">
+  <div class="sw" style="background:#F3EEE4;color:#1C1A17"><b style="font-family:var(--sans);font-size:8pt">Papel</b>bg #F3EEE4</div><div class="sw" style="background:#E9E2D5;color:#1C1A17"><b style="font-family:var(--sans);font-size:8pt">Papel 2</b>bg-sunken #E9E2D5</div><div class="sw" style="background:#FBF8F2;color:#1C1A17"><b style="font-family:var(--sans);font-size:8pt">Elevado</b>raised #FBF8F2</div>
+  <div class="sw" style="background:#1C1A17;color:#F3EEE4"><b style="font-family:var(--sans);font-size:8pt">Tinta</b>text #1C1A17</div><div class="sw" style="background:#5E574D;color:#F3EEE4"><b style="font-family:var(--sans);font-size:8pt">Tinta 2</b>muted #5E574D</div><div class="sw" style="background:#8A8073;color:#F3EEE4"><b style="font-family:var(--sans);font-size:8pt">Linha forte</b>#8A8073</div>
+  <div class="sw" style="background:#C8461A;color:#FFF8EE"><b style="font-family:var(--sans);font-size:8pt">Sódio</b>brand #C8461A</div><div class="sw" style="background:#A93A12;color:#FFF8EE"><b style="font-family:var(--sans);font-size:8pt">Sódio texto</b>#A93A12</div><div class="sw" style="background:#2E3F8F;color:#FFF8EE"><b style="font-family:var(--sans);font-size:8pt">Anil</b>accent #2E3F8F</div>
+  <div class="sw" style="background:#A8231C;color:#FFF8EE"><b style="font-family:var(--sans);font-size:8pt">Erro</b>#A8231C</div><div class="sw" style="background:#2D6A45;color:#FFF8EE"><b style="font-family:var(--sans);font-size:8pt">Sucesso</b>#2D6A45</div><div class="sw" style="background:#8A5A00;color:#FFF8EE"><b style="font-family:var(--sans);font-size:8pt">Alerta</b>#8A5A00</div>
+ </div>
+</div>
+<div>
+ <div class="meta" style="margin-bottom:2mm">Escuro · o álbum à noite</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5mm">
+  <div class="sw" style="background:#14120F;color:#EFE8DC"><b style="font-family:var(--sans);font-size:8pt">Asfalto</b>bg #14120F</div><div class="sw" style="background:#1E1B17;color:#EFE8DC"><b style="font-family:var(--sans);font-size:8pt">Asfalto 2</b>bg-sunken #1E1B17</div><div class="sw" style="background:#29251F;color:#EFE8DC"><b style="font-family:var(--sans);font-size:8pt">Elevado</b>raised #29251F</div>
+  <div class="sw" style="background:#EFE8DC;color:#14120F"><b style="font-family:var(--sans);font-size:8pt">Texto</b>text #EFE8DC</div><div class="sw" style="background:#A99F90;color:#14120F"><b style="font-family:var(--sans);font-size:8pt">Texto 2</b>muted #A99F90</div><div class="sw" style="background:#7A7063;color:#EFE8DC"><b style="font-family:var(--sans);font-size:8pt">Linha forte</b>#7A7063</div>
+  <div class="sw" style="background:#FF7A3D;color:#14120F"><b style="font-family:var(--sans);font-size:8pt">Sódio aceso</b>brand #FF7A3D</div><div class="sw" style="background:#FF7A3D;color:#14120F"><b style="font-family:var(--sans);font-size:8pt">Sódio texto</b>#FF7A3D</div><div class="sw" style="background:#9DAEF2;color:#14120F"><b style="font-family:var(--sans);font-size:8pt">Anil</b>accent #9DAEF2</div>
+  <div class="sw" style="background:#FF7F72;color:#14120F"><b style="font-family:var(--sans);font-size:8pt">Erro</b>#FF7F72</div><div class="sw" style="background:#6CC08B;color:#14120F"><b style="font-family:var(--sans);font-size:8pt">Sucesso</b>#6CC08B</div><div class="sw" style="background:#E8B04A;color:#14120F"><b style="font-family:var(--sans);font-size:8pt">Alerta</b>#E8B04A</div>
+ </div>
+</div></div>
+<div class="cols" style="margin-top:6mm">
+<div>
+<h3>Regras de uso</h3>
+<ul class="l">
+<li><b>Sódio</b> marca a ação principal, o ponto do logo, o rolê no mapa e a seleção. Nunca é fundo de grande área.</li>
+<li>Sem branco puro nem preto puro: fundos quentes para as fotos não esfriarem.</li>
+<li><b>Anil</b> é raro: links em texto, “você” no mapa e anel de foco.</li>
+<li>O vermelho de erro é carmim, não laranja, e sempre vem com ícone e texto.</li>
+</ul></div>
+<div>
+<h3>Entre os temas</h3>
+<ul class="l">
+<li><b>Permanece:</b> matiz do sódio, logo, cantoneiras, tipografia, fotos sem filtro, ícones.</li>
+<li><b>Muda:</b> o sódio acende no escuro; o grão some; elevação vira luminosidade, não sombra; cantoneiras passam a papel 70%.</li>
+<li>O escuro não é inversão: superfícies sobem de luminosidade em três degraus.</li>
+<li>Padrão: seguir o sistema operacional, com escolha manual.</li>
+</ul></div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Cores</span><span>09</span></div>
+</section><section class="page grain">
+<div class="kicker">05 · Tokens e contraste</div>
+<h2 style="margin-top:0">Contraste WCAG 2.2, calculado pela luminância relativa</h2>
+<table class="t tight">
+<tr><th>Combinação</th><th>Claro</th><th>Escuro</th><th>Resultado</th></tr>
+<tr><td>text sobre bg</td><td class="mono">15,02</td><td class="mono">15,36</td><td>AA e AAA</td></tr>
+<tr><td>text sobre surface-raised</td><td class="mono">16,38</td><td class="mono">12,51</td><td>AA e AAA</td></tr>
+<tr><td>text-muted sobre bg</td><td class="mono">6,16</td><td class="mono">7,17</td><td>AA</td></tr>
+<tr><td>text-muted sobre bg-sunken</td><td class="mono">5,53</td><td class="mono">6,57</td><td>AA</td></tr>
+<tr><td>text-subtle sobre bg-sunken</td><td class="mono">4,60</td><td class="mono">4,85</td><td>AA</td></tr>
+<tr><td>text-subtle sobre surface-raised (escuro)</td><td class="mono">—</td><td class="mono">4,31</td><td>Só texto grande no escuro</td></tr>
+<tr><td>on-brand sobre brand (botão)</td><td class="mono">4,58</td><td class="mono">7,21</td><td>AA</td></tr>
+<tr><td>brand-text sobre bg</td><td class="mono">5,50</td><td class="mono">7,21</td><td>AA</td></tr>
+<tr><td>brand como elemento gráfico sobre bg</td><td class="mono">4,18</td><td class="mono">7,21</td><td>AA para componentes; no claro não usar para texto pequeno</td></tr>
+<tr><td>line-strong sobre bg</td><td class="mono">3,35</td><td class="mono">3,85</td><td>AA para bordas de controle</td></tr>
+<tr><td>line-strong sobre bg-sunken / raised</td><td class="mono">3,01</td><td class="mono">3,14</td><td>No limite: validar com campos reais</td></tr>
+<tr><td>accent sobre bg</td><td class="mono">8,17</td><td class="mono">8,70</td><td>AA</td></tr>
+<tr><td>danger · success · warning sobre bg</td><td class="mono">6,21 · 5,57 · 5,13</td><td class="mono">7,60 · 8,50 · 9,56</td><td>AA</td></tr>
+</table>
+<h2>Tabela de tokens</h2>
+<table class="t tight">
+<tr><th>Token</th><th>Claro</th><th>Escuro</th><th>Finalidade</th></tr>
+<tr><td class="mono">bg</td><td class="mono">#F3EEE4</td><td class="mono">#14120F</td><td>Fundo principal</td></tr>
+<tr><td class="mono">bg-sunken</td><td class="mono">#E9E2D5</td><td class="mono">#1E1B17</td><td>Campos, faixa de stories, áreas secundárias</td></tr>
+<tr><td class="mono">surface-raised</td><td class="mono">#FBF8F2</td><td class="mono">#29251F</td><td>Menus, modais, folhas</td></tr>
+<tr><td class="mono">text</td><td class="mono">#1C1A17</td><td class="mono">#EFE8DC</td><td>Texto principal, cantoneiras</td></tr>
+<tr><td class="mono">text-muted</td><td class="mono">#5E574D</td><td class="mono">#A99F90</td><td>Texto secundário</td></tr>
+<tr><td class="mono">text-subtle</td><td class="mono">#6B6357</td><td class="mono">#918778</td><td>Metadados, placeholders</td></tr>
+<tr><td class="mono">line</td><td class="mono">#D6CDBE</td><td class="mono">#2E2923</td><td>Fios decorativos</td></tr>
+<tr><td class="mono">line-strong</td><td class="mono">#8A8073</td><td class="mono">#7A7063</td><td>Bordas de controles</td></tr>
+<tr><td class="mono">brand</td><td class="mono">#C8461A</td><td class="mono">#FF7A3D</td><td>Ação principal, ponto, seleção</td></tr>
+<tr><td class="mono">brand-text</td><td class="mono">#A93A12</td><td class="mono">#FF7A3D</td><td>Texto na cor da marca</td></tr>
+<tr><td class="mono">on-brand</td><td class="mono">#FFF8EE</td><td class="mono">#14120F</td><td>Texto sobre o sódio</td></tr>
+<tr><td class="mono">accent / focus</td><td class="mono">#2E3F8F</td><td class="mono">#9DAEF2</td><td>Links, “você” no mapa, anel de foco</td></tr>
+<tr><td class="mono">danger · success · warning</td><td class="mono">#A8231C · #2D6A45 · #8A5A00</td><td class="mono">#FF7F72 · #6CC08B · #E8B04A</td><td>Semânticas, sempre com ícone e texto</td></tr>
+</table>
+<p class="note">A verificar na implementação: texto sobre fotos (sempre com degradê de tinta a 60% ou faixa sólida), marcadores sobre o estilo final do mapa e anel de foco duplo sobre imagens. Hover e pressionado derivam da cor base (±8% e ±14%) e precisam ser revalidados.</p>
+<div class="folio"><span>Kina · Plano de design</span><span>Cores</span><span>10</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.1 Landing pública</div>
+<h1 style="font-size:28pt">O cruzamento</h1>
+<div class="dev" style="width:642.0px;height:402.0px"><div class="scr " style="zoom:0.5;width:1280px;height:800px"><div class="gridbg" style="position:absolute;inset:0"></div>
+<div style="position:absolute;left:0;right:0;top:330px;height:170px;display:flex;gap:12px;margin-left:-60px"><div class="ph" style="flex:none;width:250px;height:170px;background-image:url(img/p_sunset.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:250px;height:170px;background-image:url(img/p_beach.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:250px;height:170px;background-image:url(img/p_party.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:250px;height:170px;background-image:url(img/p_park.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:250px;height:170px;background-image:url(img/p_stage.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:250px;height:170px;background-image:url(img/p_cafe.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div></div>
+<div style="position:absolute;top:-40px;bottom:0;left:820px;width:200px;display:flex;flex-direction:column;gap:12px"><div class="ph" style="flex:none;width:200px;height:150px;background-image:url(img/p_dusk.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:200px;height:150px;background-image:url(img/p_night.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:200px;height:150px;background-image:url(img/p_cafe.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:200px;height:150px;background-image:url(img/p_sunset.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div><div class="ph" style="flex:none;width:200px;height:150px;background-image:url(img/p_park.jpg);filter:grayscale(1) sepia(.35) contrast(1.05)"></div></div>
+<div style="position:absolute;left:868px;top:363px;width:104px;height:104px;border-radius:50%;background:var(--sodio);color:var(--onSodio);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:18px;box-shadow:0 0 0 10px var(--papel)">Entrar</div>
+<div style="position:absolute;left:56px;top:36px"><span style="display:inline-flex;align-items:center;gap:9.520000000000001px"><svg width="35.7" height="35.7" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--tinta)"/><rect x="10" y="94" width="100" height="16" fill="var(--tinta)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><span class="wm " style="font-size:34px;color:var(--tinta)"><span>k</span><span class="i">ı</span><span>na</span></span></span></div>
+<div style="position:absolute;right:56px;top:44px;display:flex;gap:32px;font-weight:500;font-size:15px"><span>Como funciona</span><span style="border-bottom:1.5px solid var(--tinta)">Entrar</span></div>
+<div class="serif" style="position:absolute;left:56px;top:120px;font-size:96px;line-height:.98;letter-spacing:-.02em;font-variation-settings:'SOFT' 50,'opsz' 144">Te vejo<br>na <i>Kina.</i></div>
+<div style="position:absolute;left:56px;top:560px;width:560px;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--tinta)">
+ <div style="padding:14px 16px 0 0"><div class="m" style="font-size:11px;color:var(--tinta2)">01</div><div class="serif" style="font-size:21px;margin-top:4px">Combina o rolê.</div></div><div style="padding:14px 16px 0 0"><div class="m" style="font-size:11px;color:var(--tinta2)">02</div><div class="serif" style="font-size:21px;margin-top:4px">Chega junto.</div></div><div style="padding:14px 16px 0 0"><div class="m" style="font-size:11px;color:var(--tinta2)">03</div><div class="serif" style="font-size:21px;margin-top:4px">Guarda o que rolou.</div></div>
+</div>
+<div class="m" style="position:absolute;left:56px;bottom:30px;font-size:11px;color:var(--tinta2)">Rede privada · só entra quem é convidado</div></div></div>
+<div class="cap">Desktop 1280 × 800 · tema claro</div>
+<div style="display:grid;grid-template-columns:auto 1fr;gap:8mm;margin-top:6mm">
+<div><div class="dev phone" style="width:189.4px;height:398.24px"><div class="scr " style="zoom:0.46;width:390px;height:844px"><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#1C1A17"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div><div class="gridbg" style="position:absolute;inset:0"></div>
+<div style="position:relative;padding:12px 22px"><span style="display:inline-flex;align-items:center;gap:7.280000000000001px"><svg width="27.3" height="27.3" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--tinta)"/><rect x="10" y="94" width="100" height="16" fill="var(--tinta)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><span class="wm " style="font-size:26px;color:var(--tinta)"><span>k</span><span class="i">ı</span><span>na</span></span></span></div>
+<div style="position:absolute;left:0;right:0;top:118px;height:120px;display:flex;gap:8px;margin-left:-30px"><div class="ph" style="flex:none;width:160px;height:120px;background-image:url(img/p_sunset.jpg);filter:grayscale(1) sepia(.35)"></div><div class="ph" style="flex:none;width:160px;height:120px;background-image:url(img/p_beach.jpg);filter:grayscale(1) sepia(.35)"></div><div class="ph" style="flex:none;width:160px;height:120px;background-image:url(img/p_party.jpg);filter:grayscale(1) sepia(.35)"></div><div class="ph" style="flex:none;width:160px;height:120px;background-image:url(img/p_park.jpg);filter:grayscale(1) sepia(.35)"></div></div>
+<div class="serif" style="position:absolute;left:22px;top:290px;font-size:58px;line-height:1;letter-spacing:-.02em;font-variation-settings:'SOFT' 50,'opsz' 144">Te vejo<br>na <i>Kina.</i></div>
+<div style="position:absolute;left:22px;right:22px;top:470px;font-size:16px;line-height:1.5;color:var(--tinta2)">Combina o rolê, chega junto e guarda o que rolou. Só com quem estava.</div>
+<div style="position:absolute;left:22px;right:22px;bottom:40px"><div class="btn" style="width:100%;justify-content:center;height:52px;font-size:17px"><svg width="18" height="18" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#FFF8EE"/><rect x="10" y="94" width="100" height="16" fill="#FFF8EE"/><circle cx="47.2" cy="72.8" r="11" fill="#FFF8EE"/></svg> Entrar</div><div style="text-align:center;margin-top:14px;font-size:14px;color:var(--tinta2)">Recebeu um convite? <u>Usar código</u></div></div></div></div><div class="cap">Celular 390 × 844</div></div>
+<div>
+<p><b>Finalidade.</b> Apresentar a marca a quem recebeu um convite. Nenhum conteúdo social real aparece aqui.</p>
+<p><b>O elemento artístico.</b> Duas faixas de fotografias, como folhas de contato, atravessam a tela e se cruzam. No cruzamento fica o ponto sódio: o botão “Entrar”. As faixas deslizam devagar em sentidos opostos, como pessoas passando por duas ruas. É o equivalente à árvore da referência 3, feito do próprio assunto do produto.</p>
+<p><b>Hierarquia.</b> 1) a frase, 2) o ponto, 3) três frases curtas separadas por fios. Nada de cartões de benefício nem depoimentos.</p>
+<p><b>Celular.</b> Fica só a faixa horizontal no topo; o ponto vira um botão largo ancorado embaixo, ao alcance do polegar.</p>
+<p><b>Movimento reduzido.</b> As faixas ficam paradas numa composição fixa.</p>
+<p class="note">Fotos institucionais precisam ser produzidas ou licenciadas, em duotone. As da imagem são ilustrativas.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>11</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.2 Login</div>
+<h1 style="font-size:28pt">Chegar na quina</h1>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+ <div><div class="dev" style="width:322.0px;height:202.0px"><div class="scr " style="zoom:0.25;width:1280px;height:800px"><div class="gridbg " style="position:absolute;inset:0"></div><div style="position:absolute;left:0;right:0;top:400px;height:2px;background:rgba(28,26,23,.55)"></div><div style="position:absolute;top:0;bottom:0;left:640px;width:2px;background:rgba(28,26,23,.55)"></div><div style="position:absolute;left:40px;top:32px"><span style="display:inline-flex;align-items:center;gap:7.280000000000001px"><svg width="27.3" height="27.3" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#1C1A17"/><rect x="10" y="94" width="100" height="16" fill="#1C1A17"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><span class="wm " style="font-size:26px;color:#1C1A17"><span>k</span><span class="i">ı</span><span>na</span></span></span></div><div style="position:absolute;left:640px;top:400px;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;background:radial-gradient(circle,rgba(200,70,26,.07),transparent 70%)"></div><div class="btn" style="position:absolute;left:650px;top:356px;height:56px;font-size:19px;padding:0 26px;box-shadow:0 10px 24px rgba(20,18,15,.18);transform:translate(6px,-4px)"><svg width="20" height="20" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#FFF8EE"/><rect x="10" y="94" width="100" height="16" fill="#FFF8EE"/><circle cx="47.2" cy="72.8" r="11" fill="#FFF8EE"/></svg> Entrar</div><div style="position:absolute;left:620px;top:420px;width:20px;height:20px;border-radius:50%;border:1.5px dashed rgba(28,26,23,.55)"></div><div class="m" style="position:absolute;left:0;right:0;bottom:30px;text-align:center;font-size:11px;color:#5E574D">Rede privada · Kina</div></div></div><div class="cap">1 · Repouso: o botão na esquina, atraído pelo cursor</div></div>
+ <div><div class="dev" style="width:322.0px;height:202.0px"><div class="scr " style="zoom:0.25;width:1280px;height:800px"><div class="gridbg " style="position:absolute;inset:0"></div><div style="position:absolute;left:0;right:0;top:400px;height:2px;background:rgba(28,26,23,.55)"></div><div style="position:absolute;top:0;bottom:0;left:640px;width:2px;background:rgba(28,26,23,.55)"></div><div style="position:absolute;left:40px;top:32px"><span style="display:inline-flex;align-items:center;gap:7.280000000000001px"><svg width="27.3" height="27.3" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#1C1A17"/><rect x="10" y="94" width="100" height="16" fill="#1C1A17"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><span class="wm " style="font-size:26px;color:#1C1A17"><span>k</span><span class="i">ı</span><span>na</span></span></span></div><div class="cant " style="--o:10px;--sz:22px;--wd:2px;position:absolute;left:640px;top:400px;width:420px;margin:-170px 0 0 0;background:var(--elev);padding:36px">
+        <div class="serif" style="font-size:36px;line-height:1.05">Chegou na quina.</div>
+        <div style="font-size:15px;color:#5E574D;margin:8px 0 24px">Entre com seu e-mail.</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px">E-mail</div>
+        <div style="height:46px;background:var(--papel2);border-bottom:2px solid #1C1A17;display:flex;align-items:center;padding:0 12px;font-size:16px">lia@exemplo.com</div>
+        <div style="font-size:13px;font-weight:600;margin:16px 0 6px">Senha</div>
+        <div style="height:46px;background:var(--papel2);border-bottom:2px solid #A8231C;display:flex;align-items:center;padding:0 12px;font-size:16px;letter-spacing:.2em">••••••</div>
+        <div style="display:flex;gap:6px;align-items:center;color:#A8231C;font-size:13px;margin-top:6px"><span style="width:16px;height:16px;border-radius:50%;border:1.5px solid currentColor;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">!</span>Senha incorreta. Tente de novo ou peça um link.</div>
+        <div class="btn" style="width:100%;justify-content:center;margin-top:22px;height:50px">Entrar</div>
+        <div style="text-align:center;margin-top:14px;font-size:14px"><u>Receber link de acesso</u></div></div></div></div><div class="cap">2 · Clique: o botão vira o painel, os cantos se abrem</div></div>
+ <div><div class="dev" style="width:322.0px;height:202.0px"><div class="scr night" style="zoom:0.25;width:1280px;height:800px"><div class="gridbg n" style="position:absolute;inset:0"></div><div style="position:absolute;left:0;right:0;top:400px;height:2px;background:rgba(239,232,220,.55)"></div><div style="position:absolute;top:0;bottom:0;left:640px;width:2px;background:rgba(239,232,220,.55)"></div><div style="position:absolute;left:40px;top:32px"><span style="display:inline-flex;align-items:center;gap:7.280000000000001px"><svg width="27.3" height="27.3" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodioD)"/></svg><span class="wm dk" style="font-size:26px;color:#EFE8DC"><span>k</span><span class="i">ı</span><span>na</span></span></span></div><div style="position:absolute;left:640px;top:400px;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;background:radial-gradient(circle,rgba(255,122,61,.10),transparent 70%)"></div><div class="btn" style="position:absolute;left:650px;top:356px;height:56px;font-size:19px;padding:0 26px;box-shadow:0 10px 24px rgba(20,18,15,.18);transform:translate(6px,-4px)"><svg width="20" height="20" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#14120F"/><rect x="10" y="94" width="100" height="16" fill="#14120F"/><circle cx="47.2" cy="72.8" r="11" fill="#14120F"/></svg> Entrar</div><div style="position:absolute;left:620px;top:420px;width:20px;height:20px;border-radius:50%;border:1.5px dashed rgba(239,232,220,.55)"></div><div class="m" style="position:absolute;left:0;right:0;bottom:30px;text-align:center;font-size:11px;color:#A99F90">Rede privada · Kina</div></div></div><div class="cap">1 · Tema escuro</div></div>
+ <div><div class="dev" style="width:322.0px;height:202.0px"><div class="scr night" style="zoom:0.25;width:1280px;height:800px"><div class="gridbg n" style="position:absolute;inset:0"></div><div style="position:absolute;left:0;right:0;top:400px;height:2px;background:rgba(239,232,220,.55)"></div><div style="position:absolute;top:0;bottom:0;left:640px;width:2px;background:rgba(239,232,220,.55)"></div><div style="position:absolute;left:40px;top:32px"><span style="display:inline-flex;align-items:center;gap:7.280000000000001px"><svg width="27.3" height="27.3" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodioD)"/></svg><span class="wm dk" style="font-size:26px;color:#EFE8DC"><span>k</span><span class="i">ı</span><span>na</span></span></span></div><div class="cant d" style="--o:10px;--sz:22px;--wd:2px;position:absolute;left:640px;top:400px;width:420px;margin:-170px 0 0 0;background:var(--asfE);padding:36px">
+        <div class="serif" style="font-size:36px;line-height:1.05">Chegou na quina.</div>
+        <div style="font-size:15px;color:#A99F90;margin:8px 0 24px">Entre com seu e-mail.</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px">E-mail</div>
+        <div style="height:46px;background:var(--asf2);border-bottom:2px solid #EFE8DC;display:flex;align-items:center;padding:0 12px;font-size:16px">lia@exemplo.com</div>
+        <div style="font-size:13px;font-weight:600;margin:16px 0 6px">Senha</div>
+        <div style="height:46px;background:var(--asf2);border-bottom:2px solid #FF7F72;display:flex;align-items:center;padding:0 12px;font-size:16px;letter-spacing:.2em">••••••</div>
+        <div style="display:flex;gap:6px;align-items:center;color:#FF7F72;font-size:13px;margin-top:6px"><span style="width:16px;height:16px;border-radius:50%;border:1.5px solid currentColor;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">!</span>Senha incorreta. Tente de novo ou peça um link.</div>
+        <div class="btn" style="width:100%;justify-content:center;margin-top:22px;height:50px">Entrar</div>
+        <div style="text-align:center;margin-top:14px;font-size:14px"><u>Receber link de acesso</u></div></div></div></div><div class="cap">2 · Tema escuro, com erro de senha</div></div>
+</div>
+<div class="cols" style="margin-top:5mm">
+<div>
+<p><b>Composição.</b> Grade de quarteirões a 7%. Dois fios mais grossos se cruzam no centro: é a quina. No vértice, um único botão sódio com o símbolo. Nada mais na tela além do logo.</p>
+<p><b>Magnetismo.</b> Com o cursor a menos de 160 px, o botão desliza até 8 px em direção a ele e os fios se curvam levemente. Ao sair, volta com mola. É a referência 2 traduzida: a quina “chama” quem chega.</p>
+<p><b>Painel.</b> Clique, Enter ou Espaço: o botão cresce a partir do vértice e vira o painel; o foco vai para o primeiro campo. O painel mostra o método real de entrada. <i>E-mail e senha no exemplo; método a confirmar no código.</i></p>
+</div>
+<div>
+<p><b>Erros.</b> Ícone + texto + borda de 2 px; foco no campo com erro; o efeito de movimento para enquanto há erro.</p>
+<p><b>Teclado.</b> O botão recebe foco ao carregar (é a única ação). Nada depende do cursor.</p>
+<p><b>Toque.</b> Sem magnetismo; o botão afunda ao toque e abre o painel em folha inferior.</p>
+<p><b>Movimento reduzido.</b> Sem magnetismo e sem crescimento: o painel aparece em fade de 160 ms.</p>
+<p><b>Desempenho.</b> Grade em um único SVG ou canvas; só transform e opacity.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>12</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.3 Perfil de outra pessoa</div>
+<h1 style="font-size:28pt">A quina de alguém</h1>
+<div class="dev" style="width:642.0px;height:402.0px"><div class="scr " style="zoom:0.5;width:1280px;height:800px"><div style="position:absolute;left:0;top:0;bottom:0;width:76px;border-right:1px solid var(--linha);display:flex;flex-direction:column;align-items:center;padding-top:26px;gap:26px"><svg width="30" height="30" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#1C1A17"/><rect x="10" y="94" width="100" height="16" fill="#1C1A17"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><div style="height:10px"></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4z M10 21h4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:1"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><div style="position:absolute;left:50%;top:-9px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--sodio)"></div></div><div style="margin-top:auto;margin-bottom:26px;width:48px;height:48px;border-radius:50%;background:var(--sodio);display:flex;align-items:center;justify-content:center;color:#FFF8EE"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div></div>
+<div style="position:absolute;left:77px;right:0;top:0;height:520px;background:url(img/p_dusk.jpg) center/cover"></div>
+<div style="position:absolute;left:77px;right:0;top:0;height:520px;background:linear-gradient(transparent 55%,rgba(20,18,15,.35))"></div>
+<div style="position:absolute;right:40px;top:28px;display:flex;gap:10px;color:#FFF8EE"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></div>
+<div class="cant" style="--o:8px;--sz:18px;--wd:2px;position:absolute;left:150px;top:300px;width:520px;background:var(--papel);padding:34px 36px 28px">
+ <div class="av" style="width:104px;height:104px;background-image:url(img/av0.jpg);position:absolute;top:-52px;left:36px;box-shadow:0 0 0 5px var(--papel)"></div>
+ <div style="height:44px"></div>
+ <div class="serif" style="font-size:52px;line-height:1;letter-spacing:-.01em;font-variation-settings:'SOFT' 50,'opsz' 144">Lia Moraes</div>
+ <div class="m" style="font-size:12px;color:var(--tinta2);margin-top:8px">@liamoraes · São Paulo</div>
+ <div style="font-size:16px;line-height:1.5;margin-top:14px;max-width:420px">Organizo o churrasco que ninguém mais organiza. Sempre com a playlist pronta.</div>
+ <div style="display:flex;align-items:center;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--linha)">
+  <div style="width:40px;height:40px;background:url(img/al0.jpg) center/cover"></div>
+  <div style="flex:1"><div style="font-size:14px;font-weight:600">Laranja Elétrica</div><div style="font-size:13px;color:var(--tinta2)">Os Postes</div></div>
+  <div class="m" style="font-size:11px;color:var(--tinta2)">Trilha do perfil</div>
+ </div>
+ <div style="display:flex;gap:10px;margin-top:20px;align-items:center"><div class="btn">Seguir</div><div class="btn2">Mensagem</div><div style="margin-left:auto" class="m"><span style="font-size:11px;color:var(--tinta2)">48 rolês · 212 amigos</span></div></div>
+</div>
+<div style="position:absolute;left:740px;right:40px;top:560px;display:flex;gap:28px;font-size:15px;border-bottom:1px solid var(--linha)">
+ <div style="font-weight:600;padding-bottom:10px;border-bottom:2px solid var(--tinta)">Publicações</div><div style="color:var(--tinta2)">Rolês</div><div style="color:var(--tinta2)">Músicas</div>
+</div>
+<div style="position:absolute;left:740px;right:40px;top:610px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
+ <div class="cant " style="--o:5px;--sz:10px;height:150px;background:url(img/p_sunset.jpg) center/cover"></div><div class="cant " style="--o:5px;--sz:10px;height:150px;background:url(img/p_party.jpg) center/cover"></div><div class="cant " style="--o:5px;--sz:10px;height:150px;background:url(img/p_beach.jpg) center/cover"></div>
+</div></div></div>
+<div class="cap">Desktop · a pessoa apresentada no seu lugar</div>
+<div class="cols" style="margin-top:6mm">
+<div>
+<p><b>Princípio da referência 1, sem cópia.</b> A parte de cima é o <i>lugar</i> da pessoa: uma capa escolhida por ela, de borda a borda, sem moldura. O bloco de identidade não flutua no centro: ele se ancora no canto inferior esquerdo, preso por cantoneiras, como uma foto colada no álbum.</p>
+<p><b>Hierarquia.</b> Avatar redondo que “sai” do bloco → nome em Fraunces 52 px → @ e cidade em mono → bio → trilha do perfil em linha de encarte → ação principal em sódio.</p>
+</div>
+<div>
+<p><b>Profundidade.</b> Ao rolar, a capa sobe a 60% da velocidade e escurece; o bloco vira uma barra fina com avatar e nome.</p>
+<p><b>Conteúdo.</b> Abas em texto com fio: Publicações, Rolês, Músicas (só as que existirem). Publicações sempre com cantoneiras.</p>
+<p><b>Sem capa.</b> Fundo papel 2 com a grade urbana e as iniciais em Fraunces gigante a 6%. Nunca um gradiente.</p>
+<p class="note">“Seguir”, contagens e trilha do perfil dependem do modelo de dados atual: a confirmar.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>13</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.3 Perfil no celular</div>
+<div style="display:flex;gap:8mm;align-items:flex-start;margin-top:2mm">
+ <div><div class="dev phone" style="width:224.50000000000003px;height:474.20000000000005px"><div class="scr " style="zoom:0.55;width:390px;height:844px"><div style="position:absolute;left:0;right:0;top:0;height:330px;background:url(img/p_dusk.jpg) center/cover"></div>
+<div style="position:absolute;left:16px;top:52px;color:#FFF8EE"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+<div class="cant " style="--o:6px;--sz:14px;position:absolute;left:14px;right:14px;top:264px;background:var(--papel);padding:52px 22px 20px">
+ <div class="av" style="width:80px;height:80px;background-image:url(img/av0.jpg);position:absolute;top:-40px;left:22px;box-shadow:0 0 0 4px var(--papel)"></div>
+ <div class="serif" style="font-size:34px;line-height:1.02;font-variation-settings:'SOFT' 50,'opsz' 144">Lia Moraes</div>
+ <div class="m" style="font-size:11px;color:#5E574D;margin-top:6px">@liamoraes · São Paulo</div>
+ <div style="font-size:15px;line-height:1.45;margin-top:10px">Organizo o churrasco que ninguém mais organiza.</div>
+ <div style="display:flex;gap:8px;margin-top:14px"><div class="btn" style="flex:1;justify-content:center">Seguir</div><div class="btn2">Mensagem</div></div>
+</div>
+<div style="position:absolute;left:14px;right:14px;top:530px;display:flex;gap:22px;font-size:14px;border-bottom:1px solid var(--linha)"><div style="font-weight:600;padding-bottom:8px;border-bottom:2px solid currentColor">Publicações</div><div style="color:#5E574D">Rolês</div><div style="color:#5E574D">Músicas</div></div>
+<div style="position:absolute;left:18px;right:18px;top:576px;display:grid;grid-template-columns:1fr 1fr;gap:16px"><div class="cant " style="--o:4px;--sz:8px;height:120px;background:url(img/p_party.jpg) center/cover"></div><div class="cant " style="--o:4px;--sz:8px;height:120px;background:url(img/p_beach.jpg) center/cover"></div><div class="cant " style="--o:4px;--sz:8px;height:120px;background:url(img/p_stage.jpg) center/cover"></div><div class="cant " style="--o:4px;--sz:8px;height:120px;background:url(img/p_park.jpg) center/cover"></div></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--papel);border-top:1px solid var(--linha);display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Início</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Mapa</span></div><div style="width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--sodio);color:#FFF8EE;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--papel)"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Música</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#1C1A17;opacity:1;position:relative"><div style='position:absolute;top:-8px;width:5px;height:5px;border-radius:50%;background:var(--sodio)'></div><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Perfil</span></div></div></div></div><div class="cap">Claro</div></div>
+ <div class="dark" style="background:transparent"><div class="dev phone" style="width:224.50000000000003px;height:474.20000000000005px"><div class="scr night" style="zoom:0.55;width:390px;height:844px"><div style="position:absolute;left:0;right:0;top:0;height:330px;background:url(img/p_night.jpg) center/cover"></div>
+<div style="position:absolute;left:16px;top:52px;color:#FFF8EE"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+<div class="cant d" style="--o:6px;--sz:14px;position:absolute;left:14px;right:14px;top:264px;background:var(--asf);padding:52px 22px 20px">
+ <div class="av" style="width:80px;height:80px;background-image:url(img/av4.jpg);position:absolute;top:-40px;left:22px;box-shadow:0 0 0 4px var(--asf)"></div>
+ <div class="serif" style="font-size:34px;line-height:1.02;font-variation-settings:'SOFT' 50,'opsz' 144">Teodoro<br>Albuquerque Lins</div>
+ <div class="m" style="font-size:11px;color:#A99F90;margin-top:6px">@teo · Recife</div>
+ <div style="font-size:15px;line-height:1.45;margin-top:10px">Vinil, bicicleta e qualquer rolê que acabe na praia.</div>
+ <div style="display:flex;gap:8px;margin-top:14px"><div class="btn" style="flex:1;justify-content:center">Seguir</div><div class="btn2">Mensagem</div></div>
+</div>
+<div style="position:absolute;left:14px;right:14px;top:560px;display:flex;gap:22px;font-size:14px;border-bottom:1px solid var(--linD)"><div style="font-weight:600;padding-bottom:8px;border-bottom:2px solid currentColor">Publicações</div><div style="color:#A99F90">Rolês</div><div style="color:#A99F90">Músicas</div></div>
+<div style="position:absolute;left:18px;right:18px;top:606px;display:grid;grid-template-columns:1fr 1fr;gap:16px"><div class="cant d" style="--o:4px;--sz:8px;height:120px;background:url(img/p_party.jpg) center/cover"></div><div class="cant d" style="--o:4px;--sz:8px;height:120px;background:url(img/p_beach.jpg) center/cover"></div><div class="cant d" style="--o:4px;--sz:8px;height:120px;background:url(img/p_stage.jpg) center/cover"></div><div class="cant d" style="--o:4px;--sz:8px;height:120px;background:url(img/p_park.jpg) center/cover"></div></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--asf);border-top:1px solid var(--linD);display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Início</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Mapa</span></div><div style="width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--sodioD);color:#14120F;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--asf)"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Música</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#EFE8DC;opacity:1;position:relative"><div style='position:absolute;top:-8px;width:5px;height:5px;border-radius:50%;background:var(--sodioD)'></div><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Perfil</span></div></div></div></div><div class="cap">Escuro · nome longo quebra em duas linhas</div></div>
+</div>
+<div class="cols" style="margin-top:6mm">
+<div>
+<h3>O que muda no celular</h3>
+<ul class="l">
+<li>Capa ocupa 40% da altura; o bloco sobrepõe a capa e ocupa a largura toda.</li>
+<li>Avatar de 80 px; nome em 34 px, com quebra em até duas linhas, sem reticências.</li>
+<li>Ações em linha: a principal se estica, a secundária fica compacta.</li>
+<li>Abas fixam sob a barra superior ao rolar; grade de duas colunas.</li>
+</ul></div>
+<div>
+<h3>O que muda no escuro</h3>
+<ul class="l">
+<li>O bloco passa a asfalto; as cantoneiras ficam em papel a 70%.</li>
+<li>O sódio “acende” para #FF7A3D; texto sobre ele vira asfalto.</li>
+<li>As fotos continuam em cor natural, nunca escurecidas pelo tema.</li>
+</ul></div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>14</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.4 Página principal</div>
+<h1 style="font-size:28pt">Hoje na Kina</h1>
+<div class="dev" style="width:642.0px;height:402.0px"><div class="scr " style="zoom:0.5;width:1280px;height:800px"><div style="position:absolute;left:0;top:0;bottom:0;width:76px;border-right:1px solid var(--linha);display:flex;flex-direction:column;align-items:center;padding-top:26px;gap:26px"><svg width="30" height="30" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#1C1A17"/><rect x="10" y="94" width="100" height="16" fill="#1C1A17"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><div style="height:10px"></div><div style="position:relative;color:#1C1A17;opacity:1"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><div style="position:absolute;left:50%;top:-9px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--sodio)"></div></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4z M10 21h4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#1C1A17;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="margin-top:auto;margin-bottom:26px;width:48px;height:48px;border-radius:50%;background:var(--sodio);display:flex;align-items:center;justify-content:center;color:#FFF8EE"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div></div>
+<div style="position:absolute;left:120px;top:28px;width:620px">
+ <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="serif" style="font-size:40px">Hoje na Kina</div><div class="m" style="font-size:11px;color:var(--tinta2)">QUA 14 OUT</div></div>
+ <div style="display:flex;gap:18px;margin-top:20px;padding-bottom:20px;border-bottom:1px solid var(--linha)">
+  <div style="text-align:center;font-size:12px"><div style="padding:3px;border-radius:50%;border:2px solid var(--linha)"><div class="av" style="width:58px;height:58px;background-image:url(img/av5.jpg);"></div></div><div style="margin-top:6px">Você</div></div><div style="text-align:center;font-size:12px"><div style="padding:3px;border-radius:50%;border:2px solid var(--sodio)"><div class="av" style="width:58px;height:58px;background-image:url(img/av1.jpg);"></div></div><div style="margin-top:6px">Caio</div></div><div style="text-align:center;font-size:12px"><div style="padding:3px;border-radius:50%;border:2px solid var(--sodio)"><div class="av" style="width:58px;height:58px;background-image:url(img/av2.jpg);"></div></div><div style="margin-top:6px">Bia</div></div><div style="text-align:center;font-size:12px"><div style="padding:3px;border-radius:50%;border:2px solid var(--sodio)"><div class="av" style="width:58px;height:58px;background-image:url(img/av3.jpg);"></div></div><div style="margin-top:6px">Duda</div></div><div style="text-align:center;font-size:12px"><div style="padding:3px;border-radius:50%;border:2px solid var(--linha)"><div class="av" style="width:58px;height:58px;background-image:url(img/av4.jpg);"></div></div><div style="margin-top:6px">Téo</div></div><div style="text-align:center;font-size:12px"><div style="padding:3px;border-radius:50%;border:2px solid var(--linha)"><div class="av" style="width:58px;height:58px;background-image:url(img/av0.jpg);"></div></div><div style="margin-top:6px">Lia</div></div>
+ </div>
+ <div style="margin-top:24px;display:grid;grid-template-columns:120px 1fr;gap:0 22px">
+  <div><div class="mono" style="font-size:64px;line-height:.9;font-weight:500">18</div><div class="m" style="font-size:12px;margin-top:6px">SÁB · OUT<br>18H</div><div class="m" style="font-size:11px;color:var(--sodioT);margin-top:10px">Em 4 dias</div></div>
+  <div><div style="height:220px;background:url(img/p_sunset.jpg) center/cover"></div>
+   <div class="serif" style="font-size:30px;margin-top:12px">Pôr do sol na laje</div>
+   <div style="display:flex;align-items:center;gap:10px;margin-top:8px;font-size:14px;color:var(--tinta2)"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;"><path d="M12 21s-6-6-6-11a6 6 0 0112 0c0 5-6 11-6 11z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="2" fill="currentColor"/></svg> Laje da Bia · Vila Madalena <span style="margin-left:auto;display:flex"><div class="av" style="width:28px;height:28px;background-image:url(img/av1.jpg);margin-left:-8px;box-shadow:0 0 0 2px var(--papel)"></div><div class="av" style="width:28px;height:28px;background-image:url(img/av2.jpg);margin-left:-8px;box-shadow:0 0 0 2px var(--papel)"></div><div class="av" style="width:28px;height:28px;background-image:url(img/av3.jpg);margin-left:-8px;box-shadow:0 0 0 2px var(--papel)"></div><div class="av" style="width:28px;height:28px;background-image:url(img/av4.jpg);margin-left:-8px;box-shadow:0 0 0 2px var(--papel)"></div></span><span class="mono" style="font-size:12px">+8</span></div>
+   <div style="display:flex;gap:10px;margin-top:14px"><div class="btn">Cola?</div><div class="btn2">Talvez</div></div>
+  </div>
+ </div>
+ <div style="margin-top:34px;display:flex;align-items:center;gap:10px"><div class="av" style="width:36px;height:36px;background-image:url(img/av2.jpg);"></div><div><div style="font-size:14px;font-weight:600">Bia Rocha</div><div class="m" style="font-size:11px;color:var(--tinta2)">HÁ 2 H · <span class="serif" style="text-transform:none;letter-spacing:0;font-style:italic;font-size:13px">em Aniversário da Duda</span></div></div></div>
+ <div class="cant " style="--o:8px;--sz:14px;height:260px;margin:16px 8px 0;background:url(img/p_party.jpg) center/cover"></div>
+</div>
+<div style="position:absolute;left:800px;right:40px;top:40px">
+ <div class="m" style="font-size:11px;color:var(--tinta2);padding-bottom:10px;border-bottom:1px solid var(--tinta)">Sua agenda</div>
+ <div style="display:grid;grid-template-columns:76px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--linha)"><div class="m" style="font-size:12px;line-height:1.4">SÁB 18<br>18H</div><div><div class="serif" style="font-size:19px;line-height:1.15">Pôr do sol na laje</div><div style="font-size:13px;color:var(--tinta2);margin-top:3px">Laje da Bia · 12 pessoas</div></div></div><div style="display:grid;grid-template-columns:76px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--linha)"><div class="m" style="font-size:12px;line-height:1.4">DOM 26<br>11H</div><div><div class="serif" style="font-size:19px;line-height:1.15">Feira e pastel</div><div style="font-size:13px;color:var(--tinta2);margin-top:3px">Praça Benedito Calixto · 5</div></div></div><div style="display:grid;grid-template-columns:76px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--linha)"><div class="m" style="font-size:12px;line-height:1.4">SEX 31<br>22H</div><div><div class="serif" style="font-size:19px;line-height:1.15">Show d’Os Postes</div><div style="font-size:13px;color:var(--tinta2);margin-top:3px">Casa Natura · 7</div></div></div><div style="display:grid;grid-template-columns:76px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--linha)"><div class="m" style="font-size:12px;line-height:1.4">SÁB 08<br>13H</div><div><div class="serif" style="font-size:19px;line-height:1.15">Churrasco da firma velha</div><div style="font-size:13px;color:var(--tinta2);margin-top:3px">Casa do Caio · 15</div></div></div>
+ <div style="margin-top:16px;font-size:14px;font-weight:600;color:var(--sodioT)">Marcar um rolê →</div>
+</div></div></div>
+<div class="cap">Desktop · o futuro sem moldura, a memória com moldura, a agenda à parte</div>
+<div class="cols" style="margin-top:6mm">
+<div>
+<p><b>Hierarquia em três tempos.</b> 1) o que vai acontecer, 2) quem está agora, 3) o que já aconteceu. Os tipos de conteúdo se diferenciam pela forma, não por etiquetas.</p>
+<ul class="l">
+<li><b>Convite de rolê (futuro):</b> capa larga sem moldura, data gigante em mono, “Cola?”.</li>
+<li><b>Stories (agora):</b> pontos de 58 px; não visto tem anel sódio.</li>
+<li><b>Publicação (passado):</b> imagem com cantoneiras e o rolê de origem em serifa itálica.</li>
+</ul></div>
+<div>
+<p><b>Estrutura.</b> Barra lateral de 76 px com o botão “Criar” (ponto sódio) na base; coluna central de 620 px; coluna “Sua agenda” em formato de ficha.</p>
+<p><b>Navegação.</b> Item ativo marcado por um ponto sódio acima do ícone, nunca só por cor.</p>
+<p class="note">Nomes, lugares e números são fictícios. “Talvez” e contagem de convidados dependem do modelo atual.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>15</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.4 Página principal no celular</div>
+<div style="display:flex;gap:8mm;margin-top:2mm">
+ <div><div class="dev phone" style="width:224.50000000000003px;height:474.20000000000005px"><div class="scr " style="zoom:0.55;width:390px;height:844px"><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#1C1A17"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 18px 0"><span style="display:inline-flex;align-items:center;gap:6.720000000000001px"><svg width="25.200000000000003" height="25.200000000000003" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#1C1A17"/><rect x="10" y="94" width="100" height="16" fill="#1C1A17"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><span class="wm " style="font-size:24px;color:#1C1A17"><span>k</span><span class="i">ı</span><span>na</span></span></span><div style="display:flex;gap:16px"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.5"/></svg><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4z M10 21h4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div></div>
+<div style="display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid var(--linha)"><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--linha)"><div class="av" style="width:52px;height:52px;background-image:url(img/av5.jpg);"></div></div><div style="margin-top:4px">Você</div></div><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--sodio)"><div class="av" style="width:52px;height:52px;background-image:url(img/av1.jpg);"></div></div><div style="margin-top:4px">Caio</div></div><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--sodio)"><div class="av" style="width:52px;height:52px;background-image:url(img/av2.jpg);"></div></div><div style="margin-top:4px">Bia</div></div><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--sodio)"><div class="av" style="width:52px;height:52px;background-image:url(img/av3.jpg);"></div></div><div style="margin-top:4px">Duda</div></div><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--linha)"><div class="av" style="width:52px;height:52px;background-image:url(img/av4.jpg);"></div></div><div style="margin-top:4px">Téo</div></div></div>
+<div class="m" style="font-size:11px;color:#5E574D;padding:14px 18px 8px">Próximos</div>
+<div style="display:flex;gap:10px;padding:0 18px;overflow:hidden"><div style="flex:none;width:150px;border-top:2px solid #1C1A17;padding-top:8px"><div class="m" style="font-size:11px">SÁB 18 · 18H</div><div class="serif" style="font-size:17px;line-height:1.15;margin-top:4px">Pôr do sol na laje</div></div><div style="flex:none;width:150px;border-top:2px solid #1C1A17;padding-top:8px"><div class="m" style="font-size:11px">DOM 26 · 11H</div><div class="serif" style="font-size:17px;line-height:1.15;margin-top:4px">Feira e pastel</div></div><div style="flex:none;width:150px;border-top:2px solid #1C1A17;padding-top:8px"><div class="m" style="font-size:11px">SEX 31 · 22H</div><div class="serif" style="font-size:17px;line-height:1.15;margin-top:4px">Show d’Os Postes</div></div></div>
+<div style="padding:22px 18px 0">
+ <div style="height:200px;background:url(img/p_stage.jpg) center/cover;position:relative"><div style="position:absolute;left:12px;top:12px;background:var(--papel);padding:6px 10px" class="m"><span style="font-size:12px;font-weight:600">SEX 31 · 22H</span></div></div>
+ <div class="serif" style="font-size:26px;margin-top:10px">Show d’Os Postes</div>
+ <div style="font-size:13px;color:#5E574D;margin-top:4px">Casa Natura · Pinheiros · 7 vão</div>
+ <div style="display:flex;gap:8px;margin-top:12px"><div class="btn" style="flex:1;justify-content:center">Cola?</div><div class="btn2">Talvez</div></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--papel);border-top:1px solid var(--linha);display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#1C1A17;opacity:1;position:relative"><div style='position:absolute;top:-8px;width:5px;height:5px;border-radius:50%;background:var(--sodio)'></div><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Início</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Mapa</span></div><div style="width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--sodio);color:#FFF8EE;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--papel)"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Música</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Perfil</span></div></div></div></div><div class="cap">Claro</div></div>
+ <div><div class="dev phone" style="width:224.50000000000003px;height:474.20000000000005px"><div class="scr night" style="zoom:0.55;width:390px;height:844px"><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#EFE8DC"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 18px 0"><span style="display:inline-flex;align-items:center;gap:6.720000000000001px"><svg width="25.200000000000003" height="25.200000000000003" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodioD)"/></svg><span class="wm dk" style="font-size:24px;color:#EFE8DC"><span>k</span><span class="i">ı</span><span>na</span></span></span><div style="display:flex;gap:16px"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.5"/></svg><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4z M10 21h4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div></div>
+<div style="display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid var(--linD)"><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--linD)"><div class="av" style="width:52px;height:52px;background-image:url(img/av5.jpg);"></div></div><div style="margin-top:4px">Você</div></div><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--sodioD)"><div class="av" style="width:52px;height:52px;background-image:url(img/av1.jpg);"></div></div><div style="margin-top:4px">Caio</div></div><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--sodioD)"><div class="av" style="width:52px;height:52px;background-image:url(img/av2.jpg);"></div></div><div style="margin-top:4px">Bia</div></div><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--sodioD)"><div class="av" style="width:52px;height:52px;background-image:url(img/av3.jpg);"></div></div><div style="margin-top:4px">Duda</div></div><div style="text-align:center;font-size:11px"><div style="padding:2px;border-radius:50%;border:2px solid var(--linD)"><div class="av" style="width:52px;height:52px;background-image:url(img/av4.jpg);"></div></div><div style="margin-top:4px">Téo</div></div></div>
+<div class="m" style="font-size:11px;color:#A99F90;padding:14px 18px 8px">Próximos</div>
+<div style="display:flex;gap:10px;padding:0 18px;overflow:hidden"><div style="flex:none;width:150px;border-top:2px solid #EFE8DC;padding-top:8px"><div class="m" style="font-size:11px">SÁB 18 · 18H</div><div class="serif" style="font-size:17px;line-height:1.15;margin-top:4px">Pôr do sol na laje</div></div><div style="flex:none;width:150px;border-top:2px solid #EFE8DC;padding-top:8px"><div class="m" style="font-size:11px">DOM 26 · 11H</div><div class="serif" style="font-size:17px;line-height:1.15;margin-top:4px">Feira e pastel</div></div><div style="flex:none;width:150px;border-top:2px solid #EFE8DC;padding-top:8px"><div class="m" style="font-size:11px">SEX 31 · 22H</div><div class="serif" style="font-size:17px;line-height:1.15;margin-top:4px">Show d’Os Postes</div></div></div>
+<div style="padding:22px 18px 0">
+ <div style="height:200px;background:url(img/p_stage.jpg) center/cover;position:relative"><div style="position:absolute;left:12px;top:12px;background:var(--asf);padding:6px 10px" class="m"><span style="font-size:12px;font-weight:600">SEX 31 · 22H</span></div></div>
+ <div class="serif" style="font-size:26px;margin-top:10px">Show d’Os Postes</div>
+ <div style="font-size:13px;color:#A99F90;margin-top:4px">Casa Natura · Pinheiros · 7 vão</div>
+ <div style="display:flex;gap:8px;margin-top:12px"><div class="btn" style="flex:1;justify-content:center">Cola?</div><div class="btn2">Talvez</div></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--asf);border-top:1px solid var(--linD);display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#EFE8DC;opacity:1;position:relative"><div style='position:absolute;top:-8px;width:5px;height:5px;border-radius:50%;background:var(--sodioD)'></div><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Início</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Mapa</span></div><div style="width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--sodioD);color:#14120F;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--asf)"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Música</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Perfil</span></div></div></div></div><div class="cap">Escuro</div></div>
+</div>
+<div class="cols" style="margin-top:6mm">
+<div>
+<h3>Decisões do celular</h3>
+<ul class="l">
+<li>Coluna única. A agenda vira a faixa “Próximos”, rolável na horizontal, logo abaixo dos stories.</li>
+<li>Navegação inferior com cinco itens e rótulos sempre visíveis; “Criar” é o ponto sódio central.</li>
+<li>Botões com 44 a 52 px de altura; ação principal ocupa a largura disponível.</li>
+</ul></div>
+<div>
+<h3>Estados a desenhar</h3>
+<ul class="l">
+<li><b>Vazio:</b> “Ninguém marcou nada ainda.” + “Marcar um rolê”.</li>
+<li><b>Carregando:</b> esqueleto de fios e pontos, não blocos cinza.</li>
+<li><b>Muitos rolês:</b> faixa “Próximos” mostra até 10 e um link “Ver agenda”.</li>
+</ul></div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>16</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.5 Criar um rolê</div>
+<h1 style="font-size:28pt">Compor a ficha,<br>não preencher um formulário</h1>
+<div style="display:flex;gap:8mm">
+ <div><div class="dev phone" style="width:224.50000000000003px;height:474.20000000000005px"><div class="scr " style="zoom:0.55;width:390px;height:844px"><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#1C1A17"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 18px 10px;font-size:15px"><span>Cancelar</span><span class="m" style="font-size:11px;color:var(--tinta2)">Rascunho salvo</span></div>
+<div style="margin:0 18px;height:190px;background:var(--papel2);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--tinta2)" class="cant"><svg width="30" height="30" viewBox="0 0 24 24" style="flex:none;"><rect x="3" y="7" width="18" height="13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7l2-3h4l2 3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><div style="font-size:14px">Escolher capa</div></div>
+<div style="padding:22px 18px 0">
+ <div class="serif" style="font-size:34px;line-height:1.05;border-bottom:2px solid var(--tinta);padding-bottom:6px">Pôr do sol na laje<span style="display:inline-block;width:2px;height:30px;background:var(--sodio);vertical-align:-4px;margin-left:2px"></span></div>
+ <div class="m" style="font-size:11px;color:var(--tinta2);margin-top:6px">Nome do rolê · 18/60</div>
+ <div style="margin-top:10px">
+  <div style="display:grid;grid-template-columns:18px 70px 1fr 14px;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid var(--linha)"><div style="width:12px;height:12px;border-radius:50%;background:var(--sodio)"></div><div class="m" style="font-size:11px;color:#5E574D">Quando</div><div style="font-size:15px;"><span class='mono'>SÁB 18 OUT · 18H</span></div><div style="color:#5E574D">›</div></div>
+  <div style="display:grid;grid-template-columns:18px 70px 1fr 14px;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid var(--linha)"><div style="width:12px;height:12px;border-radius:50%;background:var(--sodio)"></div><div class="m" style="font-size:11px;color:#5E574D">Onde</div><div style="font-size:15px;">Laje da Bia, Vila Madalena</div><div style="color:#5E574D">›</div></div>
+  <div style="display:grid;grid-template-columns:18px 70px 1fr 14px;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid var(--linha)"><div style="width:12px;height:12px;border-radius:50%;border:1.5px solid #8A8073"></div><div class="m" style="font-size:11px;color:#5E574D">Quem</div><div style="font-size:15px;color:#5E574D">Escolher amigos</div><div style="color:#5E574D">›</div></div>
+  <div style="display:grid;grid-template-columns:18px 70px 1fr 14px;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid var(--linha)"><div style="width:12px;height:12px;border-radius:50%;border:1.5px solid #8A8073"></div><div class="m" style="font-size:11px;color:#5E574D">Trilha</div><div style="font-size:15px;color:#5E574D">Vincular música</div><div style="color:#5E574D">›</div></div>
+ </div>
+ <div style="margin-top:14px;font-size:14px;color:var(--tinta2)">+ Descrição e informações extras</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 18px 30px;background:var(--papel);border-top:1px solid var(--linha)">
+ <div style="height:52px;display:flex;align-items:center;justify-content:center;background:var(--papel2);color:var(--tinta2);font-weight:600;font-size:16px;border-radius:2px">Publicar</div>
+ <div style="text-align:center;font-size:13px;color:var(--tinta2);margin-top:8px">Falta escolher quem vai</div>
+</div></div></div><div class="cap">A criação já tem a forma do rolê publicado</div></div>
+ <div><div class="dev phone" style="width:224.50000000000003px;height:474.20000000000005px"><div class="scr " style="zoom:0.55;width:390px;height:844px"><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#1C1A17"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div>
+<div style="position:absolute;inset:0;background:rgba(28,26,23,.45)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:560px;background:var(--elev);padding:14px 20px">
+ <div style="width:40px;height:4px;background:var(--linhaF);margin:0 auto 16px"></div>
+ <div class="serif" style="font-size:26px">Quem vai?</div>
+ <div style="height:44px;background:var(--papel2);border-bottom:1px solid var(--linhaF);margin:14px 0;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--tinta2);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.5"/></svg> Buscar amigos</div>
+ <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--linha)"><div class="av" style="width:44px;height:44px;background-image:url(img/av1.jpg);"></div><div style="flex:1"><div style="font-size:15px;font-weight:500">Caio Mendes</div><div class="m" style="font-size:10px;color:var(--tinta2)">@caiom</div></div><div style="width:24px;height:24px;border-radius:2px;background:var(--sodio);color:#FFF8EE;display:flex;align-items:center;justify-content:center;font-size:14px">✓</div></div><div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--linha)"><div class="av" style="width:44px;height:44px;background-image:url(img/av2.jpg);"></div><div style="flex:1"><div style="font-size:15px;font-weight:500">Bia Rocha</div><div class="m" style="font-size:10px;color:var(--tinta2)">@biarocha</div></div><div style="width:24px;height:24px;border-radius:2px;background:var(--sodio);color:#FFF8EE;display:flex;align-items:center;justify-content:center;font-size:14px">✓</div></div><div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--linha)"><div class="av" style="width:44px;height:44px;background-image:url(img/av3.jpg);"></div><div style="flex:1"><div style="font-size:15px;font-weight:500">Duda Lins</div><div class="m" style="font-size:10px;color:var(--tinta2)">@dudalins</div></div><div style="width:24px;height:24px;border-radius:2px;border:1.5px solid var(--linhaF);display:flex;align-items:center;justify-content:center;font-size:14px"></div></div><div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--linha)"><div class="av" style="width:44px;height:44px;background-image:url(img/av4.jpg);"></div><div style="flex:1"><div style="font-size:15px;font-weight:500">Téo Albuquerque</div><div class="m" style="font-size:10px;color:var(--tinta2)">@teo</div></div><div style="width:24px;height:24px;border-radius:2px;background:var(--sodio);color:#FFF8EE;display:flex;align-items:center;justify-content:center;font-size:14px">✓</div></div><div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--linha)"><div class="av" style="width:44px;height:44px;background-image:url(img/av0.jpg);"></div><div style="flex:1"><div style="font-size:15px;font-weight:500">Lia Moraes</div><div class="m" style="font-size:10px;color:var(--tinta2)">@liamoraes</div></div><div style="width:24px;height:24px;border-radius:2px;border:1.5px solid var(--linhaF);display:flex;align-items:center;justify-content:center;font-size:14px"></div></div>
+ <div class="btn" style="width:100%;justify-content:center;margin-top:16px;height:50px">Convidar 3 pessoas</div>
+</div></div></div><div class="cap">Cada linha abre uma folha inferior</div></div>
+</div>
+<div class="cols" style="margin-top:6mm">
+<div>
+<p><b>Ficha técnica.</b> Capa, nome em Fraunces e quatro linhas: Quando, Onde, Quem, Trilha. Cada linha preenchida acende um ponto sódio. É o progresso, sem barra de etapas.</p>
+<p><b>Descrição e extras</b> ficam recolhidos: aparecem quando a pessoa quer, não antes.</p>
+</div>
+<div>
+<p><b>Publicar</b> fica fixo embaixo. Desabilitado, diz o que falta em texto (“Falta escolher quem vai”), em vez de só ficar cinza.</p>
+<p><b>Desktop.</b> A mesma ficha em duas colunas: capa à esquerda, linhas à direita; seletores abrem em painel lateral.</p>
+<p class="note">Rascunho salvo depende de suporte no backend ou de armazenamento local: a confirmar.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>17</span></div>
+</section><section class="page dark">
+<div class="kicker">06 · Telas · 6.5 Ver um rolê</div>
+<h1 style="font-size:28pt">A ficha do rolê, à noite</h1>
+<div class="dev" style="width:642.0px;height:402.0px"><div class="scr night" style="zoom:0.5;width:1280px;height:800px"><div style="position:absolute;left:0;top:0;bottom:0;width:76px;border-right:1px solid var(--linD);display:flex;flex-direction:column;align-items:center;padding-top:26px;gap:26px"><svg width="30" height="30" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodioD)"/></svg><div style="height:10px"></div><div style="position:relative;color:#EFE8DC;opacity:1"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><div style="position:absolute;left:50%;top:-9px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--sodioD)"></div></div><div style="position:relative;color:#EFE8DC;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#EFE8DC;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#EFE8DC;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#EFE8DC;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4z M10 21h4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="position:relative;color:#EFE8DC;opacity:0.62"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div><div style="margin-top:auto;margin-bottom:26px;width:48px;height:48px;border-radius:50%;background:var(--sodioD);display:flex;align-items:center;justify-content:center;color:#14120F"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div></div>
+<div style="position:absolute;left:77px;right:0;top:0;height:400px;background:url(img/p_sunset.jpg) center/cover"></div>
+<div style="position:absolute;left:77px;right:0;top:250px;height:150px;background:linear-gradient(transparent,var(--asf))"></div>
+<div style="position:absolute;left:140px;top:330px;width:640px">
+ <div class="m" style="font-size:12px;color:var(--sodioD)">Vai rolar · em 4 dias</div>
+ <div class="serif" style="font-size:66px;line-height:1;letter-spacing:-.01em;margin-top:8px;font-variation-settings:'SOFT' 50,'opsz' 144">Pôr do sol na laje</div>
+ <div style="font-size:16px;color:var(--txD2);margin-top:14px;max-width:540px;line-height:1.5">Quem levar caixa de som ganha a primeira cerveja. Sobe pela escada dos fundos.</div>
+ <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:0 40px">
+  <div style="display:grid;grid-template-columns:70px 1fr;padding:14px 0;border-bottom:1px solid var(--linD)"><div class="m" style="font-size:11px;color:var(--txD2)">Quando</div><div style="font-size:15px"><span class='mono'>SÁB 18 OUT · 18H</span></div></div><div style="display:grid;grid-template-columns:70px 1fr;padding:14px 0;border-bottom:1px solid var(--linD)"><div class="m" style="font-size:11px;color:var(--txD2)">Onde</div><div style="font-size:15px">Laje da Bia, Vila Madalena</div></div><div style="display:grid;grid-template-columns:70px 1fr;padding:14px 0;border-bottom:1px solid var(--linD)"><div class="m" style="font-size:11px;color:var(--txD2)">Quem</div><div style="font-size:15px">12 confirmados</div></div><div style="display:grid;grid-template-columns:70px 1fr;padding:14px 0;border-bottom:1px solid var(--linD)"><div class="m" style="font-size:11px;color:var(--txD2)">Trilha</div><div style="font-size:15px">Laranja Elétrica · Os Postes</div></div>
+ </div>
+ <div style="display:flex;gap:10px;margin-top:22px;align-items:center"><div class="btn">Cola?</div><div class="btn2">Compartilhar</div><div style="display:flex;margin-left:16px"><div class="av" style="width:32px;height:32px;background-image:url(img/av1.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--asf)"></div><div class="av" style="width:32px;height:32px;background-image:url(img/av2.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--asf)"></div><div class="av" style="width:32px;height:32px;background-image:url(img/av3.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--asf)"></div><div class="av" style="width:32px;height:32px;background-image:url(img/av4.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--asf)"></div><div class="av" style="width:32px;height:32px;background-image:url(img/av0.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--asf)"></div></div><span class="mono" style="font-size:12px;color:var(--txD2);margin-left:6px">+7</span></div>
+</div>
+<div style="position:absolute;left:860px;right:50px;top:330px">
+ <div style="height:200px;position:relative;background:var(--asf2);overflow:hidden">
+  <svg width="100%" height="100%" viewBox="0 0 370 200" preserveAspectRatio="none"><g stroke="rgba(239,232,220,.18)" stroke-width="3" fill="none"><path d="M0 60 L370 90"/><path d="M0 150 L370 130"/><path d="M90 0 L120 200"/><path d="M250 0 L230 200"/></g><g stroke="rgba(239,232,220,.09)" stroke-width="1.5" fill="none"><path d="M0 105 L370 112"/><path d="M170 0 L175 200"/><path d="M310 0 L300 200"/><path d="M40 0 L55 200"/></g></svg>
+  <div style="position:absolute;left:160px;top:72px"><svg width="34" height="34" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="#FF7A3D"/></svg></div>
+ </div>
+ <div class="m" style="font-size:11px;color:var(--txD2);margin-top:8px">R. Fradique Coutinho · 900 m de você</div>
+ <div style="margin-top:28px;display:flex;align-items:center;gap:14px;padding-top:16px;border-top:1px solid var(--linD)">
+  <div class="cant d" style="--o:4px;--sz:8px;width:56px;height:56px;background:url(img/al0.jpg) center/cover"></div>
+  <div style="flex:1"><div class="m" style="font-size:10px;color:var(--txD2)">Trilha do rolê</div><div style="font-size:15px;font-weight:600;margin-top:2px">Laranja Elétrica</div><div style="font-size:13px;color:var(--txD2)">Os Postes</div></div>
+  <div style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--linDF);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" style="flex:none;"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></div>
+ </div>
+</div>
+<div style="position:absolute;left:77px;right:0;top:0;height:400px;background:radial-gradient(circle at 75% 85%,rgba(255,122,61,.10),transparent 50%)"></div></div></div>
+<div class="cap">Desktop · tema escuro · antes do rolê</div>
+<div class="cols" style="margin-top:6mm">
+<div>
+<p><b>Estrutura.</b> Capa de borda a borda, sem moldura, porque ainda é futuro. Nome em 66 px, descrição, ficha técnica em duas colunas, participantes como pontos sobrepostos.</p>
+<p><b>Lateral.</b> Mini mapa no estilo da Kina com o marcador canto + ponto; trilha do rolê como linha de encarte com botão de ouvir.</p>
+</div>
+<div>
+<p><b>Depois do rolê.</b> Na primeira visita após a data, cantoneiras deslizam dos cantos da tela até a capa e se fixam: o rolê virou memória. A página passa a destacar as publicações feitas nele, se essa relação existir no modelo de dados.</p>
+<p><b>Organizar.</b> “Meus rolês” em ficha, dividida em Próximos e Já rolou. Sem grade de cartões.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>18</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.6 Música · 6.7 Stories e publicações</div>
+<div style="display:flex;gap:5mm;margin-top:2mm">
+ <div><div class="dev phone" style="width:177.7px;height:372.92px"><div class="scr night" style="zoom:0.43;width:390px;height:844px"><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#EFE8DC"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div>
+<div style="padding:8px 18px 0;display:flex;justify-content:space-between;align-items:baseline"><div class="serif" style="font-size:34px">Música</div><div class="m" style="font-size:10px;color:var(--txD2)">● Spotify conectado</div></div>
+<div style="margin:18px 18px 0;display:flex;gap:16px;align-items:flex-end">
+ <div class="cant d" style="--o:5px;--sz:10px;width:130px;height:130px;background:url(img/al1.jpg) center/cover;flex:none"></div>
+ <div><div class="m" style="font-size:10px;color:var(--sodioD)">Trilha de</div><div class="serif" style="font-size:22px;line-height:1.1">Pôr do sol na laje</div><div class="m" style="font-size:10px;color:var(--txD2);margin-top:4px">4 faixas · 15 min</div></div>
+</div>
+<div style="margin:22px 18px 0;border-top:1px solid var(--txD)">
+ <div style="display:grid;grid-template-columns:22px 40px 1fr auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--linD)"><div class="mono" style="font-size:12px;color:var(--txD2)">01</div><div style="width:40px;height:40px;background:url(img/al0.jpg) center/cover"></div><div><div style="font-size:15px;font-weight:600;color:var(--sodioD)">Laranja Elétrica</div><div style="font-size:12px;color:var(--txD2)">Os Postes</div></div><div class="mono" style="font-size:12px;color:var(--txD2)">3:41</div></div><div style="display:grid;grid-template-columns:22px 40px 1fr auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--linD)"><div class="mono" style="font-size:12px;color:var(--txD2)">02</div><div style="width:40px;height:40px;background:url(img/al1.jpg) center/cover"></div><div><div style="font-size:15px;font-weight:500;">Rua Sem Saída</div><div style="font-size:12px;color:var(--txD2)">Duda Lins</div></div><div class="mono" style="font-size:12px;color:var(--txD2)">4:02</div></div><div style="display:grid;grid-template-columns:22px 40px 1fr auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--linD)"><div class="mono" style="font-size:12px;color:var(--txD2)">03</div><div style="width:40px;height:40px;background:url(img/al2.jpg) center/cover"></div><div><div style="font-size:15px;font-weight:500;">Telhado</div><div style="font-size:12px;color:var(--txD2)">Banda Calçada</div></div><div class="mono" style="font-size:12px;color:var(--txD2)">2:58</div></div><div style="display:grid;grid-template-columns:22px 40px 1fr auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--linD)"><div class="mono" style="font-size:12px;color:var(--txD2)">04</div><div style="width:40px;height:40px;background:url(img/al3.jpg) center/cover"></div><div><div style="font-size:15px;font-weight:500;">Volta pra Casa</div><div style="font-size:12px;color:var(--txD2)">Os Postes</div></div><div class="mono" style="font-size:12px;color:var(--txD2)">4:20</div></div>
+</div>
+<div style="margin:16px 18px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txD2)"><span style="width:16px;height:16px;border-radius:50%;background:#1DB954;display:inline-block"></span>Ouvir no Spotify</div>
+<div style="position:absolute;left:0;right:0;top:120px;height:300px;background:radial-gradient(circle at 25% 40%,rgba(255,122,61,.08),transparent 60%);pointer-events:none"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--asf);border-top:1px solid var(--linD);display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Início</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Mapa</span></div><div style="width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--sodioD);color:#14120F;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--asf)"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#EFE8DC;opacity:1;position:relative"><div style='position:absolute;top:-8px;width:5px;height:5px;border-radius:50%;background:var(--sodioD)'></div><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Música</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Perfil</span></div></div></div></div><div class="cap">Encarte · escuro</div></div>
+ <div><div class="dev phone" style="width:177.7px;height:372.92px"><div class="scr night" style="zoom:0.43;width:390px;height:844px"><div style="position:absolute;inset:0;background:url(img/p_beach.jpg) center/cover"></div>
+<div style="position:absolute;inset:0;background:linear-gradient(rgba(20,18,15,.45),transparent 22%,transparent 75%,rgba(20,18,15,.55))"></div>
+<div style="position:absolute;left:12px;right:12px;top:52px;display:flex;gap:4px"><div style="flex:1;height:2px;background:rgba(239,232,220,1)"></div><div style="flex:1;height:2px;background:rgba(239,232,220,0.9)"></div><div style="flex:1;height:2px;background:rgba(239,232,220,0.35)"></div></div>
+<div style="position:absolute;left:14px;top:66px;display:flex;align-items:center;gap:10px;color:#EFE8DC"><div class="av" style="width:34px;height:34px;background-image:url(img/av4.jpg);"></div><div style="font-size:14px;font-weight:600">Téo</div><div class="mono" style="font-size:11px;opacity:.8">2 H</div><div style="margin-left:150px">✕</div></div>
+<div style="position:absolute;left:14px;bottom:110px;color:#EFE8DC"><div class="m" style="font-size:10px;opacity:.85">Em</div><div class="serif" style="font-size:22px;font-style:italic">Domingo na praia</div></div>
+<div style="position:absolute;left:14px;right:14px;bottom:34px;display:flex;gap:10px;align-items:center"><div style="flex:1;height:44px;border:1px solid rgba(239,232,220,.7);border-radius:2px;color:#EFE8DC;display:flex;align-items:center;padding:0 14px;font-size:14px;opacity:.9">Responder ao Téo</div><div style="color:#EFE8DC"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 20s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 10c0 5.5-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div></div></div></div><div class="cap">Story · presente, sem moldura</div></div>
+ <div><div class="dev phone" style="width:177.7px;height:372.92px"><div class="scr " style="zoom:0.43;width:390px;height:844px"><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#1C1A17"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 18px"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><div class="serif" style="font-size:20px">Publicação</div></div>
+<div style="display:flex;align-items:center;gap:10px;padding:10px 18px"><div class="av" style="width:40px;height:40px;background-image:url(img/av2.jpg);"></div><div><div style="font-size:15px;font-weight:600">Bia Rocha</div><div class="m" style="font-size:10px;color:var(--tinta2)">12 OUT · <span class="serif" style="text-transform:none;letter-spacing:0;font-style:italic;font-size:13px;color:var(--sodioT)">em Aniversário da Duda</span></div></div></div>
+<div class="cant" style="--o:6px;--sz:14px;margin:10px 24px;height:420px;background:url(img/p_party.jpg) center/cover"></div>
+<div style="display:flex;gap:18px;padding:10px 18px;align-items:center"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M12 20s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 10c0 5.5-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="mono" style="font-size:12px;margin-left:-12px">24</span><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="mono" style="font-size:12px;margin-left:-12px">6</span></div>
+<div style="padding:0 18px;font-size:15px;line-height:1.45"><b>Bia Rocha</b> a Duda chorou no parabéns e ninguém vai deixar ela esquecer.</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--papel);border-top:1px solid var(--linha);display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#1C1A17;opacity:1;position:relative"><div style='position:absolute;top:-8px;width:5px;height:5px;border-radius:50%;background:var(--sodio)'></div><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Início</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Mapa</span></div><div style="width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--sodio);color:#FFF8EE;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--papel)"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Música</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Perfil</span></div></div></div></div><div class="cap">Publicação · memória, com moldura</div></div>
+</div>
+<div class="cols" style="margin-top:6mm">
+<div>
+<h3>Música como encarte</h3>
+<p style="font-size:8.8pt">Número da faixa em mono, capa pequena, título, artista e duração alinhada à direita: créditos de disco, não um player. Capas de álbum aparecem sem recorte, filtro ou duotone, com link e atribuição ao Spotify; as cantoneiras ficam fora da capa, sem tocá-la. <i>Conferir as diretrizes de marca do Spotify vigentes antes de implementar.</i></p>
+<p style="font-size:8.8pt"><b>Estados:</b> desconectado (o que se ganha + “Conectar Spotify” com logo oficial), conectando, conectado, token expirado (“Conectar de novo”). Não imitar o player verde.</p>
+</div>
+<div>
+<h3>Story × publicação</h3>
+<p style="font-size:8.8pt"><b>Story</b> é o agora: tela cheia, sem moldura, fundo asfalto nos dois temas, barras de progresso de 2 px. <b>Publicação</b> é memória: imagem com cantoneiras, autor como ponto, data em mono e o rolê de origem em serifa itálica, que leva até ele.</p>
+<p style="font-size:8.8pt">Curtida preenche o ícone; contagens em mono; sem animação de corações. Quais interações existem: a confirmar.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>19</span></div>
+</section><section class="page grain">
+<div class="kicker">06 · Telas · 6.8 Mapa</div>
+<h1 style="font-size:28pt">A cidade em papel</h1>
+<div style="display:flex;gap:8mm">
+ <div><div class="dev phone" style="width:205.0px;height:432.0px"><div class="scr " style="zoom:0.5;width:390px;height:844px"><svg width="390" height="844" viewBox="0 0 390 844" style="position:absolute;inset:0"><rect width="390" height="844" fill="#F3EEE4"/>
+<path d="M260 0 C300 200 240 330 330 480 L390 520 L390 0Z" fill="rgba(46,63,143,.13)"/><rect x="30" y="420" width="120" height="90" fill="rgba(45,106,69,.10)"/>
+<g stroke="rgba(28,26,23,.14)" stroke-width="2" fill="none"><path d="M0 60 L390 80"/><path d="M0 118 L390 138"/><path d="M0 176 L390 196"/><path d="M0 234 L390 254"/><path d="M0 292 L390 312"/><path d="M0 350 L390 370"/><path d="M0 408 L390 428"/><path d="M0 466 L390 486"/><path d="M0 524 L390 544"/><path d="M0 582 L390 602"/><path d="M0 640 L390 660"/><path d="M0 698 L390 718"/><path d="M0 756 L390 776"/><path d="M0 814 L390 834"/><path d="M40 0 L10 844"/><path d="M102 0 L72 844"/><path d="M164 0 L134 844"/><path d="M226 0 L196 844"/><path d="M288 0 L258 844"/><path d="M350 0 L320 844"/><path d="M412 0 L382 844"/></g>
+<g stroke="rgba(28,26,23,.30)" stroke-width="6" fill="none"><path d="M0 300 L390 360"/><path d="M180 0 L140 844"/><path d="M0 620 C150 600 250 650 390 610"/></g>
+<text x="20" y="290" font-family="Schibsted" font-size="11" fill="#5E574D" transform="rotate(8 20 290)">Av. Paulista</text>
+<text x="60" y="470" font-family="Schibsted" font-size="11" fill="#5E574D">Praça</text></svg><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#1C1A17"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div>
+<div style="position:absolute;left:14px;right:14px;top:50px;height:46px;background:var(--elev);border:1px solid #8A8073;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;color:#5E574D"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.5"/></svg> Buscar lugar ou rolê</div>
+<div style="position:absolute;left:14px;top:108px;display:flex;gap:8px;font-size:13px"><div style="padding:6px 12px;border:1px solid #8A8073;background:var(--elev);font-weight:600">Próximos</div><div style="padding:6px 12px;border:1px solid #8A8073;background:var(--elev);">Já rolou</div><div style="padding:6px 12px;border:1px solid #8A8073;background:var(--elev);">Hoje</div></div>
+<div style="position:absolute;left:150px;top:250px;width:44px;height:44px;background:#C8461A;display:flex;align-items:center;justify-content:center;border:1px solid rgba(28,26,23,.30)"><svg width="34" height="34" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#F3EEE4"/><rect x="10" y="94" width="100" height="16" fill="#F3EEE4"/><circle cx="47.2" cy="72.8" r="11" fill="#F3EEE4"/></svg></div><div style="position:absolute;left:60px;top:340px;width:36px;height:36px;background:#F3EEE4;display:flex;align-items:center;justify-content:center;border:1px solid rgba(28,26,23,.30)"><svg width="26" height="26" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#8A8073"/><rect x="10" y="94" width="100" height="16" fill="#8A8073"/><circle cx="47.2" cy="72.8" r="11" fill="#C8461A"/></svg></div>
+<div style="position:absolute;left:250px;top:200px;width:36px;height:36px;border-radius:50%;background:#1C1A17;color:#F3EEE4;display:flex;align-items:center;justify-content:center" class="mono"><span style="font-size:13px;font-weight:600">3</span></div>
+<div style="position:absolute;left:198px;top:420px;width:18px;height:18px;border-radius:50%;background:#2E3F8F;box-shadow:0 0 0 8px rgba(46,63,143,.15)"></div>
+<div style="position:absolute;right:14px;top:470px;display:flex;flex-direction:column;gap:6px"><div style="width:44px;height:44px;background:var(--elev);border:1px solid #8A8073;display:flex;align-items:center;justify-content:center;color:#1C1A17;font-size:20px">+</div><div style="width:44px;height:44px;background:var(--elev);border:1px solid #8A8073;display:flex;align-items:center;justify-content:center;color:#1C1A17;font-size:20px">−</div><div style="width:44px;height:44px;background:var(--elev);border:1px solid #8A8073;display:flex;align-items:center;justify-content:center;color:#1C1A17;font-size:20px"><svg width="20" height="20" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v4 M12 18v4 M2 12h4 M18 12h4" stroke="currentColor" stroke-width="1.5"/></svg></div></div>
+<div style="position:absolute;left:0;right:0;bottom:84px;background:var(--elev);padding:12px 18px 16px;border-top:1px solid #8A8073">
+ <div style="width:36px;height:4px;background:#8A8073;margin:0 auto 12px"></div>
+ <div style="display:flex;gap:14px"><div style="width:76px;height:76px;background:url(img/p_sunset.jpg) center/cover;flex:none"></div>
+ <div><div class="m" style="font-size:11px;color:#C8461A">SÁB 18 · 18H</div><div class="serif" style="font-size:21px;line-height:1.1;margin-top:3px;color:#1C1A17">Pôr do sol na laje</div><div style="font-size:13px;color:#5E574D;margin-top:4px">Laje da Bia · 900 m</div></div></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--papel);border-top:1px solid var(--linha);display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Início</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#1C1A17;opacity:1;position:relative"><div style='position:absolute;top:-8px;width:5px;height:5px;border-radius:50%;background:var(--sodio)'></div><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Mapa</span></div><div style="width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--sodio);color:#FFF8EE;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--papel)"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Música</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#1C1A17;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Perfil</span></div></div></div></div><div class="cap">Claro</div></div>
+ <div><div class="dev phone" style="width:205.0px;height:432.0px"><div class="scr night" style="zoom:0.5;width:390px;height:844px"><svg width="390" height="844" viewBox="0 0 390 844" style="position:absolute;inset:0"><rect width="390" height="844" fill="#14120F"/>
+<path d="M260 0 C300 200 240 330 330 480 L390 520 L390 0Z" fill="rgba(157,174,242,.14)"/><rect x="30" y="420" width="120" height="90" fill="rgba(108,192,139,.10)"/>
+<g stroke="rgba(239,232,220,.10)" stroke-width="2" fill="none"><path d="M0 60 L390 80"/><path d="M0 118 L390 138"/><path d="M0 176 L390 196"/><path d="M0 234 L390 254"/><path d="M0 292 L390 312"/><path d="M0 350 L390 370"/><path d="M0 408 L390 428"/><path d="M0 466 L390 486"/><path d="M0 524 L390 544"/><path d="M0 582 L390 602"/><path d="M0 640 L390 660"/><path d="M0 698 L390 718"/><path d="M0 756 L390 776"/><path d="M0 814 L390 834"/><path d="M40 0 L10 844"/><path d="M102 0 L72 844"/><path d="M164 0 L134 844"/><path d="M226 0 L196 844"/><path d="M288 0 L258 844"/><path d="M350 0 L320 844"/><path d="M412 0 L382 844"/></g>
+<g stroke="rgba(239,232,220,.22)" stroke-width="6" fill="none"><path d="M0 300 L390 360"/><path d="M180 0 L140 844"/><path d="M0 620 C150 600 250 650 390 610"/></g>
+<text x="20" y="290" font-family="Schibsted" font-size="11" fill="#A99F90" transform="rotate(8 20 290)">Av. Paulista</text>
+<text x="60" y="470" font-family="Schibsted" font-size="11" fill="#A99F90">Praça</text></svg><div style="height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:600;font-size:14px;color:#EFE8DC"><span>9:41</span><span class="mono" style="font-size:11px">●●● ▮</span></div>
+<div style="position:absolute;left:14px;right:14px;top:50px;height:46px;background:var(--asfE);border:1px solid #7A7063;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;color:#A99F90"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="1.5"/></svg> Buscar lugar ou rolê</div>
+<div style="position:absolute;left:14px;top:108px;display:flex;gap:8px;font-size:13px"><div style="padding:6px 12px;border:1px solid #7A7063;background:var(--asfE);font-weight:600">Próximos</div><div style="padding:6px 12px;border:1px solid #7A7063;background:var(--asfE);">Já rolou</div><div style="padding:6px 12px;border:1px solid #7A7063;background:var(--asfE);">Hoje</div></div>
+<div style="position:absolute;left:150px;top:250px;width:44px;height:44px;background:#FF7A3D;display:flex;align-items:center;justify-content:center;border:1px solid rgba(239,232,220,.22)"><svg width="34" height="34" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#14120F"/><rect x="10" y="94" width="100" height="16" fill="#14120F"/><circle cx="47.2" cy="72.8" r="11" fill="#14120F"/></svg></div><div style="position:absolute;left:60px;top:340px;width:36px;height:36px;background:#14120F;display:flex;align-items:center;justify-content:center;border:1px solid rgba(239,232,220,.22)"><svg width="26" height="26" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#7A7063"/><rect x="10" y="94" width="100" height="16" fill="#7A7063"/><circle cx="47.2" cy="72.8" r="11" fill="#FF7A3D"/></svg></div>
+<div style="position:absolute;left:250px;top:200px;width:36px;height:36px;border-radius:50%;background:#EFE8DC;color:#14120F;display:flex;align-items:center;justify-content:center" class="mono"><span style="font-size:13px;font-weight:600">3</span></div>
+<div style="position:absolute;left:198px;top:420px;width:18px;height:18px;border-radius:50%;background:#9DAEF2;box-shadow:0 0 0 8px rgba(157,174,242,.2)"></div>
+<div style="position:absolute;right:14px;top:470px;display:flex;flex-direction:column;gap:6px"><div style="width:44px;height:44px;background:var(--asfE);border:1px solid #7A7063;display:flex;align-items:center;justify-content:center;color:#EFE8DC;font-size:20px">+</div><div style="width:44px;height:44px;background:var(--asfE);border:1px solid #7A7063;display:flex;align-items:center;justify-content:center;color:#EFE8DC;font-size:20px">−</div><div style="width:44px;height:44px;background:var(--asfE);border:1px solid #7A7063;display:flex;align-items:center;justify-content:center;color:#EFE8DC;font-size:20px"><svg width="20" height="20" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v4 M12 18v4 M2 12h4 M18 12h4" stroke="currentColor" stroke-width="1.5"/></svg></div></div>
+<div style="position:absolute;left:0;right:0;bottom:84px;background:var(--asfE);padding:12px 18px 16px;border-top:1px solid #7A7063">
+ <div style="width:36px;height:4px;background:#7A7063;margin:0 auto 12px"></div>
+ <div style="display:flex;gap:14px"><div style="width:76px;height:76px;background:url(img/p_sunset.jpg) center/cover;flex:none"></div>
+ <div><div class="m" style="font-size:11px;color:#FF7A3D">SÁB 18 · 18H</div><div class="serif" style="font-size:21px;line-height:1.1;margin-top:3px;color:#EFE8DC">Pôr do sol na laje</div><div style="font-size:13px;color:#A99F90;margin-top:4px">Laje da Bia · 900 m</div></div></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--asf);border-top:1px solid var(--linD);display:flex;justify-content:space-around;align-items:flex-start;padding-top:12px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Início</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#EFE8DC;opacity:1;position:relative"><div style='position:absolute;top:-8px;width:5px;height:5px;border-radius:50%;background:var(--sodioD)'></div><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Mapa</span></div><div style="width:56px;height:56px;margin-top:-26px;border-radius:50%;background:var(--sodioD);color:#14120F;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--asf)"><svg width="26" height="26" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Música</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#EFE8DC;opacity:0.65;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Perfil</span></div></div></div></div><div class="cap">Escuro</div></div>
+</div>
+<div class="cols" style="margin-top:5mm">
+<div>
+<p><b>Estilo.</b> Base papel, ruas em tinta a 30%, ruas principais a 50%, água em anil a 13%, parques em verde a 10%, rótulos em Schibsted. No escuro: asfalto e ruas em papel a 20%.</p>
+<p><b>Marcadores.</b> Rolê futuro = símbolo da Kina com ponto sódio; rolê passado = mesmo símbolo em linha forte; agrupamento = ponto com número em mono; “você” = ponto anil com halo. Área de toque mínima de 44 px.</p>
+</div>
+<div>
+<p><b>Ao tocar.</b> Folha inferior (celular) ou painel lateral (desktop) com a ficha resumida.</p>
+<p><b>Controles.</b> Zoom e localização em botões retangulares de 44 px, com rótulos acessíveis.</p>
+<p class="note">Viabilidade depende da biblioteca: Mapbox e MapLibre aceitam estilo completo; Google aceita estilo via Cloud; Leaflet com tiles prontos limita a personalização. A confirmar na Fase 0.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Telas</span><span>20</span></div>
+</section><section class="page grain">
+<div class="kicker">07 · Interações e movimento</div>
+<h1>Um verbo só: chegar.</h1>
+<p class="lead" style="font-size:11.5pt;margin-bottom:4mm">Coisas se aproximam do destino e se acomodam, como alguém que chega na quina e para. Nada quica, nada gira sem motivo. Movimento reduzido é uma versão completa, não quebrada.</p>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4mm">
+ <div><div style="height:24mm;background:var(--papel2);position:relative;overflow:hidden" class="gridbg"><div style="position:absolute;left:0;right:0;top:50%;height:1.5px;background:rgba(28,26,23,.5)"></div><div style="position:absolute;top:0;bottom:0;left:50%;width:1.5px;background:rgba(28,26,23,.5)"></div><div style="position:absolute;left:calc(50% + 2px);top:calc(50% + 0px);width:56px;height:18px;background:var(--sodio);margin-top:-18px"></div></div><div class="cap">1 · Repouso</div></div>
+ <div><div style="height:24mm;background:var(--papel2);position:relative;overflow:hidden" class="gridbg"><div style="position:absolute;left:0;right:0;top:50%;height:1.5px;background:rgba(28,26,23,.5)"></div><div style="position:absolute;top:0;bottom:0;left:50%;width:1.5px;background:rgba(28,26,23,.5)"></div><div style="position:absolute;left:calc(50% + 10px);top:calc(50% + -6px);width:56px;height:18px;background:var(--sodio);margin-top:-18px"></div><div style="position:absolute;left:calc(50% + 86px);top:calc(50% - 40px);font-size:16px">↖</div></div><div class="cap">2 · Cursor perto: desliza 8 px</div></div>
+ <div><div style="height:24mm;background:var(--papel2);position:relative;overflow:hidden" class="gridbg"><div style="position:absolute;left:0;right:0;top:50%;height:1.5px;background:rgba(28,26,23,.5)"></div><div style="position:absolute;top:0;bottom:0;left:50%;width:1.5px;background:rgba(28,26,23,.5)"></div><div style="position:absolute;left:50%;top:calc(50% - 30px);width:80px;height:70px;background:var(--elev);border:1px solid var(--linhaF)"></div></div><div class="cap">3 · Clique: cresce do vértice</div></div>
+ <div><div style="height:24mm;background:var(--papel2);position:relative;overflow:hidden" class="gridbg"><div style="position:absolute;left:0;right:0;top:50%;height:1.5px;background:rgba(28,26,23,.5)"></div><div style="position:absolute;top:0;bottom:0;left:50%;width:1.5px;background:rgba(28,26,23,.5)"></div><div class="cant" style="--o:4px;--sz:9px;position:absolute;left:50%;top:calc(50% - 40px);width:110px;height:92px;background:var(--elev)"><div style="margin:14px 10px;height:12px;border-bottom:2px solid var(--anil)"></div></div></div><div class="cap">4 · Painel aberto, foco no campo</div></div>
+</div>
+<table class="t tight" style="margin-top:4mm">
+<tr><th>#</th><th>Interação</th><th>Gatilho</th><th>Comportamento</th><th>Duração</th><th>Objetivo</th></tr>
+<tr><td class="mono">1</td><td><b>Entrar magnético</b></td><td>Cursor a &lt; 160 px</td><td>Botão desliza até 8 px; fios se curvam; volta com mola</td><td class="mono">mola</td><td>A quina chama quem chega</td></tr>
+<tr><td class="mono">1b</td><td><b>Abrir painel</b></td><td>Clique, Enter, Espaço</td><td>Cresce do vértice; cantos enquadram; foco no 1º campo</td><td class="mono">520 ms</td><td>O gesto vira a tela</td></tr>
+<tr><td class="mono">2</td><td><b>Cantos de hover</b></td><td>Hover ou foco em imagem</td><td>As quatro cantoneiras avançam 4 px</td><td class="mono">160 ms</td><td>Clicável sem sombra</td></tr>
+<tr><td class="mono">3</td><td><b>Pressionar</b></td><td>Pointer down</td><td>Escala 0,98 e 14% mais escuro</td><td class="mono">100 ms</td><td>Resposta física</td></tr>
+<tr><td class="mono">4</td><td><b>Capa → rolê</b></td><td>Abrir rolê</td><td>A capa viaja e cresce (View Transitions, com fallback em fade)</td><td class="mono">360 ms</td><td>Continuidade</td></tr>
+<tr><td class="mono">5</td><td><b>Rolê vira memória</b></td><td>1ª visita após a data</td><td>Cantoneiras deslizam até a capa e se fixam</td><td class="mono">520 ms · 1×</td><td>Marcar “rolou”</td></tr>
+<tr><td class="mono">6</td><td><b>Cola?</b></td><td>Confirmar presença</td><td>Seu ponto voa do botão para a fila de participantes</td><td class="mono">360 ms</td><td>Você chegou</td></tr>
+<tr><td class="mono">7</td><td><b>Perfil</b></td><td>Rolagem</td><td>Capa a 60% da velocidade, escurece; bloco vira barra</td><td class="mono">rolagem</td><td>Profundidade</td></tr>
+<tr><td class="mono">8</td><td><b>Ficha do rolê</b></td><td>Linha preenchida</td><td>Marcador vira ponto sódio</td><td class="mono">160 ms</td><td>Progresso sem etapas</td></tr>
+<tr><td class="mono">9</td><td><b>Carregando</b></td><td>Espera &gt; 300 ms</td><td>Um ponto percorre o L do símbolo</td><td class="mono">1,2 s ciclo</td><td>Espera da marca</td></tr>
+<tr><td class="mono">10</td><td><b>Menus e modais</b></td><td>Abrir / fechar</td><td>Entrada com 8 px + opacidade; saída só opacidade</td><td class="mono">240 / 160 ms</td><td>Clareza</td></tr>
+</table>
+<div class="cols">
+<div><h3>Tokens</h3><p style="font-size:8.6pt" class="mono">instant 100 · quick 160 · base 240 · move 360 · scene 520 ms<br>arrive cubic-bezier(0.2, 0, 0, 1)<br>leave cubic-bezier(0.4, 0, 1, 1)<br>magnet mola 300 / 30</p></div>
+<div><h3>Acessibilidade e desempenho</h3><p style="font-size:8.6pt">Com <span class="mono">prefers-reduced-motion</span>: sem magnetismo, parallax ou faixas em movimento; transições viram fade de 160 ms. Só transform e opacity; pausa em aba oculta; meta de 60 fps em Android intermediário. Toque: sem hover, o botão afunda e abre.</p></div>
+</div>
+<div class="folio"><span>Kina · Plano de design</span><span>Movimento</span><span>21</span></div>
+</section><section class="page grain">
+<div class="kicker">08 · Design system · Componentes</div>
+<h1 style="font-size:28pt">Canto, ponto, fio e ficha</h1>
+<h3>Botão primário · estados</h3>
+<div style="display:flex;gap:6mm;flex-wrap:wrap">
+ <div style="display:flex;flex-direction:column;gap:2mm;align-items:flex-start"><div class="btn" style="font-size:13px;height:38px;">Cola?</div><div class="cap" style="margin:0">Padrão</div></div>
+ <div style="display:flex;flex-direction:column;gap:2mm;align-items:flex-start"><div class="btn" style="font-size:13px;height:38px;background:#B83F17">Cola?</div><div class="cap" style="margin:0">Hover −8%</div></div>
+ <div style="display:flex;flex-direction:column;gap:2mm;align-items:flex-start"><div class="btn" style="font-size:13px;height:38px;outline:2px solid var(--anil);outline-offset:2px">Cola?</div><div class="cap" style="margin:0">Foco teclado</div></div>
+ <div style="display:flex;flex-direction:column;gap:2mm;align-items:flex-start"><div class="btn" style="font-size:13px;height:38px;background:#AC3B15;transform:scale(.98)">Cola?</div><div class="cap" style="margin:0">Pressionado</div></div>
+ <div style="display:flex;flex-direction:column;gap:2mm;align-items:flex-start"><div class="btn" style="font-size:13px;height:38px;">Cola? <span style="display:inline-flex;gap:3px"><i style="width:5px;height:5px;border-radius:50%;background:#FFF8EE"></i><i style="width:5px;height:5px;border-radius:50%;background:#FFF8EE;opacity:.5"></i></span></div><div class="cap" style="margin:0">Carregando</div></div>
+ <div style="display:flex;flex-direction:column;gap:2mm;align-items:flex-start"><div style="height:38px;display:inline-flex;align-items:center;padding:0 20px;background:var(--papel2);color:var(--tinta3);font-weight:600;font-size:13px">Publicar</div><div style="font-size:7.5pt;color:var(--tinta2)">Falta escolher quando</div><div class="cap" style="margin:0">Desabilitado + motivo</div></div>
+</div>
+<div class="cols" style="margin-top:5mm">
+<div>
+<h3>Outros botões</h3>
+<div style="display:flex;gap:4mm;align-items:center"><div class="btn2" style="font-size:13px;height:36px">Secundário</div><span style="font-size:10pt;border-bottom:1px solid var(--tinta)">Texto</span><div style="width:12mm;height:12mm;border-radius:50%;background:var(--sodio);display:flex;align-items:center;justify-content:center;color:#FFF8EE"><svg width="24" height="24" viewBox="0 0 24 24" style="flex:none;"><path d="M12 5v14 M5 12h14" stroke="currentColor" stroke-width="2"/></svg></div></div>
+<h3>Campo de texto</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+ <div><div style="font-size:8pt;font-weight:600;margin-bottom:1mm">Nome do rolê</div><div style="height:9mm;background:var(--papel2);border-bottom:1px solid var(--linhaF);padding:0 2.5mm;display:flex;align-items:center;color:var(--tinta3)">Ex.: Pôr do sol na laje</div><div class="cap" style="margin-top:1mm">Padrão</div></div>
+ <div><div style="font-size:8pt;font-weight:600;margin-bottom:1mm">Nome do rolê</div><div style="height:9mm;background:var(--papel2);border-bottom:2px solid var(--tinta);padding:0 2.5mm;display:flex;align-items:center">Pôr do sol|</div><div class="cap" style="margin-top:1mm">Foco</div></div>
+ <div><div style="font-size:8pt;font-weight:600;margin-bottom:1mm">E-mail</div><div style="height:9mm;background:var(--papel2);border-bottom:2px solid #A8231C;padding:0 2.5mm;display:flex;align-items:center">lia@</div><div style="font-size:7.5pt;color:#A8231C;margin-top:1mm">! Falta o domínio do e-mail</div></div>
+ <div><div style="font-size:8pt;font-weight:600;margin-bottom:1mm">Senha</div><div style="height:9mm;background:var(--papel2);border-bottom:2px solid #2D6A45;padding:0 2.5mm;display:flex;align-items:center">••••••••</div><div style="font-size:7.5pt;color:#2D6A45;margin-top:1mm">✓ Senha forte</div></div>
+</div>
+<h3>Etiquetas</h3>
+<div style="display:flex;gap:5mm" class="m"><span style="font-size:7pt;display:flex;align-items:center;gap:1.5mm"><i style="width:2mm;height:2mm;border-radius:50%;background:var(--sodio)"></i>Vai rolar</span><span style="font-size:7pt;display:flex;align-items:center;gap:1.5mm"><i style="width:2mm;height:2mm;border-radius:50%;background:var(--tinta)"></i>Já rolou</span><span style="font-size:7pt;display:flex;align-items:center;gap:1.5mm"><i style="width:2mm;height:2mm;border-radius:50%;background:#2D6A45"></i>Confirmado</span></div>
+</div>
+<div>
+<h3>Avatares</h3>
+<div style="display:flex;gap:3mm;align-items:center"><div class="av" style="width:72px;height:72px;background-image:url(img/av0.jpg);"></div><div class="av" style="width:48px;height:48px;background-image:url(img/av1.jpg);"></div><div class="av" style="width:32px;height:32px;background-image:url(img/av2.jpg);"></div><div class="av" style="width:24px;height:24px;background-image:url(img/av3.jpg);"></div><div class="av serif" style="width:48px;height:48px;background:var(--papel2);display:flex;align-items:center;justify-content:center;font-size:20px">DL</div><div style="display:flex"><div class="av" style="width:30px;height:30px;background-image:url(img/av1.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--papel)"></div><div class="av" style="width:30px;height:30px;background-image:url(img/av2.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--papel)"></div><div class="av" style="width:30px;height:30px;background-image:url(img/av3.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--papel)"></div><div class="av" style="width:30px;height:30px;background-image:url(img/av4.jpg);margin-left:-9px;box-shadow:0 0 0 2px var(--papel)"></div></div></div>
+<h3>Linha de encarte</h3>
+<div style="display:grid;grid-template-columns:6mm 10mm 1fr auto;gap:3mm;align-items:center;border-top:1px solid var(--tinta);border-bottom:1px solid var(--linha);padding:2mm 0"><span class="mono" style="color:var(--tinta2)">01</span><div style="width:10mm;height:10mm;background:url(img/al0.jpg) center/cover"></div><div><b>Laranja Elétrica</b><div style="font-size:8pt;color:var(--tinta2)">Os Postes</div></div><span class="mono" style="color:var(--tinta2)">3:41</span></div>
+<h3>Toast e vazio</h3>
+<div style="background:var(--tinta);color:var(--papel);padding:2.5mm 3.5mm;display:flex;justify-content:space-between;font-size:8.6pt"><span>✓ Você vai no Pôr do sol na laje</span><u>Desfazer</u></div>
+<div style="margin-top:4mm;padding:5mm;background:var(--papel2);text-align:center"><div class="serif" style="font-size:13pt">Ninguém marcou nada ainda.</div><div style="font-size:8.6pt;color:var(--sodioT);font-weight:600;margin-top:1mm">Marcar um rolê</div></div>
+<h3>Carregando</h3>
+<div style="display:flex;gap:6mm;align-items:center"><svg width="28" height="28" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="var(--tinta)"/><rect x="10" y="94" width="100" height="16" fill="var(--tinta)"/><circle cx="47.2" cy="72.8" r="11" fill="var(--sodio)"/></svg><div style="flex:1"><div style="display:flex;gap:2mm;align-items:center"><div style="width:9mm;height:9mm;border-radius:50%;background:var(--linha)"></div><div style="flex:1;height:1px;background:var(--linha)"></div></div><div style="height:1px;background:var(--linha);margin-top:3mm"></div><div style="height:1px;width:60%;background:var(--linha);margin-top:3mm"></div></div></div>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Design system</span><span>22</span></div>
+</section><section class="page grain">
+<div class="kicker">08 · Design system · Fundamentos, estados e temas</div>
+<div class="cols">
+<div>
+<h2 style="margin-top:0">Fundamentos</h2>
+<table class="t">
+<tr><th>Item</th><th>Definição</th></tr>
+<tr><td>Espaçamento</td><td class="mono">4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128</td></tr>
+<tr><td>Grade</td><td>12 col. / 1200 px / calha 24 (desktop) · 8 col. / calha 20 (tablet) · 4 col. / margem 16 (celular)</td></tr>
+<tr><td>Raios</td><td>0 imagens e superfícies · 2 controles · 9999 pessoas</td></tr>
+<tr><td>Linhas</td><td>1 px fios · 1,5 px cantoneiras e ícones · 2 px foco e erro</td></tr>
+<tr><td>Elevação</td><td>Só overlays. Claro: sombra 0 8 24 tinta 12%. Escuro: superfície mais clara + fio</td></tr>
+<tr><td>Ícones</td><td>24 px, traço 1,5, cantos retos; 16 · 20 · 24</td></tr>
+<tr><td>Imagens</td><td>Capa 3:2 (desktop) / 4:5 (celular) · publicação 4:5 · story 9:16 · avatar 1:1</td></tr>
+<tr><td>Tipografia</td><td class="mono" style="font-size:7.4pt">display-xl 96 · display-l 61 · display-m 39 · title 25 · body 16 · body-s 14 · label 14/600 · meta 12</td></tr>
+</table>
+<h2>Temas</h2>
+<p>Três camadas: primitivos (<span class="mono">sodio-500</span>, <span class="mono">papel-100</span>…), semânticos (<span class="mono">bg</span>, <span class="mono">text</span>, <span class="mono">brand</span>…) e de componente (<span class="mono">button-primary-bg</span>…). Componentes só usam semânticos; trocar de tema troca apenas essa camada.</p>
+<p>Implementação em CSS custom properties no elemento raiz: <span class="mono">[data-theme=light]</span>, <span class="mono">[data-theme=dark]</span> e <span class="mono">prefers-color-scheme</span> como padrão. Com Tailwind, os semânticos viram cores do tema apontando para as variáveis.</p>
+<p>Uma página “vitrine” interna mostra cada componente nos dois temas e em todos os estados. É o critério de aceite.</p>
+</div>
+<div>
+<h2 style="margin-top:0">Estados</h2>
+<table class="t">
+<tr><th>Estado</th><th>Regra</th></tr>
+<tr><td>Hover</td><td>Cantos fecham (imagens); −8% (botões); sublinhado engrossa (texto)</td></tr>
+<tr><td>Foco</td><td>Anel anil 2 px + 2 px de afastamento, sempre com :focus-visible; anel duplo sobre fotos</td></tr>
+<tr><td>Pressionado</td><td>Escala 0,98 e −14%</td></tr>
+<tr><td>Selecionado</td><td>Ponto sódio + peso 600; nunca só cor</td></tr>
+<tr><td>Desabilitado</td><td>Papel 2 + texto sutil + motivo em texto</td></tr>
+<tr><td>Carregando</td><td>Rótulo mantido; pontos à direita; largura fixa</td></tr>
+<tr><td>Erro</td><td>Borda 2 px + ícone + mensagem via aria-describedby</td></tr>
+<tr><td>Sucesso</td><td>Ícone + texto; toast quando a ação sai da tela</td></tr>
+</table>
+<h2>Complementares</h2>
+<ul class="l">
+<li><b>Navegação:</b> barra lateral de 76 px, expansível a 240; no celular, barra inferior de 5 itens com rótulos.</li>
+<li><b>Busca:</b> resultados agrupados: pessoas como pontos, rolês como fichas, lugares com canto.</li>
+<li><b>Modais:</b> superfície elevada com cantoneiras no desktop; folha inferior no celular.</li>
+<li><b>Erros de página:</b> “Essa rua não existe.” com volta ao início.</li>
+</ul>
+<h2>Responsividade</h2>
+<p style="font-size:8.6pt">Não é o desktop encolhido: no celular a agenda vira faixa, a criação abre seletores em folhas, a navegação desce para o polegar e os nomes quebram em duas linhas. Alvos de toque mínimos de 44 px; texto ampliado a 200% sem perda de conteúdo.</p>
+</div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Design system</span><span>23</span></div>
+</section><section class="page grain">
+<div class="kicker">09 · Plano de implementação</div>
+<h1 style="font-size:28pt">Seis fases, a primeira<br>é olhar o código</h1>
+<div style="display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid var(--tinta);margin-bottom:5mm">
+ <div style="padding:2.5mm 2mm 0 0;position:relative"><div style="position:absolute;top:-1.6mm;left:0;width:3mm;height:3mm;border-radius:50%;background:var(--sodio)"></div><div class="mono" style="font-size:7pt;color:var(--tinta2);margin-top:1mm">FASE 0</div><div class="serif" style="font-size:10.5pt;line-height:1.15">Auditoria</div></div><div style="padding:2.5mm 2mm 0 0;position:relative"><div style="position:absolute;top:-1.6mm;left:0;width:3mm;height:3mm;border-radius:50%;background:var(--sodio)"></div><div class="mono" style="font-size:7pt;color:var(--tinta2);margin-top:1mm">FASE 1</div><div class="serif" style="font-size:10.5pt;line-height:1.15">Marca</div></div><div style="padding:2.5mm 2mm 0 0;position:relative"><div style="position:absolute;top:-1.6mm;left:0;width:3mm;height:3mm;border-radius:50%;background:var(--tinta)"></div><div class="mono" style="font-size:7pt;color:var(--tinta2);margin-top:1mm">FASE 2</div><div class="serif" style="font-size:10.5pt;line-height:1.15">Design system</div></div><div style="padding:2.5mm 2mm 0 0;position:relative"><div style="position:absolute;top:-1.6mm;left:0;width:3mm;height:3mm;border-radius:50%;background:var(--tinta)"></div><div class="mono" style="font-size:7pt;color:var(--tinta2);margin-top:1mm">FASE 3</div><div class="serif" style="font-size:10.5pt;line-height:1.15">Prioritárias</div></div><div style="padding:2.5mm 2mm 0 0;position:relative"><div style="position:absolute;top:-1.6mm;left:0;width:3mm;height:3mm;border-radius:50%;background:var(--tinta)"></div><div class="mono" style="font-size:7pt;color:var(--tinta2);margin-top:1mm">FASE 4</div><div class="serif" style="font-size:10.5pt;line-height:1.15">Complementares</div></div><div style="padding:2.5mm 2mm 0 0;position:relative"><div style="position:absolute;top:-1.6mm;left:0;width:3mm;height:3mm;border-radius:50%;background:var(--tinta)"></div><div class="mono" style="font-size:7pt;color:var(--tinta2);margin-top:1mm">FASE 5</div><div class="serif" style="font-size:10.5pt;line-height:1.15">Refinamento</div></div>
+</div>
+<table class="t">
+<tr><th style="width:20mm">Fase</th><th>Entregáveis</th><th>Depende de</th><th>Riscos</th><th>Concluída quando</th></tr>
+<tr><td><b>0 · Auditoria</b></td><td>Inventário de rotas, componentes, estilos, login, mapa, Spotify e modelo de dados</td><td>Acesso ao repositório</td><td>Funções descritas que não existem</td><td>Todo “a confirmar” respondido por escrito</td></tr>
+<tr><td><b>1 · Marca</b></td><td>Nome validado, símbolo e wordmark vetorizados, ícone, favicon, paleta, prova de fontes</td><td>Fase 0 parcial; buscas jurídicas</td><td>Kina indisponível: reserva Bory</td><td>Logo legível a 16 px; marca aprovada</td></tr>
+<tr><td><b>2 · Design system</b></td><td>Tokens em CSS variables, fontes, componentes com estados, vitrine nos dois temas</td><td>Fase 1</td><td>Conflito com estilos legados</td><td>Nenhum hexadecimal fora dos tokens; foco visível em todos</td></tr>
+<tr><td><b>3 · Prioritárias</b></td><td>Login, landing, navegação, perfil, criar e ver rolê</td><td>Fase 2; fotos licenciadas</td><td>Magnetismo mal calibrado; rascunhos no backend</td><td>Login e criação concluídos só com teclado; 5 usuários sem bloqueio</td></tr>
+<tr><td><b>4 · Complementares</b></td><td>Música, stories, publicações, mapa, busca, vazios, erros</td><td>Fases 0 e 2</td><td>Mapa sem estilo; regras do Spotify</td><td>Todas as telas migradas sem regressão funcional</td></tr>
+<tr><td><b>5 · Refinamento</b></td><td>Responsividade, WCAG, movimento reduzido, desempenho, polimento</td><td>Fases 3 e 4</td><td>Animações pesadas em celulares modestos</td><td>Lighthouse a11y ≥ 95; zero falhas de contraste no axe; LCP &lt; 2,5 s</td></tr>
+</table>
+<div class="cols">
+<div>
+<h3>Natureza das mudanças</h3>
+<table class="t">
+<tr><td style="width:30mm"><b>Só visual</b></td><td>Tokens, tipografia, fios no lugar de cartões, cantoneiras, ícones, temas</td></tr>
+<tr><td><b>Componentes</b></td><td>Avatares redondos e resto reto, campos com rótulo, navegação inferior</td></tr>
+<tr><td><b>Interação</b></td><td>Login magnético, transição de capa, “Cola?”, cantos de hover</td></tr>
+<tr><td><b>Estrutura</b></td><td>Agenda separada do feed, criação em ficha, landing pública, rascunhos</td></tr>
+</table></div>
+<div>
+<h3>Dependências e recursos</h3>
+<ul class="l">
+<li>Fontes OFL auto-hospedadas; Phosphor Icons (MIT).</li>
+<li>Possivelmente MapLibre ou estilo Mapbox.</li>
+<li>Sem biblioteca de animação obrigatória: CSS + View Transitions.</li>
+<li>A criar: símbolo e wordmark finais, ícones próprios, estilo de mapa, grão em SVG, 20 a 30 fotos licenciadas.</li>
+<li>Sem troca de stack: nada no plano exige reescrever a aplicação.</li>
+</ul></div></div>
+<div class="folio"><span>Kina · Plano de design</span><span>Implementação</span><span>24</span></div>
+</section><section class="page dark" style="padding-top:18mm">
+<div class="gridbg n" style="position:absolute;inset:0"></div>
+<div style="position:relative">
+<div class="kicker">10 · Direção final</div>
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="display:inline-flex;align-items:center;gap:15.680000000000001px"><svg width="58.800000000000004" height="58.800000000000004" viewBox="0 0 120 120"><rect x="10" y="10" width="16" height="100" fill="#EFE8DC"/><rect x="10" y="94" width="100" height="16" fill="#EFE8DC"/><circle cx="47.2" cy="72.8" r="11" fill="#FF7A3D"/></svg><span class="wm dk" style="font-size:56px;color:#EFE8DC"><span>k</span><span class="i">ı</span><span>na</span></span></span><div class="serif" style="font-size:20pt;color:var(--txD)"><i>Te vejo na Kina.</i></div></div>
+<p class="lead" style="margin-top:6mm;color:var(--txD)">Um álbum da turma, de papel e tinta de dia, de asfalto e luz de poste à noite, onde pessoas são pontos, lugares são cantos e tudo que foi vivido fica preso por cantoneiras.</p>
+<table class="t">
+<tr><th style="width:30mm">Decisão</th><th>Recomendação</th></tr>
+<tr><td>Nome</td><td><b>Kina</b> (reserva: Bory)</td></tr>
+<tr><td>Símbolo</td><td>Canto em L com ponto na bissetriz; o pingo do i é o mesmo ponto</td></tr>
+<tr><td>Direção</td><td>Cantoneira: álbum de memórias editorial</td></tr>
+<tr><td>Paleta</td><td><span class="mono">#F3EEE4 · #1C1A17 · #C8461A / #FF7A3D · #2E3F8F · #14120F</span></td></tr>
+<tr><td>Tipografia</td><td>Fraunces · Schibsted Grotesk · IBM Plex Mono</td></tr>
+<tr><td>Telas-chave</td><td>Landing “O cruzamento” · login magnético na quina · perfil ancorado no canto · início em três tempos · rolê como ficha técnica · música como encarte · mapa em papel</td></tr>
+</table>
+<h2>Critérios de qualidade</h2>
+<table class="t" style="font-size:7.8pt">
+<tr><th>Critério</th><th>Como atende</th><th>A validar</th></tr>
+<tr><td>Originalidade</td><td>Cantoneiras, canto + ponto e encarte não são linguagem de rede social nem de SaaS</td><td>Semelhança do símbolo com marcas existentes</td></tr>
+<tr><td>Coerência</td><td>Toda tela usa as mesmas quatro peças</td><td>Revisão tela a tela na Fase 3</td></tr>
+<tr><td>Adequação</td><td>Nasce de encontro (quina) e memória (álbum)</td><td>A metáfora é entendida sem explicação?</td></tr>
+<tr><td>Memorabilidade</td><td>Ponto sódio, cantoneiras, login magnético, nome curto</td><td>Teste de lembrança após uma semana</td></tr>
+<tr><td>Usabilidade</td><td>Rótulos visíveis, uma ação principal por tela, futuro &gt; agora &gt; passado</td><td>Criação de rolê no celular com usuários</td></tr>
+<tr><td>Consistência</td><td>O escuro é o álbum à noite, não inversão</td><td>Vitrine lado a lado</td></tr>
+<tr><td>Acessibilidade</td><td>Contrastes calculados, foco visível, cor nunca sozinha</td><td>axe, NVDA, VoiceOver; bordas no limite de 3:1</td></tr>
+<tr><td>Viabilidade</td><td>CSS, SVG e fontes livres, sem troca de stack</td><td>Mapa e login na Fase 0</td></tr>
+<tr><td>Escalabilidade</td><td>Ficha, canto e ponto servem a qualquer função nova</td><td>Desenhar uma função futura antes de fechar</td></tr>
+<tr><td>Autoria</td><td>As escolhas vêm do significado do nome</td><td>Revisão crítica externa antes da Fase 2</td></tr>
+</table>
+<p class="note" style="color:var(--txD2);border-color:var(--sodioD)">Próximo passo: aprovar nome e direção e liberar o repositório para a Fase 0. Nenhum código foi alterado.</p>
+</div>
+<div class="folio"><span>Kina · Plano de design</span><span>Direção final</span><span>25</span></div>
+</section></body></html>

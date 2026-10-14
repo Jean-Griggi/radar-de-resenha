@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kina — Vitrine de componentes (referência)</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+/* Só para abrir este arquivo localmente: aponta as fontes para a pasta do kit */
+@font-face { font-family: "Fraunces"; src: url("../../assets/fonts/fraunces-latin-full-normal.woff2") format("woff2"); font-weight: 100 900; }
+@font-face { font-family: "Fraunces"; src: url("../../assets/fonts/fraunces-latin-full-italic.woff2") format("woff2"); font-weight: 100 900; font-style: italic; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("../../assets/fonts/schibsted-grotesk-latin-400-normal.woff2"); font-weight: 400; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("../../assets/fonts/schibsted-grotesk-latin-500-normal.woff2"); font-weight: 500; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("../../assets/fonts/schibsted-grotesk-latin-600-normal.woff2"); font-weight: 600; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../../assets/fonts/ibm-plex-mono-latin-400-normal.woff2"); font-weight: 400; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../../assets/fonts/ibm-plex-mono-latin-500-normal.woff2"); font-weight: 500; }
+.k-grain::before { background-image: url("../../assets/textures/grain.png"); }
+
+/* ================= Implementação de referência dos componentes ================= */
+* { box-sizing: border-box; margin: 0; }
+body { padding: 40px clamp(16px, 5vw, 64px) 96px; }
+.page-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 48px; }
+section.demo { padding: 32px 0; border-top: 1px solid var(--k-text); }
+section.demo > h2 { font-family: var(--k-font-display); font-variation-settings: var(--k-display-axes); font-weight: 400; font-size: var(--k-fs-25); margin-bottom: 4px; }
+section.demo > p.k-meta { margin-bottom: 24px; }
+.row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.cell { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+
+/* Logo */
+.k-logo { display: inline-flex; align-items: center; gap: .28em; color: var(--k-text); font-size: 32px; text-decoration: none; }
+.k-logo svg { width: 1.05em; height: 1.05em; }
+.k-wordmark { font-family: var(--k-font-display); font-weight: 500; font-variation-settings: "SOFT" 100, "opsz" 144; letter-spacing: -.02em; line-height: 1; }
+.k-wordmark .i { position: relative; display: inline-block; }
+.k-wordmark .i::after { content: ""; position: absolute; left: 50%; top: -.08em; width: .2em; height: .2em; transform: translateX(-50%); border-radius: 50%; background: var(--k-brand); }
+
+/* Button */
+.k-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: var(--k-touch); height: 48px; padding: 0 20px; border-radius: var(--k-radius-control); border: 1px solid transparent; font: 600 var(--k-fs-16)/1 var(--k-font-ui); cursor: pointer; transition: background-color var(--k-dur-quick) var(--k-ease-arrive), transform var(--k-dur-instant) var(--k-ease-arrive); }
+@media (min-width: 1024px) { .k-btn { height: 40px; font-size: var(--k-fs-14); } }
+.k-btn--primary { background: var(--k-brand); color: var(--k-on-brand); }
+.k-btn--primary:hover { background: var(--k-brand-hover); }
+.k-btn--primary:active { background: var(--k-brand-press); transform: scale(.98); }
+.k-btn--secondary { background: transparent; color: var(--k-text); border-color: var(--k-line-strong); }
+.k-btn--secondary:hover { background: var(--k-bg-sunken); }
+.k-btn--secondary:active { transform: scale(.98); }
+.k-btn--text { background: none; color: var(--k-text); padding: 0 4px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.k-btn--text:hover { text-decoration-thickness: 2px; }
+.k-btn--create { width: 56px; height: 56px; padding: 0; border-radius: var(--k-radius-person); background: var(--k-brand); color: var(--k-on-brand); }
+.k-btn[disabled] { background: var(--k-bg-sunken); color: var(--k-text-subtle); border-color: var(--k-line); cursor: not-allowed; transform: none; }
+.k-btn[aria-busy="true"]::after { content: ""; width: 14px; height: 6px; background: radial-gradient(circle, currentColor 2.5px, transparent 3px) 0 0 / 7px 6px repeat-x; animation: k-dots 1.2s steps(2) infinite; }
+@keyframes k-dots { 50% { opacity: .4; } }
+.k-help { font-size: var(--k-fs-12); color: var(--k-text-muted); }
+
+/* TextField */
+.k-field { display: flex; flex-direction: column; gap: 6px; width: 280px; }
+.k-field label { font: 600 var(--k-fs-14)/1.2 var(--k-font-ui); }
+.k-input { height: 46px; padding: 0 12px; border: 0; border-bottom: 1px solid var(--k-line-strong); border-radius: 0; background: var(--k-bg-sunken); color: var(--k-text); font: 400 var(--k-fs-16) var(--k-font-ui); }
+.k-input::placeholder { color: var(--k-text-subtle); }
+.k-input:focus { outline: none; border-bottom: 2px solid var(--k-text); }
+.k-input:focus-visible { outline: 2px solid var(--k-focus); outline-offset: 2px; }
+.k-input[aria-invalid="true"] { border-bottom: 2px solid var(--k-danger); }
+.k-input.is-valid { border-bottom: 2px solid var(--k-success); }
+.k-msg { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.k-msg--error { color: var(--k-danger); } .k-msg--ok { color: var(--k-success); }
+.k-msg .ico { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+.k-input--title { background: none; border-bottom: 2px solid var(--k-text); font: 400 34px/1.1 var(--k-font-display); font-variation-settings: var(--k-display-axes); height: auto; padding: 0 0 6px; width: 100%; }
+
+/* Avatar */
+.k-avatar { border-radius: var(--k-radius-person); object-fit: cover; flex: none; background: var(--k-bg-sunken); display: inline-flex; align-items: center; justify-content: center; font-family: var(--k-font-display); color: var(--k-text); overflow: hidden; }
+.k-avatar--ring { box-shadow: 0 0 0 3px var(--k-bg), 0 0 0 5px var(--k-brand); }
+.k-avatar--seen { box-shadow: 0 0 0 3px var(--k-bg), 0 0 0 5px var(--k-line); }
+.k-stack { display: inline-flex; align-items: center; }
+.k-stack .k-avatar { margin-left: -8px; box-shadow: 0 0 0 2px var(--k-bg); }
+.k-stack .k-avatar:first-child { margin-left: 0; }
+.k-stack .more { margin-left: 8px; }
+
+/* Ficha */
+.k-ficha { width: min(420px, 100%); }
+.k-ficha-row { display: grid; grid-template-columns: 18px 76px 1fr 14px; gap: 10px; align-items: center; min-height: var(--k-touch); padding: 14px 0; border-bottom: 1px solid var(--k-line); background: none; border-top: 0; border-left: 0; border-right: 0; width: 100%; text-align: left; color: var(--k-text); font: inherit; cursor: pointer; }
+.k-ficha-row .mark { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--k-line-strong); transition: background-color var(--k-dur-quick); }
+.k-ficha-row .mark.done { background: var(--k-brand); border-color: var(--k-brand); }
+.k-ficha-row .empty { color: var(--k-text-muted); }
+
+/* TrackRow */
+.k-tracks { width: min(460px, 100%); border-top: 1px solid var(--k-text); list-style: none; padding: 0; }
+.k-track { display: grid; grid-template-columns: 22px 40px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--k-line); }
+.k-track .n, .k-track .d { font: 400 12px var(--k-font-mono); color: var(--k-text-muted); font-variant-numeric: tabular-nums; }
+.k-track .cover { width: 40px; height: 40px; }
+.k-track .t { font-weight: 500; font-size: 15px; } .k-track .a { font-size: 13px; color: var(--k-text-muted); }
+.k-track.is-current .t { font-weight: 600; color: var(--k-brand-text); }
+
+/* Tag */
+.k-tag { display: inline-flex; gap: 6px; align-items: center; }
+.k-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--k-text)); }
+
+/* Tabs */
+.k-tabs { display: flex; gap: 28px; border-bottom: 1px solid var(--k-line); }
+.k-tabs button { background: none; border: 0; padding: 0 0 10px; font: 500 15px var(--k-font-ui); color: var(--k-text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.k-tabs button[aria-selected="true"] { color: var(--k-text); font-weight: 600; border-color: var(--k-text); }
+
+/* Toast, Empty, Skeleton, Spinner */
+.k-toast { display: inline-flex; gap: 24px; align-items: center; background: var(--k-text); color: var(--k-bg); padding: 12px 16px; font-size: 14px; }
+.k-toast button { background: none; border: 0; color: inherit; text-decoration: underline; font: inherit; cursor: pointer; }
+.k-empty { padding: 32px; background: var(--k-bg-sunken); text-align: center; min-width: 320px; }
+.k-empty p { font: 400 var(--k-fs-20) var(--k-font-display); margin-bottom: 8px; }
+.k-skel { width: 320px; display: grid; gap: 14px; }
+.k-skel .l { height: 1px; background: var(--k-line); } .k-skel .p { width: 36px; height: 36px; border-radius: 50%; background: var(--k-line); }
+.k-skel > * { animation: k-pulse 1.2s ease-in-out infinite; }
+@keyframes k-pulse { 50% { opacity: .45; } }
+.k-spinner { width: 32px; height: 32px; position: relative; color: var(--k-text); }
+.k-spinner .dot { position: absolute; width: 22%; height: 22%; border-radius: 50%; background: var(--k-brand); left: 30%; top: 50%; animation: k-walk 1.2s var(--k-ease-arrive) infinite alternate; }
+@keyframes k-walk { from { transform: translate(0, 0); } to { transform: translate(-25%, -150%); } }
+@media (prefers-reduced-motion: reduce) { .k-spinner .dot { animation: k-pulse 1.2s infinite; } .k-skel > * { animation: none; } }
+
+/* ============ Post (publicação) — versão em camadas ============ */
+.k-post { position: relative; max-width: 720px; margin: 24px 0 48px 40px; padding: 0 96px 32px 0; }
+.k-post__place { position: absolute; z-index: 0; left: 40%; right: 0; top: 40px; bottom: 0; background-size: cover; background-position: center; }
+.k-post__body { position: relative; z-index: 1; background: var(--k-surface-raised); padding: 28px 32px 20px 56px; --k-corner-size: 16px; }
+.k-post__avatar { position: absolute; left: -36px; top: 24px; width: 72px; height: 72px; box-shadow: 0 0 0 4px var(--k-bg); }
+.k-post__head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.k-post__name { font: 400 var(--k-fs-25)/1.1 var(--k-font-display); font-variation-settings: var(--k-display-axes); }
+.k-post__where { font: italic 400 15px var(--k-font-display); color: var(--k-brand-text); text-decoration: none; display: inline-block; margin-top: 4px; }
+.k-post__media { margin: 18px 0 14px; aspect-ratio: 4 / 5; max-height: 360px; width: 100%; object-fit: cover; background: var(--k-bg-sunken); display: block; }
+.k-post__caption { font-size: var(--k-fs-16); line-height: 1.5; max-height: 4.5em; overflow: hidden; -webkit-mask-image: linear-gradient(#000 62%, transparent); mask-image: linear-gradient(#000 62%, transparent); }
+.k-post__caption.is-open { max-height: none; -webkit-mask-image: none; mask-image: none; }
+.k-post__people { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+.k-post__foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--k-line); }
+.k-post__track { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.k-post__track .cover { width: 40px; height: 40px; flex: none; }
+.k-post__actions { display: flex; gap: 4px; }
+.k-icon-btn { display: inline-flex; align-items: center; gap: 4px; min-width: var(--k-touch); height: var(--k-touch); justify-content: center; background: none; border: 0; color: var(--k-text); cursor: pointer; font: 400 12px var(--k-font-mono); }
+.k-icon-btn svg { width: 22px; height: 22px; }
+.k-post--compact { padding: 0; } .k-post--compact .k-post__place, .k-post--compact .k-post__people { display: none; }
+@media (max-width: 640px) {
+  .k-post { margin: 40px 0; padding: 0 0 16px; }
+  .k-post__place { left: 16px; right: -8px; top: 24px; bottom: 0; }
+  .k-post__body { padding: 40px 20px 16px; }
+  .k-post__avatar { left: 20px; top: -28px; width: 56px; height: 56px; }
+}
+
+/* foto ilustrativa */
+.ph { background-size: cover; background-position: center; }
+</style>
+<script>
+  // Alternar tema só para inspeção
+  function toggleTheme(){ const h=document.documentElement; h.dataset.theme = h.dataset.theme==='dark' ? 'light' : 'dark'; }
+</script>
+</head>
+<body class="k-grain">
+
+<header class="page-head">
+  <a class="k-logo" href="#" aria-label="Kina">
+    <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="10" y="10" width="16" height="100" fill="currentColor"/><rect x="10" y="94" width="100" height="16" fill="currentColor"/><circle cx="47.2" cy="72.8" r="11" fill="var(--k-brand)"/></svg>
+    <span class="k-wordmark" aria-hidden="true">k<span class="i">ı</span>na</span>
+  </a>
+  <div class="row" style="align-items:center">
+    <span class="k-meta">Vitrine de referência · v1.0</span>
+    <button class="k-btn k-btn--secondary" onclick="toggleTheme()">Alternar tema</button>
+  </div>
+</header>
+
+<section class="demo">
+  <h2>Button</h2><p class="k-meta">primary · secondary · text · create · estados</p>
+  <div class="row">
+    <div class="cell"><button class="k-btn k-btn--primary">Cola?</button><span class="k-meta">padrão</span></div>
+    <div class="cell"><button class="k-btn k-btn--primary" style="background:var(--k-brand-hover)">Cola?</button><span class="k-meta">hover</span></div>
+    <div class="cell"><button class="k-btn k-btn--primary" style="outline:2px solid var(--k-focus);outline-offset:2px">Cola?</button><span class="k-meta">foco</span></div>
+    <div class="cell"><button class="k-btn k-btn--primary" aria-busy="true">Cola?</button><span class="k-meta">carregando</span></div>
+    <div class="cell"><button class="k-btn k-btn--primary" disabled aria-describedby="h1">Publicar</button><span id="h1" class="k-help">Falta escolher quando</span></div>
+    <div class="cell"><button class="k-btn k-btn--secondary">Talvez</button><span class="k-meta">secondary</span></div>
+    <div class="cell"><button class="k-btn k-btn--text">Receber link de acesso</button><span class="k-meta">text</span></div>
+    <div class="cell"><button class="k-btn k-btn--create" aria-label="Marcar um rolê"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2"/></svg></button><span class="k-meta">create</span></div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>TextField</h2><p class="k-meta">rótulo sempre visível · foco · erro · sucesso · título de rolê</p>
+  <div class="row">
+    <div class="k-field"><label for="f1">Nome do rolê</label><input id="f1" class="k-input" placeholder="Ex.: Pôr do sol na laje"></div>
+    <div class="k-field"><label for="f2">E-mail</label><input id="f2" class="k-input" value="lia@" aria-invalid="true" aria-describedby="e2"><span id="e2" class="k-msg k-msg--error"><span class="ico">!</span>Falta o domínio do e-mail</span></div>
+    <div class="k-field"><label for="f3">Senha</label><input id="f3" class="k-input is-valid" type="password" value="12345678"><span class="k-msg k-msg--ok"><span class="ico">✓</span>Senha forte</span></div>
+    <div class="k-field" style="width:360px"><label for="f4" class="k-meta" style="order:2;font-weight:400">Nome do rolê · 18/60</label><input id="f4" class="k-input k-input--title" value="Pôr do sol na laje"></div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>Avatar e AvatarStack</h2><p class="k-meta">pessoas são pontos</p>
+  <div class="row" style="align-items:center">
+    <span class="k-avatar ph" style="width:96px;height:96px;background-image:url(mockups/img/av0.jpg)" role="img" aria-label="Lia Moraes"></span>
+    <span class="k-avatar ph" style="width:72px;height:72px;background-image:url(mockups/img/av1.jpg)" role="img" aria-label="Caio"></span>
+    <span class="k-avatar ph k-avatar--ring" style="width:58px;height:58px;background-image:url(mockups/img/av2.jpg)" role="img" aria-label="Story de Bia, não visto"></span>
+    <span class="k-avatar ph k-avatar--seen" style="width:58px;height:58px;background-image:url(mockups/img/av3.jpg)" role="img" aria-label="Story de Duda, visto"></span>
+    <span class="k-avatar" style="width:48px;height:48px;font-size:19px">DL</span>
+    <span class="k-stack" aria-label="12 pessoas confirmadas">
+      <span class="k-avatar ph" style="width:32px;height:32px;background-image:url(mockups/img/av1.jpg)"></span>
+      <span class="k-avatar ph" style="width:32px;height:32px;background-image:url(mockups/img/av2.jpg)"></span>
+      <span class="k-avatar ph" style="width:32px;height:32px;background-image:url(mockups/img/av3.jpg)"></span>
+      <span class="k-avatar ph" style="width:32px;height:32px;background-image:url(mockups/img/av4.jpg)"></span>
+      <span class="k-meta more">+8</span>
+    </span>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>Cantoneiras</h2><p class="k-meta">memória tem moldura · passe o mouse</p>
+  <div class="row" style="gap:40px;padding:8px">
+    <a href="#" class="k-corners ph" style="display:block;width:200px;height:150px;background-image:url(mockups/img/p_beach.jpg)" aria-label="Publicação de Téo"></a>
+    <div class="k-corners ph" data-interactive style="--k-corner-size:16px;width:240px;height:150px;background-image:url(mockups/img/p_party.jpg)"></div>
+    <div class="ph" style="width:200px;height:150px;background-image:url(mockups/img/p_stage.jpg)"></div>
+  </div>
+  <p class="k-help" style="margin-top:12px">A terceira imagem não tem moldura: é um rolê futuro (presente).</p>
+</section>
+
+<section class="demo">
+  <h2>Ficha, Tag e Tabs</h2><p class="k-meta">rótulo mono · valor · fio</p>
+  <div class="row" style="gap:48px">
+    <div class="k-ficha">
+      <button class="k-ficha-row"><span class="mark done"></span><span class="k-meta">Quando</span><span style="font-family:var(--k-font-mono)">SÁB 18 OUT · 18H</span><span aria-hidden="true">›</span></button>
+      <button class="k-ficha-row"><span class="mark done"></span><span class="k-meta">Onde</span><span>Laje da Bia, Vila Madalena</span><span aria-hidden="true">›</span></button>
+      <button class="k-ficha-row"><span class="mark"></span><span class="k-meta">Quem</span><span class="empty">Escolher amigos</span><span aria-hidden="true">›</span></button>
+      <button class="k-ficha-row"><span class="mark"></span><span class="k-meta">Trilha</span><span class="empty">Vincular música</span><span aria-hidden="true">›</span></button>
+    </div>
+    <div class="cell" style="gap:20px">
+      <div class="row" style="gap:20px">
+        <span class="k-tag k-meta" style="--dot:var(--k-brand)">Vai rolar</span>
+        <span class="k-tag k-meta" style="--dot:var(--k-text)">Já rolou</span>
+        <span class="k-tag k-meta" style="--dot:var(--k-success)">Confirmado</span>
+        <span class="k-tag k-meta" style="--dot:var(--k-danger)">Cancelado</span>
+      </div>
+      <div class="k-tabs" role="tablist"><button role="tab" aria-selected="true">Publicações</button><button role="tab" aria-selected="false">Rolês</button><button role="tab" aria-selected="false">Músicas</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>TrackRow</h2><p class="k-meta">música como encarte · capas intactas</p>
+  <ol class="k-tracks">
+    <li class="k-track is-current"><span class="n">01</span><img class="cover" src="mockups/img/al0.jpg" alt=""><span><span class="t">Laranja Elétrica</span><br><span class="a">Os Postes</span></span><span class="d">3:41</span></li>
+    <li class="k-track"><span class="n">02</span><img class="cover" src="mockups/img/al1.jpg" alt=""><span><span class="t">Rua Sem Saída</span><br><span class="a">Duda Lins</span></span><span class="d">4:02</span></li>
+    <li class="k-track"><span class="n">03</span><img class="cover" src="mockups/img/al2.jpg" alt=""><span><span class="t">Telhado</span><br><span class="a">Banda Calçada</span></span><span class="d">2:58</span></li>
+  </ol>
+</section>
+
+<section class="demo">
+  <h2>Post</h2><p class="k-meta">feed em camadas · compact · celular (reduza a janela)</p>
+
+  <article class="k-post">
+    <div class="k-post__place ph" style="background-image:url(mockups/img/p_party.jpg)" aria-hidden="true"></div>
+    <div class="k-post__body k-corners">
+      <span class="k-avatar ph k-post__avatar" style="background-image:url(mockups/img/av2.jpg)" role="img" aria-label="Bia Rocha"></span>
+      <div class="k-post__head">
+        <div><div class="k-post__name">Bia Rocha</div><a class="k-post__where" href="#">em Aniversário da Duda</a></div>
+        <span class="k-meta">Há 2 h</span>
+      </div>
+      <img class="k-post__media" src="mockups/img/p_party.jpg" alt="Foto da festa de aniversário">
+      <p class="k-post__caption" id="cap">A Duda chorou no parabéns e ninguém vai deixar ela esquecer. Depois o Caio derrubou o bolo na escada e a gente comeu mesmo assim, sentado no chão da laje até o sol nascer. Próximo ano tem mais.</p>
+      <button class="k-btn k-btn--text" style="height:32px;padding:0" aria-expanded="false" aria-controls="cap" onclick="const c=document.getElementById('cap');c.classList.toggle('is-open');this.setAttribute('aria-expanded',c.classList.contains('is-open'));this.textContent=c.classList.contains('is-open')?'ver menos':'ver mais'">ver mais</button>
+      <div class="k-post__people">
+        <span class="k-stack"><span class="k-avatar ph" style="width:24px;height:24px;background-image:url(mockups/img/av1.jpg)"></span><span class="k-avatar ph" style="width:24px;height:24px;background-image:url(mockups/img/av3.jpg)"></span><span class="k-avatar ph" style="width:24px;height:24px;background-image:url(mockups/img/av4.jpg)"></span></span>
+        <span class="k-meta">Caio, Duda, Téo e +4 estavam lá</span>
+      </div>
+      <div class="k-post__foot">
+        <div class="k-post__track"><img class="cover" src="mockups/img/al0.jpg" alt=""><div><div class="k-meta" style="font-size:10px">Trilha do rolê</div><div style="font-size:14px;font-weight:600">Laranja Elétrica · <span style="font-weight:400;color:var(--k-text-muted)">Os Postes</span></div></div></div>
+        <div class="k-post__actions">
+          <button class="k-icon-btn" aria-label="Curtir, 24 curtidas"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 10c0 5.5-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>24</button>
+          <button class="k-icon-btn" aria-label="Comentar, 6 comentários"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>6</button>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="k-post k-post--compact">
+    <div class="k-post__body k-corners">
+      <span class="k-avatar ph k-post__avatar" style="background-image:url(mockups/img/av4.jpg)" role="img" aria-label="Téo"></span>
+      <div class="k-post__head"><div><div class="k-post__name">Téo</div><a class="k-post__where" href="#">em Domingo na praia</a></div><span class="k-meta">12 out</span></div>
+      <p class="k-post__caption" style="margin-top:10px">Água gelada, ninguém entrou. Valeu pelo pastel.</p>
+    </div>
+  </article>
+</section>
+
+<section class="demo">
+  <h2>Toast, vazio, carregando</h2><p class="k-meta">sem blocos cinza, sem spinner genérico</p>
+  <div class="row" style="align-items:center;gap:40px">
+    <div class="k-toast" role="status">✓ Você vai no Pôr do sol na laje <button>Desfazer</button></div>
+    <div class="k-empty"><p>Ninguém marcou nada ainda.</p><button class="k-btn k-btn--text">Marcar um rolê</button></div>
+    <div class="k-skel" aria-hidden="true"><div style="display:flex;gap:12px;align-items:center"><span class="p"></span><span class="l" style="flex:1"></span></div><span class="l"></span><span class="l" style="width:60%"></span></div>
+    <div class="k-spinner" role="status" aria-label="Carregando"><svg viewBox="0 0 120 120" width="32" height="32" aria-hidden="true"><rect x="10" y="10" width="16" height="100" fill="currentColor"/><rect x="10" y="94" width="100" height="16" fill="currentColor"/></svg><span class="dot"></span></div>
+  </div>
+</section>
+
+</body>
+</html>
