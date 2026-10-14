@@ -39,3 +39,6 @@ os tokens em `docs/kina/design/tokens.css`; a referência visual em `docs/kina/d
 - Verificar claro e escuro, 390 px e 1280 px, e o fluxo só com teclado.
 - Marcar a caixa correspondente em `docs/kina/PLANO-IMPLEMENTACAO.md`.
 - Preencher o checklist de PR do plano.
+
+## Decisões revisadas
+Decisões revisadas: docs/kina/DECISOES.md (prioridade sobre o plano).

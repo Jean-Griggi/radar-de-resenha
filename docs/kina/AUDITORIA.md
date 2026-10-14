@@ -2,7 +2,7 @@
 
 > Gerada em 2026-10-14, a partir do código real. **Nenhum arquivo de código foi alterado** nesta fase.
 > Estado do working tree na hora da auditoria: `apps/web/src/features/users/mapPoint.ts` já estava modificado (alteração anterior, fora desta tarefa) e `docs/kina/*` com mudanças pendentes. A auditoria lê esses arquivos como estão.
-> Status da seção *Divergências*: **aguardando revisão de uma pessoa** (critério de conclusão da Fase 0).
+> Status da seção *Divergências*: **revisada** — decisões em [`DECISOES.md`](DECISOES.md). Fase 0 concluída.
 
 ---
 
@@ -296,7 +296,7 @@ Para este redesign o "portão" real é `pnpm lint && pnpm typecheck` + `pnpm --f
 | T12 | `@phosphor-icons/*` se não houver ícones | Já existe `lucide-react`. **Não adicionar Phosphor**; adaptar o inventário de ícones do kit para equivalentes do Lucide (ou justificar no PR) |
 | T13 | `KinaLogo` com SVG do símbolo + wordmark em texto | Hoje o wordmark é **imagem** (`public/brand/wordmark*.svg` com o texto "Redesinha" *desenhado no SVG*) + `BrandSymbol` (PNG 3D `symbol-3d.png`). O SVG antigo precisa ser **substituído**, não só o texto do componente |
 | T14 | `Button` com 4 variantes (primary, secondary, text, create) | Hoje: `primary, secondary, outline, danger, ghost`, mais `loading`. **`danger` não existe no plano** (ver Ajustes) |
-| T15 | O `CLAUDE.md` da raiz já foi mesclado | Existe, mas com **codificação quebrada** (caracteres como `â€”`, `Ã©`). O texto do kit foi salvo com a codificação errada; corrigir antes de depender dele |
+| T15 | O `CLAUDE.md` da raiz já foi mesclado | ~~Codificação quebrada~~ **Correção:** era engano meu. O arquivo está em UTF-8 válido (idêntico a `docs/kina/CLAUDE.md`); o texto quebrado era só a exibição do terminal. Nada a corrigir além de acrescentar a referência a `DECISOES.md` |
 
 ---
 
@@ -328,7 +328,7 @@ Para este redesign o "portão" real é `pnpm lint && pnpm typecheck` + `pnpm --f
 1. **Responder as 6 "Decisões pendentes" com os valores desta auditoria:** login = e-mail e senha (+ "Esqueci a senha" e "Criar conta") · mapa = **MapLibre aceita estilo, mas a fonte atual é raster OSM (não recolorível)** → por padrão, só marcadores/controles/painéis; estilo vetorial só se aprovarem novo provedor · vínculo publicação↔rolê = **não** · landing = **não** · rascunho = **não** · nome Kina = trabalho.
 2. **Decidir o escopo do rename** (R1): só texto visível, ou também identificadores técnicos. Recomendo **só texto visível**.
 3. Resolver/commitar a alteração pendente em `mapPoint.ts`.
-4. Corrigir a codificação do `CLAUDE.md` da raiz (T15).
+4. ~~Corrigir a codificação do `CLAUDE.md` da raiz (T15)~~ — falso alarme, ver T15.
 
 ### Fase 1 — Fundação
 
@@ -390,7 +390,7 @@ Para este redesign o "portão" real é `pnpm lint && pnpm typecheck` + `pnpm --f
 - [x] Modelo de dados (§ 7)
 - [x] Rascunho e landing (§ 7)
 - [x] Testes (§ 7)
-- [ ] **Seção *Divergências* revisada por uma pessoa** — pendente (critério para encerrar a Fase 0)
+- [x] **Seção *Divergências* revisada por uma pessoa** — feita; ver [`DECISOES.md`](DECISOES.md)
 
 ### Não verificado nesta auditoria
 

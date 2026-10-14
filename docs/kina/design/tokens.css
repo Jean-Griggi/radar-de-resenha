@@ -47,6 +47,9 @@
   --k-erro-700: #A8231C;  --k-erro-300: #FF7F72;
   --k-ok-700:   #2D6A45;  --k-ok-300:   #6CC08B;
   --k-alerta-700: #8A5A00; --k-alerta-300: #E8B04A;
+
+  /* Cor oficial do Spotify: exceção aprovada (DECISOES.md §3), só nos botões "tocar" */
+  --k-spotify: #1DB954;
 }
 
 /* ---------- Semânticos: TEMA CLARO (padrão) — "o álbum de dia" ---------- */

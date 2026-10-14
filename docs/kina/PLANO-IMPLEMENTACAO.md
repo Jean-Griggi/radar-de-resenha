@@ -19,11 +19,22 @@
 
 - **Não alterar**: rotas, chamadas de API, contratos de dados, autenticação, regras de permissão, stores/estado global, nomes de campos de formulário enviados ao backend.
 - **Não trocar** framework, roteador, biblioteca de estado ou de mapa sem aprovação explícita.
-- **Nenhum hexadecimal** em componentes: só `var(--k-*)` (ou as classes `k-*` do preset Tailwind).
+- **Nenhum hexadecimal** em componentes: só `var(--k-*)` (ou as classes `k-*` do preset Tailwind). Exceções aprovadas: ver a tabela abaixo.
 - **Nenhuma dependência nova** sem justificar no PR. Permitidas sem discussão: as fontes do kit e, se o projeto não tiver ícones, `@phosphor-icons/*` (MIT).
 - **Acessibilidade não regride**: foco visível, rótulos, contraste AA, `prefers-reduced-motion`.
 - Animar **apenas `transform` e `opacity`**.
 - Fotos de usuários **nunca** recebem filtro. Capas de álbum do Spotify **nunca** são recortadas, filtradas ou cobertas.
+
+### Exceções aprovadas ao "nenhum hexadecimal" (`DECISOES.md` §3)
+
+Só estas. Qualquer outra precisa de justificativa no PR.
+
+| Onde | Valor | Motivo |
+| --- | --- | --- |
+| Botões "tocar" do Spotify (`Player`, `MusicCard`, `MusicScreen`) | `#1DB954` | Cor oficial do Spotify. Centralizada em `--k-spotify` no `tokens.css`; usar a variável. |
+| MapLibre (`mapPoint.ts`: paint, `style.cssText`) | valores de `--k-*` | MapLibre não lê `var()`. Ler com `getComputedStyle(document.documentElement)` e reler ao trocar de tema. Nenhum hex escrito à mão. |
+| E-mail (`apps/api/src/lib/mail.ts`) | hex da paleta Kina | Clientes de e-mail não leem variáveis. Usar exatamente os valores do `tokens.css`. |
+| `themeColor` em `layout.tsx` | `#F3EEE4` (claro) / `#14120F` (escuro) | Metadado do navegador. |
 
 ---
 
@@ -75,24 +86,26 @@ docs/kina/
 
 ---
 
-## Fase 0 — Auditoria (sem alterar código)
+## Fase 0 — Auditoria (sem alterar código) — ✅ CONCLUÍDA
+
+> Concluída em 2026-10-14. Resultado: [`AUDITORIA.md`](AUDITORIA.md); decisões da revisão: [`DECISOES.md`](DECISOES.md), que **tem prioridade sobre este plano** quando houver conflito.
 
 **Objetivo:** entender o projeto real e responder tudo que o design deixou “a confirmar”.
 **Entregável:** `docs/kina/AUDITORIA.md`. **Nenhum arquivo de código alterado.**
 
-- [ ] Stack: framework, versão, roteador, bundler, linguagem (TS/JS), gerenciador de pacotes.
-- [ ] Estilos: Tailwind (v3 ou v4)? CSS Modules? styled-components? CSS global? Biblioteca de UI (shadcn, MUI, Chakra…)?
-- [ ] Temas atuais: como claro/escuro é implementado e onde a preferência é salva.
-- [ ] Inventário de rotas/telas com caminho do arquivo de cada uma.
-- [ ] Inventário de componentes reutilizáveis (botão, input, avatar, card, modal, nav, toast…), com caminho e quantas telas usam cada um.
-- [ ] Onde estão cores, fontes e ícones hoje (listar hexadecimais soltos com `grep -rE "#[0-9a-fA-F]{3,8}\b" src`).
-- [ ] Ocorrências do nome antigo: `grep -rni "redesinha" .` (código, `index.html`, manifest, meta tags, e-mails, textos).
-- [ ] Login: método real (e-mail e senha, link mágico, OAuth? quais provedores?).
-- [ ] Mapa: biblioteca, provedor de tiles e se aceita estilo customizado.
-- [ ] Spotify: escopos, fluxo OAuth, onde capas e faixas aparecem, tratamento de token expirado.
-- [ ] Modelo de dados: rolê (campos), publicação (tem vínculo com rolê?), story (expira?), perfil (capa? bio? música do perfil?), presença (“vou/talvez”?), curtidas/comentários, seguir/amizade.
-- [ ] Existe rascunho de rolê? Existe landing pública separada da área logada?
-- [ ] Testes existentes (unitários, e2e) e como rodar.
+- [x] Stack: framework, versão, roteador, bundler, linguagem (TS/JS), gerenciador de pacotes.
+- [x] Estilos: Tailwind (v3 ou v4)? CSS Modules? styled-components? CSS global? Biblioteca de UI (shadcn, MUI, Chakra…)?
+- [x] Temas atuais: como claro/escuro é implementado e onde a preferência é salva.
+- [x] Inventário de rotas/telas com caminho do arquivo de cada uma.
+- [x] Inventário de componentes reutilizáveis (botão, input, avatar, card, modal, nav, toast…), com caminho e quantas telas usam cada um.
+- [x] Onde estão cores, fontes e ícones hoje (listar hexadecimais soltos com `grep -rE "#[0-9a-fA-F]{3,8}\b" src`).
+- [x] Ocorrências do nome antigo: `grep -rni "redesinha" .` (código, `index.html`, manifest, meta tags, e-mails, textos).
+- [x] Login: método real (e-mail e senha, link mágico, OAuth? quais provedores?).
+- [x] Mapa: biblioteca, provedor de tiles e se aceita estilo customizado.
+- [x] Spotify: escopos, fluxo OAuth, onde capas e faixas aparecem, tratamento de token expirado.
+- [x] Modelo de dados: rolê (campos), publicação (tem vínculo com rolê?), story (expira?), perfil (capa? bio? música do perfil?), presença (“vou/talvez”?), curtidas/comentários, seguir/amizade.
+- [x] Existe rascunho de rolê? Existe landing pública separada da área logada?
+- [x] Testes existentes (unitários, e2e) e como rodar.
 
 **Modelo do `AUDITORIA.md`:** seções *Stack*, *Estilos e temas*, *Rotas*, *Componentes*, *Funcionalidades confirmadas*, *Divergências do plano de design* (o que o PDF supõe e não existe), *Riscos*, *Ajustes sugeridos nas fases seguintes*.
 
