@@ -388,6 +388,14 @@ export async function mountPeopleMap(
     map.addLayer({ id: 'route-line', type: 'line', source: 'route', layout: line, paint: { 'line-color': '#2563eb', 'line-width': 5 } });
   }
 
+  // A linha só precisa do estilo pronto; esperar o 'load' (que depende de todos os tiles) deixava a rota sem
+  // aparecer quando um tile demorava ou falhava.
+  let styleReady = false;
+  map.on('style.load', () => {
+    styleReady = true;
+    if (route) drawRoute();
+  });
+
   map.on('load', () => {
     loaded = true;
     moveTo(latest);
@@ -401,7 +409,7 @@ export async function mountPeopleMap(
     },
     setRoute(coordinates, fit) {
       route = coordinates;
-      if (loaded) drawRoute();
+      if (styleReady || loaded) drawRoute();
       if (!coordinates || coordinates.length === 0 || !fit) return;
       const bounds = new maplibre.LngLatBounds(coordinates[0], coordinates[0]);
       for (const coord of coordinates) bounds.extend(coord);
