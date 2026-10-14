@@ -117,19 +117,19 @@ docs/kina/
 
 **Objetivo:** a aplicação inteira passa a ter as cores, fontes e marca da Kina, mesmo que os componentes ainda sejam os antigos.
 
-- [ ] Copiar `assets/fonts/*.woff2` para a pasta pública do projeto (ex.: `public/fonts/`). Ajustar `url()` em `tokens.css` se o caminho for outro.
-- [ ] Copiar `assets/textures/grain.png` para `public/textures/`.
-- [ ] Importar `design/tokens.css` uma vez, no ponto de entrada global de estilos.
+- [x] Copiar `assets/fonts/*.woff2` para a pasta pública do projeto (ex.: `public/fonts/`). Ajustar `url()` em `tokens.css` se o caminho for outro.
+- [x] Copiar `assets/textures/grain.png` para `public/textures/`.
+- [x] Importar `design/tokens.css` uma vez, no ponto de entrada global de estilos.
   - Se usa **Tailwind v3**: adicionar `presets: [require('./docs/kina/design/tailwind-preset.js')]`.
   - Se usa **Tailwind v4**: declarar as mesmas variáveis em `@theme` apontando para `var(--k-*)`.
   - Se usa **CSS-in-JS/biblioteca de UI**: mapear o tema da biblioteca para as variáveis `--k-*` (não duplicar valores).
-- [ ] Pré-carregar as duas fontes críticas no `<head>`: `fraunces-latin-full-normal.woff2` e `schibsted-grotesk-latin-400-normal.woff2` (`<link rel="preload" as="font" type="font/woff2" crossorigin>`).
-- [ ] Temas: aplicar `data-theme="light|dark"` no `<html>`. Sem escolha salva, não setar o atributo (o CSS segue o sistema). Reaproveitar o mecanismo atual de persistência, se houver. Evitar flash: setar o atributo num script inline antes da renderização.
+- [ ] Pré-carregar as duas fontes críticas no `<head>`: `fraunces-latin-full-normal.woff2` e `schibsted-grotesk-latin-400-normal.woff2` (`<link rel="preload" as="font" type="font/woff2" crossorigin>`). *(feito via `next/font/local`, DECISOES T3; os `<link rel="preload">` não apareceram no HTML de `/login` no build — verificar na aba Network.)*
+- [x] Temas: aplicar `data-theme="light|dark"` no `<html>`. Sem escolha salva, não setar o atributo (o CSS segue o sistema). Reaproveitar o mecanismo atual de persistência, se houver. Evitar flash: setar o atributo num script inline antes da renderização.
 - [ ] Remover/neutralizar as variáveis e classes de tema antigas **apenas depois** que tudo estiver mapeado para `--k-*`.
-- [ ] Marca: substituir “Redesinha” por “Kina” em título da página, meta tags, `manifest.json` (name, short_name, theme_color `#C8461A`, background_color `#F3EEE4`), textos de interface e e-mails transacionais, se houver no repositório.
-- [ ] Favicon: `assets/brand/svg/favicon.svg` + `assets/brand/png/favicon/favicon.ico` + `assets/brand/png/app-icon/apple-touch-icon-180.png` (ver `assets/brand/COMO-USAR.md`).
-- [ ] Criar um componente `<KinaLogo variant="full|symbol|compact" />` que use o SVG do símbolo + o wordmark em texto (Fraunces, pingo do “i” como círculo `--k-brand`, usando o caractere “ı” sem pingo). Ver `components-spec.md` § Logo.
-- [ ] Fundo da página: `--k-bg` com `.k-grain` no `body` (claro) — o grão some sozinho no escuro.
+- [x] Marca: substituir “Redesinha” por “Kina” em título da página, meta tags, `manifest.json` (name, short_name, theme_color `#C8461A`, background_color `#F3EEE4`), textos de interface e e-mails transacionais, se houver no repositório.
+- [x] Favicon: `assets/brand/svg/favicon.svg` + `assets/brand/png/favicon/favicon.ico` + `assets/brand/png/app-icon/apple-touch-icon-180.png` (ver `assets/brand/COMO-USAR.md`).
+- [x] Criar um componente `<KinaLogo variant="full|symbol|compact" />` que use o SVG do símbolo + o wordmark em texto (Fraunces, pingo do “i” como círculo `--k-brand`, usando o caractere “ı” sem pingo). Ver `components-spec.md` § Logo.
+- [x] Fundo da página: `--k-bg` com `.k-grain` no `body` (claro) — o grão some sozinho no escuro.
 
 **Concluída quando:**
 - `grep -rni "redesinha"` não retorna nada em código de produção.

@@ -1,4 +1,4 @@
-const SRC = '/brand/symbol-3d.png';
+import { KinaLogo } from './KinaLogo';
 
 export function BrandSymbol({
   className = '',
@@ -9,13 +9,11 @@ export function BrandSymbol({
 }) {
   const labelled = Boolean(title);
   return (
-    <img
-      src={SRC}
-      alt={labelled ? title : ''}
+    <KinaLogo
+      variant="symbol"
       className={`brand-symbol ${className}`.trim()}
-      draggable={false}
-      decoding="async"
-      aria-hidden={labelled ? undefined : true}
+      decorative={!labelled}
+      {...(labelled ? { role: 'img', 'aria-label': title } : {})}
     />
   );
 }

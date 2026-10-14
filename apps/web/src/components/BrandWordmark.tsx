@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { BrandSymbol } from './BrandMark';
+import { KinaLogo } from './KinaLogo';
 
-const ALT = 'Redesinha';
+const ALT = 'Kina';
 
 export function BrandWordmark({
   href,
@@ -10,14 +10,7 @@ export function BrandWordmark({
   href?: string;
   large?: boolean;
 }) {
-  const inner = (
-    <>
-      <BrandSymbol className="brand-wordmark-mark" />
-      <span className="brand-wordmark-text" aria-hidden>
-        Redesinha
-      </span>
-    </>
-  );
+  const inner = <KinaLogo variant="full" decorative className="brand-logo" />;
   const className = `brand-wordmark shrink-0${large ? ' brand-wordmark--lg' : ''}`;
   if (href) {
     return (

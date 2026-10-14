@@ -91,7 +91,7 @@ export function CalendarScreen() {
       {ready ? (
         <>
           <div className="card p-2 sm:p-4">
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-muted sm:gap-2 sm:text-xs">
+            <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted sm:gap-2">
               {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((d, index) => (
                 <span key={`${d}-${index}`}>{d}</span>
               ))}
@@ -117,13 +117,13 @@ export function CalendarScreen() {
                       {dayEvents.slice(0, 2).map((event) => (
                         <span
                           key={event.id}
-                          className="block truncate rounded bg-[var(--accent-soft)] px-1 py-0.5 text-[9px] leading-tight text-fg sm:text-[11px]"
+                          className="block truncate rounded bg-[var(--accent-soft)] px-1 py-0.5 text-xs leading-tight text-fg"
                         >
                           {event.time ? `${event.time} ` : ''}
                           {event.title}
                         </span>
                       ))}
-                      {extra > 0 ? <span className="px-1 text-[9px] text-[var(--accent)] sm:text-[10px]">+{extra}</span> : null}
+                      {extra > 0 ? <span className="px-1 text-xs text-[var(--accent)]">+{extra}</span> : null}
                     </span>
                   </button>
                 );

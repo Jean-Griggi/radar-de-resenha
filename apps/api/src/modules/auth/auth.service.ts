@@ -100,7 +100,7 @@ export async function requestPasswordReset(email: string) {
   const resetUrl = `${env.WEB_ORIGIN}/redefinir-senha?token=${token}`;
   let emailSent = false;
   try {
-    emailSent = await sendMail(user.email, 'Redefinir senha — Resenhômetro', passwordResetEmail(user.name, resetUrl));
+    emailSent = await sendMail(user.email, 'Redefinir senha — Kina', passwordResetEmail(user.name, resetUrl));
   } catch (error) {
     console.error('Falha ao enviar e-mail de redefinição:', error instanceof Error ? error.message : 'erro desconhecido');
   }

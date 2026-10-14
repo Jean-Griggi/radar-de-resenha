@@ -168,7 +168,7 @@ export function StoriesBar() {
                       </button>
                     ) : null}
                   </div>
-                  <span className="w-full truncate text-center text-[11px] text-muted">
+                  <span className="w-full truncate text-center text-xs text-muted">
                     {isMe ? 'Seu story' : ring.author.name.split(' ')[0]}
                   </span>
                 </div>

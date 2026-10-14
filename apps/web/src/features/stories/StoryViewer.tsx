@@ -272,10 +272,10 @@ export function StoryViewer({
               </div>
               {isOwn ? (
                 <>
-                  <button type="button" className="text-[11px] text-white/80" onClick={loadViewers}>
+                  <button type="button" className="text-xs text-white/80" onClick={loadViewers}>
                     {story.viewCount ?? 0} viram
                   </button>
-                  <button type="button" className="text-[11px] text-rose-300" onClick={remove}>
+                  <button type="button" className="text-xs text-rose-300" onClick={remove}>
                     Apagar
                   </button>
                 </>

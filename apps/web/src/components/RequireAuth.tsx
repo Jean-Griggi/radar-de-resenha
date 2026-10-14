@@ -39,7 +39,7 @@ export function RequireAuth({ children, right }: { children: ReactNode; right?: 
   }, [router]);
 
   if (!ready) {
-    return <BrandLoader label="Entrando no Redesinha" />;
+    return <BrandLoader label="Entrando na Kina" />;
   }
 
   return <AppShell right={right}>{children}</AppShell>;

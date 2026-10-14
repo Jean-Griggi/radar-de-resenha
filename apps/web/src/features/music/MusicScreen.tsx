@@ -302,7 +302,7 @@ export function MusicScreen() {
 
               <section className="mt-5 card p-6">
                 <h2 className="mb-1 font-medium">Suas músicas</h2>
-                <p className="mb-3 text-sm text-muted">Escolha uma para tocar aqui, sem sair do Resenhômetro.</p>
+                <p className="mb-3 text-sm text-muted">Escolha uma para tocar aqui, sem sair da Kina.</p>
                 {savedError ? (
                   <div className="space-y-2">
                     <p className="text-sm text-[var(--danger)]">{savedError}</p>

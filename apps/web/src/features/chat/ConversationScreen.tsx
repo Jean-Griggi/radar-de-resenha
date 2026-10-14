@@ -164,7 +164,7 @@ export function ConversationScreen() {
                   </a>
                 ) : null}
                 {message.content}
-                <span className={`mt-1 block text-right text-[11px] ${mine ? 'text-white/70' : 'text-muted'}`}>
+                <span className={`mt-1 block text-right text-xs ${mine ? 'text-white/70' : 'text-muted'}`}>
                   {timeLabel(message.createdAt)}
                 </span>
               </div>

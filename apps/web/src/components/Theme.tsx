@@ -13,10 +13,21 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+const STORAGE_KEY = 'resenhometro_theme';
+
+/** Só chamada quando a pessoa escolhe: grava a escolha e marca o <html>. Sem escolha, o CSS segue o sistema. */
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
-  document.documentElement.style.colorScheme = theme;
-  localStorage.setItem('resenhometro_theme', theme);
+  localStorage.setItem(STORAGE_KEY, theme);
+}
+
+function storedTheme(): Theme | null {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored === 'light' || stored === 'dark' ? stored : null;
+}
+
+function systemTheme(): Theme {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 function prefersReducedMotion() {
@@ -24,23 +35,22 @@ function prefersReducedMotion() {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light');
 
+  // Só lê (sem gravar): o tema "resolvido" serve ao ícone do botão. Sem escolha salva, acompanha o sistema.
   useEffect(() => {
-    const stored = localStorage.getItem('resenhometro_theme');
-    const next: Theme =
-      stored === 'light' || stored === 'dark'
-        ? stored
-        : window.matchMedia('(prefers-color-scheme: light)').matches
-          ? 'light'
-          : 'dark';
-    setTheme(next);
-    applyTheme(next);
+    setTheme(storedTheme() ?? systemTheme());
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const onSystemChange = () => {
+      if (storedTheme() === null) setTheme(systemTheme());
+    };
+    media.addEventListener('change', onSystemChange);
+    return () => media.removeEventListener('change', onSystemChange);
   }, []);
 
   const toggle = useCallback((event?: MouseEvent<HTMLButtonElement>) => {
     const root = document.documentElement;
-    const next: Theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+    const next: Theme = theme === 'light' ? 'dark' : 'light';
     const x = event?.clientX ?? window.innerWidth - 48;
     const y = event?.clientY ?? 48;
     root.style.setProperty('--theme-x', `${x}px`);
@@ -56,14 +66,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     };
 
     if (!prefersReducedMotion() && typeof doc.startViewTransition === 'function') {
-      root.classList.add('theme-vt');
-      const transition = doc.startViewTransition(commit);
-      void transition.finished.finally(() => root.classList.remove('theme-vt'));
+      doc.startViewTransition(commit);
       return;
     }
 
     commit();
-  }, []);
+  }, [theme]);
 
   const value = useMemo(() => ({ theme, toggle }), [theme, toggle]);
 
@@ -72,7 +80,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export function useTheme() {
   const ctx = useContext(ThemeContext);
-  if (!ctx) return { theme: 'dark' as Theme, toggle: () => undefined };
+  if (!ctx) return { theme: 'light' as Theme, toggle: () => undefined };
   return ctx;
 }
 

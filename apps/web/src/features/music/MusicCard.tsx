@@ -82,7 +82,7 @@ export function MusicCard({
           <p className={`truncate text-sm font-medium ${titleColor}`}>{item.title}</p>
           <p className={`truncate text-xs ${mutedColor}`}>
             {item.kind === 'playlist' ? (
-              <span className="rounded-full border border-current px-1.5 py-px text-[11px] uppercase tracking-wide">Playlist</span>
+              <span className="rounded-full border border-current px-1.5 py-px text-xs uppercase tracking-wide">Playlist</span>
             ) : (
               item.artist
             )}
