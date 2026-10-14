@@ -1,0 +1,373 @@
+/*
+ * Componentes Kina (Fase 2). Referência: docs/kina/design/components-spec.md e reference/componentes.html.
+ * Regras: só tokens --k-*; raio 0 ou 2 px (só pessoas são redondas); sem sombra, gradiente ou vidro;
+ * animar só transform e opacity. Em camada `components`, para as utilitárias do Tailwind poderem sobrescrever.
+ */
+@layer components {
+  /* ===================== Button ===================== */
+  .button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--k-space-2);
+    min-width: var(--k-touch);
+    min-height: 48px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: var(--k-radius-control);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    font-weight: 600;
+    line-height: 1.25;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--k-dur-quick) var(--k-ease-arrive),
+      transform var(--k-dur-instant) var(--k-ease-arrive);
+  }
+
+  /* 40 px da spec, com piso de 44 px de área de toque (CLAUDE.md: alvos ≥ 44 px). */
+  @media (min-width: 1024px) {
+    .button {
+      min-height: 44px;
+      font-size: var(--k-fs-14);
+    }
+  }
+
+  .button--primary {
+    background: var(--k-brand);
+    color: var(--k-on-brand);
+  }
+  .button--primary:hover:not(:disabled) {
+    background: var(--k-brand-hover);
+  }
+  .button--primary:active:not(:disabled) {
+    background: var(--k-brand-press);
+    transform: scale(0.98);
+  }
+
+  /* `outline` e `secondary` são o mesmo visual (DECISOES T14). */
+  .button--secondary,
+  .button--outline {
+    background: transparent;
+    color: var(--k-text);
+    border-color: var(--k-line-strong);
+  }
+  .button--secondary:hover:not(:disabled),
+  .button--outline:hover:not(:disabled) {
+    background: var(--k-bg-sunken);
+  }
+  .button--secondary:active:not(:disabled),
+  .button--outline:active:not(:disabled),
+  .button--danger:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  /* `danger` = secondary com texto e borda de perigo (T14). A versão cheia é só para confirmação destrutiva. */
+  .button--danger {
+    background: transparent;
+    color: var(--k-danger);
+    border-color: var(--k-danger);
+  }
+  .button--danger:hover:not(:disabled) {
+    background: var(--k-bg-sunken);
+  }
+  .button--danger-solid {
+    background: var(--k-danger);
+    color: var(--k-on-brand);
+    border-color: var(--k-danger);
+  }
+  .button--danger-solid:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--k-danger) 88%, var(--k-text));
+  }
+
+  /* `ghost` se comporta como o botão `text` da spec: sem fundo nem borda, sublinhado de 1 px que vira 2 px. */
+  .button--ghost {
+    background: none;
+    color: var(--k-text);
+    padding: 0 4px;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+  .button--ghost:hover:not(:disabled) {
+    text-decoration-thickness: 2px;
+  }
+
+  .button:disabled:not([aria-busy="true"]) {
+    background: var(--k-bg-sunken);
+    color: var(--k-text-subtle);
+    border-color: var(--k-line);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .button--secondary:disabled:not([aria-busy="true"]),
+  .button--outline:disabled:not([aria-busy="true"]),
+  .button--danger:disabled:not([aria-busy="true"]) {
+    background: transparent;
+  }
+  .button--ghost:disabled:not([aria-busy="true"]) {
+    background: none;
+    border-color: transparent;
+  }
+  .button[aria-busy="true"] {
+    cursor: progress;
+  }
+
+  /* Carregando: rótulo mantido e dois pontos à direita, dentro do padding (a largura não muda). */
+  .button__dots {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    display: inline-flex;
+    gap: 3px;
+    transform: translateY(-50%);
+  }
+  .button__dots i {
+    width: 4px;
+    height: 4px;
+    border-radius: var(--k-radius-person);
+    background: currentColor;
+    animation: k-dots 1.2s steps(2) infinite;
+  }
+  .button__dots i:nth-child(2) {
+    animation-delay: 0.6s;
+  }
+  .button--ghost .button__dots {
+    right: -14px;
+  }
+  @keyframes k-dots {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .k-help {
+    font-size: var(--k-fs-12);
+    color: var(--k-text-muted);
+  }
+
+  /* ===================== Field / Input ===================== */
+  .k-label {
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--k-text);
+  }
+
+  .input {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--k-line-strong);
+    border-radius: 0;
+    background: var(--k-bg-sunken);
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    line-height: 1.5;
+    transition: border-color var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .input::placeholder {
+    color: var(--k-text-subtle);
+  }
+  /* Foco: borda de 2 px; o padding cede 1 px para a altura não mudar. */
+  .input:focus,
+  .input[aria-invalid="true"] {
+    border-bottom-width: 2px;
+    padding-bottom: 9px;
+  }
+  .input:focus {
+    border-bottom-color: var(--k-text);
+  }
+  .input[aria-invalid="true"] {
+    border-bottom-color: var(--k-danger);
+  }
+  .input.is-valid {
+    border-bottom: 2px solid var(--k-success);
+    padding-bottom: 9px;
+  }
+  .input:disabled {
+    color: var(--k-text-subtle);
+    border-bottom-color: var(--k-line);
+    cursor: not-allowed;
+  }
+
+  /* Título de rolê (variação display): Fraunces, sem fundo, borda inferior de 2 px. */
+  .input--display {
+    background: none;
+    border-bottom: 2px solid var(--k-text);
+    padding: 0 0 6px;
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: 34px;
+    line-height: 1.1;
+  }
+
+  .k-msg {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .k-msg svg {
+    flex: none;
+  }
+  .k-msg--error {
+    color: var(--k-danger);
+  }
+  .k-msg--ok {
+    color: var(--k-success);
+  }
+
+  /* ===================== Avatar e AvatarStack (pessoas são pontos) ===================== */
+  .k-avatar {
+    --k-avatar: 48px;
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    width: var(--k-avatar);
+    height: var(--k-avatar);
+  }
+  .k-avatar--xs {
+    --k-avatar: 24px;
+  }
+  .k-avatar--sm {
+    --k-avatar: 32px;
+  }
+  .k-avatar--md {
+    --k-avatar: 48px;
+  }
+  .k-avatar--lg {
+    --k-avatar: 58px;
+  }
+  .k-avatar--xl {
+    --k-avatar: 80px;
+  }
+  @media (min-width: 640px) {
+    .k-avatar--lg {
+      --k-avatar: 72px;
+    }
+    .k-avatar--xl {
+      --k-avatar: 96px;
+    }
+  }
+
+  .k-avatar__face {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--k-radius-person);
+    background: var(--k-bg-sunken);
+    color: var(--k-text);
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: max(var(--k-fs-12), calc(var(--k-avatar) * 0.4));
+    line-height: 1;
+  }
+  .k-avatar__face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Story não visto: anel de 2 px na marca com folga de 3 px (o contorno segue o raio). */
+  .k-avatar--ring .k-avatar__face {
+    outline: 2px solid var(--k-brand);
+    outline-offset: 3px;
+  }
+  .k-avatar--seen .k-avatar__face {
+    outline: 2px solid var(--k-line);
+    outline-offset: 3px;
+  }
+  .k-avatar__presence {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 28%;
+    height: 28%;
+    min-width: 8px;
+    min-height: 8px;
+    border: 2px solid var(--k-bg);
+    border-radius: var(--k-radius-person);
+    background: var(--k-text-muted);
+  }
+  .k-avatar__presence--on {
+    background: var(--k-success);
+  }
+
+  .k-stack {
+    display: inline-flex;
+    align-items: center;
+  }
+  .k-stack__item {
+    display: inline-flex;
+  }
+  .k-stack__item .k-avatar__face {
+    outline: 2px solid var(--k-stack-ring, var(--k-bg));
+  }
+  /* Sobreposição de 30% do tamanho. */
+  .k-stack--xs .k-stack__item + .k-stack__item {
+    margin-left: -7px;
+  }
+  .k-stack--sm .k-stack__item + .k-stack__item {
+    margin-left: -10px;
+  }
+  .k-stack--md .k-stack__item + .k-stack__item {
+    margin-left: -14px;
+  }
+  .k-stack__more {
+    margin-left: var(--k-space-2);
+  }
+
+  /* ===================== Tag (ponto + texto mono, sem pílula) ===================== */
+  .k-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .k-tag::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--k-radius-person);
+    background: var(--k-tag-dot, var(--k-text));
+  }
+  .k-tag--brand {
+    --k-tag-dot: var(--k-brand);
+  }
+  .k-tag--text {
+    --k-tag-dot: var(--k-text);
+  }
+  .k-tag--success {
+    --k-tag-dot: var(--k-success);
+  }
+  .k-tag--warning {
+    --k-tag-dot: var(--k-warning);
+  }
+  .k-tag--danger {
+    --k-tag-dot: var(--k-danger);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .input {
+    transition: none;
+  }
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+  .button__dots i {
+    animation: none;
+    opacity: 0.6;
+  }
+}
