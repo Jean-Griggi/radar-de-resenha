@@ -7,11 +7,13 @@ import type { Achievement, UserProfile } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { EmptyState, Skeleton } from '@/components/Card';
+import { Corners } from '@/components/Corners';
 import { Tabs } from '@/components/Tabs';
 import { MediaImage } from '@/components/MediaImage';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser, setUser } from '@/lib/auth';
+import { initials } from '@/lib/format';
 import { LocationMap } from '@/features/users/LocationMap';
 import { visiblePlaceName, visiblePoint } from '@/features/users/mapPoint';
 
@@ -29,6 +31,7 @@ export function ProfileScreen() {
   const [busy, setBusy] = useState(false);
   const username = params.username;
   const usernameRef = useRef(username);
+  const coverRef = useRef<HTMLDivElement>(null);
   usernameRef.current = username;
 
   async function load(signal?: AbortSignal) {
@@ -76,6 +79,25 @@ export function ProfileScreen() {
       });
     return () => controller.abort();
   }, [username]);
+
+  useEffect(() => {
+    const media = coverRef.current;
+    if (!media) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduce.matches) return;
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        media.style.transform = `translateY(${window.scrollY * 0.4}px)`;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [profile]);
 
   if (!profile) {
     return (
@@ -140,28 +162,31 @@ export function ProfileScreen() {
 
   return (
     <>
-      <div className="overflow-hidden rounded-none border border-[var(--border)] shadow-[var(--shadow-md)]">
-        <div className="relative h-32 bg-[var(--surface)] sm:h-48">
-          {profile.cover ? (
-            <MediaImage
-              src={profile.cover}
-              alt=""
-              className="h-full w-full object-cover"
-              fallbackClassName="h-full w-full bg-[var(--brand-red-dark)]"
-            />
-          ) : (
-            <div className="h-full w-full media-fallback" />
-          )}
-        </div>
-        <div className="bg-[var(--bg-elevated)] px-4 pb-5 sm:px-6 sm:pb-6">
-          <div className="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-            <div className="relative z-10 flex items-end gap-3 sm:gap-4">
-              <Avatar src={profile.avatar} name={profile.name} size="xl" glow />
-              <div className="min-w-0">
-                <h1 className="text-2xl font-semibold sm:text-3xl">{profile.name}</h1>
-                <p className="text-muted">@{profile.username}</p>
-                {profile.city ? <p className="text-sm text-muted">{profile.city}</p> : null}
+      <div className="profile-hero">
+        <div className="profile-cover">
+          <div ref={coverRef} className="profile-cover__media">
+            {profile.cover ? (
+              <MediaImage src={profile.cover} alt="" className="h-full w-full object-cover" fallbackClassName="profile-cover__empty k-street-grid" />
+            ) : (
+              <div className="profile-cover__empty k-street-grid">
+                <span className="profile-cover__initials k-display" aria-hidden>
+                  {initials(profile.name)}
+                </span>
               </div>
+            )}
+          </div>
+        </div>
+        <Corners size={18} className="profile-id">
+          <div className="profile-id__avatar">
+            <Avatar src={profile.avatar} name={profile.name} size="xl" />
+          </div>
+          <div className="profile-id__row">
+            <div className="min-w-0">
+              <h1 className="profile-id__name k-display">{profile.name}</h1>
+              <p className="k-meta">
+                @{profile.username}
+                {profile.city ? ` · ${profile.city}` : ''}
+              </p>
             </div>
             <div className="flex flex-wrap gap-2">
               {profile.isMe ? (
@@ -170,7 +195,7 @@ export function ProfileScreen() {
                 </Link>
               ) : (
                 <>
-                  <Link href={`/chat/${profile.username}`} className="button button--primary">
+                  <Link href={`/chat/${profile.username}`} className="button button--secondary">
                     Mensagem
                   </Link>
                   {isFriend ? (
@@ -184,7 +209,7 @@ export function ProfileScreen() {
                     </>
                   ) : isPendingIn ? (
                     <>
-                      <Button disabled={busy} onClick={acceptFriend}>
+                      <Button variant="secondary" disabled={busy} onClick={acceptFriend}>
                         Aceitar
                       </Button>
                       <Button variant="secondary" disabled={busy} onClick={rejectFriend}>
@@ -221,11 +246,11 @@ export function ProfileScreen() {
             ].map(([label, value]) => (
               <div key={String(label)} className="profile-stat">
                 <p className="text-xl font-semibold">{value}</p>
-                <p className="text-xs text-muted">{label}</p>
+                <p className="k-meta">{label}</p>
               </div>
             ))}
           </div>
-        </div>
+        </Corners>
       </div>
 
       {point || profile.isMe ? (
@@ -261,7 +286,7 @@ export function ProfileScreen() {
               <h2 className="mb-3 font-medium">Conquistas</h2>
               <ul className="space-y-2">
                 {profile.achievements.map((item: Achievement) => (
-                  <li key={item.slug} className={`rounded-none px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[var(--accent-soft)]' : 'bg-[var(--overlay)] text-muted'}`}>
+                  <li key={item.slug} className={`px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[var(--accent-soft)]' : 'bg-[var(--overlay)] text-muted'}`}>
                     {item.name} — {item.description}
                   </li>
                 ))}
@@ -286,10 +311,12 @@ export function ProfileScreen() {
         {tab === 'Rolês' ? (
           <ul className="grid gap-3 sm:grid-cols-2">
             {((content?.roles as { id: string; title: string; location?: string }[]) ?? []).map((role) => (
-              <li key={role.id} className="card p-4">
-                <Link href={`/roles/${role.id}`}>{role.title}</Link>
-                <p className="text-sm text-muted">{role.location}</p>
-              </li>
+              <Corners as="li" key={role.id} size={16} className="profile-tile">
+                <Link href={`/roles/${role.id}`} className="k-display profile-tile__title">
+                  {role.title}
+                </Link>
+                <p className="k-meta">{role.location}</p>
+              </Corners>
             ))}
           </ul>
         ) : null}
@@ -306,7 +333,9 @@ export function ProfileScreen() {
         {tab === 'Fotos' ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {((content?.photos as { id: string; url: string }[]) ?? []).map((photo) => (
-              <MediaImage key={photo.id} src={photo.url} alt="" className="h-36 w-full rounded-none object-cover" />
+              <Corners key={photo.id} size={16} className="profile-tile profile-tile--photo">
+                <MediaImage src={photo.url} alt="" className="profile-tile__photo" />
+              </Corners>
             ))}
           </div>
         ) : null}
