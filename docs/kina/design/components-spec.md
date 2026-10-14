@@ -13,8 +13,8 @@ Convenção: “fio” = borda de 1 px `--k-line`. “Mono” = `.k-meta` (Plex 
 | `symbol` | Só o símbolo | `NavRail`, favicon, marcador do mapa, carregamento |
 | `compact` | Símbolo + “k” | `NavRail` expandido estreito |
 
-- Símbolo: SVG de `assets/brand/kina-simbolo-currentcolor.svg` (traços em `currentColor`, ponto em `--k-brand`).
-- Wordmark: texto `k` + `ı` (U+0131, i sem pingo) + `na` em Fraunces 500, `font-variation-settings: "SOFT" 100, "opsz" 144`, `letter-spacing: -0.02em`. O pingo é um `<span>` absoluto: círculo de `0.2em` em `--k-brand`, centrado no `ı`, `top: -0.08em`.
+- **Use os SVGs em curvas** de `assets/brand/svg/`: `kina-logo-currentcolor.svg` (full), `kina-simbolo-currentcolor.svg` (symbol) e `kina-wordmark-currentcolor.svg`. Os traços herdam `currentColor` (defina `color: var(--k-text)`) e o ponto usa `var(--k-brand)`, então o logo troca de tema sozinho. Inserir inline (como componente SVG) para o `var()` funcionar; em `<img>`, usar as versões `-claro`/`-escuro`.
+- O wordmark já está convertido em curvas (Fraunces 500, SOFT 100, opsz 144): não depende da fonte carregada.
 - Espaço entre símbolo e wordmark: `0.28 × font-size`. Altura do símbolo: `1.05 × font-size`.
 - Acessível: o container tem `aria-label="Kina"`; partes internas `aria-hidden="true"`.
 - Mínimo: `full` ≥ 96 px de largura; abaixo, usar `symbol`.

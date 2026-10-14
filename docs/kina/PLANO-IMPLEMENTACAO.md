@@ -114,7 +114,7 @@ docs/kina/
 - [ ] Temas: aplicar `data-theme="light|dark"` no `<html>`. Sem escolha salva, não setar o atributo (o CSS segue o sistema). Reaproveitar o mecanismo atual de persistência, se houver. Evitar flash: setar o atributo num script inline antes da renderização.
 - [ ] Remover/neutralizar as variáveis e classes de tema antigas **apenas depois** que tudo estiver mapeado para `--k-*`.
 - [ ] Marca: substituir “Redesinha” por “Kina” em título da página, meta tags, `manifest.json` (name, short_name, theme_color `#C8461A`, background_color `#F3EEE4`), textos de interface e e-mails transacionais, se houver no repositório.
-- [ ] Favicon: `assets/brand/favicon.svg` (+ gerar `favicon.ico` 32 px e `apple-touch-icon` 180 px a partir de `app-icon.svg`).
+- [ ] Favicon: `assets/brand/svg/favicon.svg` + `assets/brand/png/favicon/favicon.ico` + `assets/brand/png/app-icon/apple-touch-icon-180.png` (ver `assets/brand/COMO-USAR.md`).
 - [ ] Criar um componente `<KinaLogo variant="full|symbol|compact" />` que use o SVG do símbolo + o wordmark em texto (Fraunces, pingo do “i” como círculo `--k-brand`, usando o caractere “ı” sem pingo). Ver `components-spec.md` § Logo.
 - [ ] Fundo da página: `--k-bg` com `.k-grain` no `body` (claro) — o grão some sozinho no escuro.
 

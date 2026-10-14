@@ -10,7 +10,7 @@ Tudo que a IDE (Claude Code e Cursor) precisa para aplicar a identidade visual d
 | `CLAUDE.md` | mesclar no `CLAUDE.md` da **raiz** | O Claude Code lê automaticamente em toda sessão |
 | `.cursor/rules/kina-design.mdc` | `.cursor/rules/kina-design.mdc` na **raiz** | O Cursor aplica a regra em todo pedido |
 | `assets/fonts/*.woff2` | pasta pública (ex.: `public/fonts/`) | Feito pelo agente na Fase 1 |
-| `assets/brand/*` | pasta pública / ícones do app | Feito pelo agente na Fase 1 |
+| `assets/brand/*` | ver `assets/brand/COMO-USAR.md` (favicon, ícones, manifest, logo) | Feito pelo agente na Fase 1 |
 | `assets/textures/grain.png` | `public/textures/` | Feito pelo agente na Fase 1 |
 
 Para o Cursor ler as referências, mantenha `docs/kina/` **fora** do `.cursorignore`.
