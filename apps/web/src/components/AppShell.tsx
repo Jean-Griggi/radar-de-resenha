@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useState, type ReactNode } from 'react';
 import { Bell, Compass, House, Plus, Search, Sparkles, User } from 'lucide-react';
 import { api } from '@/lib/api';
 import { clearAuth, getUser, type AuthUser } from '@/lib/auth';
-import { formatShortDate, plural } from '@/lib/format';
+import { formatMeta, plural } from '@/lib/format';
 import {
   getSpotifyConnectedFlag,
   peekSpotifyStatus,
@@ -25,6 +25,8 @@ import {
 import { Avatar } from './Avatar';
 import { BrandWordmark } from './BrandWordmark';
 import { ErrorBoundary } from './ErrorBoundary';
+import { Ficha, FichaRow } from './FichaRow';
+import { Menu, type MenuItem } from './Menu';
 import { ChatPreview } from '@/features/chat';
 import { usePlayer } from './Player';
 import { ThemeToggle } from './Theme';
@@ -63,23 +65,9 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUserState] = useState<AuthUser | null>(null);
-  const [menu, setMenu] = useState(false);
   const [q, setQ] = useState('');
   const [unread, setUnread] = useState(() => peekUnreadCount() ?? 0);
   const { setTrack } = usePlayer();
-
-  useEffect(() => {
-    setMenu(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!menu) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenu(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [menu]);
 
   useEffect(() => {
     setUserState(getUser());
@@ -164,32 +152,43 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
 
   const profileHref = user?.username ? `/perfil/${user.username}` : '/perfil';
 
+  const accountItems: MenuItem[] = [
+    { label: 'Perfil', href: profileHref },
+    ...MORE_NAV.map((item) => ({ label: item.label, href: item.href })),
+    { label: 'Configurações', href: '/settings' },
+    { label: 'Sair', onSelect: logout, tone: 'danger', separatorBefore: true },
+  ];
+
   return (
     <div className="min-h-screen">
-      <header className="shell-chrome sticky top-0 z-40 border-b border-line">
+      <header className="shell-chrome k-header sticky top-0 z-40">
         <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-3 sm:px-4 sm:py-3 2xl:max-w-[1536px]">
           <BrandWordmark href="/" />
           <nav className="hidden items-stretch self-stretch lg:flex" aria-label="Principal">
             {TOP_NAV.map((item) => {
               const active = navActive(pathname, item.href);
               return (
-                <Link key={item.href} href={item.href} className={`top-nav-link ${active ? 'nav-active' : ''}`}>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`top-nav-link ${active ? 'nav-active' : ''}`}
+                  aria-current={active ? 'page' : undefined}
+                >
                   {item.label}
                 </Link>
               );
             })}
           </nav>
           <div className="hidden shrink-0 lg:block">
-            <Link href="/roles/new" className="button button--primary gap-1.5" aria-label="Criar rolê">
-              <Plus size={16} strokeWidth={2.5} aria-hidden />
-              Criar
+            <Link href="/roles/new" className="nav-create" aria-label="Criar rolê">
+              <Plus size={22} strokeWidth={2.5} aria-hidden />
             </Link>
           </div>
-          <form onSubmit={search} className="relative min-w-0 flex-1">
+          <form onSubmit={search} className="relative min-w-0 flex-1" role="search">
             <label className="sr-only" htmlFor="search">
               Buscar
             </label>
-            <Search size={16} strokeWidth={2} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted" aria-hidden />
+            <Search size={16} strokeWidth={2} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-k-text-muted" aria-hidden />
             <input
               id="search"
               value={q}
@@ -203,43 +202,18 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
             <Bell size={20} strokeWidth={2} aria-hidden />
             {unread > 0 ? <span className="chat-badge chat-badge--header">{unread > 9 ? '9+' : unread}</span> : null}
           </Link>
-          <div className="relative shrink-0">
-            <button
-              type="button"
-              onClick={() => setMenu((v) => !v)}
-              className="flex h-11 min-w-11 items-center gap-2 rounded-[var(--k-radius-control)] p-1 hover:bg-overlay"
-              aria-expanded={menu}
-              aria-haspopup="menu"
-              aria-label="Menu da conta"
-            >
-              <Avatar src={user?.avatar} name={user?.name} size="sm" glow />
-              <span className="hidden max-w-28 truncate text-sm lg:block">{user?.name}</span>
-            </button>
-            {menu ? (
-              <div className="absolute right-0 mt-2 w-52 rounded-none border border-[var(--border)] bg-[var(--surface-elevated)] p-2 text-sm shadow-[var(--shadow-lg)]" role="menu">
-                <Link href={profileHref} className="block min-h-11 rounded-none px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
-                  Perfil
-                </Link>
-                {MORE_NAV.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="block min-h-11 rounded-none px-3 py-2.5 hover:bg-overlay"
-                    role="menuitem"
-                    onClick={() => setMenu(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                <Link href="/settings" className="block min-h-11 rounded-none px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
-                  Configurações
-                </Link>
-                <button type="button" onClick={logout} className="block min-h-11 w-full rounded-none px-3 py-2.5 text-left text-[var(--accent)] hover:bg-overlay" role="menuitem">
-                  Sair
-                </button>
-              </div>
-            ) : null}
-          </div>
+          <Menu
+            key={pathname}
+            className="shrink-0"
+            label="Menu da conta"
+            items={accountItems}
+            trigger={
+              <>
+                <Avatar src={user?.avatar} name={user?.name} size="sm" />
+                <span className="hidden max-w-28 truncate text-sm lg:block">{user?.name}</span>
+              </>
+            }
+          />
         </div>
       </header>
 
@@ -248,28 +222,29 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
           <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
         </main>
 
-        <aside className="hidden min-w-0 xl:block">
+        <aside className="hidden min-w-0 xl:block" aria-label="Sua agenda">
           <ShellAside right={right} />
         </aside>
       </div>
-      <nav className="shell-chrome fixed inset-x-0 bottom-0 z-50 border-t border-line pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Principal">
-        <ul className="grid grid-cols-5">
+      <nav className="shell-chrome k-tabbar fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Principal">
+        <ul className="k-tabbar__list">
           {BOTTOM_NAV.map((item) => {
             const href = item.profile ? profileHref : item.href;
             const active = item.profile ? pathname.startsWith('/perfil') : item.create ? pathname.startsWith('/roles/new') : navActive(pathname, item.href);
             if (item.create) {
               return (
-                <li key={item.href} className="flex items-center justify-center">
-                  <Link href={href} className="nav-create" aria-label="Criar rolê">
-                    <Plus size={22} strokeWidth={2.5} aria-hidden />
+                <li key={item.href} className="k-tabbar__slot">
+                  <Link href={href} className="k-tabbar__create" aria-label="Criar rolê">
+                    <Plus size={24} strokeWidth={2.5} aria-hidden />
                   </Link>
                 </li>
               );
             }
             return (
-              <li key={item.href}>
-                <Link href={href} className={`nav-bottom-link ${active ? 'is-active' : ''}`}>
-                  <item.icon size={20} strokeWidth={active ? 2.4 : 2} aria-hidden />
+              <li key={item.href} className="k-tabbar__slot">
+                <Link href={href} className={`k-tabbar__link ${active ? 'is-active' : ''}`} aria-current={active ? 'page' : undefined}>
+                  <span className="k-tabbar__dot" aria-hidden />
+                  <item.icon size={22} strokeWidth={active ? 2 : 1.5} aria-hidden />
                   {item.label}
                 </Link>
               </li>
@@ -282,11 +257,7 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
 }
 
 function ShellAside({ right }: { right?: ReactNode }) {
-  return (
-    <div className="space-y-4 xl:sticky xl:top-[4.75rem]">
-      {right ?? <DefaultRail />}
-    </div>
-  );
+  return <div className="space-y-8 xl:sticky xl:top-[4.75rem]">{right ?? <DefaultRail />}</div>;
 }
 
 function DefaultRail() {
@@ -333,37 +304,39 @@ function DefaultRail() {
   }, []);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-      <div className="card p-4">
-        <h2 className="k-meta mb-3">Próximos rolês</h2>
-        <ul className="space-y-3">
-          {roles.length === 0 ? <li className="text-sm text-muted">Nada marcado ainda.</li> : null}
+    <div className="grid gap-8">
+      <section className="k-agenda" aria-labelledby="agenda-title">
+        <h2 id="agenda-title" className="k-meta k-agenda__heading">
+          Sua agenda
+        </h2>
+        {roles.length === 0 ? <p className="k-agenda__empty">Nada marcado ainda.</p> : null}
+        <Ficha>
           {roles.map((role) => (
-            <li key={role.id}>
-              <Link href={`/roles/${role.id}`} className="block rounded-none hover:bg-overlay">
-                <p className="text-sm text-fg">{role.title}</p>
-                <p className="text-xs text-muted">
-                  {formatShortDate(role.date)} {role.time ?? ''}
-                </p>
-              </Link>
-            </li>
+            <FichaRow key={role.id} href={`/roles/${role.id}`} label={formatMeta(role.date, role.time)}>
+              <span className="k-display k-agenda__name">{role.title}</span>
+            </FichaRow>
           ))}
-        </ul>
-      </div>
-      <div className="card p-4">
-        <h2 className="k-meta mb-3">Sugestões</h2>
-        {people.length === 0 ? <p className="text-sm text-muted">Ninguém para seguir agora.</p> : null}
-        <ul className="space-y-3">
+        </Ficha>
+        <Link href="/roles/new" className="k-agenda__create">
+          Marcar um rolê
+        </Link>
+      </section>
+      <section aria-labelledby="suggestions-title">
+        <h2 id="suggestions-title" className="k-meta k-agenda__heading">
+          Sugestões
+        </h2>
+        {people.length === 0 ? <p className="k-agenda__empty">Ninguém para seguir agora.</p> : null}
+        <ul className="k-agenda__people">
           {people.map((person) => (
-            <li key={person.id} className="flex items-center gap-2">
+            <li key={person.id} className="k-agenda__person">
               <Avatar src={person.avatar} name={person.name} size="sm" />
               <Link href={`/perfil/${person.username}`} className="min-w-0 flex-1">
-                <p className="truncate text-sm">{person.name}</p>
-                <p className="truncate text-xs text-muted">@{person.username}</p>
+                <p className="truncate">{person.name}</p>
+                <p className="k-meta truncate">@{person.username}</p>
               </Link>
               <button
                 type="button"
-                className="button button--secondary shrink-0 px-3 text-xs"
+                className="button button--secondary shrink-0"
                 disabled={following === person.id}
                 onClick={async () => {
                   setFollowing(person.id);
@@ -382,7 +355,7 @@ function DefaultRail() {
             </li>
           ))}
         </ul>
-      </div>
+      </section>
       <div className="sm:col-span-2 xl:col-span-1">
         <ChatPreview placement="rail" />
       </div>

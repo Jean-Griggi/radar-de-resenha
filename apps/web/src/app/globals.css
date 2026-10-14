@@ -375,9 +375,8 @@ a.brand-wordmark:focus-visible {
   top: max(0.4rem, env(safe-area-inset-top));
   right: max(0.4rem, env(safe-area-inset-right));
   z-index: 50;
-  background: var(--surface-elevated);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  background: var(--k-surface-raised);
+  border: 1px solid var(--k-line);
 }
 
 .theme-toggle-icon {
@@ -404,7 +403,11 @@ a {
 /* Em camada: as classes utilitárias do Tailwind (pl-10, rounded-full...) passam a vencer estas, em vez de serem ignoradas. */
 @layer components {
   .shell-chrome {
-    background: var(--header);
+    background: var(--k-bg);
+  }
+
+  .k-header {
+    border-bottom: 1px solid var(--k-line);
   }
 
   .media-fallback {
@@ -478,27 +481,21 @@ a {
     color: var(--primary);
   }
 
+  /* Ponto sódio do cabeçalho (DECISOES §5). Círculo por ser o ponto da marca, sem raio 999px nem sombra. */
   .nav-create {
     display: flex;
     height: 44px;
     width: 44px;
     align-items: center;
     justify-content: center;
-    border-radius: var(--k-radius-person);
-    background: var(--primary);
-    color: var(--paper);
-    transition:
-      background-color 0.18s ease,
-      transform 0.15s ease;
+    border-radius: 50%;
+    background: var(--k-brand);
+    color: var(--k-on-brand);
+    transition: background-color var(--k-dur-quick) var(--k-ease-arrive);
   }
 
   .nav-create:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-  }
-
-  .nav-create:active {
-    transform: scale(0.96);
+    background: var(--k-brand-hover);
   }
 
   .button:focus-visible,
@@ -653,9 +650,8 @@ a {
 }
 
 .story-ring-unseen {
-  box-shadow:
-    0 0 0 2px var(--card),
-    0 0 0 4px var(--primary);
+  outline: 2px solid var(--k-brand);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -681,8 +677,6 @@ a {
 
   .icon-btn:active:not(:disabled),
   .nav-bottom-link:active,
-  .nav-create:hover,
-  .nav-create:active,
   .composer-chip:active,
   .top-nav-link:active {
     transform: none;

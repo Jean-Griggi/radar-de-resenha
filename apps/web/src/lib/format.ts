@@ -47,3 +47,19 @@ export function formatMoney(value?: number | null) {
   if (value == null) return null;
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
+
+/**
+ * Data e hora no formato mono da Kina: "sáb 18 out · 18h" (a caixa alta vem do `.k-meta`).
+ * Sem data válida devolve o texto original; sem hora, só a data.
+ */
+export function formatMeta(date?: string | null, time?: string | null) {
+  const day = parseDay(date);
+  if (!day) return date ?? 'Data a combinar';
+  const weekday = day.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+  const month = day.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+  const base = `${weekday} ${String(day.getDate()).padStart(2, '0')} ${month}`;
+  const match = time ? /^(\d{1,2}):(\d{2})/.exec(time) : null;
+  if (!match) return base;
+  const hour = Number(match[1]);
+  return `${base} · ${hour}h${match[2] === '00' ? '' : match[2]}`;
+}

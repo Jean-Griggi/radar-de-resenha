@@ -469,10 +469,12 @@
   .k-ficha-row--mark.k-ficha-row--chevron {
     grid-template-columns: 18px 84px 1fr 16px;
   }
-  button.k-ficha-row {
+  button.k-ficha-row,
+  a.k-ficha-row {
     cursor: pointer;
   }
-  button.k-ficha-row:hover {
+  button.k-ficha-row:hover,
+  a.k-ficha-row:hover {
     background: var(--k-bg-sunken);
   }
   .k-ficha-row__mark {
@@ -899,6 +901,110 @@
   }
   .reaction-btn[aria-pressed="true"] .k-meta {
     color: var(--k-text);
+  }
+
+  /* ===================== TabBar (celular) e agenda (DECISOES §5) ===================== */
+  .k-tabbar__list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    height: var(--k-tabbar);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--k-line);
+  }
+  .k-tabbar__slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+  .k-tabbar__link {
+    position: relative;
+    display: flex;
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    font-weight: 500;
+    line-height: 1.1;
+    opacity: 0.62;
+    text-decoration: none;
+  }
+  .k-tabbar__link.is-active {
+    font-weight: 600;
+    opacity: 1;
+  }
+  .k-tabbar__dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: transparent;
+  }
+  .k-tabbar__link.is-active .k-tabbar__dot {
+    background: var(--k-brand);
+  }
+  .k-tabbar__create {
+    display: flex;
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    margin-top: -26px;
+    border-radius: 50%;
+    outline: 6px solid var(--k-bg);
+    background: var(--k-brand);
+    color: var(--k-on-brand);
+    text-decoration: none;
+  }
+  .k-tabbar__create:hover {
+    background: var(--k-brand-hover);
+  }
+  .k-agenda__heading {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--k-text);
+    color: var(--k-text-muted);
+  }
+  .k-agenda__empty {
+    margin: 14px 0 0;
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+  .k-agenda__name {
+    display: block;
+    font-size: 20px;
+    line-height: 1.15;
+  }
+  .k-agenda .k-ficha-row {
+    grid-template-columns: 92px minmax(0, 1fr) 16px;
+    align-items: start;
+  }
+  .k-agenda__create {
+    display: inline-flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    margin-top: 8px;
+    color: var(--k-brand-text);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .k-agenda__people {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .k-agenda__person {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--k-touch);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--k-line);
   }
 }
 

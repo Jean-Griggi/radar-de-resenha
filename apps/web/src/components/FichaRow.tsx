@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 
@@ -18,6 +19,7 @@ export function FichaRow({
   empty = false,
   mark,
   onClick,
+  href,
   disabled,
 }: {
   label: string;
@@ -28,9 +30,11 @@ export function FichaRow({
   empty?: boolean;
   mark?: 'done' | 'empty';
   onClick?: () => void;
+  /** Linha-link: navega com `next/link` (a linha inteira é o alvo). */
+  href?: string;
   disabled?: boolean;
 }) {
-  const interactive = Boolean(onClick);
+  const interactive = Boolean(onClick || href);
   const className = `k-ficha-row${mark ? ' k-ficha-row--mark' : ''}${interactive ? ' k-ficha-row--chevron' : ''}`;
   const content = (
     <>
@@ -43,6 +47,13 @@ export function FichaRow({
     </>
   );
 
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {content}
+      </Link>
+    );
+  }
   if (interactive) {
     return (
       <button type="button" className={className} onClick={onClick} disabled={disabled}>
