@@ -666,7 +666,242 @@
   }
 }
 
+@layer components {
+  /* ===================== Modal / Sheet ===================== */
+  .k-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--k-z-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--k-space-4);
+    background: var(--k-overlay);
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-overlay--sheet {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .k-overlay[data-state="closing"] {
+    opacity: 0;
+    animation: none;
+    transition: opacity var(--k-dur-quick) var(--k-ease-leave);
+  }
+
+  .k-modal {
+    --k-corner-size: 16px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(520px, 100%);
+    max-height: calc(100dvh - 48px);
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-none);
+    background: var(--k-surface-raised);
+    color: var(--k-text);
+    box-shadow: var(--k-shadow-overlay);
+    animation: k-modal-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-overlay[data-state="closing"] .k-modal {
+    animation: none;
+  }
+
+  .k-sheet {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 88dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--k-line);
+    border-radius: var(--k-radius-none);
+    background: var(--k-surface-raised);
+    color: var(--k-text);
+    box-shadow: var(--k-shadow-overlay);
+    animation: k-sheet-in var(--k-dur-move) var(--k-ease-arrive);
+  }
+  .k-overlay[data-state="closing"] .k-sheet {
+    animation: none;
+  }
+  .k-sheet__handle {
+    width: 40px;
+    height: 4px;
+    margin: 10px auto 0;
+    background: var(--k-line-strong);
+  }
+
+  .k-dialog__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--k-space-4);
+    padding: var(--k-space-6) var(--k-space-6) var(--k-space-3);
+  }
+  .k-dialog__title {
+    margin: 0;
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-25);
+    font-weight: 400;
+    line-height: var(--k-lh-title);
+  }
+  .k-sheet .k-dialog__title {
+    font-size: 26px;
+  }
+  .k-dialog__description {
+    margin: 4px 0 0;
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+  .k-dialog__close {
+    display: inline-flex;
+    flex: none;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    margin: -8px -8px 0 0;
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-dialog__close:hover {
+    background: var(--k-bg-sunken);
+  }
+  .k-dialog__body {
+    overflow-y: auto;
+    padding: 0 var(--k-space-6) var(--k-space-6);
+  }
+
+  @keyframes k-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes k-modal-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes k-sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  /* ===================== Menu ===================== */
+  .k-menu {
+    position: relative;
+    display: inline-block;
+  }
+  .k-menu__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    justify-content: center;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .k-menu__panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    z-index: var(--k-z-overlay);
+    min-width: 220px;
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-none);
+    background: var(--k-surface-raised);
+    box-shadow: var(--k-shadow-overlay);
+    animation: k-modal-in var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-menu__panel--end {
+    right: 0;
+  }
+  .k-menu__panel--start {
+    left: 0;
+  }
+  .k-menu__item {
+    display: flex;
+    width: 100%;
+    min-height: var(--k-touch);
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-14);
+    line-height: 1.25;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .k-menu__item:hover,
+  .k-menu__item:focus-visible {
+    background: var(--k-bg-sunken);
+  }
+  .k-menu__item:focus-visible {
+    outline-offset: -2px;
+  }
+  .k-menu__item--danger {
+    color: var(--k-danger);
+  }
+  .k-menu__item--sep {
+    border-top: 1px solid var(--k-line);
+  }
+
+  /* ===================== Reactions (D6): sem fundo, emoji + contagem mono, fio inferior na ativa ===================== */
+  .reaction-btn {
+    display: inline-flex;
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 10px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--k-radius-none);
+    background: none;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-16);
+    cursor: pointer;
+    transition: color var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .reaction-btn:hover:not(:disabled) {
+    color: var(--k-text);
+  }
+  /* A ativa tem fio inferior de 2 px na marca (forma, não só cor) e a contagem em texto pleno. */
+  .reaction-btn[aria-pressed="true"] {
+    border-bottom-color: var(--k-brand);
+    color: var(--k-text);
+  }
+  .reaction-btn[aria-pressed="true"] .k-meta {
+    color: var(--k-text);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  /* Movimento reduzido: só fade (160 ms), sem deslocamento. */
+  .k-overlay,
+  .k-modal,
+  .k-sheet,
+  .k-menu__panel {
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-overlay[data-state="closing"] {
+    transition: none;
+  }
+  .reaction-btn {
+    transition: none;
+  }
   .card,
   .k-tab,
   .chip-tab,

@@ -4,17 +4,22 @@ import { useState, type CSSProperties, type ReactNode } from 'react';
 import { Plus } from 'lucide-react';
 import { Avatar } from '@/components/Avatar';
 import { AvatarStack } from '@/components/AvatarStack';
+import { REACTION_EMOJI, type ReactionType } from '@resenhometro/shared';
 import { Button } from '@/components/Button';
 import { Card, EmptyState, Skeleton } from '@/components/Card';
 import { Corners } from '@/components/Corners';
 import { Field, Input, Select, Textarea } from '@/components/Field';
 import { Ficha, FichaRow } from '@/components/FichaRow';
+import { Menu } from '@/components/Menu';
+import { Modal, Sheet } from '@/components/Modal';
 import { Spinner } from '@/components/Spinner';
 import { Tabs } from '@/components/Tabs';
 import { Tag } from '@/components/Tag';
 import { ToastView, useToast } from '@/components/Toast';
 import { TrackList, TrackRow } from '@/components/TrackRow';
+import { BrandBadge, BrandLoader, BrandSymbol } from '@/components/BrandMark';
 import { BrandWordmark } from '@/components/BrandWordmark';
+import { KinaLogo } from '@/components/KinaLogo';
 import { useTheme } from '@/components/Theme';
 
 /* Estados forçados para a vitrine: só tokens, para mostrar hover/foco/pressionado sem interação. */
@@ -472,6 +477,150 @@ function ToastSection() {
   );
 }
 
+function OverlaySection() {
+  const [modal, setModal] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  const [sheet, setSheet] = useState(false);
+  return (
+    <Section title="Modal e Sheet" meta="foco preso · Esc fecha · foco volta ao gatilho · saída de 160 ms">
+      <div className={ROW}>
+        <Button variant="secondary" onClick={() => setModal(true)}>
+          Abrir modal
+        </Button>
+        <Button variant="secondary" onClick={() => setConfirm(true)}>
+          Abrir confirmação destrutiva
+        </Button>
+        <Button variant="secondary" onClick={() => setSheet(true)}>
+          Abrir sheet (celular)
+        </Button>
+      </div>
+      <Modal open={modal} onClose={() => setModal(false)} title="Marcar um rolê" description="Dois campos e pronto.">
+        <div className="space-y-4">
+          <Field label="Nome do rolê">
+            <Input data-autofocus placeholder="Ex.: Pôr do sol na laje" />
+          </Field>
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={() => setModal(false)}>Publicar</Button>
+          </div>
+        </div>
+      </Modal>
+      <Modal open={confirm} onClose={() => setConfirm(false)} title="Excluir este rolê?" description="Não dá para desfazer.">
+        <div className="flex justify-end gap-3">
+          <Button variant="secondary" data-autofocus onClick={() => setConfirm(false)}>
+            Manter
+          </Button>
+          <Button className="button--danger-solid" onClick={() => setConfirm(false)}>
+            Excluir rolê
+          </Button>
+        </div>
+      </Modal>
+      <Sheet open={sheet} onClose={() => setSheet(false)} title="Quando?">
+        <Ficha>
+          <FichaRow label="Data" mono>
+            SÁB 18 OUT
+          </FichaRow>
+          <FichaRow label="Hora" mono>
+            18H
+          </FichaRow>
+        </Ficha>
+        <div className="mt-4">
+          <Button className="w-full" onClick={() => setSheet(false)}>
+            Pronto
+          </Button>
+        </div>
+      </Sheet>
+    </Section>
+  );
+}
+
+function MenuSection() {
+  const [last, setLast] = useState('nenhum');
+  return (
+    <Section title="Menu" meta="itens de 44 px · fios · setas, Home, End, Esc">
+      <div className="flex items-start gap-8">
+        <Menu
+          label="Menu da conta"
+          trigger={<Avatar name="Lia Moraes" size="sm" />}
+          items={[
+            { label: 'Perfil', onSelect: () => setLast('Perfil') },
+            { label: 'Configurações', onSelect: () => setLast('Configurações') },
+            { label: 'Calendário', href: '#vitrine', separatorBefore: true },
+            { label: 'Sair', tone: 'danger', separatorBefore: true, onSelect: () => setLast('Sair') },
+          ]}
+        />
+        <p className="k-help pt-3">Último item escolhido: {last}</p>
+      </div>
+    </Section>
+  );
+}
+
+function ReactionsSection() {
+  return (
+    <Section title="Reações" meta="sem fundo · emoji + contagem mono · ativa com fio inferior de 2 px">
+      <div className="flex flex-wrap gap-8">
+        {(
+          [
+            ['padrão', false, 0],
+            ['com contagem', false, 7],
+            ['ativa', true, 8],
+          ] as const
+        ).map(([name, pressed, count]) => (
+          <Cell key={name} label={name}>
+            <div className="flex flex-wrap gap-1" role="group" aria-label={`Reações (${name})`}>
+              {(Object.keys(REACTION_EMOJI) as ReactionType[]).map((type, index) => (
+                <button
+                  key={type}
+                  type="button"
+                  className="reaction-btn"
+                  aria-pressed={pressed && index === 0}
+                  aria-label={`Reagir com ${REACTION_EMOJI[type]}`}
+                >
+                  <span aria-hidden>{REACTION_EMOJI[type]}</span>
+                  {count > 0 && index < 2 ? <span className="k-meta">{count}</span> : null}
+                </button>
+              ))}
+            </div>
+          </Cell>
+        ))}
+      </div>
+      <p className="k-help mt-3">Mesmas classes do componente Reactions (que fala com a API, por isso aqui só o visual).</p>
+    </Section>
+  );
+}
+
+function BrandSection() {
+  return (
+    <Section title="BrandMark e BrandWordmark" meta="logo em SVG inline · símbolo · selo · carregamento">
+      <div className="flex flex-wrap items-center gap-10">
+        <Cell label="BrandWordmark">
+          <BrandWordmark />
+        </Cell>
+        <Cell label="BrandWordmark · link">
+          <BrandWordmark href="#vitrine" />
+        </Cell>
+        <Cell label="BrandWordmark · grande">
+          <BrandWordmark large />
+        </Cell>
+        <Cell label="BrandSymbol">
+          <BrandSymbol className="h-12 w-12" title="Kina" />
+        </Cell>
+        <Cell label="BrandBadge">
+          <BrandBadge />
+        </Cell>
+        <Cell label="KinaLogo compact">
+          <KinaLogo variant="compact" className="h-8 w-auto" />
+        </Cell>
+      </div>
+      <div className="mt-6">
+        <BrandLoader compact label="Montando retrospectiva" />
+      </div>
+    </Section>
+  );
+}
+
 export function Vitrine() {
   const { toggle } = useTheme();
   return (
@@ -497,6 +646,10 @@ export function Vitrine() {
       <LoadingSection />
       <EmptySection />
       <ToastSection />
+      <OverlaySection />
+      <MenuSection />
+      <ReactionsSection />
+      <BrandSection />
     </main>
   );
 }

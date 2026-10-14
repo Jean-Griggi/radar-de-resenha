@@ -50,7 +50,7 @@ export function Reactions({
             aria-label={`Reagir com ${REACTION_EMOJI[type]}`}
           >
             <span aria-hidden>{REACTION_EMOJI[type]}</span>
-            {count > 0 ? <span className="text-xs tabular-nums">{count}</span> : null}
+            {count > 0 ? <span className="k-meta">{count}</span> : null}
           </button>
         );
       })}

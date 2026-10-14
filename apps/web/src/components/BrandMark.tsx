@@ -1,4 +1,5 @@
 import { KinaLogo } from './KinaLogo';
+import { Spinner } from './Spinner';
 
 export function BrandSymbol({
   className = '',
@@ -28,11 +29,8 @@ export function BrandBadge({ className = '', title }: { className?: string; titl
 
 export function BrandLoader({ label = 'Carregando', compact = false }: { label?: string; compact?: boolean }) {
   return (
-    <div className={`brand-loader${compact ? ' brand-loader--compact' : ''}`} role="status" aria-live="polite" aria-label={label}>
-      <BrandSymbol className="brand-loader-symbol" />
-      <div className="brand-loader-track">
-        <span className="brand-loader-bar" />
-      </div>
+    <div className={`brand-loader${compact ? ' brand-loader--compact' : ''}`}>
+      <Spinner label={label} size={compact ? 'md' : 'lg'} />
     </div>
   );
 }
