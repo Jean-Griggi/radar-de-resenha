@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/Button';
-import { BrandWordmark } from '@/components/BrandWordmark';
+import { Corners } from '@/components/Corners';
 import { Field, FormError, Input } from '@/components/Field';
-import { ThemeToggle } from '@/components/Theme';
 import { api, apiErrorMessage } from '@/lib/api';
+import { AuthStage } from './AuthStage';
 
 export function RedefinirSenhaScreen() {
   const router = useRouter();
@@ -44,30 +44,26 @@ export function RedefinirSenhaScreen() {
   }
 
   return (
-    <main className="auth-screen relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 pt-14">
-      <ThemeToggle className="theme-toggle-corner" />
-      <div className="login-brand">
-        <BrandWordmark large />
-      </div>
-      <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Nova senha</h1>
-      <p className="mt-3 mb-8 text-muted">Escolha uma senha com pelo menos 8 caracteres.</p>
-      <form onSubmit={onSubmit} className="card composer space-y-4 p-6">
-        <Field label="Nova senha">
-          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required autoComplete="new-password" />
-        </Field>
-        <Field label="Confirmar senha">
-          <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={8} required autoComplete="new-password" />
-        </Field>
-        {error ? <FormError>{error}</FormError> : null}
-        <Button type="submit" loading={loading} className="w-full">
-          {loading ? 'Salvando...' : 'Salvar senha'}
-        </Button>
-      </form>
-      <p className="mt-4 text-center text-sm text-muted">
-        <Link href="/login" className="font-semibold text-[var(--primary)] hover:underline">
-          Voltar ao login
-        </Link>
-      </p>
-    </main>
+    <AuthStage>
+      <Corners size={22} className={`auth-panel${error ? ' auth-panel--error' : ''}`}>
+        <h1 className="auth-panel__title k-display">Nova senha</h1>
+        <p className="auth-panel__lead">Escolha uma senha com pelo menos 8 caracteres.</p>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <Field label="Nova senha">
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required autoComplete="new-password" />
+          </Field>
+          <Field label="Confirmar senha">
+            <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={8} required autoComplete="new-password" />
+          </Field>
+          {error ? <FormError>{error}</FormError> : null}
+          <Button type="submit" loading={loading} className="w-full">
+            {loading ? 'Salvando...' : 'Salvar senha'}
+          </Button>
+          <p className="auth-panel__links">
+            <Link href="/login">Voltar ao login</Link>
+          </p>
+        </form>
+      </Corners>
+    </AuthStage>
   );
 }

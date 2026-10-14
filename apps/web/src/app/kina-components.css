@@ -1006,6 +1006,147 @@
     padding: 8px 0;
     border-bottom: 1px solid var(--k-line);
   }
+
+  /* ===================== Login / auth (plano 3.2 + D1) ===================== */
+  .auth-stage {
+    position: relative;
+    min-height: 100dvh;
+    background: var(--k-bg);
+  }
+  .auth-stage__grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .auth-stage__h,
+  .auth-stage__v {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--k-text) 55%, transparent);
+  }
+  .auth-stage__h {
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 2px;
+  }
+  .auth-stage__v {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+  }
+  .auth-stage__brand {
+    position: absolute;
+    z-index: 2;
+    top: max(16px, env(safe-area-inset-top));
+    left: max(16px, env(safe-area-inset-left));
+  }
+  .auth-stage__phrase {
+    position: absolute;
+    z-index: 2;
+    bottom: calc(50% + 48px);
+    left: 50%;
+    width: min(12em, calc(100% - 32px));
+    margin: 0;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: var(--k-fs-39);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+  }
+  .auth-stage__phrase em {
+    font-style: italic;
+  }
+  .auth-enter {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .auth-enter .button {
+    height: 56px;
+    padding: 0 26px;
+    font-size: 19px;
+    transition: transform var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .auth-enter .brand-symbol {
+    width: 20px;
+    height: 20px;
+  }
+  /* No ponto sódio o símbolo inteiro fica na cor do texto do botão (o ponto da marca some no fundo). */
+  .auth-enter .brand-symbol circle {
+    fill: currentColor;
+  }
+  .auth-panel {
+    position: relative;
+    z-index: 2;
+    width: min(420px, calc(100% - 32px));
+    margin: 14vh auto 32px;
+    padding: 28px 24px 24px;
+    background: var(--k-surface-raised);
+  }
+  .auth-panel--quina {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(420px, calc(50vw - 20px));
+    margin: 0;
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .auth-panel__scroll {
+    max-height: calc(50dvh - 16px);
+    overflow: auto;
+  }
+  .auth-panel--error {
+    border: 2px solid var(--k-danger);
+  }
+  .auth-panel__title {
+    margin: 0;
+    font-size: var(--k-fs-31);
+    line-height: 1.05;
+  }
+  .auth-panel__lead {
+    margin: 8px 0 20px;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-16);
+  }
+  .auth-panel__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-top: 14px;
+    font-size: var(--k-fs-14);
+  }
+  .auth-panel__links a {
+    color: var(--k-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  @media (min-width: 1024px) {
+    .auth-stage__phrase {
+      font-size: var(--k-fs-49);
+    }
+  }
+  @media (max-width: 899px) {
+    .auth-panel--quina {
+      top: auto;
+      right: 16px;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      left: 16px;
+      width: auto;
+    }
+    .auth-panel__scroll {
+      max-height: calc(100dvh - 180px);
+    }
+    .auth-stage__phrase {
+      top: max(72px, 10vh);
+      bottom: auto;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1026,6 +1167,12 @@
   .k-tab,
   .chip-tab,
   .k-ficha-row__mark {
+    transition: none;
+  }
+  .auth-panel,
+  .auth-panel--quina,
+  .auth-enter .button {
+    animation: k-fade-in 160ms linear;
     transition: none;
   }
   .skeleton {

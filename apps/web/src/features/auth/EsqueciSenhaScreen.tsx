@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { Button } from '@/components/Button';
-import { BrandWordmark } from '@/components/BrandWordmark';
+import { Corners } from '@/components/Corners';
 import { Field, FormError, Input } from '@/components/Field';
-import { ThemeToggle } from '@/components/Theme';
 import { api, apiErrorMessage } from '@/lib/api';
+import { AuthStage } from './AuthStage';
 
 export function EsqueciSenhaScreen() {
   const [email, setEmail] = useState('');
@@ -29,39 +29,34 @@ export function EsqueciSenhaScreen() {
   }
 
   return (
-    <main className="auth-screen relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 pt-14">
-      <ThemeToggle className="theme-toggle-corner" />
-      <div className="login-brand">
-        <BrandWordmark large />
-      </div>
-      <h1 className="mt-2 text-3xl font-semibold text-fg sm:text-4xl">Esqueceu a senha?</h1>
-      <p className="mt-3 mb-8 text-muted">Informe o e-mail da conta e peça o link de redefinição.</p>
-      {done ? (
-        <div className="card space-y-4 p-6">
-          <p className="text-sm text-fg">
-            Pedido recebido. Se esse e-mail tiver conta, o link de redefinição chega por e-mail. Confira a caixa de entrada e o spam.
-          </p>
-          <Link href="/login" className="block text-center text-sm text-[var(--accent)] hover:underline">
-            Voltar ao login
-          </Link>
-        </div>
-      ) : (
-        <form onSubmit={onSubmit} className="card composer space-y-4 p-6">
-          <Field label="E-mail">
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
-          </Field>
-          {error ? <FormError>{error}</FormError> : null}
-          <Button type="submit" loading={loading} className="w-full">
-            {loading ? 'Enviando...' : 'Pedir link'}
-          </Button>
-        </form>
-      )}
-      <p className="mt-4 text-center text-sm text-muted">
-        Lembrou a senha?{' '}
-        <Link href="/login" className="font-semibold text-[var(--primary)] hover:underline">
-          Entrar
-        </Link>
-      </p>
-    </main>
+    <AuthStage>
+      <Corners size={22} className={`auth-panel${error ? ' auth-panel--error' : ''}`}>
+        <h1 className="auth-panel__title k-display">Esqueceu a senha?</h1>
+        <p className="auth-panel__lead">Informe o e-mail da conta e peça o link de redefinição.</p>
+        {done ? (
+          <div className="space-y-4">
+            <p>
+              Pedido recebido. Se esse e-mail tiver conta, o link de redefinição chega por e-mail. Confira a caixa de entrada e o spam.
+            </p>
+            <p className="auth-panel__links">
+              <Link href="/login">Voltar ao login</Link>
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={onSubmit} className="space-y-4">
+            <Field label="E-mail">
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+            </Field>
+            {error ? <FormError>{error}</FormError> : null}
+            <Button type="submit" loading={loading} className="w-full">
+              {loading ? 'Enviando...' : 'Pedir link'}
+            </Button>
+            <p className="auth-panel__links">
+              <Link href="/login">Entrar</Link>
+            </p>
+          </form>
+        )}
+      </Corners>
+    </AuthStage>
   );
 }
