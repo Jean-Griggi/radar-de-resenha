@@ -1285,6 +1285,102 @@
       bottom: 0;
     }
   }
+
+  /* ===================== Ver rolê (plano 3.6 + D12) ===================== */
+  .role-view__main {
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+  }
+  .role-cover {
+    position: relative;
+    min-height: 240px;
+    height: 40vh;
+    overflow: hidden;
+    background: var(--k-bg-sunken);
+  }
+  .role-cover__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .role-cover__scrim {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 55%;
+    background: var(--k-scrim-photo);
+  }
+  .role-cover__title {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+  }
+  .role-cover__status {
+    color: var(--k-brand-text);
+  }
+  .role-cover__name {
+    margin: 4px 0 0;
+    color: var(--k-stage-text);
+    font-size: var(--k-fs-39);
+  }
+  .role-cover__title--plain .role-cover__name,
+  .role-cover__title--plain .role-cover__status {
+    color: var(--k-text);
+  }
+  .role-cover__title--plain .role-cover__status {
+    color: var(--k-brand-text);
+  }
+  .role-view__desc {
+    margin: 0;
+    font-size: var(--k-fs-16);
+  }
+  .role-view__people {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+  .role-view__rsvp {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .role-view__side {
+    display: grid;
+    gap: 24px;
+    align-content: start;
+    margin-top: 24px;
+  }
+  .role-view__side-title {
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--k-text);
+  }
+  @media (min-width: 1024px) {
+    .role-cover {
+      height: 52vh;
+    }
+    .role-cover__name {
+      font-size: var(--k-fs-61);
+    }
+    .role-view {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 32px;
+      align-items: start;
+    }
+    .role-view__ficha {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 28px;
+    }
+    .role-view__side {
+      margin-top: 0;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
