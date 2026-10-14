@@ -1064,17 +1064,21 @@
     z-index: 2;
     top: 50%;
     left: 50%;
+    width: max-content;
     transform: translate(-50%, -50%);
   }
-  .auth-enter .button {
-    height: 56px;
-    padding: 0 26px;
-    font-size: 19px;
+  /* O magnetismo desloca este invólucro. O botão fica com largura do conteúdo (o transform não entra na medida). */
+  .auth-enter__shift {
+    width: max-content;
     transition: transform var(--k-dur-base) var(--k-ease-arrive);
   }
-  .auth-enter .brand-symbol {
-    width: 20px;
-    height: 20px;
+  .auth-enter .button {
+    width: max-content;
+    height: 56px;
+    padding: 0 24px;
+    overflow: visible;
+    white-space: nowrap;
+    font-size: 19px;
   }
   /* No ponto sódio o símbolo inteiro fica na cor do texto do botão (o ponto da marca some no fundo). */
   .auth-enter .brand-symbol circle {
@@ -1089,16 +1093,24 @@
     background: var(--k-surface-raised);
   }
   .auth-panel--quina {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
-    width: min(420px, calc(50vw - 20px));
+    display: flex;
+    flex-direction: column;
+    width: min(420px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
     margin: 0;
+    overflow: visible;
+    transform: translate(-50%, -50%);
     animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
   }
   .auth-panel__scroll {
-    max-height: calc(50dvh - 16px);
-    overflow: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    /* O outline do foco (2 px + offset 2 px) fica dentro do scroll, senão o overflow corta as laterais e sobram duas linhas. */
+    padding: 8px;
   }
   .auth-panel--error {
     border: 2px solid var(--k-danger);
@@ -1132,16 +1144,6 @@
     }
   }
   @media (max-width: 899px) {
-    .auth-panel--quina {
-      top: auto;
-      right: 16px;
-      bottom: max(16px, env(safe-area-inset-bottom));
-      left: 16px;
-      width: auto;
-    }
-    .auth-panel__scroll {
-      max-height: calc(100dvh - 180px);
-    }
     .auth-stage__phrase {
       top: max(72px, 10vh);
       bottom: auto;
@@ -1386,7 +1388,9 @@
   .feed {
     display: grid;
     gap: 28px;
-    max-width: 620px;
+    width: 100%;
+    max-width: 680px;
+    margin-inline: auto;
   }
   .feed-future {
     display: grid;
@@ -1481,6 +1485,7 @@
   }
   .auth-panel,
   .auth-panel--quina,
+  .auth-enter__shift,
   .auth-enter .button {
     animation: k-fade-in 160ms linear;
     transition: none;

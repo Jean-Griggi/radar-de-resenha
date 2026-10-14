@@ -217,7 +217,13 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 lg:pb-28 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,22.5rem)] 2xl:max-w-[1536px]">
+      <div
+        className={
+          pathname === '/'
+            ? 'mx-auto grid w-full grid-cols-1 gap-6 px-3 py-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 lg:pb-28 xl:max-w-[calc(680px+22.5rem+1.5rem)] xl:grid-cols-[minmax(0,680px)_minmax(20rem,22.5rem)]'
+            : 'mx-auto grid max-w-7xl grid-cols-1 gap-6 px-3 py-4 pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-6 lg:pb-28 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,22.5rem)] 2xl:max-w-[1536px]'
+        }
+      >
         <main className="min-w-0">
           <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
         </main>

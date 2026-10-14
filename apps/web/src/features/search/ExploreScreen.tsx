@@ -1,8 +1,8 @@
 'use client';
 
+import { Children, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import type { SearchResults } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState, Skeleton } from '@/components/Card';
@@ -185,10 +185,11 @@ export function ExploreScreen() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const empty = Children.count(children) === 0;
   return (
     <section className="card space-y-3 p-5">
       <h2 className="font-medium">{title}</h2>
-      <div className="flex flex-col gap-2">{children}</div>
+      {empty ? <p className="text-sm text-muted">Nada por aqui ainda.</p> : <div className="flex flex-col gap-2">{children}</div>}
     </section>
   );
 }

@@ -14,12 +14,13 @@ import { getUser, setAuth, type AuthUser } from './session';
 
 /**
  * Magnetismo do botão “Entrar”: só com ponteiro fino, sem movimento reduzido e sem erro.
- * O deslocamento vai no `transform` do botão (até 8 px), num frame só — sem setState no mousemove.
+ * O deslocamento vai no `transform` de um invólucro (até 8 px), num frame só — sem setState no mousemove.
+ * O botão em si não recebe transform, para a largura continuar sendo a do texto.
  */
-function useEnterMagnet(enabled: boolean, anchorRef: RefObject<HTMLDivElement | null>, buttonRef: RefObject<HTMLButtonElement | null>) {
+function useEnterMagnet(enabled: boolean, anchorRef: RefObject<HTMLDivElement | null>, shiftRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
-    const button = buttonRef.current;
-    if (!enabled || !button) return;
+    const shift = shiftRef.current;
+    if (!enabled || !shift) return;
     const fine = window.matchMedia('(pointer: fine)');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (!fine.matches || reduce.matches) return;
@@ -36,11 +37,11 @@ function useEnterMagnet(enabled: boolean, anchorRef: RefObject<HTMLDivElement | 
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         if (dist >= 160 || dist === 0) {
-          button.style.transform = 'translate(0px, 0px)';
+          shift.style.transform = 'translate(0px, 0px)';
           return;
         }
         const pull = (1 - dist / 160) * 8;
-        button.style.transform = `translate(${(dx / dist) * pull}px, ${(dy / dist) * pull}px)`;
+        shift.style.transform = `translate(${(dx / dist) * pull}px, ${(dy / dist) * pull}px)`;
       });
     };
 
@@ -48,9 +49,9 @@ function useEnterMagnet(enabled: boolean, anchorRef: RefObject<HTMLDivElement | 
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener('pointermove', onMove);
-      button.style.transform = '';
+      shift.style.transform = '';
     };
-  }, [enabled, anchorRef, buttonRef]);
+  }, [enabled, anchorRef, shiftRef]);
 }
 
 export function LoginScreen() {
@@ -62,6 +63,7 @@ export function LoginScreen() {
   const [panel, setPanel] = useState(false);
   const [sheet, setSheet] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const shiftRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -77,7 +79,7 @@ export function LoginScreen() {
     if (panel) formRef.current?.querySelector<HTMLElement>('[data-autofocus]')?.focus();
   }, [panel]);
 
-  useEnterMagnet(!panel && !sheet && error === '', anchorRef, buttonRef);
+  useEnterMagnet(!panel && !sheet && error === '', anchorRef, shiftRef);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -128,17 +130,19 @@ export function LoginScreen() {
   );
 
   return (
-    <AuthStage phrase>
+    <AuthStage phrase suppressPhrase={panel || sheet}>
       {panel ? (
         <Corners size={22} className={`auth-panel auth-panel--quina${error ? ' auth-panel--error' : ''}`}>
           <div className="auth-panel__scroll">{form}</div>
         </Corners>
       ) : (
         <div ref={anchorRef} className="auth-enter">
-          <button ref={buttonRef} type="button" className="button button--primary" onClick={openPanel}>
-            <BrandSymbol />
-            Entrar
-          </button>
+          <div ref={shiftRef} className="auth-enter__shift">
+            <button ref={buttonRef} type="button" className="button button--primary" onClick={openPanel}>
+              <BrandSymbol />
+              Entrar
+            </button>
+          </div>
         </div>
       )}
       <Sheet open={sheet} onClose={() => setSheet(false)} title="Entrar">

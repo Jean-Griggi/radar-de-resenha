@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { LocateFixed } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Field';
 import { searchAddress, type PlaceResult } from '@/lib/geocode';
@@ -131,8 +132,9 @@ function SpotPicker({
       {!spot ? (
         <div className="flex flex-wrap gap-2">
           {onUseMyLocation ? (
-            <button type="button" className="chip-tab" onClick={onUseMyLocation}>
-              📍 Minha localização
+            <button type="button" className="chip-tab gap-1.5" onClick={onUseMyLocation}>
+              <LocateFixed size={16} strokeWidth={2} aria-hidden />
+              Minha localização
             </button>
           ) : null}
           {saved.map((place) => (

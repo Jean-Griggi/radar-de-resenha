@@ -56,20 +56,25 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
 
   const unread = conversations.reduce((sum, item) => sum + item.unread, 0);
 
+  const rail = placement === 'rail';
+  const action = conversations.length > SHOWN ? 'Ver todas' : 'Abrir mensagens';
+
   return (
-    <section className="card p-4" aria-label="Mensagens">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-lg font-medium">
+    <section className={rail ? undefined : 'card p-4'} aria-label="Mensagens">
+      <div className={rail ? undefined : 'mb-2 flex items-center justify-between gap-2'}>
+        <h2 className={rail ? 'k-meta k-agenda__heading' : 'text-lg font-medium'}>
           Mensagens
           {unread > 0 ? (
-            <span className="ml-2 rounded-[var(--k-radius-control)] bg-[var(--primary)] px-2 py-0.5 align-middle text-xs font-bold text-[var(--paper)]">
+            <span className={rail ? 'k-meta' : 'ml-2 rounded-[var(--k-radius-control)] bg-[var(--primary)] px-2 py-0.5 align-middle text-sm font-bold text-[var(--paper)]'}>
               {unread > 9 ? '9+' : unread}
             </span>
           ) : null}
         </h2>
-        <Link href="/chat" className="text-sm font-medium text-[var(--accent)] hover:underline">
-          {conversations.length > SHOWN ? 'Ver todas' : 'Abrir mensagens'}
-        </Link>
+        {rail ? null : (
+          <Link href="/chat" className="text-sm font-medium text-[var(--accent)] hover:underline">
+            {action}
+          </Link>
+        )}
       </div>
 
       {conversations.length === 0 ? (
@@ -100,6 +105,11 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
           ))}
         </ul>
       )}
+      {rail ? (
+        <Link href="/chat" className="k-agenda__create">
+          {action}
+        </Link>
+      ) : null}
     </section>
   );
 }

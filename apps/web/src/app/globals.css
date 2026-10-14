@@ -298,6 +298,16 @@ a.brand-wordmark:focus-visible {
   overflow: visible;
 }
 
+/* Fora de @layer: a regra geral acima vence a do botão de login se esta ficar só na camada de componentes. */
+.auth-enter .brand-symbol {
+  width: 20px;
+  height: 20px;
+  max-width: none;
+  flex: none;
+  color: var(--k-on-brand);
+  overflow: hidden;
+}
+
 .brand-logo {
   display: block;
   height: 2.1rem;

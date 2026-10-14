@@ -1,3 +1,5 @@
+import { initials } from '../../lib/format';
+
 export type MapPoint = { latitude: number; longitude: number };
 
 export const PLACE_NAME_MAX = 40;
@@ -112,6 +114,7 @@ export function profileLocationFields(
 export type PeoplePin = {
   id: string;
   username: string;
+  name: string;
   latitude: number;
   longitude: number;
   avatar: string | null;
@@ -125,6 +128,7 @@ export function pinsFromPeople(
     username?: string;
     latitude?: number;
     longitude?: number;
+    name?: string | null;
     avatar?: string | null;
     placeName?: string | null;
   }>,
@@ -133,9 +137,11 @@ export function pinsFromPeople(
   for (const person of people) {
     const point = visiblePoint(person);
     if (!point || !person.id) continue;
+    const username = person.username?.trim() || '';
     pins.push({
       id: person.id,
-      username: person.username?.trim() || '',
+      username,
+      name: person.name?.trim() || username,
       latitude: point.latitude,
       longitude: point.longitude,
       avatar: markerAvatar(person.avatar),
@@ -188,45 +194,84 @@ export type MapControls = {
 
 type MapLibreModule = typeof import('maplibre-gl');
 
-function avatarPin(url: string): HTMLElement {
+/** MapLibre não lê `var()`. O worker do Turbopack aponta para um chunk que não existe; o arquivo real vai na URL. */
+function configureMapWorker(maplibre: MapLibreModule) {
+  const worker = new URL('../../../../node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs', import.meta.url);
+  maplibre.setWorkerUrl(worker.href);
+}
+
+function mapToken(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+/** Mesmo desenho do Avatar sem foto: círculo, fundo rebaixado, iniciais. */
+function initialsFace(name: string | null | undefined): HTMLElement {
+  const face = document.createElement('div');
+  face.dataset.locationPin = 'visible';
+  face.textContent = initials(name);
+  face.style.cssText = [
+    'width:40px',
+    'height:40px',
+    'box-sizing:border-box',
+    'border-radius:50%',
+    'display:flex',
+    'align-items:center',
+    'justify-content:center',
+    `background:${mapToken('--k-bg-sunken')}`,
+    `color:${mapToken('--k-text')}`,
+    `border:2px solid ${mapToken('--k-bg')}`,
+    `font:600 16px/1 ${mapToken('--k-font-ui')}`,
+  ].join(';');
+  return face;
+}
+
+function avatarPin(url: string, name: string | null | undefined): HTMLElement {
   const wrap = document.createElement('div');
   wrap.dataset.locationPin = 'visible';
-  wrap.style.cssText =
-    'width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);background:#1c1917';
+  wrap.style.cssText = [
+    'width:40px',
+    'height:40px',
+    'box-sizing:border-box',
+    'border-radius:50%',
+    'overflow:hidden',
+    `border:2px solid ${mapToken('--k-bg')}`,
+    `background:${mapToken('--k-bg-sunken')}`,
+  ].join(';');
   const img = document.createElement('img');
   img.src = url;
   img.alt = '';
   img.referrerPolicy = 'no-referrer';
   img.style.cssText = 'width:40px;height:40px;object-fit:cover;display:block';
   img.onerror = () => {
-    img.remove();
+    wrap.replaceWith(initialsFace(name));
   };
   wrap.append(img);
   return wrap;
 }
 
-function pinElement(imageUrl: string | null, label: string | null): HTMLElement {
+function pinElement(imageUrl: string | null, label: string | null, name: string | null | undefined): HTMLElement {
   const root = document.createElement('div');
   root.dataset.locationPin = 'visible';
-  root.style.cssText = 'width:0;height:0;overflow:visible';
-  const photo = document.createElement('div');
-  photo.style.cssText = 'position:absolute;left:0;top:0;transform:translate(-50%,-50%)';
-  if (imageUrl) {
-    photo.append(avatarPin(imageUrl));
-  } else {
-    const dot = document.createElement('div');
-    dot.style.cssText =
-      'width:18px;height:18px;border-radius:50%;background:#1c1917;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)';
-    photo.append(dot);
-  }
-  root.append(photo);
+  root.style.cssText = 'width:40px;height:40px;overflow:visible';
+  root.append(imageUrl ? avatarPin(imageUrl, name) : initialsFace(name));
   if (label) {
-    const name = document.createElement('span');
-    name.dataset.placeName = label;
-    name.textContent = label;
-    name.style.cssText =
-      'position:absolute;left:26px;top:0;transform:translateY(-50%);padding:2px 8px;border-radius:999px;background:#fff;color:#1c1917;font:600 12px/1.2 system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.35);white-space:nowrap';
-    root.append(name);
+    const place = document.createElement('span');
+    place.dataset.placeName = label;
+    place.textContent = label;
+    const bg = mapToken('--k-surface-raised');
+    const fg = mapToken('--k-text');
+    place.style.cssText = [
+      'position:absolute',
+      'left:46px',
+      'top:50%',
+      'transform:translateY(-50%)',
+      'padding:2px 8px',
+      `background:${bg}`,
+      `color:${fg}`,
+      `font:600 12px/1.2 ${mapToken('--k-font-ui')}`,
+      'white-space:nowrap',
+    ].join(';');
+    root.append(place);
   }
   return root;
 }
@@ -237,12 +282,10 @@ function placeMarker(
   point: MapPoint,
   avatar: string | null,
   placeName: string | null,
+  name: string | null,
 ) {
   const pin = pinContent(avatar, placeName);
-  const marker =
-    pin.imageUrl || pin.label
-      ? new maplibre.Marker({ element: pinElement(pin.imageUrl, pin.label), anchor: 'center' })
-      : new maplibre.Marker({ color: '#1c1917', anchor: 'bottom' });
+  const marker = new maplibre.Marker({ element: pinElement(pin.imageUrl, pin.label, name), anchor: 'center' });
   marker.getElement().dataset.locationPin = 'visible';
   return marker.setLngLat([point.longitude, point.latitude]).addTo(map);
 }
@@ -260,6 +303,7 @@ export async function mountLocationMap(
   },
 ): Promise<MapControls> {
   const maplibre = await import('maplibre-gl');
+  configureMapWorker(maplibre);
   const view = locationMapView(options.point, options.fallbackView);
   const map = new maplibre.Map({
     container: host,
@@ -276,7 +320,7 @@ export async function mountLocationMap(
     'top-right',
   );
   let marker: ReturnType<typeof placeMarker> | null = options.point
-    ? placeMarker(maplibre, map, options.point, options.avatar, options.placeName)
+    ? placeMarker(maplibre, map, options.point, options.avatar, options.placeName, null)
     : null;
 
   function show(point: MapPoint | null, avatar: string | null, placeName: string | null) {
@@ -286,7 +330,7 @@ export async function mountLocationMap(
     map.setCenter(next.center);
     map.setZoom(next.zoom);
     if (!point) return;
-    marker = placeMarker(maplibre, map, point, avatar, placeName);
+    marker = placeMarker(maplibre, map, point, avatar, placeName, null);
   }
 
   const onClick = (event: { lngLat: { lat: number; lng: number } }) => {
@@ -326,6 +370,7 @@ export async function mountPeopleMap(
   people: PeoplePin[],
 ): Promise<PeopleMapControls> {
   const maplibre = await import('maplibre-gl');
+  configureMapWorker(maplibre);
   const view = peopleMapView(people);
   const map = new maplibre.Map({
     container: host,
@@ -359,7 +404,7 @@ export async function mountPeopleMap(
     for (const marker of markers) marker.remove();
     markers = [];
     for (const person of next) {
-      const marker = placeMarker(maplibre, map, person, person.avatar, person.placeName);
+      const marker = placeMarker(maplibre, map, person, person.avatar, person.placeName, person.name);
       marker.getElement().dataset.mapPerson = person.id;
       markers.push(marker);
     }

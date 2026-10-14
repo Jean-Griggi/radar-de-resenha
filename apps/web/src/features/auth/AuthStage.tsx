@@ -6,7 +6,16 @@ import { ThemeToggle } from '@/components/Theme';
  * Fundo das telas de conta: grade de quarteirões e dois fios de 2 px cruzando no centro.
  * A frase “Te vejo na Kina.” só entra no login (DECISOES D1).
  */
-export function AuthStage({ children, phrase = false }: { children: ReactNode; phrase?: boolean }) {
+export function AuthStage({
+  children,
+  phrase = false,
+  suppressPhrase = false,
+}: {
+  children: ReactNode;
+  phrase?: boolean;
+  /** Painel aberto: a frase sai para não cobrir o formulário. */
+  suppressPhrase?: boolean;
+}) {
   return (
     <main className="auth-stage">
       <div className="k-street-grid auth-stage__grid" aria-hidden />
@@ -16,7 +25,7 @@ export function AuthStage({ children, phrase = false }: { children: ReactNode; p
       <div className="auth-stage__brand">
         <BrandWordmark />
       </div>
-      {phrase ? (
+      {phrase && !suppressPhrase ? (
         <h1 className="auth-stage__phrase k-display">
           Te vejo
           <br />
