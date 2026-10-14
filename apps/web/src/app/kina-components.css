@@ -358,7 +358,332 @@
   }
 }
 
+@layer components {
+  /* ===================== Card (.card) — espaço + fio; memória ganha .k-corners ===================== */
+  .card {
+    background: var(--k-surface-raised);
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-none);
+    transition: border-color var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .card--lift:hover {
+    border-color: var(--k-line-strong);
+  }
+
+  /* ===================== Tabs (substitui .chip-tab nas abas) ===================== */
+  .k-tabs {
+    display: flex;
+    gap: 28px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--k-line);
+    scrollbar-width: none;
+  }
+  .k-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .k-tab {
+    flex: none;
+    min-height: var(--k-touch);
+    margin-bottom: -1px;
+    padding: 0 0 10px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--k-text-muted);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-tab:hover {
+    color: var(--k-text);
+  }
+  .k-tab[aria-selected="true"] {
+    border-bottom-color: var(--k-text);
+    color: var(--k-text);
+    font-weight: 600;
+  }
+
+  /* `.chip-tab` sobrou só em botões e links que não são abas (RoutePanel, ChatList): vira controle secundário. */
+  .chip-tab {
+    display: inline-flex;
+    min-height: var(--k-touch);
+    flex-shrink: 0;
+    align-items: center;
+    padding: 0 16px;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: transparent;
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    font-weight: 500;
+    line-height: 1.25;
+    transition: background-color var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .chip-tab:hover {
+    background: var(--k-bg-sunken);
+  }
+
+  /* ===================== FichaRow / Ficha ===================== */
+  .k-ficha {
+    width: 100%;
+  }
+  .k-ficha-row {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: var(--k-touch);
+    padding: 14px 0;
+    border: 0;
+    border-bottom: 1px solid var(--k-line);
+    background: none;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    line-height: 1.4;
+    text-align: left;
+  }
+  .k-ficha-row--mark {
+    grid-template-columns: 18px 84px 1fr;
+  }
+  .k-ficha-row--chevron {
+    grid-template-columns: 84px 1fr 16px;
+  }
+  .k-ficha-row--mark.k-ficha-row--chevron {
+    grid-template-columns: 18px 84px 1fr 16px;
+  }
+  button.k-ficha-row {
+    cursor: pointer;
+  }
+  button.k-ficha-row:hover {
+    background: var(--k-bg-sunken);
+  }
+  .k-ficha-row__mark {
+    width: 12px;
+    height: 12px;
+    border: var(--k-line-corner) solid var(--k-line-strong);
+    border-radius: var(--k-radius-person);
+    transition: background-color var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-ficha-row__mark--done {
+    border-color: var(--k-brand);
+    background: var(--k-brand);
+  }
+  .k-ficha-row__value--mono {
+    font-family: var(--k-font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .k-ficha-row__value--empty {
+    color: var(--k-text-muted);
+  }
+
+  /* ===================== TrackRow (linha de encarte) ===================== */
+  .k-tracks {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--k-text);
+    list-style: none;
+  }
+  .k-track {
+    display: grid;
+    grid-template-columns: 22px 40px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-track__n,
+  .k-track__d {
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
+    font-variant-numeric: tabular-nums;
+    color: var(--k-text-muted);
+  }
+  /* Capa quadrada, raio 0 e sem filtro: nunca recortar nem cobrir capa de álbum. */
+  .k-track__cover {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: var(--k-bg-sunken);
+    color: var(--k-text-muted);
+    object-fit: cover;
+  }
+  .k-track__title {
+    font-size: var(--k-fs-16);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .k-track__artist {
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+  .k-track--current .k-track__title {
+    color: var(--k-brand-text);
+    font-weight: 600;
+  }
+  .k-track--compact {
+    grid-template-columns: 40px 1fr auto;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  /* ===================== Skeleton (fios e pontos, sem gradiente) ===================== */
+  .skeleton {
+    pointer-events: none;
+    user-select: none;
+    color: transparent !important;
+    border: 1px solid var(--k-line) !important;
+    background: none !important;
+    animation: k-pulse 1.2s ease-in-out infinite;
+  }
+  .skeleton--line {
+    height: 1px;
+    border: 0 !important;
+    background: var(--k-line) !important;
+  }
+  .skeleton--dot {
+    border: 0 !important;
+    border-radius: var(--k-radius-person);
+    background: var(--k-line) !important;
+  }
+  .button.skeleton {
+    min-width: 7.5rem;
+  }
+  .input.skeleton {
+    display: block;
+  }
+  @keyframes k-pulse {
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  /* ===================== Spinner (ponto percorrendo o L) ===================== */
+  .k-spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    color: var(--k-text);
+    /* Só aparece depois de 300 ms de espera (spec): opacidade, sem JavaScript. */
+    opacity: 0;
+    animation: k-spinner-in 0s linear 300ms forwards;
+  }
+  .k-spinner--lg {
+    width: 56px;
+    height: 56px;
+  }
+  .k-spinner svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .k-spinner__dot {
+    fill: var(--k-brand);
+    animation: k-walk 1.2s var(--k-ease-arrive) infinite alternate;
+  }
+  @keyframes k-spinner-in {
+    to {
+      opacity: 1;
+    }
+  }
+  /* Do canto do L (18, 102) até o topo do traço vertical (18, 18); o ponto repousa em (47,73). */
+  @keyframes k-walk {
+    from {
+      transform: translate(-29.2px, 29.2px);
+    }
+    to {
+      transform: translate(-29.2px, -54.8px);
+    }
+  }
+
+  /* ===================== EmptyState ===================== */
+  .k-empty {
+    padding: 32px;
+    background: var(--k-bg-sunken);
+    text-align: center;
+  }
+  .k-empty__title {
+    margin: 0;
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-25);
+    font-weight: 400;
+    line-height: var(--k-lh-title);
+  }
+  .k-empty__text {
+    margin: 8px 0 0;
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+  .k-empty__action {
+    margin-top: 20px;
+  }
+
+  /* ===================== Toast (inverso) ===================== */
+  .k-toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--k-radius-none);
+    background: var(--k-text);
+    color: var(--k-bg);
+    font-size: var(--k-fs-14);
+    line-height: 1.4;
+    animation: k-toast-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-toast svg {
+    flex: none;
+  }
+  .k-toast__message {
+    flex: 1;
+    min-width: 0;
+  }
+  .k-toast__action {
+    flex: none;
+    min-height: var(--k-touch);
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  @keyframes k-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .card,
+  .k-tab,
+  .chip-tab,
+  .k-ficha-row__mark {
+    transition: none;
+  }
+  .skeleton {
+    animation: none;
+  }
+  /* Sem movimento: o ponto só pulsa em opacidade. */
+  .k-spinner__dot {
+    animation: k-pulse 1.2s ease-in-out infinite;
+    transform: translate(-29.2px, -12px);
+  }
+  .k-toast {
+    animation: none;
+  }
   .button,
   .input {
     transition: none;

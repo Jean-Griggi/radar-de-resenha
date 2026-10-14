@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import type { MusicKind, SpotifyAccount, SpotifyPlaylist, SpotifyTrack } from '@resenhometro/shared';
 import { Button } from '@/components/Button';
 import { MediaImage } from '@/components/MediaImage';
+import { Tabs } from '@/components/Tabs';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 
 export type SpotifyChoice = { kind: MusicKind; id: string; title: string; subtitle: string; cover: string | null };
@@ -82,20 +83,15 @@ export function SpotifyPicker({
 
       {!loading && connected ? (
         <>
-          <div className="flex gap-2" role="tablist">
-            {(['track', 'playlist'] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                role="tab"
-                aria-selected={tab === value}
-                className={`chip-tab ${tab === value ? 'is-active' : ''}`}
-                onClick={() => setTab(value)}
-              >
-                {value === 'track' ? 'Faixas' : 'Playlists'}
-              </button>
-            ))}
-          </div>
+          <Tabs
+            label="Tipo de busca"
+            items={[
+              { value: 'track', label: 'Faixas' },
+              { value: 'playlist', label: 'Playlists' },
+            ]}
+            value={tab}
+            onChange={setTab}
+          />
 
           <ul className="max-h-72 space-y-1 overflow-y-auto">
             {tab === 'track'

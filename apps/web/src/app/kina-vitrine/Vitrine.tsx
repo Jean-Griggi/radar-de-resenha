@@ -5,9 +5,15 @@ import { Plus } from 'lucide-react';
 import { Avatar } from '@/components/Avatar';
 import { AvatarStack } from '@/components/AvatarStack';
 import { Button } from '@/components/Button';
+import { Card, EmptyState, Skeleton } from '@/components/Card';
 import { Corners } from '@/components/Corners';
 import { Field, Input, Select, Textarea } from '@/components/Field';
+import { Ficha, FichaRow } from '@/components/FichaRow';
+import { Spinner } from '@/components/Spinner';
+import { Tabs } from '@/components/Tabs';
 import { Tag } from '@/components/Tag';
+import { ToastView, useToast } from '@/components/Toast';
+import { TrackList, TrackRow } from '@/components/TrackRow';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { useTheme } from '@/components/Theme';
 
@@ -284,6 +290,188 @@ function TagSection() {
   );
 }
 
+function CardSection() {
+  return (
+    <Section title="Card" meta="espaço + fio · sem sombra · memória ganha cantoneiras">
+      <div className="flex flex-wrap gap-10 p-2">
+        <Card className="w-72">
+          <p className="k-meta">Card · padrão</p>
+          <p className="mt-2">Fio de 1 px, sem raio e sem sombra.</p>
+        </Card>
+        <Card className="card--lift w-72">
+          <p className="k-meta">Card · hover (passe o mouse)</p>
+          <p className="mt-2">O fio escurece; nada levanta.</p>
+        </Card>
+        <Card corners className="w-72">
+          <p className="k-meta">Card · memória</p>
+          <p className="mt-2">Com cantoneiras, para o que já aconteceu.</p>
+        </Card>
+      </div>
+    </Section>
+  );
+}
+
+const TAB_ITEMS = [
+  { value: 'resumo', label: 'Resumo' },
+  { value: 'roles', label: 'Rolês' },
+  { value: 'resenhas', label: 'Resenhas' },
+  { value: 'fotos', label: 'Fotos' },
+  { value: 'audios', label: 'Áudios' },
+  { value: 'musica', label: 'Música' },
+  { value: 'stats', label: 'Estatísticas' },
+];
+
+function TabsSection() {
+  const [tab, setTab] = useState('resumo');
+  return (
+    <Section title="Tabs" meta="texto + sublinhado de 2 px · setas navegam · no celular a barra rola (reduza a janela)">
+      <div className="max-w-md">
+        <Tabs label="Seções do perfil" items={TAB_ITEMS} value={tab} onChange={setTab} />
+        <p className="k-help mt-3">Aba ativa: {tab}</p>
+      </div>
+    </Section>
+  );
+}
+
+function FichaSection() {
+  return (
+    <Section title="FichaRow / Ficha" meta="rótulo mono · valor · fio · marcador só na criação">
+      <div className="flex flex-wrap gap-12">
+        <div className="w-full max-w-md">
+          <Ficha>
+            <FichaRow label="Quando" mono mark="done" onClick={() => undefined}>
+              SÁB 18 OUT · 18H
+            </FichaRow>
+            <FichaRow label="Onde" mark="done" onClick={() => undefined}>
+              Laje da Bia, Vila Madalena
+            </FichaRow>
+            <FichaRow label="Categoria" mark="empty" empty onClick={() => undefined}>
+              Escolher categoria
+            </FichaRow>
+            <FichaRow label="Custo" mark="empty" empty onClick={() => undefined}>
+              Quanto vai custar
+            </FichaRow>
+          </Ficha>
+          <p className="k-help mt-2">Criação de rolê: com marcador e linha clicável.</p>
+        </div>
+        <div className="w-full max-w-md">
+          <Ficha>
+            <FichaRow label="Quando" mono>
+              SÁB 18 OUT · 18H
+            </FichaRow>
+            <FichaRow label="Onde">Laje da Bia, Vila Madalena</FichaRow>
+            <FichaRow label="Custo" mono>
+              R$ 30
+            </FichaRow>
+          </Ficha>
+          <p className="k-help mt-2">Leitura: sem marcador e sem chevron.</p>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function TrackSection() {
+  return (
+    <Section title="TrackRow" meta="música como encarte · capa quadrada, sem filtro">
+      <div className="flex flex-wrap gap-12">
+        <div className="w-full max-w-md">
+          <TrackList>
+            <TrackRow index={1} title="Laranja Elétrica" artist="Os Postes" duration="3:41" current />
+            <TrackRow index={2} title="Rua Sem Saída" artist="Duda Lins" duration="4:02" />
+            <TrackRow index={3} title="Telhado com um título muito, muito longo que precisa truncar" artist="Banda Calçada" duration="2:58" />
+          </TrackList>
+          <p className="k-help mt-2">Lista: tocando (1), normal (2), título longo (3). Sem capa, ícone de música.</p>
+        </div>
+        <div className="w-full max-w-sm">
+          <TrackList>
+            <TrackRow compact title="Laranja Elétrica" artist="Os Postes" />
+          </TrackList>
+          <p className="k-help mt-2">Compacta (dentro de Post/Perfil).</p>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function LoadingSection() {
+  const [round, setRound] = useState(0);
+  return (
+    <Section title="Skeleton e Spinner" meta="fios e pontos, sem gradiente · ponto percorrendo o L">
+      <div className="flex flex-wrap items-start gap-12">
+        <div className="grid w-80 gap-3.5" aria-hidden>
+          <div className="flex items-center gap-3">
+            <Skeleton variant="dot" className="h-9 w-9" />
+            <Skeleton variant="line" className="flex-1" />
+          </div>
+          <Skeleton variant="line" />
+          <Skeleton variant="line" className="w-3/5" />
+        </div>
+        <div className="w-80">
+          <Skeleton className="h-24" />
+          <p className="k-help mt-2">Bloco (contorno de 1 px).</p>
+        </div>
+        <div className="w-64">
+          <Button skeleton />
+        </div>
+        <div className="flex flex-col items-start gap-3">
+          <div className="flex items-end gap-6">
+            <Spinner key={`a${round}`} />
+            <Spinner key={`b${round}`} size="lg" />
+          </div>
+          <Button variant="secondary" onClick={() => setRound((n) => n + 1)}>
+            Reiniciar (aparece após 300 ms)
+          </Button>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function EmptySection() {
+  return (
+    <Section title="EmptyState" meta="uma frase em Fraunces + ação">
+      <div className="flex flex-wrap gap-8">
+        <div className="w-80">
+          <EmptyState title="Ninguém marcou nada ainda." action={<Button variant="ghost">Marcar um rolê</Button>} />
+        </div>
+        <div className="w-80">
+          <EmptyState title="Nenhuma música por aqui." description="Conecte o Spotify para ver as suas." />
+        </div>
+        <div className="w-80">
+          <EmptyState title="Essa rua não existe." action={<Button>Voltar para o início</Button>} />
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function ToastSection() {
+  const toast = useToast();
+  return (
+    <Section title="Toast" meta="inverso · ícone + mensagem + ação · role status, 4–6 s">
+      <div className="flex flex-wrap items-start gap-8">
+        <div className="flex w-96 max-w-full flex-col gap-3">
+          <ToastView message="Você vai no Pôr do sol na laje" action="Desfazer" />
+          <ToastView tone="info" message="Pedido de amizade enviado" />
+          <ToastView tone="error" message="Não foi possível registrar a reação" />
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="secondary" onClick={() => toast.push('Rolê salvo')}>
+            Disparar sucesso
+          </Button>
+          <Button variant="secondary" onClick={() => toast.push('Algo deu errado', 'error')}>
+            Disparar erro
+          </Button>
+          <Button variant="secondary" onClick={() => toast.push('Você saiu do rolê', 'info', { label: 'Desfazer', onClick: () => undefined })}>
+            Disparar com ação
+          </Button>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
 export function Vitrine() {
   const { toggle } = useTheme();
   return (
@@ -302,6 +490,13 @@ export function Vitrine() {
       <AvatarSection />
       <CornersSection />
       <TagSection />
+      <CardSection />
+      <TabsSection />
+      <FichaSection />
+      <TrackSection />
+      <LoadingSection />
+      <EmptySection />
+      <ToastSection />
     </main>
   );
 }

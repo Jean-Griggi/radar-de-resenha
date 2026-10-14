@@ -1,10 +1,14 @@
 import type { ReactNode } from 'react';
-import { BrandBadge } from './BrandMark';
 
-export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`card p-5 ${className}`}>{children}</div>;
+/**
+ * Espaço + fio de 1 px (sem sombra, sem raio). `corners` é para memórias (publicação, rolê passado):
+ * acrescenta as cantoneiras, que precisam de ≥ 8 px de espaço ao redor.
+ */
+export function Card({ children, className = '', corners = false }: { children: ReactNode; className?: string; corners?: boolean }) {
+  return <div className={`card${corners ? ' k-corners' : ''} p-5 ${className}`}>{children}</div>;
 }
 
+/** Estado vazio: uma frase em Fraunces e, se houver, uma ação. Ex.: "Ninguém marcou nada ainda." */
 export function EmptyState({
   title,
   description,
@@ -15,15 +19,18 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <Card className="border-dashed py-12 text-center">
-      <BrandBadge className="mx-auto mb-4" />
-      <h3 className="text-lg font-medium text-fg">{title}</h3>
-      {description ? <p className="mt-2 text-sm text-muted">{description}</p> : null}
-      {action ? <div className="mt-5">{action}</div> : null}
-    </Card>
+    <div className="k-empty">
+      <h3 className="k-empty__title">{title}</h3>
+      {description ? <p className="k-empty__text">{description}</p> : null}
+      {action ? <div className="k-empty__action">{action}</div> : null}
+    </div>
   );
 }
 
-export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`skeleton rounded-[var(--radius-md)] ${className}`} aria-hidden />;
+/**
+ * Esqueleto: fios (`line`) e pontos (`dot`) imitando o layout real; `block` (padrão) é só o contorno de 1 px.
+ * Pulso de opacidade, estático com movimento reduzido. Sem gradiente.
+ */
+export function Skeleton({ className = '', variant = 'block' }: { className?: string; variant?: 'block' | 'line' | 'dot' }) {
+  return <div className={`skeleton${variant === 'block' ? '' : ` skeleton--${variant}`} ${className}`.trim()} aria-hidden />;
 }

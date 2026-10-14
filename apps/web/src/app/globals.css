@@ -177,12 +177,6 @@ audio {
   height: 2.5rem;
 }
 
-@media (max-width: 640px) {
-  .card {
-    border-radius: var(--radius-md);
-  }
-}
-
 body {
   @apply antialiased;
   font-family: var(--k-font-ui);
@@ -449,24 +443,6 @@ a {
 
 /* Em camada: as classes utilitárias do Tailwind (pl-10, rounded-full...) passam a vencer estas, em vez de serem ignoradas. */
 @layer components {
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease;
-  }
-
-  .card--lift:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--lift-shadow);
-    border-color: color-mix(in srgb, var(--accent-cool) 22%, var(--border));
-  }
-
   .shell-chrome {
     background: var(--header);
   }
@@ -617,40 +593,6 @@ a {
     transform: scale(0.96);
   }
 
-  .skeleton {
-    pointer-events: none;
-    user-select: none;
-    color: transparent !important;
-    border-color: transparent !important;
-    box-shadow: none !important;
-    background-image: linear-gradient(
-      90deg,
-      var(--overlay) 0%,
-      color-mix(in srgb, var(--accent-cool) 14%, var(--overlay)) 50%,
-      var(--overlay) 100%
-    );
-    background-size: 200% 100%;
-    background-color: var(--overlay);
-    animation: skeleton-shimmer 1.4s ease-in-out infinite;
-  }
-
-  .button.skeleton {
-    min-width: 7.5rem;
-  }
-
-  .input.skeleton {
-    display: block;
-  }
-
-  @keyframes skeleton-shimmer {
-    0% {
-      background-position: 100% 0;
-    }
-    100% {
-      background-position: -100% 0;
-    }
-  }
-
   .button:focus-visible,
   a:focus-visible,
   button:focus-visible,
@@ -755,37 +697,6 @@ a {
     cursor: not-allowed;
   }
 
-  .chip-tab {
-    display: inline-flex;
-    min-height: 44px;
-    flex-shrink: 0;
-    align-items: center;
-    border-radius: 999px;
-    padding: 0 1rem;
-    font-size: 14px;
-    line-height: 20px;
-    background: var(--overlay);
-    color: var(--text-muted);
-    transition:
-      background-color 0.18s ease,
-      color 0.18s ease,
-      transform 0.15s ease;
-  }
-
-  .chip-tab:hover {
-    color: var(--text);
-  }
-
-  .chip-tab:active {
-    transform: scale(0.98);
-  }
-
-  .chip-tab.is-active {
-    background: var(--primary);
-    color: var(--paper);
-    box-shadow: var(--primary-shadow);
-  }
-
   .profile-stat {
     border-radius: var(--radius-lg);
     background: var(--overlay);
@@ -858,23 +769,16 @@ a {
   a,
   .top-nav-link,
   .icon-btn,
-  .card,
   .composer,
   .reaction-btn,
   .composer-chip,
   .nav-bottom-link,
   .nav-create,
-  .chip-tab,
   .profile-stat {
     transition: none;
   }
 
-  .chip-tab:active {
-    transform: none;
-  }
-
   .icon-btn:active:not(:disabled),
-  .card--lift:hover,
   .reaction-btn:hover:not(:disabled),
   .reaction-btn:active:not(:disabled),
   .nav-bottom-link:active,
@@ -887,12 +791,6 @@ a {
 
   .reaction-btn[aria-pressed="true"] span[aria-hidden] {
     animation: none;
-  }
-
-  .skeleton {
-    animation: none;
-    background-image: none;
-    background-color: var(--overlay);
   }
 
   .brand-loader-bar {

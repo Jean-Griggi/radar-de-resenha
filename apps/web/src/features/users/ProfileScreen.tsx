@@ -7,6 +7,7 @@ import type { Achievement, UserProfile } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { EmptyState, Skeleton } from '@/components/Card';
+import { Tabs } from '@/components/Tabs';
 import { MediaImage } from '@/components/MediaImage';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
@@ -245,18 +246,13 @@ export function ProfileScreen() {
         </section>
       ) : null}
 
-      <div className="mt-4 -mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:px-0">
-        {TABS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setTab(item)}
-            className={`chip-tab ${tab === item ? 'is-active' : ''}`}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        className="mt-4"
+        label="Seções do perfil"
+        items={TABS.map((item) => ({ value: item, label: item }))}
+        value={tab}
+        onChange={setTab}
+      />
 
       <div className="mt-5">
         {tab === 'Resumo' ? (
