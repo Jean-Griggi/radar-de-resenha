@@ -143,20 +143,20 @@ docs/kina/
 
 **Objetivo:** construir/adaptar os componentes de `components-spec.md` e uma página de vitrine que os mostre nos dois temas e em todos os estados.
 
-- [ ] Rota de vitrine **só em desenvolvimento** (ex.: `/__kina`), protegida por `import.meta.env.DEV` / `process.env.NODE_ENV !== 'production'`.
+- [x] Rota de vitrine **só em desenvolvimento** (ex.: `/__kina`), protegida por `import.meta.env.DEV` / `process.env.NODE_ENV !== 'production'`. *(feito em `/kina-vitrine`, DECISOES T4; ver `FASE2-RELATORIO.md`)*
 - [ ] Componentes (adaptar os existentes quando houver; criar quando não houver):
-  - [ ] `Button` (primary, secondary, text, create) — todos os estados.
-  - [ ] `TextField` / `TextArea` / `Select` — rótulo visível sempre, erro com ícone + texto + `aria-describedby`.
-  - [ ] `Avatar` (24/32/48/72/96, iniciais em Fraunces) e `AvatarStack`.
-  - [ ] `Corners` (wrapper de cantoneiras) — ou a classe `.k-corners`.
-  - [ ] `FichaRow` / `Ficha` (linha de dados).
-  - [ ] `TrackRow` (linha de encarte de música).
-  - [ ] `Tag` (ponto colorido + texto mono, **sem pílula**).
-  - [ ] `Tabs` (texto + sublinhado de 2 px).
-  - [ ] `Modal` (desktop) e `Sheet` (folha inferior, celular).
-  - [ ] `Menu`, `Toast`, `Skeleton` (fios e pontos), `EmptyState`, `Spinner` (ponto percorrendo o L).
-  - [ ] `NavRail` (desktop, 76 px) e `TabBar` (celular, 5 itens com “Criar” central).
-  - [ ] `KinaLogo`.
+  - [x] `Button` (primary, secondary, text, create) — todos os estados.
+  - [x] `TextField` / `TextArea` / `Select` — rótulo visível sempre, erro com ícone + texto + `aria-describedby`.
+  - [x] `Avatar` (24/32/48/72/96, iniciais em Fraunces) e `AvatarStack`.
+  - [x] `Corners` (wrapper de cantoneiras) — ou a classe `.k-corners`.
+  - [x] `FichaRow` / `Ficha` (linha de dados).
+  - [x] `TrackRow` (linha de encarte de música).
+  - [x] `Tag` (ponto colorido + texto mono, **sem pílula**).
+  - [x] `Tabs` (texto + sublinhado de 2 px).
+  - [x] `Modal` (desktop) e `Sheet` (folha inferior, celular).
+  - [x] `Menu`, `Toast`, `Skeleton` (fios e pontos), `EmptyState`, `Spinner` (ponto percorrendo o L).
+  - [ ] `NavRail` (desktop, 76 px) e `TabBar` (celular, 5 itens com “Criar” central). *(fica para a Fase 3.1: DECISOES §5 mantém a navegação atual)*
+  - [x] `KinaLogo`.
 - [ ] Substituir os usos antigos de botão/input/avatar pelos novos **sem alterar props de comportamento** (onClick, onSubmit, name, value, disabled…).
 
 **Concluída quando:**
