@@ -50,9 +50,14 @@ export function LocationMap({
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
+    // Cada montagem ganha o próprio contêiner: o MapLibre põe a classe `maplibregl-map` nele e a tira no
+    // `remove()`. Com o Strict Mode (monta, desmonta, monta) um mapa descartado tirava a classe do mapa vivo.
+    const mapHost = document.createElement('div');
+    mapHost.className = 'h-full w-full';
+    host.appendChild(mapHost);
     let cancelled = false;
     setFailed(false);
-    mountLocationMap(host, {
+    mountLocationMap(mapHost, {
       interactive,
       point: pointRef.current,
       avatar: avatarRef.current,
@@ -75,6 +80,7 @@ export function LocationMap({
       cancelled = true;
       controlsRef.current?.destroy();
       controlsRef.current = null;
+      mapHost.remove();
     };
   }, [interactive]);
 
@@ -86,7 +92,7 @@ export function LocationMap({
     <div data-location-map={failed ? 'closed' : 'open'}>
       <div
         ref={hostRef}
-        className={`${heightClass} w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]`}
+        className={`${heightClass} relative w-full overflow-hidden border border-[var(--border)] bg-[var(--surface)]`}
         role="application"
         aria-label={interactive ? 'Minimapa para escolher a localização' : 'Mapa da localização'}
       />
@@ -130,9 +136,12 @@ export function PeopleMap({
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
+    const mapHost = document.createElement('div'); // ver o comentário em LocationMap
+    mapHost.className = 'h-full w-full';
+    host.appendChild(mapHost);
     let cancelled = false;
     setFailed(false);
-    mountPeopleMap(host, peopleRef.current)
+    mountPeopleMap(mapHost, peopleRef.current)
       .then((controls) => {
         if (cancelled) {
           controls.destroy();
@@ -151,6 +160,7 @@ export function PeopleMap({
       cancelled = true;
       controlsRef.current?.destroy();
       controlsRef.current = null;
+      mapHost.remove();
     };
   }, []);
 
@@ -178,7 +188,7 @@ export function PeopleMap({
     <div data-people-map={failed ? 'closed' : 'open'}>
       <div
         ref={hostRef}
-        className="h-[70vh] min-h-80 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]"
+        className="relative h-[70vh] min-h-80 w-full overflow-hidden border border-[var(--border)] bg-[var(--surface)]"
         role="application"
         aria-label="Mapa das pessoas"
       />

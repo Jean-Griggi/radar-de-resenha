@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import type { PublicUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { api, isApiCanceled } from '@/lib/api';
-import { formatTimeAgo } from '@/lib/format';
+import { formatTimeAgo, plural } from '@/lib/format';
 import type { ChatMessage } from './types';
 
 type Conversation = { user: PublicUser; last: ChatMessage; unread: number };
@@ -62,7 +62,7 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
         <h2 className="text-lg font-medium">
           Mensagens
           {unread > 0 ? (
-            <span className="ml-2 rounded-full bg-[var(--primary)] px-2 py-0.5 align-middle text-xs font-bold text-[var(--paper)]">
+            <span className="ml-2 rounded-[var(--k-radius-control)] bg-[var(--primary)] px-2 py-0.5 align-middle text-xs font-bold text-[var(--paper)]">
               {unread > 9 ? '9+' : unread}
             </span>
           ) : null}
@@ -94,7 +94,7 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
                   </p>
                 </div>
                 <span className="shrink-0 text-xs text-muted">{formatTimeAgo(last.createdAt)}</span>
-                {count > 0 ? <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--primary)]" aria-label={`${count} não lidas`} /> : null}
+                {count > 0 ? <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--primary)]" aria-label={plural(count, 'não lida', 'não lidas')} /> : null}
               </Link>
             </li>
           ))}

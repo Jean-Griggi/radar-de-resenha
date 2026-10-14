@@ -47,7 +47,7 @@ export function Comments({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? 'Responder…' : 'Comentar…'}
-              className="input composer rounded-full"
+              className="input"
             />
           ) : (
             <textarea
@@ -141,7 +141,7 @@ function CommentItem({
     <div className="flex gap-2">
       <Avatar src={comment.author?.avatar} name={comment.author?.name} size="sm" />
       <div className="min-w-0 flex-1">
-        <div className="rounded-2xl bg-overlay px-3 py-2">
+        <div className="rounded-none bg-overlay px-3 py-2">
           <p className="text-sm font-medium text-fg">{comment.author?.name}</p>
           <p className="text-sm text-fg">{comment.content}</p>
         </div>

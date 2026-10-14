@@ -9,8 +9,8 @@ import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 export function StoryPhone({ children }: { children: ReactNode }) {
   return (
     <div className="relative">
-      <div className="story-phone relative overflow-hidden rounded-3xl bg-black shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/15">
-        <div className="absolute inset-0 overflow-hidden rounded-3xl">{children}</div>
+      <div className="story-phone relative overflow-hidden rounded-none bg-black shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/15">
+        <div className="absolute inset-0 overflow-hidden rounded-none">{children}</div>
       </div>
     </div>
   );
@@ -233,7 +233,7 @@ export function StoryViewer({
             />
             {paused ? (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/55 text-2xl text-white" aria-hidden>
+                <span className="flex h-14 w-14 items-center justify-center rounded-[var(--k-radius-control)] bg-black/55 text-2xl text-white" aria-hidden>
                   ⏸
                 </span>
               </div>
@@ -243,7 +243,7 @@ export function StoryViewer({
           <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-4">
             <div className="flex gap-1">
               {ring.stories.map((item, index) => (
-                <div key={item.id} className="h-0.5 flex-1 overflow-hidden rounded-full bg-white/30">
+                <div key={item.id} className="h-0.5 flex-1 overflow-hidden rounded-[var(--k-radius-control)] bg-white/30">
                   <div
                     key={`${item.id}-${index === storyIndex ? story.id : 'idle'}`}
                     className={`h-full bg-white ${
@@ -314,12 +314,12 @@ export function StoryViewer({
                   onBlur={() => setComposing(false)}
                   placeholder="Responder…"
                   maxLength={280}
-                  className="min-w-0 flex-1 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
+                  className="min-w-0 flex-1 rounded-[var(--k-radius-control)] border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
                 />
                 <button
                   type="submit"
                   disabled={sending || !reply.trim()}
-                  className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50"
+                  className="rounded-[var(--k-radius-control)] bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50"
                 >
                   Enviar
                 </button>
@@ -331,7 +331,7 @@ export function StoryViewer({
           ) : null}
 
           {viewers ? (
-            <div className="absolute inset-x-0 bottom-0 max-h-[55%] overflow-y-auto rounded-t-2xl bg-zinc-950/95 p-4 pb-8">
+            <div className="absolute inset-x-0 bottom-0 max-h-[55%] overflow-y-auto rounded-t-none bg-zinc-950/95 p-4 pb-8">
               <div className="mb-3 flex items-center justify-between">
                 <p className="text-sm font-medium text-white">Quem viu</p>
                 <button type="button" className="text-xs text-white/70" onClick={() => setViewers(null)}>

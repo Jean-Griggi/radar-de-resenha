@@ -67,7 +67,7 @@ function SpotPicker({
     <div className="space-y-2">
       <p className="text-label text-muted">{title}</p>
       {spot ? (
-        <div className="flex items-center justify-between gap-2 rounded-[var(--radius-md)] border border-[var(--border)] px-3 py-2 text-sm">
+        <div className="flex items-center justify-between gap-2 rounded-none border border-[var(--border)] px-3 py-2 text-sm">
           <span className="min-w-0 truncate">{spot.label}</span>
           <span className="flex shrink-0 gap-1">
             <Button type="button" variant="ghost" onClick={() => setSaving((v) => !v)}>

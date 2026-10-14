@@ -75,14 +75,14 @@ export function MusicCard({
   }
 
   return (
-    <div className={`rounded-xl p-2.5 ${surface}`}>
+    <div className={`rounded-none p-2.5 ${surface}`}>
       <div className="flex items-center gap-3">
-        <MediaImage src={item.cover} alt={`Capa de ${item.title}`} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+        <MediaImage src={item.cover} alt={`Capa de ${item.title}`} className="h-12 w-12 shrink-0 rounded-none object-cover" />
         <div className="min-w-0 flex-1">
           <p className={`truncate text-sm font-medium ${titleColor}`}>{item.title}</p>
           <p className={`truncate text-xs ${mutedColor}`}>
             {item.kind === 'playlist' ? (
-              <span className="rounded-full border border-current px-1.5 py-px text-xs uppercase tracking-wide">Playlist</span>
+              <span className="rounded-[var(--k-radius-control)] border border-current px-1.5 py-px text-xs uppercase tracking-wide">Playlist</span>
             ) : (
               item.artist
             )}
@@ -98,19 +98,19 @@ export function MusicCard({
             onClick={play}
             aria-label={open ? `Fechar ${item.title}` : `Tocar ${item.title}`}
             aria-pressed={inline ? open : undefined}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1DB954] text-lg text-black"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--k-radius-control)] bg-[#1DB954] text-lg text-black"
           >
             {open ? '✕' : '▶'}
           </button>
         ) : null}
       </div>
-      {autoplay && open && !embedFailed ? <div ref={hostRef} className="mt-2 w-full overflow-hidden rounded-xl" /> : null}
+      {autoplay && open && !embedFailed ? <div ref={hostRef} className="mt-2 w-full overflow-hidden rounded-none" /> : null}
       {inline && open && ref && (!autoplay || embedFailed) ? (
         <iframe
           title={`Tocando: ${item.title}`}
           src={spotifyEmbedSrc(ref)}
           height={spotifyEmbedHeight(ref.kind)}
-          className="mt-2 w-full rounded-xl border-0"
+          className="mt-2 w-full rounded-none border-0"
           style={{ colorScheme: 'normal' }}
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"

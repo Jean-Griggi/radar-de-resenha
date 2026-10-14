@@ -151,7 +151,7 @@ export function ExploreScreen() {
           </Section>
           <Section title="Categorias">
             {explore.categories.map((item) => (
-              <span key={item.name} className="rounded-full bg-[var(--overlay)] px-3 py-1 text-sm">
+              <span key={item.name} className="rounded-[var(--k-radius-control)] bg-[var(--overlay)] px-3 py-1 text-sm">
                 {item.name} · {item.count}
               </span>
             ))}

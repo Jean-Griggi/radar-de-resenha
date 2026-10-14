@@ -39,7 +39,7 @@ function RoleBadges({ role }: { role: Role }) {
       {badges.map((badge) => (
         <span
           key={badge.label}
-          className={`inline-flex min-h-6 items-center rounded-full border-2 px-2 text-label ${
+          className={`inline-flex min-h-6 items-center rounded-[var(--k-radius-control)] border-2 px-2 text-label ${
             badge.tone === 'accent'
               ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--paper)]'
               : 'border-[var(--text)] text-fg'
@@ -108,7 +108,7 @@ export function RolesListScreen() {
             key={item.id}
             type="button"
             onClick={() => setFilter(item.id)}
-            className={`min-h-11 rounded-full border-2 px-3 text-sm font-bold ${
+            className={`min-h-11 rounded-[var(--k-radius-control)] border-2 px-3 text-sm font-bold ${
               filter === item.id ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--paper)]' : 'border-line text-muted hover:border-[var(--text)]'
             }`}
           >

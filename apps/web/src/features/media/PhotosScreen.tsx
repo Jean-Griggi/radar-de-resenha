@@ -8,6 +8,7 @@ import { Field, Input } from '@/components/Field';
 import { MediaImage } from '@/components/MediaImage';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+import { plural } from '@/lib/format';
 import { IMAGE_ACCEPT, postFile } from '@/lib/upload';
 
 export function PhotosScreen() {
@@ -178,10 +179,10 @@ export function PhotosScreen() {
             {albums.map((album) => (
               <div key={album.id} className="card p-4">
                 {album.cover ? (
-                  <MediaImage src={album.cover} alt={album.name} className="mb-2 h-24 w-full rounded-lg object-cover" />
+                  <MediaImage src={album.cover} alt={album.name} className="mb-2 h-24 w-full rounded-none object-cover" />
                 ) : null}
                 <p>{album.name}</p>
-                <p className="text-xs text-muted">{album.photos?.length ?? 0} fotos</p>
+                <p className="text-xs text-muted">{plural(album.photos?.length ?? 0, 'foto', 'fotos')}</p>
                 <button
                   type="button"
                   className="mt-2 text-xs text-[var(--danger)]"
@@ -207,10 +208,10 @@ export function PhotosScreen() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {photos.map((photo) => (
               <figure key={photo.id} className="relative">
-                <MediaImage src={photo.url} alt={photo.caption || 'Foto'} className="h-28 w-full rounded-xl object-cover sm:h-40" />
+                <MediaImage src={photo.url} alt={photo.caption || 'Foto'} className="h-28 w-full rounded-none object-cover sm:h-40" />
                 <button
                   type="button"
-                  className="absolute top-2 right-2 rounded-full bg-black/60 px-2 text-xs"
+                  className="absolute top-2 right-2 rounded-[var(--k-radius-control)] bg-black/60 px-2 text-xs"
                   onClick={async () => {
                     try {
                       await api.delete(`/photos/${photo.id}`);

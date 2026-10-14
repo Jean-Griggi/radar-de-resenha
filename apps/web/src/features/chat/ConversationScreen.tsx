@@ -154,13 +154,13 @@ export function ConversationScreen() {
           return (
             <div key={message.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[80%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm ${
+                className={`max-w-[80%] whitespace-pre-wrap break-words rounded-none px-3 py-2 text-sm ${
                   mine ? 'bg-[var(--primary)] text-[var(--paper)]' : 'bg-[var(--secondary)] text-fg'
                 }`}
               >
                 {message.image ? (
                   <a href={message.image} target="_blank" rel="noreferrer">
-                    <img src={message.image} alt="Foto enviada na conversa" className="mb-1 max-h-72 w-full rounded-xl object-cover" />
+                    <img src={message.image} alt="Foto enviada na conversa" className="mb-1 max-h-72 w-full rounded-none object-cover" />
                   </a>
                 ) : null}
                 {message.content}
@@ -177,8 +177,8 @@ export function ConversationScreen() {
       {error ? <p className="mt-2 text-sm text-[var(--danger)]">{error}</p> : null}
 
       {photo ? (
-        <div className="mt-3 flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-2">
-          <img src={photo.url} alt="Prévia da foto a enviar" className="h-16 w-16 rounded-lg object-cover" />
+        <div className="mt-3 flex items-center gap-3 rounded-none border border-[var(--border)] p-2">
+          <img src={photo.url} alt="Prévia da foto a enviar" className="h-16 w-16 rounded-none object-cover" />
           <p className="min-w-0 flex-1 truncate text-sm text-muted">{photo.file.name}</p>
           <button type="button" className="icon-btn" aria-label="Tirar a foto" onClick={dropPhoto}>
             <X size={18} aria-hidden />

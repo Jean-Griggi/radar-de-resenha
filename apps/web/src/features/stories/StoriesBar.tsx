@@ -111,7 +111,7 @@ export function StoriesBar() {
             Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex w-16 shrink-0 flex-col items-center gap-2">
                 <div className="h-14 w-14 animate-pulse rounded-full bg-overlay" />
-                <div className="h-3 w-12 animate-pulse rounded bg-overlay" />
+                <div className="h-3 w-12 animate-pulse rounded-none bg-overlay" />
               </div>
             ))
           ) : (
@@ -203,10 +203,10 @@ export function StoriesBar() {
                   onChange={(event) => setCaption(event.target.value)}
                   maxLength={200}
                   placeholder="Legenda (opcional)"
-                  className="w-full rounded-full border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
+                  className="w-full rounded-[var(--k-radius-control)] border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
                 />
                 {music ? (
-                  <div className="mt-2 flex items-center gap-2 rounded-full bg-black/50 px-3 py-1.5 text-xs text-white">
+                  <div className="mt-2 flex items-center gap-2 rounded-[var(--k-radius-control)] bg-black/50 px-3 py-1.5 text-xs text-white">
                     <span aria-hidden>♪</span>
                     <span className="min-w-0 flex-1 truncate">
                       {music.title} · {music.subtitle}
@@ -218,7 +218,7 @@ export function StoriesBar() {
                 ) : (
                   <button
                     type="button"
-                    className="mt-2 rounded-full border border-white/25 px-3 py-1.5 text-xs text-white"
+                    className="mt-2 rounded-[var(--k-radius-control)] border border-white/25 px-3 py-1.5 text-xs text-white"
                     onClick={() => setPickingMusic(true)}
                   >
                     ♪ Adicionar música

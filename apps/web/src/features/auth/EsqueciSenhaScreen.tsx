@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { Button } from '@/components/Button';
 import { BrandWordmark } from '@/components/BrandWordmark';
-import { Field, Input } from '@/components/Field';
+import { Field, FormError, Input } from '@/components/Field';
 import { ThemeToggle } from '@/components/Theme';
 import { api, apiErrorMessage } from '@/lib/api';
 
@@ -50,7 +50,7 @@ export function EsqueciSenhaScreen() {
           <Field label="E-mail">
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
           </Field>
-          {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+          {error ? <FormError>{error}</FormError> : null}
           <Button type="submit" loading={loading} className="w-full">
             {loading ? 'Enviando...' : 'Pedir link'}
           </Button>

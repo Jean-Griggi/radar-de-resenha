@@ -114,7 +114,7 @@ export function ChatListScreen() {
                       </p>
                     </div>
                     {unread > 0 ? (
-                      <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[var(--primary)] px-1.5 text-xs font-bold text-[var(--paper)]">
+                      <span className="flex h-6 min-w-6 items-center justify-center rounded-[var(--k-radius-control)] bg-[var(--primary)] px-1.5 text-xs font-bold text-[var(--paper)]">
                         {unread > 9 ? '9+' : unread}
                       </span>
                     ) : null}

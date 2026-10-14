@@ -4,6 +4,12 @@
  * animar só transform e opacity. Em camada `components`, para as utilitárias do Tailwind poderem sobrescrever.
  */
 @layer components {
+  /* Fraunces só a partir de 20 px: título pequeno (text-xs/sm/base/lg) em h1–h3 volta para a fonte de interface. */
+  :is(h1, h2, h3, h4):is(.text-xs, .text-sm, .text-base, .text-lg) {
+    font-family: var(--k-font-ui);
+    font-variation-settings: normal;
+  }
+
   /* ===================== Button ===================== */
   .button {
     position: relative;
@@ -272,6 +278,14 @@
     font-variation-settings: var(--k-display-axes);
     font-size: max(var(--k-fs-12), calc(var(--k-avatar) * 0.4));
     line-height: 1;
+  }
+  /* Fraunces só a partir de 20 px: nos avatares menores as iniciais ficam em Schibsted. */
+  .k-avatar--xs .k-avatar__face,
+  .k-avatar--sm .k-avatar__face,
+  .k-avatar--md .k-avatar__face {
+    font-family: var(--k-font-ui);
+    font-variation-settings: normal;
+    font-weight: 600;
   }
   .k-avatar__face img {
     width: 100%;

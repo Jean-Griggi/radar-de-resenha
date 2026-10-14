@@ -1,3 +1,4 @@
+import { plural } from '@/lib/format';
 import { Avatar } from './Avatar';
 
 type Person = { src?: string | null; name?: string | null };
@@ -25,7 +26,7 @@ export function AvatarStack({
   const rest = count - shown.length;
 
   return (
-    <span className={`k-stack k-stack--${size}`} role="group" aria-label={label ?? `${count} pessoas`}>
+    <span className={`k-stack k-stack--${size}`} role="group" aria-label={label ?? plural(count, 'pessoa', 'pessoas')}>
       {shown.map((person, index) => (
         <span key={`${person.name ?? 'pessoa'}-${index}`} className="k-stack__item">
           <Avatar src={person.src} name={person.name} size={size} />

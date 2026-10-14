@@ -18,7 +18,7 @@ import { StoriesBar } from '@/features/stories';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
-import { formatDate, formatTimeAgo } from '@/lib/format';
+import { formatDate, formatTimeAgo, plural } from '@/lib/format';
 
 const LABELS: Record<string, string> = {
   role_created: 'criou um novo rolê',
@@ -126,8 +126,8 @@ export function FeedScreen() {
             />
           </div>
           {music ? (
-            <div className="mt-3 flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] p-2">
-              <MediaImage src={music.cover} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+            <div className="mt-3 flex items-center gap-3 rounded-none border border-[var(--border)] p-2">
+              <MediaImage src={music.cover} alt="" className="h-12 w-12 shrink-0 rounded-none object-cover" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{music.title}</p>
                 <p className="truncate text-xs text-muted">{music.subtitle}</p>
@@ -214,17 +214,17 @@ export function FeedScreen() {
                         </p>
                         <p className="text-xs text-muted">{formatTimeAgo(item.createdAt)}</p>
                         {item.role ? (
-                          <Link href={`/roles/${item.role.id}`} className="mt-3 block rounded-[var(--radius-md)] border border-line bg-[var(--overlay)] p-3 hover:border-[color-mix(in_srgb,var(--accent-cool)_35%,var(--border))]">
+                          <Link href={`/roles/${item.role.id}`} className="mt-3 block rounded-none border border-line bg-[var(--overlay)] p-3 hover:border-[color-mix(in_srgb,var(--accent-cool)_35%,var(--border))]">
                             <p className="text-xs font-semibold text-muted">
                               {formatDate(item.role.date)} {item.role.time}
                             </p>
                             <h2 className="mt-1 text-base font-semibold text-fg">{item.role.title}</h2>
                             <p className="mt-0.5 text-xs text-muted">{item.role.location || 'Local a combinar'}</p>
-                            <p className="mt-1 text-xs text-muted">{item.role.goingCount} pessoas confirmaram</p>
+                            <p className="mt-1 text-xs text-muted">{item.role.goingCount === 1 ? '1 pessoa confirmou' : `${plural(item.role.goingCount, 'pessoa', 'pessoas')} confirmaram`}</p>
                           </Link>
                         ) : null}
                         {item.review ? (
-                          <Link href={`/reviews/${item.review.id}`} className="mt-3 block rounded-[var(--radius-md)] border border-line bg-[var(--overlay)] p-3">
+                          <Link href={`/reviews/${item.review.id}`} className="mt-3 block rounded-none border border-line bg-[var(--overlay)] p-3">
                             <p className="text-[var(--primary)]">{'★'.repeat(item.review.rating)}</p>
                             <h2 className="text-base font-semibold text-fg">{item.review.title}</h2>
                             <p className="mt-1 line-clamp-2 text-sm text-muted">{item.review.content}</p>
@@ -246,7 +246,7 @@ export function FeedScreen() {
                           <MediaImage
                             src={item.photo.url}
                             alt={item.photo.caption || 'Foto'}
-                            className="mt-3 h-48 w-full rounded-[var(--radius-md)] object-cover"
+                            className="mt-3 h-48 w-full rounded-none object-cover"
                           />
                         ) : null}
                         <div className="mt-3 flex flex-wrap items-center gap-1">

@@ -33,10 +33,11 @@
   --space-8: 32px;
   --space-12: 48px;
   --space-16: 64px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  /* Tudo que não é pessoa tem raio de 2 px (DECISOES G4/Fase 2): os nomes antigos apontam para o token. */
+  --radius-sm: var(--k-radius-control);
+  --radius-md: var(--k-radius-control);
+  --radius-lg: var(--k-radius-control);
+  --radius-xl: var(--k-radius-control);
   --radius-full: var(--k-radius-person);
   --font-weight-regular: 400;
   --font-weight-medium: 500;
@@ -434,7 +435,7 @@ a {
     min-height: 44px;
     align-items: center;
     gap: 0.4rem;
-    border-radius: 999px;
+    border-radius: var(--k-radius-control);
     padding: 0 0.75rem;
     font-size: 12px;
     font-weight: var(--font-weight-semibold);
@@ -483,10 +484,9 @@ a {
     width: 44px;
     align-items: center;
     justify-content: center;
-    border-radius: 999px;
+    border-radius: var(--k-radius-person);
     background: var(--primary);
     color: var(--paper);
-    box-shadow: var(--primary-shadow);
     transition:
       background-color 0.18s ease,
       transform 0.15s ease;
@@ -518,20 +518,21 @@ a {
     min-height: 44px;
   }
 
+  /* Aba ativa do cabeçalho (spec de Tabs): texto 600 + sublinhado de 2 px, sem fundo. */
   .nav-active {
     position: relative;
-    color: var(--primary);
+    color: var(--k-text);
+    font-weight: 600;
   }
 
   .nav-active::after {
     content: "";
     position: absolute;
-    left: 18%;
-    right: 18%;
+    left: 0.9rem;
+    right: 0.9rem;
     bottom: 0;
-    height: 3px;
-    border-radius: 999px;
-    background: var(--primary);
+    height: 2px;
+    background: var(--k-text);
   }
 
   .top-nav-link {
@@ -540,10 +541,10 @@ a {
     align-items: center;
     min-height: 44px;
     padding: 0 0.9rem;
-    border-radius: var(--radius-full);
+    border-radius: var(--k-radius-control);
     font-size: 14px;
     line-height: 20px;
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-medium);
     color: var(--text-muted);
     transition:
       color 0.18s ease,
@@ -561,14 +562,7 @@ a {
   }
 
   .top-nav-link.nav-active {
-    color: var(--primary);
-    background: color-mix(in srgb, var(--primary) 12%, transparent);
-  }
-
-  .top-nav-link.nav-active::after {
-    left: 28%;
-    right: 28%;
-    bottom: 6px;
+    background: none;
   }
 
   header .brand-wordmark {
@@ -582,7 +576,7 @@ a {
     height: 44px;
     width: 44px;
     flex-shrink: 0;
-    border-radius: 999px;
+    border-radius: var(--k-radius-control);
     color: var(--text-muted);
     transition:
       background-color 0.18s ease,
@@ -606,7 +600,7 @@ a {
   }
 
   .profile-stat {
-    border-radius: var(--radius-lg);
+    border-radius: var(--k-radius-none);
     background: var(--overlay);
     padding: 0.75rem;
     text-align: center;
@@ -622,19 +616,19 @@ a {
     align-items: center;
     justify-content: center;
     padding: 0 0.28rem;
-    border-radius: 999px;
+    border-radius: var(--k-radius-control);
     background: var(--primary);
     color: var(--paper);
     font-size: 12px;
     font-weight: 700;
     line-height: 1;
-    box-shadow: 0 0 0 2px var(--surface-elevated);
+    outline: 2px solid var(--surface-elevated);
   }
 
   .chat-badge--header {
     top: 6px;
     right: 6px;
-    box-shadow: 0 0 0 2px var(--background);
+    outline-color: var(--background);
   }
 
   input,

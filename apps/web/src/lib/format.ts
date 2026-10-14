@@ -38,6 +38,11 @@ export function initials(name?: string | null) {
     .toUpperCase();
 }
 
+/** Concordância simples: plural(1, 'pessoa', 'pessoas') → "1 pessoa"; plural(3, …) → "3 pessoas". */
+export function plural(count: number, singular: string, pluralForm: string) {
+  return `${count} ${count === 1 ? singular : pluralForm}`;
+}
+
 export function formatMoney(value?: number | null) {
   if (value == null) return null;
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });

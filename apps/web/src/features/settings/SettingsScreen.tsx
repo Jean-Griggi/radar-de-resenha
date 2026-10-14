@@ -240,9 +240,9 @@ export function SettingsScreen() {
               Remover capa
             </Button>
             {pending.avatar || pending.cover ? (
-              <div className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--overlay)] p-4">
+              <div className="space-y-3 rounded-none border border-[var(--border)] bg-[var(--overlay)] p-4">
                 <p className="text-sm font-medium">Prévia: assim vai ficar no seu perfil</p>
-                <div className="overflow-hidden rounded-2xl border border-[var(--border)]">
+                <div className="overflow-hidden rounded-none border border-[var(--border)]">
                   <div className="h-28 bg-[var(--brand-red-dark)] sm:h-40">
                     {(pending.cover?.url ?? me.cover) ? (
                       <img src={pending.cover?.url ?? me.cover ?? ''} alt="" className="h-full w-full object-cover" />

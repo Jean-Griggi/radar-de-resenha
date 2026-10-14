@@ -9,6 +9,7 @@ import { MediaImage } from '@/components/MediaImage';
 import { usePlayer, type PlayerTrack } from '@/components/Player';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+import { plural } from '@/lib/format';
 import { setCachedSpotifyStatus, setSpotifyConnectedFlag } from '@/lib/shellCache';
 import { ExpandableList } from './ExpandableList';
 import { MusicCard } from './MusicCard';
@@ -179,7 +180,7 @@ export function MusicScreen() {
         </div>
       ) : null}
       {connectError ? (
-        <p role="alert" className="mb-5 rounded-[var(--radius-md)] border border-[var(--danger)] p-3 text-[var(--danger)]">
+        <p role="alert" className="mb-5 rounded-none border border-[var(--danger)] p-3 text-[var(--danger)]">
           {connectError}
         </p>
       ) : null}
@@ -289,7 +290,7 @@ export function MusicScreen() {
                           <Tile
                             cover={list.image}
                             title={list.name}
-                            subtitle={`Playlist · ${list.tracks} faixas`}
+                            subtitle={`Playlist · ${plural(list.tracks, 'faixa', 'faixas')}`}
                             active={isPlaying(playing, list.url)}
                             onPlay={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
                           />
@@ -341,7 +342,7 @@ export function MusicScreen() {
                     <Tile
                       cover={list.image}
                       title={list.name}
-                      subtitle={`Playlist · ${list.tracks} faixas`}
+                      subtitle={`Playlist · ${plural(list.tracks, 'faixa', 'faixas')}`}
                       active={isPlaying(playing, list.url)}
                       onPlay={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
                     />
@@ -397,18 +398,18 @@ function Tile({
       onClick={onPlay}
       aria-label={`Tocar ${title}`}
       aria-pressed={active}
-      className={`flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-[var(--overlay)] ${
+      className={`flex w-full items-center gap-3 rounded-none p-2 text-left transition-colors hover:bg-[var(--overlay)] ${
         active ? 'bg-[var(--overlay)] ring-2 ring-[#1DB954]' : ''
       }`}
     >
-      <MediaImage src={cover} alt={`Capa de ${title}`} className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+      <MediaImage src={cover} alt={`Capa de ${title}`} className="h-14 w-14 shrink-0 rounded-none object-cover" />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">{title}</span>
         <span className="block truncate text-xs text-muted">{subtitle}</span>
       </span>
       <span
         aria-hidden
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1DB954] text-black"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--k-radius-control)] bg-[#1DB954] text-black"
       >
         {active ? '♪' : '▶'}
       </span>

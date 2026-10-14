@@ -108,7 +108,7 @@ export function CalendarScreen() {
                     type="button"
                     disabled={!day}
                     onClick={() => setSelected(date)}
-                    className={`relative flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left sm:min-h-24 sm:rounded-xl sm:p-2 lg:min-h-28 ${
+                    className={`relative flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-none p-1 text-left sm:min-h-24 sm:rounded-none sm:p-2 lg:min-h-28 ${
                       selected === date ? 'bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]' : 'bg-[var(--overlay)]'
                     } ${isToday && selected !== date ? 'ring-1 ring-[var(--accent)]' : ''} ${!day ? 'opacity-0' : ''}`}
                   >
@@ -117,7 +117,7 @@ export function CalendarScreen() {
                       {dayEvents.slice(0, 2).map((event) => (
                         <span
                           key={event.id}
-                          className="block truncate rounded bg-[var(--accent-soft)] px-1 py-0.5 text-xs leading-tight text-fg"
+                          className="block truncate rounded-none bg-[var(--accent-soft)] px-1 py-0.5 text-xs leading-tight text-fg"
                         >
                           {event.time ? `${event.time} ` : ''}
                           {event.title}

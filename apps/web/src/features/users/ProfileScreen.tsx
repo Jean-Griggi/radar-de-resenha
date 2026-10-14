@@ -140,7 +140,7 @@ export function ProfileScreen() {
 
   return (
     <>
-      <div className="overflow-hidden rounded-3xl border border-[var(--border)] shadow-[var(--shadow-md)]">
+      <div className="overflow-hidden rounded-none border border-[var(--border)] shadow-[var(--shadow-md)]">
         <div className="relative h-32 bg-[var(--surface)] sm:h-48">
           {profile.cover ? (
             <MediaImage
@@ -261,7 +261,7 @@ export function ProfileScreen() {
               <h2 className="mb-3 font-medium">Conquistas</h2>
               <ul className="space-y-2">
                 {profile.achievements.map((item: Achievement) => (
-                  <li key={item.slug} className={`rounded-xl px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[var(--accent-soft)]' : 'bg-[var(--overlay)] text-muted'}`}>
+                  <li key={item.slug} className={`rounded-none px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[var(--accent-soft)]' : 'bg-[var(--overlay)] text-muted'}`}>
                     {item.name} — {item.description}
                   </li>
                 ))}
@@ -306,7 +306,7 @@ export function ProfileScreen() {
         {tab === 'Fotos' ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {((content?.photos as { id: string; url: string }[]) ?? []).map((photo) => (
-              <MediaImage key={photo.id} src={photo.url} alt="" className="h-36 w-full rounded-xl object-cover" />
+              <MediaImage key={photo.id} src={photo.url} alt="" className="h-36 w-full rounded-none object-cover" />
             ))}
           </div>
         ) : null}

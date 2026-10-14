@@ -7,6 +7,7 @@ import { Button } from '@/components/Button';
 import { MediaImage } from '@/components/MediaImage';
 import { Tabs } from '@/components/Tabs';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+import { plural } from '@/lib/format';
 
 export type SpotifyChoice = { kind: MusicKind; id: string; title: string; subtitle: string; cover: string | null };
 
@@ -110,7 +111,7 @@ export function SpotifyPicker({
                     key={item.id}
                     cover={item.image}
                     title={item.name}
-                    subtitle={`Playlist · ${item.tracks} faixas`}
+                    subtitle={`Playlist · ${plural(item.tracks, 'faixa', 'faixas')}`}
                     disabled={disabled}
                     onPick={() => onPick({ kind: 'playlist', id: item.id, title: item.name, subtitle: 'Playlist', cover: item.image })}
                   />
@@ -145,9 +146,9 @@ function Row({
         type="button"
         disabled={disabled}
         onClick={onPick}
-        className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-[var(--overlay)] disabled:opacity-50"
+        className="flex w-full items-center gap-3 rounded-none p-2 text-left hover:bg-[var(--overlay)] disabled:opacity-50"
       >
-        <MediaImage src={cover} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" />
+        <MediaImage src={cover} alt="" className="h-10 w-10 shrink-0 rounded-none object-cover" />
         <span className="min-w-0">
           <span className="block truncate text-sm font-medium">{title}</span>
           <span className="block truncate text-xs text-muted">{subtitle}</span>

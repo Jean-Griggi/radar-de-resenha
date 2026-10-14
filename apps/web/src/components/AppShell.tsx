@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useState, type ReactNode } from 'react';
 import { Bell, Compass, House, Plus, Search, Sparkles, User } from 'lucide-react';
 import { api } from '@/lib/api';
 import { clearAuth, getUser, type AuthUser } from '@/lib/auth';
-import { formatShortDate } from '@/lib/format';
+import { formatShortDate, plural } from '@/lib/format';
 import {
   getSpotifyConnectedFlag,
   peekSpotifyStatus,
@@ -195,11 +195,11 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar"
-              className="input composer rounded-full bg-[var(--overlay)] pr-4 pl-10 sm:px-4 sm:pl-10"
+              className="input pr-4 pl-10 sm:px-4 sm:pl-10"
             />
           </form>
           <ThemeToggle />
-          <Link href="/notifications" className="icon-btn relative" aria-label={unread > 0 ? `Notificações, ${unread} não lidas` : 'Notificações'}>
+          <Link href="/notifications" className="icon-btn relative" aria-label={unread > 0 ? `Notificações, ${plural(unread, 'não lida', 'não lidas')}` : 'Notificações'}>
             <Bell size={20} strokeWidth={2} aria-hidden />
             {unread > 0 ? <span className="chat-badge chat-badge--header">{unread > 9 ? '9+' : unread}</span> : null}
           </Link>
@@ -207,7 +207,7 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
             <button
               type="button"
               onClick={() => setMenu((v) => !v)}
-              className="flex h-11 min-w-11 items-center gap-2 rounded-full p-1 hover:bg-overlay"
+              className="flex h-11 min-w-11 items-center gap-2 rounded-[var(--k-radius-control)] p-1 hover:bg-overlay"
               aria-expanded={menu}
               aria-haspopup="menu"
               aria-label="Menu da conta"
@@ -216,25 +216,25 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
               <span className="hidden max-w-28 truncate text-sm lg:block">{user?.name}</span>
             </button>
             {menu ? (
-              <div className="absolute right-0 mt-2 w-52 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] p-2 text-sm shadow-[var(--shadow-lg)]" role="menu">
-                <Link href={profileHref} className="block min-h-11 rounded-lg px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
+              <div className="absolute right-0 mt-2 w-52 rounded-none border border-[var(--border)] bg-[var(--surface-elevated)] p-2 text-sm shadow-[var(--shadow-lg)]" role="menu">
+                <Link href={profileHref} className="block min-h-11 rounded-none px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
                   Perfil
                 </Link>
                 {MORE_NAV.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="block min-h-11 rounded-lg px-3 py-2.5 hover:bg-overlay"
+                    className="block min-h-11 rounded-none px-3 py-2.5 hover:bg-overlay"
                     role="menuitem"
                     onClick={() => setMenu(false)}
                   >
                     {item.label}
                   </Link>
                 ))}
-                <Link href="/settings" className="block min-h-11 rounded-lg px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
+                <Link href="/settings" className="block min-h-11 rounded-none px-3 py-2.5 hover:bg-overlay" role="menuitem" onClick={() => setMenu(false)}>
                   Configurações
                 </Link>
-                <button type="button" onClick={logout} className="block min-h-11 w-full rounded-lg px-3 py-2.5 text-left text-[var(--accent)] hover:bg-overlay" role="menuitem">
+                <button type="button" onClick={logout} className="block min-h-11 w-full rounded-none px-3 py-2.5 text-left text-[var(--accent)] hover:bg-overlay" role="menuitem">
                   Sair
                 </button>
               </div>
@@ -335,12 +335,12 @@ function DefaultRail() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
       <div className="card p-4">
-        <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted">PRÓXIMOS ROLÊS</h2>
+        <h2 className="k-meta mb-3">Próximos rolês</h2>
         <ul className="space-y-3">
           {roles.length === 0 ? <li className="text-sm text-muted">Nada marcado ainda.</li> : null}
           {roles.map((role) => (
             <li key={role.id}>
-              <Link href={`/roles/${role.id}`} className="block rounded-lg hover:bg-overlay">
+              <Link href={`/roles/${role.id}`} className="block rounded-none hover:bg-overlay">
                 <p className="text-sm text-fg">{role.title}</p>
                 <p className="text-xs text-muted">
                   {formatShortDate(role.date)} {role.time ?? ''}
@@ -351,7 +351,7 @@ function DefaultRail() {
         </ul>
       </div>
       <div className="card p-4">
-        <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted">SUGESTÕES</h2>
+        <h2 className="k-meta mb-3">Sugestões</h2>
         {people.length === 0 ? <p className="text-sm text-muted">Ninguém para seguir agora.</p> : null}
         <ul className="space-y-3">
           {people.map((person) => (
@@ -363,7 +363,7 @@ function DefaultRail() {
               </Link>
               <button
                 type="button"
-                className="button button--primary shrink-0 px-3 text-xs"
+                className="button button--secondary shrink-0 px-3 text-xs"
                 disabled={following === person.id}
                 onClick={async () => {
                   setFollowing(person.id);

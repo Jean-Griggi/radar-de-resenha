@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { ImagePlus } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { MediaImage } from '@/components/MediaImage';
 import { IMAGE_ACCEPT } from '@/lib/upload';
@@ -54,7 +55,7 @@ export function BannerField({
   return (
     <div className="space-y-2">
       <span className="text-sm font-medium">Banner (opcional)</span>
-      <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]">
+      <div className="overflow-hidden rounded-none border border-[var(--border)] bg-[var(--surface)]">
         {shown ? (
           <MediaImage src={shown} alt="Prévia do banner" className="h-40 w-full object-cover sm:h-52" />
         ) : (
@@ -63,9 +64,7 @@ export function BannerField({
             className="flex h-40 w-full flex-col items-center justify-center gap-1 text-sm text-muted hover:bg-[var(--overlay)] sm:h-52"
             onClick={() => inputRef.current?.click()}
           >
-            <span aria-hidden className="text-2xl">
-              🖼️
-            </span>
+            <ImagePlus size={28} strokeWidth={1.5} aria-hidden />
             Escolher uma imagem para o banner
           </button>
         )}

@@ -77,7 +77,7 @@ export function RoleDetailScreen() {
 
   return (
     <div className="space-y-5">
-      <div className="overflow-hidden rounded-[var(--radius-xl)] border-2 border-[var(--text)]">
+      <div className="overflow-hidden rounded-none border-2 border-[var(--text)]">
         <MediaImage src={role.coverPhoto ?? role.photos?.[0]?.url} alt="" className="h-40 w-full object-cover sm:h-52" />
         <div className="bg-[var(--card)] p-4 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -89,7 +89,7 @@ export function RoleDetailScreen() {
               <h1 className="text-2xl font-semibold sm:text-3xl">{role.title}</h1>
               <p className="text-sm text-muted">{role.description || 'Sem descrição.'}</p>
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex min-h-6 items-center rounded-full border-2 border-[var(--text)] px-2 text-label">
+                <span className="inline-flex min-h-6 items-center rounded-[var(--k-radius-control)] border-2 border-[var(--text)] px-2 text-label">
                   {role.category}
                 </span>
                 {role.tags?.map((tag) => (
@@ -150,7 +150,7 @@ export function RoleDetailScreen() {
         <h2 className="mb-3 font-medium">Participantes</h2>
         <ul className="flex flex-wrap gap-3">
           {role.attendances.map((item) => (
-            <li key={item.id} className="flex items-center gap-2 rounded-full bg-[var(--overlay)] px-2 py-1">
+            <li key={item.id} className="flex items-center gap-2 rounded-[var(--k-radius-control)] bg-[var(--overlay)] px-2 py-1">
               <Avatar src={item.user?.avatar} name={item.user?.name} size="sm" />
               <span className="text-sm">{item.user?.name}</span>
               <span className="text-xs text-muted">{item.status}</span>
@@ -172,7 +172,7 @@ export function RoleDetailScreen() {
                 key={photo.id}
                 src={photo.url}
                 alt={photo.caption || 'Foto do rolê'}
-                className="h-32 w-full rounded-xl object-cover"
+                className="h-32 w-full rounded-none object-cover"
               />
             ))}
           </div>
@@ -243,7 +243,7 @@ export function RoleDetailScreen() {
       <section className="card p-5">
         <h2 className="mb-4 font-medium">Resenha</h2>
         {role.review ? (
-          <Link href={`/reviews/${role.review.id}`} className="block rounded-xl bg-[var(--overlay)] p-4">
+          <Link href={`/reviews/${role.review.id}`} className="block rounded-none bg-[var(--overlay)] p-4">
             <p className="text-[var(--accent)]">{'★'.repeat(role.review.rating)}</p>
             <h3 className="text-lg">{role.review.title}</h3>
             <p className="text-sm text-muted">{role.review.content}</p>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/Button';
 import { BrandWordmark } from '@/components/BrandWordmark';
-import { Field, Input } from '@/components/Field';
+import { Field, FormError, Input } from '@/components/Field';
 import { ThemeToggle } from '@/components/Theme';
 import { api, apiErrorMessage } from '@/lib/api';
 
@@ -58,7 +58,7 @@ export function RedefinirSenhaScreen() {
         <Field label="Confirmar senha">
           <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={8} required autoComplete="new-password" />
         </Field>
-        {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+        {error ? <FormError>{error}</FormError> : null}
         <Button type="submit" loading={loading} className="w-full">
           {loading ? 'Salvando...' : 'Salvar senha'}
         </Button>

@@ -12,6 +12,16 @@ import {
 } from 'react';
 import { CircleAlert } from 'lucide-react';
 
+/** Erro geral de formulário (fora de um campo): ícone + texto, anunciado por leitor de tela. */
+export function FormError({ children }: { children: ReactNode }) {
+  return (
+    <p role="alert" className="k-msg k-msg--error">
+      <CircleAlert size={16} aria-hidden />
+      {children}
+    </p>
+  );
+}
+
 /**
  * Rótulo sempre visível acima do campo. Com `error`, o campo ganha `aria-invalid` e `aria-describedby`
  * apontando para a mensagem (ícone + texto, nunca só cor). Sem `error`, o filho é renderizado como antes.

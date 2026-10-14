@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/Button';
 import { BrandWordmark } from '@/components/BrandWordmark';
-import { Field, Input } from '@/components/Field';
+import { Field, FormError, Input } from '@/components/Field';
 import { ThemeToggle } from '@/components/Theme';
 import { api, apiErrorMessage } from '@/lib/api';
 import { getUser, setAuth, type AuthUser } from './session';
@@ -64,7 +64,7 @@ export function CadastroScreen() {
         <Field label="Senha">
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required />
         </Field>
-        {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+        {error ? <FormError>{error}</FormError> : null}
         <Button type="submit" loading={loading} className="w-full">
           {loading ? 'Cadastrando...' : 'Criar conta'}
         </Button>

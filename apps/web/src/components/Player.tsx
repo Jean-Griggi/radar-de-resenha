@@ -116,16 +116,16 @@ export function MiniPlayer() {
       <div
         className={
           open
-            ? 'pointer-events-auto w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] shadow-[var(--shadow-lg)]'
+            ? 'pointer-events-auto w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-none border border-[var(--border)] bg-[var(--surface-elevated)] shadow-[var(--shadow-lg)]'
             : 'pointer-events-none fixed top-0 -left-[9999px] w-[22rem]'
         }
         aria-hidden={!open}
       >
         <div className="flex items-center gap-3 p-3">
           {track.cover ? (
-            <img src={track.cover} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+            <img src={track.cover} alt="" className="h-14 w-14 shrink-0 rounded-none object-cover" />
           ) : (
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-soft)]">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-none bg-[var(--accent-soft)]">
               <Music size={22} aria-hidden />
             </div>
           )}
@@ -188,7 +188,7 @@ export function MiniPlayer() {
 
       <button
         type="button"
-        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#1DB954] text-black shadow-[var(--shadow-lg)] hover:brightness-110"
+        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-[var(--k-radius-control)] bg-[#1DB954] text-black shadow-[var(--shadow-lg)] hover:brightness-110"
         aria-label={open ? 'Recolher player de música' : `Abrir player de música: ${track.title}`}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}

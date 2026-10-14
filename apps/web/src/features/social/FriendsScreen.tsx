@@ -107,7 +107,7 @@ export function FriendsScreen() {
             {!error && friends.length === 0 ? <EmptyState title="Você ainda não tem amigos." /> : null}
             <ul className="grid gap-3 sm:grid-cols-2">
               {friends.map((person) => (
-                <li key={person.id} className="flex items-center justify-between rounded-xl bg-[var(--overlay)] p-3">
+                <li key={person.id} className="flex items-center justify-between rounded-none bg-[var(--overlay)] p-3">
                   <Link href={`/perfil/${person.username}`} className="flex items-center gap-2">
                     <Avatar src={person.avatar} name={person.name} size="sm" />
                     <span>
