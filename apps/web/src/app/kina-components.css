@@ -1237,6 +1237,54 @@
       font-size: var(--k-fs-49);
     }
   }
+
+  /* ===================== Criar / editar rolê (plano 3.5 + D13) ===================== */
+  .role-form {
+    display: grid;
+    gap: 28px;
+  }
+  .role-form__body {
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+  }
+  .role-ficha .k-ficha-row {
+    align-items: start;
+  }
+  .role-ficha__pair {
+    display: grid;
+    gap: 8px;
+  }
+  .role-form__publish {
+    position: sticky;
+    bottom: calc(var(--k-tabbar) + env(safe-area-inset-bottom));
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    background: var(--k-bg);
+  }
+  .role-form__hint {
+    margin: 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+  }
+  @media (min-width: 640px) {
+    .role-ficha__pair {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1024px) {
+    .role-form {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+    .role-form__publish {
+      bottom: 0;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

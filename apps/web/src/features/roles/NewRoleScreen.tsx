@@ -4,6 +4,7 @@ import { ROLE_CATEGORIES } from '@resenhometro/shared';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { Button } from '@/components/Button';
+import { Ficha, FichaRow } from '@/components/FichaRow';
 import { Field, Input, Select, Textarea } from '@/components/Field';
 import type { MapPoint } from '@/features/users/mapPoint';
 import { useToast } from '@/components/Toast';
@@ -62,52 +63,64 @@ export function NewRoleScreen() {
     }
   }
 
+  const nameMissing = form.title.trim().length < 3;
+
   return (
-    <>
-      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Novo rolê</h1>
-      <form onSubmit={onSubmit} className="card max-w-2xl space-y-4 p-4 sm:p-6">
+    <form onSubmit={onSubmit} className="role-form">
+      <div className="role-form__cover">
         <BannerField file={banner} onFile={setBanner} onRemove={() => setBanner(null)} />
+      </div>
+      <div className="role-form__body">
         <Field label="Nome">
-          <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} minLength={3} required />
+          <Input className="input--display" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} minLength={3} required />
         </Field>
-        <Field label="Descrição">
-          <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-        </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Data">
-            <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-          </Field>
-          <Field label="Hora">
-            <Input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
-          </Field>
-        </div>
-        <PlaceField
-          location={form.location}
-          point={point}
-          onChange={(next) => {
-            setForm({ ...form, location: next.location });
-            setPoint(next.point);
-          }}
-        />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Categoria">
-            <Select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+        <Ficha className="role-ficha">
+          <FichaRow label="Quando" mark={form.date || form.time ? 'done' : 'empty'}>
+            <span className="role-ficha__pair">
+              <Input type="date" aria-label="Data" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+              <Input type="time" aria-label="Hora" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
+            </span>
+          </FichaRow>
+          <FichaRow label="Onde" mark={form.location ? 'done' : 'empty'}>
+            <PlaceField
+              location={form.location}
+              point={point}
+              onChange={(next) => {
+                setForm({ ...form, location: next.location });
+                setPoint(next.point);
+              }}
+            />
+          </FichaRow>
+          <FichaRow label="Categoria" mark={form.category ? 'done' : 'empty'}>
+            <Select aria-label="Categoria" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
               {ROLE_CATEGORIES.map((category) => (
                 <option key={category}>{category}</option>
               ))}
             </Select>
-          </Field>
-          <Field label="Custo estimado">
-            <Input type="number" min="0" value={form.estimatedCost} onChange={(e) => setForm({ ...form, estimatedCost: e.target.value })} />
-          </Field>
-        </div>
-        <Field label="Tags">
-          <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="sexta, festa, bar" />
+          </FichaRow>
+          <FichaRow label="Custo" mark={form.estimatedCost ? 'done' : 'empty'}>
+            <Input
+              type="number"
+              min="0"
+              aria-label="Custo estimado"
+              value={form.estimatedCost}
+              onChange={(e) => setForm({ ...form, estimatedCost: e.target.value })}
+            />
+          </FichaRow>
+          <FichaRow label="Tags" mark={form.tags.trim() ? 'done' : 'empty'}>
+            <Input aria-label="Tags" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="sexta, festa, bar" />
+          </FichaRow>
+        </Ficha>
+        <Field label="Descrição">
+          <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </Field>
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Salvando...' : 'Criar rolê'}
-        </Button>
-      </form>
-    </>
+        <div className="role-form__publish">
+          <Button type="submit" disabled={loading || nameMissing}>
+            {loading ? 'Salvando...' : 'Publicar'}
+          </Button>
+          {nameMissing ? <p className="role-form__hint">O nome precisa de pelo menos 3 caracteres</p> : null}
+        </div>
+      </div>
+    </form>
   );
 }
