@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { ImagePlus } from 'lucide-react';
+import { useEffect, useId, useState } from 'react';
+import { CircleAlert, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { MediaImage } from '@/components/MediaImage';
 import { IMAGE_ACCEPT } from '@/lib/upload';
@@ -9,8 +9,9 @@ import { IMAGE_ACCEPT } from '@/lib/upload';
 const MAX_MB = 8;
 
 /**
- * Banner do rolê: escolhe uma imagem, mostra a prévia e deixa remover. O envio acontece na tela
- * que usa este campo, depois de o rolê existir (o arquivo vai para `POST /roles/:id/banner`).
+ * Banner do rolê: UM só controle. A área grande (3:2) é o <label> do <input type="file"> real (visualmente
+ * oculto, nunca `display: none`), com cantoneiras e foco por `:focus-within`. Mostra a prévia e deixa remover.
+ * O envio acontece na tela que usa este campo, depois de o rolê existir (`POST /roles/:id/banner`).
  */
 export function BannerField({
   currentUrl = null,
@@ -26,7 +27,8 @@ export function BannerField({
   onFile: (file: File | null) => void;
   onRemove: () => void;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
+  const errorId = useId();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -53,27 +55,32 @@ export function BannerField({
   }
 
   return (
-    <div className="space-y-2">
-      <span className="text-sm font-medium">Banner (opcional)</span>
-      <div className="overflow-hidden rounded-none border border-[var(--k-line)] bg-[var(--k-surface-raised)]">
+    <div className="role-banner">
+      <span className="k-meta">Banner (opcional)</span>
+      <label htmlFor={inputId} className="role-banner__area k-corners">
+        <input
+          id={inputId}
+          type="file"
+          accept={IMAGE_ACCEPT}
+          className="sr-only"
+          aria-describedby={error ? errorId : undefined}
+          onChange={(event) => {
+            pick(event.target.files?.[0]);
+            event.target.value = '';
+          }}
+        />
         {shown ? (
-          <MediaImage src={shown} alt="Prévia do banner" className="h-40 w-full object-cover sm:h-52" />
+          <MediaImage src={shown} alt="Prévia do banner" className="role-banner__image" />
         ) : (
-          <button
-            type="button"
-            className="flex h-40 w-full flex-col items-center justify-center gap-1 text-sm text-muted hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)] sm:h-52"
-            onClick={() => inputRef.current?.click()}
-          >
+          <span className="role-banner__empty">
             <ImagePlus size={28} strokeWidth={1.5} aria-hidden />
             Escolher uma imagem para o banner
-          </button>
+          </span>
         )}
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()}>
-          {shown ? 'Trocar imagem' : 'Escolher imagem'}
-        </Button>
-        {shown ? (
+      </label>
+      {shown ? (
+        <div className="role-banner__meta">
+          <span className="k-meta">{file ? file.name : 'Banner atual'}</span>
           <Button
             type="button"
             variant="ghost"
@@ -84,19 +91,14 @@ export function BannerField({
           >
             Remover
           </Button>
-        ) : null}
-      </div>
-      {error ? <p className="text-sm text-[var(--k-danger)]">{error}</p> : null}
-      <input
-        ref={inputRef}
-        type="file"
-        accept={IMAGE_ACCEPT}
-        className="hidden"
-        onChange={(event) => {
-          pick(event.target.files?.[0]);
-          event.target.value = '';
-        }}
-      />
+        </div>
+      ) : null}
+      {error ? (
+        <p id={errorId} role="alert" className="k-msg k-msg--error">
+          <CircleAlert size={16} aria-hidden />
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

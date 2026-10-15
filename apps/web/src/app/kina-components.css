@@ -484,12 +484,19 @@
   a.k-ficha-row:hover {
     background: var(--k-bg-sunken);
   }
+  /* Ponto de 10 px: cheio (sódio) = preenchido, anel de 1,5 px = vazio. É pessoa/ponto, então fica redondo. */
   .k-ficha-row__mark {
-    width: 12px;
-    height: 12px;
-    border: var(--k-line-corner) solid var(--k-line-strong);
-    border-radius: var(--k-radius-control);
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid var(--k-line-strong);
+    border-radius: 50%;
     transition: none;
+  }
+  .k-ficha-group {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
   }
   .k-ficha-row__mark--done {
     border-color: var(--k-brand);
@@ -1864,51 +1871,306 @@
     }
   }
 
-  /* ===================== Criar / editar rolê (plano 3.5 + D13) ===================== */
+  /* ===================== Marcar / editar rolê (plano 3.5 + D13 + etapa O) ===================== */
   .role-form {
     display: grid;
-    gap: 28px;
+    gap: var(--k-space-8);
+  }
+  .role-form__title {
+    margin: 0;
+    font-size: var(--k-fs-39);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .role-form__grid {
+    display: grid;
+    gap: var(--k-space-8);
+    grid-template-columns: minmax(0, 1fr);
   }
   .role-form__body {
     display: grid;
-    gap: 20px;
+    min-width: 0;
+    gap: var(--k-space-6);
+  }
+  /* Capa à esquerda (5/12) e ficha à direita (7/12) a partir de 768 px; a capa acompanha a rolagem. */
+  @media (min-width: 768px) {
+    .role-form__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0 var(--k-space-12);
+      align-items: start;
+    }
+    .role-form__cover {
+      position: sticky;
+      top: calc(var(--k-header-h) + var(--k-areas-h) + var(--k-space-4));
+      grid-column: span 5;
+      align-self: start;
+    }
+    .role-form__body {
+      grid-column: span 7;
+    }
+  }
+
+  /* Rótulos: todos no mesmo estilo mono (nada de negrito sans solto). */
+  .role-form .k-label {
+    color: var(--k-text-muted);
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
+    font-weight: 400;
+    letter-spacing: var(--k-meta-tracking);
+    text-transform: uppercase;
+  }
+
+  /* Capa: um só controle (o <label> do input de arquivo). */
+  .role-banner {
+    display: grid;
+    gap: var(--k-space-2);
+    padding: var(--k-space-2);
+  }
+  .role-banner__area {
+    display: block;
+    aspect-ratio: 3 / 2;
+    background: var(--k-bg-sunken);
+    cursor: pointer;
+  }
+  .role-banner__area:focus-within {
+    outline: var(--k-line-focus) solid var(--k-focus);
+    outline-offset: 2px;
+  }
+  .role-banner__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .role-banner__empty {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--k-space-2);
+    padding: var(--k-space-4);
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    text-align: center;
+  }
+  .role-banner__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--k-space-2);
+  }
+  .role-banner__meta .button {
+    min-height: var(--k-touch);
+  }
+
+  /* Nome: Fraunces grande, sem fundo, fio inferior de 1 px (2 px no foco). Cresce com o texto. */
+  .role-name {
+    display: grid;
+    gap: var(--k-space-1);
+  }
+  .role-name__input {
+    width: 100%;
+    min-width: 0;
+    padding: 0 0 var(--k-space-2);
+    border: 0;
+    border-bottom: 1px solid var(--k-line-strong);
+    border-radius: 0;
+    background: none;
+    color: var(--k-text);
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: clamp(28px, 4vw, 39px);
+    line-height: 1.15;
+    field-sizing: content;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    resize: none;
+  }
+  .role-name__input::placeholder {
+    color: var(--k-text-subtle);
+  }
+  .role-name__input:focus {
+    padding-bottom: calc(var(--k-space-2) - 1px);
+    border-bottom-width: 2px;
+    border-bottom-color: var(--k-text);
+  }
+
+  /* Ficha: rótulo | valor, 56 px de altura mínima, fio de 1 px entre linhas, sem fundo e sem cartão. */
+  .role-ficha .k-ficha-row {
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+    gap: var(--k-space-1) var(--k-space-3);
+    min-height: 56px;
+    padding: var(--k-space-3) 0;
+  }
+  .role-ficha .k-ficha-row__mark {
+    grid-column: 1;
+    grid-row: 1;
+    margin-top: 3px;
+  }
+  .role-ficha .k-ficha-row > .k-meta {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .role-ficha .k-ficha-row > :last-child {
+    grid-column: 2;
+    grid-row: 2;
     min-width: 0;
   }
-  .role-ficha .k-ficha-row {
-    align-items: start;
+  @media (min-width: 640px) {
+    .role-ficha .k-ficha-row {
+      grid-template-columns: 20px 120px minmax(0, 1fr);
+      align-items: center;
+    }
+    .role-ficha .k-ficha-row > .k-meta {
+      grid-row: 1;
+    }
+    .role-ficha .k-ficha-row > :last-child {
+      grid-column: 3;
+      grid-row: 1;
+    }
   }
   .role-ficha__pair {
     display: grid;
-    gap: 8px;
+    gap: var(--k-space-2);
   }
+  @media (min-width: 480px) {
+    .role-ficha__pair {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Campos nativos: 44 px, raio 2 px, fundo rebaixado, fio inferior de 1 px (2 px no foco e no erro). */
+  .role-form .input {
+    height: var(--k-touch);
+    min-height: var(--k-touch);
+    padding: 0 var(--k-space-3);
+    border-radius: var(--k-radius-control);
+  }
+  .role-form .input:focus,
+  .role-form .input[aria-invalid="true"] {
+    padding-bottom: 0;
+  }
+  .role-form input[type="date"],
+  .role-form input[type="time"] {
+    color-scheme: inherit;
+  }
+  .role-form input::-webkit-calendar-picker-indicator {
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    margin-right: calc(var(--k-space-3) * -1);
+    cursor: pointer;
+    background-position: center;
+  }
+  .role-form .k-select {
+    position: relative;
+    display: block;
+  }
+  .role-form .k-select select {
+    padding-right: var(--k-space-12);
+    appearance: none;
+  }
+  .role-form .k-select__chevron {
+    position: absolute;
+    top: 50%;
+    right: var(--k-space-3);
+    transform: translateY(-50%);
+    color: var(--k-text);
+    pointer-events: none;
+  }
+
+  /* Local: campo + Pesquisar na mesma linha; o botão desce abaixo de 480 px. */
+  .role-place {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-2);
+  }
+  .role-place .input {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+  .role-place .button {
+    min-height: var(--k-touch);
+  }
+
+  /* Mapa: tiles do OSM, raio 0, fio de 1 px; controles retangulares de 44 px; atribuição sempre legível. */
+  .role-map {
+    height: clamp(240px, 36vh, 360px);
+  }
+  .role-ficha [data-location-map] > [role="application"] {
+    border-color: var(--k-line-strong);
+    border-radius: 0;
+  }
+  .role-ficha .maplibregl-ctrl-group {
+    border: 1px solid var(--k-line-strong);
+    border-radius: 0;
+    background: var(--k-bg);
+  }
+  .role-ficha .maplibregl-ctrl-group button {
+    border-radius: 0;
+    background-color: var(--k-bg);
+  }
+  .role-ficha .maplibregl-ctrl-attrib {
+    display: block;
+    color: var(--k-text-muted);
+  }
+
+  /* Descrição recolhida (<details>), sem animar altura. */
+  .role-desc > summary {
+    display: flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    border-bottom: 1px solid var(--k-line);
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .role-desc[open] > summary {
+    margin-bottom: var(--k-space-3);
+  }
+  .role-desc .role-desc__text {
+    height: auto;
+    min-height: 96px;
+    padding: var(--k-space-3);
+    resize: vertical;
+  }
+
+  /* Barra de ação fixa embaixo: fio no topo, safe-area, sem sombra e sem blur. Única ação principal. */
   .role-form__publish {
     position: sticky;
     bottom: calc(var(--k-tabbar) + env(safe-area-inset-bottom));
     z-index: 3;
+    display: grid;
+    gap: var(--k-space-2);
+    padding: var(--k-space-3) 0 calc(var(--k-space-3) + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  .role-form__publish-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    padding: 8px 0;
-    background: var(--k-bg);
+    gap: var(--k-space-3);
+  }
+  .role-form__publish .button {
+    min-height: var(--k-touch);
+  }
+  .role-form__error {
+    margin: 0;
   }
   .role-form__hint {
     margin: 0;
     color: var(--k-text-muted);
     font-size: var(--k-fs-14);
   }
-  @media (min-width: 640px) {
-    .role-ficha__pair {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
   @media (min-width: 1024px) {
-    .role-form {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      align-items: start;
-    }
     .role-form__publish {
       bottom: 0;
+      padding-bottom: var(--k-space-3);
     }
   }
 

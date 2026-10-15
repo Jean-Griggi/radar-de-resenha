@@ -21,6 +21,7 @@ export function FichaRow({
   onClick,
   href,
   disabled,
+  group = false,
 }: {
   label: string;
   children: ReactNode;
@@ -33,13 +34,22 @@ export function FichaRow({
   /** Linha-link: navega com `next/link` (a linha inteira é o alvo). */
   href?: string;
   disabled?: boolean;
+  /** Agrupa os campos da linha num <fieldset> com <legend> (o rótulo visível continua o mesmo). */
+  group?: boolean;
 }) {
   const interactive = Boolean(onClick || href);
   const className = `k-ficha-row${mark ? ' k-ficha-row--mark' : ''}${interactive ? ' k-ficha-row--chevron' : ''}`;
   const content = (
     <>
-      {mark ? <span className={`k-ficha-row__mark${mark === 'done' ? ' k-ficha-row__mark--done' : ''}`} aria-hidden /> : null}
-      <span className="k-meta">{label}</span>
+      {mark ? (
+        <span className={`k-ficha-row__mark${mark === 'done' ? ' k-ficha-row__mark--done' : ''}`}>
+          {/* Estado nunca só por cor: forma (cheio x vazado) e texto para leitor de tela. */}
+          <span className="sr-only">{mark === 'done' ? 'preenchido' : 'vazio'}</span>
+        </span>
+      ) : null}
+      <span className="k-meta" aria-hidden={group || undefined}>
+        {label}
+      </span>
       <span className={`${mono ? 'k-ficha-row__value--mono' : ''} ${empty ? 'k-ficha-row__value--empty' : ''}`.trim()}>
         {children}
       </span>
@@ -59,6 +69,14 @@ export function FichaRow({
       <button type="button" className={className} onClick={onClick} disabled={disabled}>
         {content}
       </button>
+    );
+  }
+  if (group) {
+    return (
+      <fieldset className="k-ficha-group">
+        <legend className="sr-only">{label}</legend>
+        <div className={className}>{content}</div>
+      </fieldset>
     );
   }
   return <div className={className}>{content}</div>;

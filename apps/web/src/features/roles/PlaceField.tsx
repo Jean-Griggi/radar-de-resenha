@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/Button';
 import { Field, Input } from '@/components/Field';
 import { LocationMap } from '@/features/users/LocationMap';
@@ -24,6 +24,7 @@ export function PlaceField({
   const [searching, setSearching] = useState(false);
   const [message, setMessage] = useState('');
   const abortRef = useRef<AbortController | null>(null);
+  const helpId = useId();
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -60,11 +61,12 @@ export function PlaceField({
   return (
     <div className="space-y-3">
       <Field label="Local">
-        <div className="flex gap-2">
+        <div className="role-place">
           <Input
             value={location}
             maxLength={160}
-            placeholder="Ex.: Praça Alencastro, Cuiabá ou um CEP"
+            placeholder="Praça, bairro ou CEP"
+            aria-describedby={helpId}
             onChange={(e) => onChange({ location: e.target.value, point })}
             onKeyDown={(e) => {
               if (e.key !== 'Enter') return;
@@ -77,6 +79,10 @@ export function PlaceField({
           </Button>
         </div>
       </Field>
+
+      <p id={helpId} className="k-help">
+        Pesquise acima ou clique no mapa para marcar o ponto exato.
+      </p>
 
       {message ? <p className="text-sm text-muted">{message}</p> : null}
 
@@ -101,14 +107,15 @@ export function PlaceField({
         point={point}
         avatar={null}
         fallbackView={CUIABA_VIEW}
-        heightClass="h-72"
-        hint="Pesquise acima ou clique no mapa para marcar o ponto exato."
+        heightClass="role-map"
+        hint=""
         pin="role"
+        guardScroll
         onPick={(picked) => onChange({ location, point: picked })}
       />
 
       {point ? (
-        <div className="flex items-center justify-between gap-2 text-xs text-muted">
+        <div className="flex items-center justify-between gap-2 text-sm text-muted">
           <span>
             Ponto marcado ({point.latitude.toFixed(5)}, {point.longitude.toFixed(5)})
           </span>

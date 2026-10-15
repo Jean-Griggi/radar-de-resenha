@@ -349,6 +349,8 @@ export async function mountLocationMap(
     past?: boolean;
     /** Onde o mapa abre enquanto não há ponto (padrão: visão do Brasil). */
     fallbackView?: MapFallbackView;
+    /** Gestos cooperativos (a rolagem da página não fica presa ao mapa). Padrão: só nos mapas não interativos. */
+    guardScroll?: boolean;
   },
 ): Promise<MapControls> {
   const maplibre = await import('maplibre-gl');
@@ -362,7 +364,7 @@ export async function mountLocationMap(
     maxPitch: 0,
     fadeDuration: 0,
     attributionControl: view.attributionControl,
-    cooperativeGestures: !options.interactive,
+    cooperativeGestures: options.guardScroll ?? !options.interactive,
   });
   map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-right');
   const pinKind = options.pin === 'role' ? (options.past ? 'role-past' : 'role') : 'person';

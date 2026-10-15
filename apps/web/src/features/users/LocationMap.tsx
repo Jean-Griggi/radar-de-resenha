@@ -24,6 +24,7 @@ export function LocationMap({
   hint = 'Clique no mapa para escolher o lugar.',
   pin = 'person',
   past = false,
+  guardScroll,
 }: {
   point: MapPoint | null;
   avatar: string | null;
@@ -33,6 +34,8 @@ export function LocationMap({
   /** Rolê usa o quadrado sódio. Pessoa fica com a foto redonda. */
   pin?: 'person' | 'role';
   past?: boolean;
+  /** Gestos cooperativos: a rolagem da página não fica presa ao mapa. */
+  guardScroll?: boolean;
   /** Onde o mapa abre enquanto não há ponto. */
   fallbackView?: MapFallbackView;
   heightClass?: string;
@@ -71,6 +74,7 @@ export function LocationMap({
       onPick: (picked) => onPickRef.current?.(picked),
       pin,
       past,
+      guardScroll,
     })
       .then((controls) => {
         if (cancelled) {
@@ -89,7 +93,7 @@ export function LocationMap({
       controlsRef.current = null;
       mapHost.remove();
     };
-  }, [interactive, pin, past]);
+  }, [interactive, pin, past, guardScroll]);
 
   useEffect(() => {
     controlsRef.current?.sync(point, avatar, point ? placeName : null);
@@ -104,7 +108,7 @@ export function LocationMap({
         aria-label={interactive ? 'Minimapa para escolher a localização' : 'Mapa da localização'}
       />
       {failed ? <p className="mt-2 text-sm text-[var(--k-danger)]">Não foi possível abrir o mapa.</p> : null}
-      {interactive && !failed ? <p className="mt-2 text-xs text-muted">{hint}</p> : null}
+      {interactive && !failed && hint ? <p className="mt-2 text-xs text-muted">{hint}</p> : null}
     </div>
   );
 }
