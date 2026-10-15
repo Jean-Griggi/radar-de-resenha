@@ -192,7 +192,7 @@ export function SettingsScreen() {
           <Button skeleton />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error && me ? (
         <div className="grid gap-5">
           <ThemeSetting />
@@ -242,15 +242,15 @@ export function SettingsScreen() {
               Remover capa
             </Button>
             {pending.avatar || pending.cover ? (
-              <div className="space-y-3 rounded-none border border-[var(--border)] bg-[var(--overlay)] p-4">
+              <div className="space-y-3 rounded-none border border-[var(--k-line)] bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)] p-4">
                 <p className="text-sm font-medium">Prévia: assim vai ficar no seu perfil</p>
-                <div className="overflow-hidden rounded-none border border-[var(--border)]">
-                  <div className="h-28 bg-[var(--brand-red-dark)] sm:h-40">
+                <div className="overflow-hidden rounded-none border border-[var(--k-line)]">
+                  <div className="h-28 bg-[var(--k-brand-hover)] sm:h-40">
                     {(pending.cover?.url ?? me.cover) ? (
-                      <img src={pending.cover?.url ?? me.cover ?? ''} alt="" className="h-full w-full object-cover" />
+                      <img src={pending.cover?.url ?? me.cover ?? ''} alt="Capa do perfil" className="h-full w-full object-cover" />
                     ) : null}
                   </div>
-                  <div className="flex items-end gap-3 bg-[var(--bg-elevated)] px-4 pb-4">
+                  <div className="flex items-end gap-3 bg-[var(--k-surface-raised)] px-4 pb-4">
                     <div className="-mt-8">
                       <Avatar src={pending.avatar?.url ?? me.avatar} name={me.name} size="xl" glow />
                     </div>
@@ -260,7 +260,7 @@ export function SettingsScreen() {
                     </div>
                   </div>
                 </div>
-                {mediaError ? <p className="text-sm text-[var(--danger)]">{mediaError}</p> : null}
+                {mediaError ? <p className="text-sm text-[var(--k-danger)]">{mediaError}</p> : null}
                 <div className="flex gap-2">
                   <Button onClick={confirmMedia} disabled={savingMedia}>
                     {savingMedia ? 'Salvando…' : 'Salvar'}
@@ -343,7 +343,7 @@ export function SettingsScreen() {
           <section className="card p-6">
             <h2 className="text-lg font-medium">Música</h2>
             <p className="mt-2 text-sm text-muted">Conecte o Spotify em Música para ver a faixa atual e playlists.</p>
-            <a href="/music" className="mt-3 inline-block text-[var(--accent)]">
+            <a href="/music" className="mt-3 inline-block text-[var(--k-brand)]">
               Ir para música
             </a>
           </section>

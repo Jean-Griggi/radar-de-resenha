@@ -11,10 +11,10 @@ function Bars({ items, label }: { items: { label: string; count: number }[]; lab
       <h2 className="mb-4 font-medium">{label}</h2>
       <ul className="space-y-2">
         {items.map((item) => (
-          <li key={item.label} className="grid grid-cols-[minmax(0,4.5rem)_minmax(0,1fr)_1.5rem] items-center gap-2 text-xs sm:grid-cols-[8rem_1fr_2rem] sm:text-sm">
+          <li key={item.label} className="grid grid-cols-[minmax(0,4.5rem)_minmax(0,1fr)_1.5rem] items-center gap-2 text-sm sm:grid-cols-[8rem_1fr_2rem]">
             <span className="truncate text-muted">{item.label}</span>
-            <div className="h-3 overflow-hidden rounded-[var(--k-radius-control)] bg-[var(--overlay)]">
-              <div className="h-full rounded-[var(--k-radius-control)] bg-gradient-to-r from-[var(--accent)] to-[var(--brand-red-dark)]" style={{ width: `${(item.count / max) * 100}%` }} />
+            <div className="h-3 overflow-hidden bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]">
+              <div className="h-full bg-[var(--k-brand)]" style={{ width: `${(item.count / max) * 100}%` }} />
             </div>
             <span className="text-right text-muted">{item.count}</span>
           </li>
@@ -39,10 +39,10 @@ export function StatsScreen() {
 
   return (
     <>
-      <div className="overflow-hidden rounded-none border border-white/15 bg-[linear-gradient(120deg,var(--ink),var(--brand-red-dark),var(--accent))] p-5 text-white sm:rounded-none sm:p-8">
-        <p className="text-sm text-white/80">Dashboard</p>
+      <div className="overflow-hidden border border-[var(--k-line)] bg-[var(--k-bg-sunken)] p-5 sm:p-8">
+        <p className="k-meta">Dashboard</p>
         <h1 className="text-2xl font-semibold sm:text-3xl">Sua vida social em números</h1>
-        <a href="/year-review" className="mt-3 inline-block text-sm text-white/80 underline">
+        <a href="/year-review" className="mt-3 inline-block text-sm underline">
           Ver retrospectiva anual
         </a>
       </div>
@@ -56,7 +56,7 @@ export function StatsScreen() {
         ].map(([label, value]) => (
           <div key={String(label)} className="card p-4">
             <p className="text-2xl font-semibold">{value}</p>
-            <p className="text-xs text-muted">{label}</p>
+            <p className="text-sm text-muted">{label}</p>
           </div>
         ))}
       </div>

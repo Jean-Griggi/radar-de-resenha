@@ -44,6 +44,13 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/** Segundos a partir de `--k-dur-*` (o valor no CSS é em ms). */
+function tokenSeconds(token: string, fallback: number) {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  const ms = Number.parseFloat(raw);
+  return Number.isFinite(ms) ? ms / 1000 : fallback;
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
   const [preference, setPreference] = useState<ThemeChoice>('system');
@@ -114,6 +121,10 @@ export function useTheme() {
 export function ThemeToggle({ className = '' }: { className?: string }) {
   const { theme, toggle } = useTheme();
   const reduce = useReducedMotion() === true;
+  const [dur, setDur] = useState(0.24);
+  useEffect(() => {
+    setDur(tokenSeconds('--k-dur-base', 0.24));
+  }, []);
 
   return (
     <button
@@ -130,7 +141,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
           initial={reduce ? false : { rotate: -80, opacity: 0, scale: 0.55 }}
           animate={{ rotate: 0, opacity: 1, scale: 1 }}
           exit={reduce ? undefined : { rotate: 80, opacity: 0, scale: 0.55 }}
-          transition={{ duration: reduce ? 0 : 0.28 }}
+          transition={{ duration: reduce ? 0 : dur }}
         >
           {theme === 'dark' ? <Sun size={20} strokeWidth={2} aria-hidden /> : <Moon size={20} strokeWidth={2} aria-hidden />}
         </motion.span>

@@ -73,7 +73,7 @@ export function RoleDetailScreen() {
     return <Skeleton className="h-64" />;
   }
   if (!role) {
-    return <p className="text-[var(--danger)]">{error}</p>;
+    return <p className="text-[var(--k-danger)]">{error}</p>;
   }
 
   const owner = me?.id === role.creatorId;
@@ -194,8 +194,8 @@ export function RoleDetailScreen() {
       <section className="card p-5">
         <h2 className="mb-4 font-medium">Resenha</h2>
         {role.review ? (
-          <Link href={`/reviews/${role.review.id}`} className="block bg-[var(--overlay)] p-4">
-            <p className="text-[var(--accent)]">{'★'.repeat(role.review.rating)}</p>
+          <Link href={`/reviews/${role.review.id}`} className="block bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)] p-4">
+            <p className="text-[var(--k-brand)]">{'★'.repeat(role.review.rating)}</p>
             <h3 className="text-lg">{role.review.title}</h3>
             <p className="text-sm text-muted">{role.review.content}</p>
           </Link>

@@ -195,7 +195,6 @@ body { font-family: var(--k-font-ui); font-size: var(--k-fs-16); line-height: va
     linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--s) no-repeat,
     linear-gradient(var(--c), var(--c)) bottom right / var(--s) var(--w) no-repeat,
     linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--s) no-repeat;
-  transition: inset var(--k-dur-quick) var(--k-ease-arrive);
 }
 /* Cantos "fecham" no hover/foco: indicam clicável sem sombra */
 a.k-corners:hover::after, button.k-corners:hover::after,

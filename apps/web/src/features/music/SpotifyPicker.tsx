@@ -74,13 +74,13 @@ export function SpotifyPicker({
       {!loading && connected === false ? (
         <p className="text-sm text-muted">
           Conecte sua conta do Spotify para escolher música.{' '}
-          <Link href="/music" className="font-semibold text-[var(--primary)] hover:underline">
+          <Link href="/music" className="font-semibold text-[var(--k-brand)] hover:underline">
             Conectar em Música
           </Link>
         </p>
       ) : null}
 
-      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--k-danger)]">{error}</p> : null}
 
       {!loading && connected ? (
         <>

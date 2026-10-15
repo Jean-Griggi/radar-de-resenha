@@ -35,7 +35,7 @@ export function ExpandableList<T>({
       {hidden > 0 ? (
         <button
           type="button"
-          className="text-sm font-semibold text-[var(--primary)] hover:underline"
+          className="text-sm font-semibold text-[var(--k-brand)] hover:underline"
           aria-expanded={expanded}
           onClick={() => setExpanded((current) => !current)}
         >

@@ -99,11 +99,11 @@ export function LocationMap({
     <div data-location-map={failed ? 'closed' : 'open'}>
       <div
         ref={hostRef}
-        className={`${heightClass} relative w-full overflow-hidden border border-[var(--border)] bg-[var(--surface)]`}
+        className={`${heightClass} relative w-full overflow-hidden border border-[var(--k-line)] bg-[var(--k-surface-raised)]`}
         role="application"
         aria-label={interactive ? 'Minimapa para escolher a localização' : 'Mapa da localização'}
       />
-      {failed ? <p className="mt-2 text-sm text-[var(--danger)]">Não foi possível abrir o mapa.</p> : null}
+      {failed ? <p className="mt-2 text-sm text-[var(--k-danger)]">Não foi possível abrir o mapa.</p> : null}
       {interactive && !failed ? <p className="mt-2 text-xs text-muted">{hint}</p> : null}
     </div>
   );
@@ -195,11 +195,11 @@ export function PeopleMap({
     <div data-people-map={failed ? 'closed' : 'open'}>
       <div
         ref={hostRef}
-        className="relative h-[70vh] min-h-80 w-full overflow-hidden border border-[var(--border)] bg-[var(--surface)]"
+        className="relative h-[70vh] min-h-80 w-full overflow-hidden border border-[var(--k-line)] bg-[var(--k-surface-raised)]"
         role="application"
         aria-label="Mapa das pessoas"
       />
-      {failed ? <p className="mt-2 text-sm text-[var(--danger)]">Não foi possível abrir o mapa.</p> : null}
+      {failed ? <p className="mt-2 text-sm text-[var(--k-danger)]">Não foi possível abrir o mapa.</p> : null}
     </div>
   );
 }

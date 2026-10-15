@@ -28,9 +28,7 @@
     line-height: 1.25;
     text-decoration: none;
     cursor: pointer;
-    transition:
-      background-color var(--k-dur-quick) var(--k-ease-arrive),
-      transform var(--k-dur-instant) var(--k-ease-arrive);
+    transition: transform var(--k-dur-instant) var(--k-ease-arrive);
   }
 
   /* 40 px da spec, com piso de 44 px de área de toque (CLAUDE.md: alvos ≥ 44 px). */
@@ -133,12 +131,12 @@
   .button__dots i {
     width: 4px;
     height: 4px;
-    border-radius: var(--k-radius-person);
+    border-radius: 0;
     background: currentColor;
-    animation: k-dots 1.2s steps(2) infinite;
+    animation: k-dots calc(var(--k-dur-scene) * 2) var(--k-ease-arrive) infinite;
   }
   .button__dots i:nth-child(2) {
-    animation-delay: 0.6s;
+    animation-delay: var(--k-dur-scene);
   }
   .button--ghost .button__dots {
     right: -14px;
@@ -150,7 +148,7 @@
   }
 
   .k-help {
-    font-size: var(--k-fs-12);
+    font-size: var(--k-fs-14);
     color: var(--k-text-muted);
   }
 
@@ -176,7 +174,7 @@
     font-family: var(--k-font-ui);
     font-size: var(--k-fs-16);
     line-height: 1.5;
-    transition: border-color var(--k-dur-quick) var(--k-ease-arrive);
+    transition: none;
   }
   .input::placeholder {
     color: var(--k-text-subtle);
@@ -218,7 +216,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: var(--k-fs-14);
     line-height: 1.3;
   }
   .k-msg svg {
@@ -378,7 +376,7 @@
     background: var(--k-surface-raised);
     border: 1px solid var(--k-line);
     border-radius: var(--k-radius-none);
-    transition: border-color var(--k-dur-quick) var(--k-ease-arrive);
+    transition: none;
   }
   .card--lift:hover {
     border-color: var(--k-line-strong);
@@ -408,7 +406,7 @@
     font-size: var(--k-fs-16);
     font-weight: 500;
     cursor: pointer;
-    transition: color var(--k-dur-quick) var(--k-ease-arrive);
+    transition: none;
   }
   .k-tab:hover {
     color: var(--k-text);
@@ -433,7 +431,7 @@
     font-size: var(--k-fs-14);
     font-weight: 500;
     line-height: 1.25;
-    transition: background-color var(--k-dur-quick) var(--k-ease-arrive);
+    transition: none;
   }
   .chip-tab:hover {
     background: var(--k-bg-sunken);
@@ -481,8 +479,8 @@
     width: 12px;
     height: 12px;
     border: var(--k-line-corner) solid var(--k-line-strong);
-    border-radius: var(--k-radius-person);
-    transition: background-color var(--k-dur-quick) var(--k-ease-arrive);
+    border-radius: var(--k-radius-control);
+    transition: none;
   }
   .k-ficha-row__mark--done {
     border-color: var(--k-brand);
@@ -538,8 +536,8 @@
   }
   .k-spotify-play {
     display: inline-flex;
-    width: 36px;
-    height: 36px;
+    width: var(--k-touch);
+    height: var(--k-touch);
     flex: none;
     align-items: center;
     justify-content: center;
@@ -616,7 +614,7 @@
     color: transparent !important;
     border: 1px solid var(--k-line) !important;
     background: none !important;
-    animation: k-pulse 1.2s ease-in-out infinite;
+    animation: k-pulse calc(var(--k-dur-scene) * 2) var(--k-ease-arrive) infinite;
   }
   .skeleton--line {
     height: 1px;
@@ -648,7 +646,7 @@
     color: var(--k-text);
     /* Só aparece depois de 300 ms de espera (spec): opacidade, sem JavaScript. */
     opacity: 0;
-    animation: k-spinner-in 0s linear 300ms forwards;
+    animation: k-spinner-in var(--k-dur-instant) var(--k-ease-arrive) var(--k-dur-move) forwards;
   }
   .k-spinner--lg {
     width: 56px;
@@ -662,7 +660,7 @@
   }
   .k-spinner__dot {
     fill: var(--k-brand);
-    animation: k-walk 1.2s var(--k-ease-arrive) infinite alternate;
+    animation: k-walk calc(var(--k-dur-scene) * 2) var(--k-ease-arrive) infinite alternate;
   }
   @keyframes k-spinner-in {
     to {
@@ -950,7 +948,7 @@
     color: var(--k-text-muted);
     font-size: var(--k-fs-16);
     cursor: pointer;
-    transition: color var(--k-dur-quick) var(--k-ease-arrive);
+    transition: none;
   }
   .reaction-btn:hover:not(:disabled) {
     color: var(--k-text);
@@ -1036,9 +1034,13 @@
     color: var(--k-text-muted);
   }
   .k-agenda__name {
-    display: block;
+    display: -webkit-box;
+    overflow: hidden;
     font-size: 20px;
     line-height: 1.15;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .k-agenda .k-ficha-row {
     grid-template-columns: 92px minmax(0, 1fr) 16px;
@@ -1078,7 +1080,11 @@
     align-items: center;
     justify-content: center;
     min-height: 100dvh;
-    padding: 72px var(--k-space-4) var(--k-space-8);
+    padding:
+      max(72px, env(safe-area-inset-top))
+      max(var(--k-space-4), env(safe-area-inset-right))
+      max(var(--k-space-8), env(safe-area-inset-bottom))
+      max(var(--k-space-4), env(safe-area-inset-left));
     background: var(--k-bg);
   }
   /* Grade (canvas AuthGrid) e fios (SVG AuthQuina), atrás de tudo: z 0 e sem ponteiro. */
@@ -1177,7 +1183,7 @@
     padding: 0 24px;
     overflow: visible;
     white-space: nowrap;
-    font-size: 19px;
+    font-size: var(--k-fs-20);
   }
   /* No ponto sódio o símbolo inteiro fica na cor do texto do botão (o ponto da marca some no fundo). */
   .auth-enter .brand-symbol circle {
@@ -1228,8 +1234,8 @@
     transition: opacity var(--k-dur-quick) var(--k-ease-leave);
   }
   /* ===================== .k-glass — vidro líquido (DECISOES D19) =====================
-     EXCEÇÃO ao "sem vidro/sombra": permitido SÓ no card das telas de entrada (login, cadastro, esqueci e redefinir senha)
-     e na folha de login do celular. Proibido em qualquer outro lugar. A varredura da Fase 5 ignora esta classe.
+     EXCEÇÃO ao "sem vidro/sombra": permitido SÓ no painel de login (`.auth-panel--entry.k-glass`), inclusive a folha do toque.
+     Cadastro, esqueci e redefinir ficam opacos. Proibido em qualquer outro lugar. O filtro não anima.
      Camadas: (1) refração do fundo (filtro SVG #k-glass, só Chromium, ver GlassFilter); (2) desfoque leve;
      (3) borda fina e brilho interno na borda de cima. Só tokens --k-*; nada de animar o filtro. */
   .k-glass {
@@ -1244,10 +1250,6 @@
   /* Campos translúcidos também, para o vidro valer dentro do card. */
   .k-glass .input {
     background: color-mix(in srgb, var(--k-bg) 22%, transparent);
-  }
-  /* Folha do celular: atrás dela está o escurecimento do overlay, que tiraria o contraste do texto; tinta alta garante 4,5:1. */
-  .k-sheet.k-glass {
-    --k-glass-tint: 80%;
   }
   /* Refração só onde o navegador aceita filtro SVG em backdrop-filter. GlassFilter marca <html data-glass-refract>
      apenas no Chromium; Firefox e Safari ficam no desfoque comum acima. */
@@ -1363,7 +1365,7 @@
   /* Movimento reduzido: sem magnetismo (JS), sem crescimento e sem folha deslizando; o painel só aparece em fade. */
   @media (prefers-reduced-motion: reduce) {
     .auth-entry {
-      animation: k-fade-in var(--k-dur-base) linear;
+      animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
     }
     .auth-stage__phrase[data-out] {
       transform: translateX(-50%);
@@ -1415,8 +1417,13 @@
   }
   .profile-id__name {
     margin: 0;
+    overflow: hidden;
     font-size: var(--k-fs-31);
     line-height: 1.05;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .profile-tile {
     min-width: 0;
@@ -1426,9 +1433,13 @@
     padding: 0;
   }
   .profile-tile__title {
-    display: block;
+    display: -webkit-box;
+    overflow: hidden;
     font-size: 22px;
     line-height: 1.15;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .profile-tile__photo {
     display: block;
@@ -1545,8 +1556,13 @@
   }
   .role-cover__name {
     margin: 4px 0 0;
+    overflow: hidden;
     color: var(--k-stage-text);
     font-size: var(--k-fs-39);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .role-cover__title--plain .role-cover__name,
   .role-cover__title--plain .role-cover__status {
@@ -1670,8 +1686,14 @@
   }
   .k-post__name {
     margin: 0;
+    min-width: 0;
+    overflow: hidden;
     font-size: 25px;
     line-height: 1.1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .k-post__name a {
     color: inherit;
@@ -1691,8 +1713,8 @@
   .k-post__body--clamp {
     max-height: calc(3 * 1.5em);
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(#000 60%, transparent);
-    mask-image: linear-gradient(#000 60%, transparent);
+    -webkit-mask-image: linear-gradient(var(--k-text) 60%, transparent);
+    mask-image: linear-gradient(var(--k-text) 60%, transparent);
   }
   .k-post__caption .button {
     min-height: var(--k-touch);
@@ -1737,7 +1759,12 @@
   }
   .feed-memory__title {
     margin: 4px 0;
+    overflow: hidden;
     font-size: 22px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   /* Stories: pontos de 58 px. Não visto = anel de 2 px da marca (o `glow` do Avatar). */
   .k-stories__row {
@@ -1760,22 +1787,24 @@
     --k-avatar: 58px;
   }
   .k-stories__label {
+    display: -webkit-box;
     width: 100%;
     overflow: hidden;
     color: var(--k-text);
     font-size: var(--k-fs-14);
     line-height: 1.2;
     text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .k-stories__add {
     position: absolute;
-    right: -4px;
-    bottom: -4px;
+    right: -10px;
+    bottom: -10px;
     display: flex;
-    width: 28px;
-    height: 28px;
+    width: var(--k-touch);
+    height: var(--k-touch);
     align-items: center;
     justify-content: center;
     border: 0;
@@ -1833,7 +1862,9 @@
   }
   .k-stage__bar > i {
     display: block;
+    width: 100%;
     height: 100%;
+    transform-origin: left center;
     background: var(--k-stage-text);
   }
   .k-stage__who {
@@ -1956,10 +1987,14 @@
     text-decoration: none;
   }
   .feed-next__name {
-    display: block;
+    display: -webkit-box;
     margin-top: 4px;
+    overflow: hidden;
     font-size: 20px;
     line-height: 1.15;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .feed .composer-chip {
     font-size: var(--k-fs-14);
@@ -2016,7 +2051,7 @@
     transition: none;
   }
   .auth-panel {
-    animation: k-fade-in 160ms linear;
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
     transition: none;
   }
   .skeleton {
@@ -2024,7 +2059,8 @@
   }
   /* Sem movimento: o ponto só pulsa em opacidade. */
   .k-spinner__dot {
-    animation: k-pulse 1.2s ease-in-out infinite;
+    animation: none;
+    opacity: 1;
     transform: translate(-29.2px, -12px);
   }
   .k-toast {
@@ -2040,5 +2076,8 @@
   .button__dots i {
     animation: none;
     opacity: 0.6;
+  }
+  .k-stage__bar > i {
+    animation: none !important;
   }
 }

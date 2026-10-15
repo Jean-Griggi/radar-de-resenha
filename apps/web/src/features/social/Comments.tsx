@@ -111,7 +111,7 @@ export function FeedComments({ targetType, targetId }: { targetType: string; tar
   return (
     <div>
       <p className="mb-2 text-label text-muted">Comentários</p>
-      {error ? <p className="mb-2 text-xs text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-2 text-xs text-[var(--k-danger)]">{error}</p> : null}
       <Comments
         compact
         comments={comments}
@@ -157,7 +157,7 @@ function CommentItem({
                 await api.delete(`/comments/${comment.id}`);
                 onChanged?.();
               }}
-              className="hover:text-[var(--danger)]"
+              className="hover:text-[var(--k-danger)]"
             >
               Excluir
             </button>

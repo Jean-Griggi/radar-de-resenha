@@ -103,7 +103,7 @@ export function ProfileScreen() {
     return (
       <>
         {loading ? <Skeleton className="h-72" /> : null}
-        {error ? <p className="text-[var(--danger)]">{error}</p> : null}
+        {error ? <p className="text-[var(--k-danger)]">{error}</p> : null}
         {!loading && !error ? <EmptyState title="Perfil não encontrado." /> : null}
       </>
     );
@@ -286,7 +286,7 @@ export function ProfileScreen() {
               <h2 className="mb-3 font-medium">Conquistas</h2>
               <ul className="space-y-2">
                 {profile.achievements.map((item: Achievement) => (
-                  <li key={item.slug} className={`px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[var(--accent-soft)]' : 'bg-[var(--overlay)] text-muted'}`}>
+                  <li key={item.slug} className={`px-3 py-2 text-sm ${item.unlockedAt ? 'bg-[color-mix(in_srgb,var(--k-brand)_12%,transparent)]' : 'bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)] text-muted'}`}>
                     {item.name} — {item.description}
                   </li>
                 ))}

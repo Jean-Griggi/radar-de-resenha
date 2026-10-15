@@ -45,7 +45,7 @@ export function RedefinirSenhaScreen() {
 
   return (
     <AuthStage>
-      <Corners size={22} className={`auth-panel k-glass${error ? ' auth-panel--error' : ''}`}>
+      <Corners size={22} className={`auth-panel${error ? ' auth-panel--error' : ''}`}>
         <h1 className="auth-panel__title k-display">Nova senha</h1>
         <p className="auth-panel__lead">Escolha uma senha com pelo menos 8 caracteres.</p>
         <form onSubmit={onSubmit} className="space-y-4">

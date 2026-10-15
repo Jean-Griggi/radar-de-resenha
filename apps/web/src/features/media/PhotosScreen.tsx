@@ -169,7 +169,7 @@ export function PhotosScreen() {
           <Skeleton className="h-32" />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
 
       {!loading && !error ? (
         <>
@@ -185,7 +185,7 @@ export function PhotosScreen() {
                 <p className="text-xs text-muted">{plural(album.photos?.length ?? 0, 'foto', 'fotos')}</p>
                 <button
                   type="button"
-                  className="mt-2 text-xs text-[var(--danger)]"
+                  className="mt-2 text-xs text-[var(--k-danger)]"
                   onClick={async () => {
                     if (!confirm('Excluir álbum?')) return;
                     try {
@@ -211,7 +211,7 @@ export function PhotosScreen() {
                 <MediaImage src={photo.url} alt={photo.caption || 'Foto'} className="h-28 w-full rounded-none object-cover sm:h-40" />
                 <button
                   type="button"
-                  className="absolute top-2 right-2 rounded-[var(--k-radius-control)] bg-black/60 px-2 text-xs"
+                  className="k-meta absolute top-2 right-2 bg-[color-mix(in_srgb,var(--k-stage-bg)_60%,transparent)] px-2 text-[var(--k-stage-text)]"
                   onClick={async () => {
                     try {
                       await api.delete(`/photos/${photo.id}`);
@@ -237,7 +237,7 @@ export function PhotosScreen() {
                   <p>🎙️ {audio.name}</p>
                   <button
                     type="button"
-                    className="text-xs text-[var(--danger)]"
+                    className="text-xs text-[var(--k-danger)]"
                     onClick={async () => {
                       try {
                         await api.delete(`/audios/${audio.id}`);

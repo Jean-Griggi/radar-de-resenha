@@ -179,11 +179,11 @@ export function MusicScreen() {
         </div>
       ) : null}
       {connectError ? (
-        <p role="alert" className="mb-5 rounded-none border border-[var(--danger)] p-3 text-[var(--danger)]">
+        <p role="alert" className="mb-5 rounded-none border border-[var(--k-danger)] p-3 text-[var(--k-danger)]">
           {connectError}
         </p>
       ) : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error ? (
         <>
           <section className="card p-6">
@@ -266,7 +266,7 @@ export function MusicScreen() {
                     </Button>
                   ) : null}
                 </form>
-                {searchError ? <p className="mt-3 text-sm text-[var(--danger)]">{searchError}</p> : null}
+                {searchError ? <p className="mt-3 text-sm text-[var(--k-danger)]">{searchError}</p> : null}
                 {results ? (
                   <div className="mt-4 space-y-5">
                     <p className="text-sm text-muted">Resultados para "{searched}"</p>
@@ -321,7 +321,7 @@ export function MusicScreen() {
                 <p className="mb-3 text-sm text-muted">Escolha uma para tocar aqui, sem sair da Kina.</p>
                 {savedError ? (
                   <div className="space-y-2">
-                    <p className="text-sm text-[var(--danger)]">{savedError}</p>
+                    <p className="text-sm text-[var(--k-danger)]">{savedError}</p>
                     <Button variant="secondary" onClick={connect}>
                       Reconectar Spotify
                     </Button>

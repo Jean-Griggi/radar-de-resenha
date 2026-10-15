@@ -2,73 +2,12 @@
 @import "./kina-tokens.css";
 @import "./kina-components.css";
 
-/*
- * Aliases legados → tokens Kina (DECISOES.md T2).
- * Os nomes antigos continuam existindo para as telas não quebrarem, mas só apontam para --k-*.
- * O tema (claro/escuro/sistema) vive inteiro em kina-tokens.css; aqui não há valor próprio.
- * Remover os aliases na Fase 5, depois que nenhum componente usar mais os nomes antigos.
- */
+/* Pesos numéricos. Aliases de cor, raio e sombra (--bg, --card, --shadow-*, --radius-*) saíram na Fase 5. */
 :root {
-  --background: var(--k-bg);
-  --surface: var(--k-surface-raised);
-  --surface-elevated: var(--k-surface-raised);
-  --primary: var(--k-brand);
-  --primary-hover: var(--k-brand-hover);
-  --secondary: var(--k-bg-sunken);
-  --secondary-hover: color-mix(in srgb, var(--k-bg-sunken) 85%, var(--k-text));
-  --accent-cool: var(--k-accent);
-  --text: var(--k-text);
-  --text-muted: var(--k-text-muted);
-  --border: var(--k-line);
-  --success: var(--k-success);
-  --warning: var(--k-warning);
-  --danger: var(--k-danger);
-  --disabled: color-mix(in srgb, var(--k-text) 38%, transparent);
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-12: 48px;
-  --space-16: 64px;
-  /* Tudo que não é pessoa tem raio de 2 px (DECISOES G4/Fase 2): os nomes antigos apontam para o token. */
-  --radius-sm: var(--k-radius-control);
-  --radius-md: var(--k-radius-control);
-  --radius-lg: var(--k-radius-control);
-  --radius-xl: var(--k-radius-control);
-  --radius-full: var(--k-radius-person);
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: var(--k-shadow-overlay);
-  --shadow-focus: 0 0 0 var(--k-line-focus) var(--k-focus);
-  --focus: var(--shadow-focus);
-  --bg: var(--background);
-  --bg-elevated: var(--surface-elevated);
-  --card: var(--surface);
-  --card-2: var(--secondary);
-  --line: var(--border);
-  --muted: var(--text-muted);
-  --accent: var(--primary);
-  --accent-2: var(--primary-hover);
-  --accent-soft: color-mix(in srgb, var(--k-brand) 12%, transparent);
-  --overlay: color-mix(in srgb, var(--k-text) 5%, transparent);
-  --glow: var(--k-glow);
-  --header: color-mix(in srgb, var(--k-bg) 94%, transparent);
-  --input: var(--surface);
-  --info: var(--k-accent);
-  --brand-red: var(--k-brand);
-  --brand-red-dark: var(--k-brand-hover);
-  --ink: var(--k-stage-bg);
-  --graphite: var(--k-bg-sunken);
-  --paper: var(--k-on-brand);
-  --primary-shadow: none;
-  --lift-shadow: var(--k-shadow-overlay);
 }
 
 @theme inline {
@@ -89,28 +28,28 @@
   --text-small--line-height: 20px;
   --text-label: 12px;
   --text-label--line-height: 16px;
-  --color-bg: var(--bg);
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-elevated: var(--surface-elevated);
-  --color-card: var(--card);
-  --color-line: var(--line);
-  --color-border: var(--border);
-  --color-muted: var(--muted);
-  --color-fg: var(--text);
-  --color-text: var(--text);
-  --color-text-muted: var(--text-muted);
-  --color-accent: var(--accent);
-  --color-accent-2: var(--accent-2);
-  --color-accent-cool: var(--accent-cool);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-secondary: var(--secondary);
-  --color-overlay: var(--overlay);
-  --color-input: var(--input);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-danger: var(--danger);
+  --color-bg: var(--k-bg);
+  --color-background: var(--k-bg);
+  --color-surface: var(--k-surface-raised);
+  --color-surface-elevated: var(--k-surface-raised);
+  --color-card: var(--k-surface-raised);
+  --color-line: var(--k-line);
+  --color-border: var(--k-line);
+  --color-muted: var(--k-text-muted);
+  --color-fg: var(--k-text);
+  --color-text: var(--k-text);
+  --color-text-muted: var(--k-text-muted);
+  --color-accent: var(--k-brand);
+  --color-accent-2: var(--k-brand-hover);
+  --color-accent-cool: var(--k-accent);
+  --color-primary: var(--k-brand);
+  --color-primary-hover: var(--k-brand-hover);
+  --color-secondary: var(--k-bg-sunken);
+  --color-overlay: color-mix(in srgb, var(--k-text) 5%, transparent);
+  --color-input: var(--k-surface-raised);
+  --color-success: var(--k-success);
+  --color-warning: var(--k-warning);
+  --color-danger: var(--k-danger);
 
   /* Utilitários Kina (bg-k-brand, text-k-text, border-k-line…) — usar nas telas novas */
   --color-k-bg: var(--k-bg);
@@ -133,7 +72,7 @@
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--muted) 50%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--k-text-muted) 50%, transparent) transparent;
 }
 
 ::view-transition-old(root),
@@ -148,15 +87,15 @@
 
 ::view-transition-new(root) {
   z-index: 2;
-  animation: theme-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: theme-reveal var(--k-dur-scene) var(--k-ease-arrive);
 }
 
 @keyframes theme-reveal {
   from {
-    clip-path: circle(0 at var(--theme-x, 92%) var(--theme-y, 6%));
+    opacity: 0;
   }
   to {
-    clip-path: circle(150% at var(--theme-x, 92%) var(--theme-y, 6%));
+    opacity: 1;
   }
 }
 
@@ -165,7 +104,7 @@ body {
   min-height: 100%;
   overflow-x: hidden;
   background: var(--k-bg);
-  color: var(--text);
+  color: var(--k-text);
 }
 
 img,
@@ -256,8 +195,8 @@ body {
 }
 
 .text-label {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.02em;
 }
@@ -273,8 +212,8 @@ body {
   align-items: center;
   gap: 0.28rem;
   line-height: 1;
-  color: var(--text);
-  transition: opacity 0.18s ease;
+  color: var(--k-text);
+  transition: opacity var(--k-dur-quick) var(--k-ease-arrive);
 }
 
 a.brand-wordmark:hover {
@@ -390,7 +329,6 @@ a.brand-wordmark:focus-visible {
   border-radius: var(--k-radius-control);
   min-width: var(--k-touch);
   min-height: var(--k-touch);
-  transition: border-color var(--k-dur-quick) var(--k-ease-arrive);
 }
 
 .theme-toggle-corner:hover,
@@ -411,12 +349,8 @@ table .font-display {
   font-family: var(--font-sans);
 }
 
-a {
-  @apply transition-colors;
-}
-
 ::selection {
-  background: color-mix(in srgb, var(--primary) 32%, transparent);
+  background: color-mix(in srgb, var(--k-brand) 32%, transparent);
 }
 
 /* Em camada: as classes utilitárias do Tailwind (pl-10, rounded-full...) passam a vencer estas, em vez de serem ignoradas. */
@@ -430,26 +364,14 @@ a {
   }
 
   .media-fallback {
-    background-color: var(--graphite);
+    background-color: var(--k-bg-sunken);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
     background-size: 180px 180px;
     background-blend-mode: overlay;
   }
 
-  .glow-btn {
-    box-shadow: var(--glow);
-  }
-
-  .composer {
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      background-color 0.2s ease;
-  }
-
   .composer:focus-within {
-    border-color: color-mix(in srgb, var(--accent-cool) 36%, var(--border));
-    box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--k-accent) 36%, var(--k-line));
   }
 
   .composer-chip {
@@ -459,18 +381,15 @@ a {
     gap: 0.4rem;
     border-radius: var(--k-radius-control);
     padding: 0 0.75rem;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: var(--font-weight-semibold);
-    color: var(--text-muted);
-    transition:
-      background-color 0.18s ease,
-      color 0.18s ease,
-      transform 0.15s ease;
+    color: var(--k-text-muted);
+    transition: transform var(--k-dur-instant) var(--k-ease-arrive);
   }
 
   .composer-chip:hover {
-    background: var(--overlay);
-    color: var(--text);
+    background: color-mix(in srgb, var(--k-text) 5%, transparent);
+    color: var(--k-text);
   }
 
   .composer-chip:active {
@@ -484,12 +403,10 @@ a {
     align-items: center;
     justify-content: center;
     gap: 0.125rem;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
-    color: var(--text-muted);
-    transition:
-      color 0.18s ease,
-      transform 0.15s ease;
+    color: var(--k-text-muted);
+    transition: transform var(--k-dur-instant) var(--k-ease-arrive);
   }
 
   .nav-bottom-link:active {
@@ -497,7 +414,7 @@ a {
   }
 
   .nav-bottom-link.is-active {
-    color: var(--primary);
+    color: var(--k-brand);
   }
 
   /* Ponto sódio do cabeçalho (DECISOES §5). Círculo por ser o ponto da marca, sem raio 999px nem sombra. */
@@ -510,7 +427,6 @@ a {
     border-radius: 50%;
     background: var(--k-brand);
     color: var(--k-on-brand);
-    transition: background-color var(--k-dur-quick) var(--k-ease-arrive);
   }
 
   .nav-create:hover {
@@ -561,16 +477,13 @@ a {
     font-size: 14px;
     line-height: 20px;
     font-weight: var(--font-weight-medium);
-    color: var(--text-muted);
-    transition:
-      color 0.18s ease,
-      background-color 0.18s ease,
-      transform 0.15s ease;
+    color: var(--k-text-muted);
+    transition: transform var(--k-dur-instant) var(--k-ease-arrive);
   }
 
   .top-nav-link:hover {
-    color: var(--text);
-    background: var(--overlay);
+    color: var(--k-text);
+    background: color-mix(in srgb, var(--k-text) 5%, transparent);
   }
 
   .top-nav-link:active {
@@ -593,17 +506,15 @@ a {
     width: 44px;
     flex-shrink: 0;
     border-radius: var(--k-radius-control);
-    color: var(--text-muted);
+    color: var(--k-text-muted);
     transition:
-      background-color 0.18s ease,
-      color 0.18s ease,
-      transform 0.15s ease,
-      opacity 0.18s ease;
+      transform var(--k-dur-instant) var(--k-ease-arrive),
+      opacity var(--k-dur-quick) var(--k-ease-arrive);
   }
 
   .icon-btn:hover:not(:disabled) {
-    background: var(--overlay);
-    color: var(--text);
+    background: color-mix(in srgb, var(--k-text) 5%, transparent);
+    color: var(--k-text);
   }
 
   .icon-btn:active:not(:disabled) {
@@ -617,7 +528,7 @@ a {
 
   .profile-stat {
     border-radius: var(--k-radius-none);
-    background: var(--overlay);
+    background: color-mix(in srgb, var(--k-text) 5%, transparent);
     padding: 0.75rem;
     text-align: center;
   }
@@ -633,18 +544,19 @@ a {
     justify-content: center;
     padding: 0 0.28rem;
     border-radius: var(--k-radius-control);
-    background: var(--primary);
-    color: var(--paper);
-    font-size: 12px;
+    background: var(--k-brand);
+    color: var(--k-on-brand);
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
     font-weight: 700;
     line-height: 1;
-    outline: 2px solid var(--surface-elevated);
+    outline: 2px solid var(--k-surface-raised);
   }
 
   .chat-badge--header {
     top: 6px;
     right: 6px;
-    outline-color: var(--background);
+    outline-color: var(--k-bg);
   }
 
   input,
@@ -656,10 +568,10 @@ a {
 
 @keyframes storybar {
   from {
-    width: 0%;
+    transform: scaleX(0);
   }
   to {
-    width: 100%;
+    transform: scaleX(1);
   }
 }
 
@@ -686,7 +598,6 @@ a {
   a,
   .top-nav-link,
   .icon-btn,
-  .composer,
   .composer-chip,
   .nav-bottom-link,
   .nav-create,

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Play, X } from 'lucide-react';
 import type { MusicItem } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { MediaImage } from '@/components/MediaImage';
@@ -62,7 +63,7 @@ export function MusicCard({
   }, [autoplay, open, ref?.kind, ref?.id]);
   const canPlay = Boolean(onSelect) || (inline && Boolean(ref));
   const onMedia = tone === 'story';
-  const surface = onMedia ? 'music-on-stage' : 'bg-[var(--overlay)]';
+  const surface = onMedia ? 'music-on-stage' : 'bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]';
   const titleColor = onMedia ? 'text-[var(--k-stage-text)]' : '';
   const mutedColor = onMedia ? 'text-[var(--k-stage-text)]' : 'text-muted';
 
@@ -96,7 +97,7 @@ export function MusicCard({
             aria-pressed={inline ? open : undefined}
             className="k-spotify-play"
           >
-            {open ? '✕' : '▶'}
+            {open ? <X size={18} aria-hidden /> : <Play size={18} aria-hidden />}
           </button>
         ) : null}
       </div>

@@ -26,6 +26,14 @@ const DEFAULT_CENTER: [number, number] = [-51.9258, -14.235];
 const POINT_ZOOM = 14;
 const OVERVIEW_ZOOM = 4;
 
+/** Duração da câmera do mapa, lida de `--k-dur-scene`. Com movimento reduzido, o mapa não anima. */
+function mapMotionMs() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 0;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--k-dur-scene').trim();
+  const ms = Number.parseFloat(raw);
+  return Number.isFinite(ms) ? ms : 520;
+}
+
 export type MapAttribution = { compact: false };
 
 export type MapFallbackView = { center: [number, number]; zoom: number };
@@ -551,14 +559,14 @@ export async function mountPeopleMap(
     });
     if (!move) return;
     if (pins.length === 1) {
-      map.flyTo({ center: [pins[0]!.longitude, pins[0]!.latitude], zoom: 14, essential: true });
+      map.flyTo({ center: [pins[0]!.longitude, pins[0]!.latitude], zoom: 14, essential: true, duration: mapMotionMs() });
     } else if (pins.length === 2) {
       const bounds = new maplibre.LngLatBounds(
         [pins[0]!.longitude, pins[0]!.latitude],
         [pins[0]!.longitude, pins[0]!.latitude],
       );
       bounds.extend([pins[1]!.longitude, pins[1]!.latitude]);
-      map.fitBounds(bounds, { padding: 80, maxZoom: 15, animate: true });
+      map.fitBounds(bounds, { padding: 80, maxZoom: 15, animate: mapMotionMs() > 0 });
     }
   }
 
@@ -577,13 +585,13 @@ export async function mountPeopleMap(
       'border-radius:50%',
       `background:${accent}`,
       `border:3px solid ${mapToken('--k-bg')}`,
-      `box-shadow:0 0 0 6px color-mix(in srgb, ${accent} 25%, transparent)`,
+      `outline:6px solid color-mix(in srgb, ${accent} 25%, transparent)`,
     ].join(';');
     dot.append(core);
     meMarker = new maplibre.Marker({ element: dot, anchor: 'center' })
       .setLngLat([point.longitude, point.latitude])
       .addTo(map);
-    if (follow) map.easeTo({ center: [point.longitude, point.latitude], duration: 600 });
+    if (follow) map.easeTo({ center: [point.longitude, point.latitude], duration: mapMotionMs() });
   }
 
   const stopTheme = watchTheme(() => {
@@ -596,7 +604,7 @@ export async function mountPeopleMap(
   return {
     sync: show,
     flyTo(point, zoom) {
-      map.flyTo({ center: [point.longitude, point.latitude], zoom, essential: true });
+      map.flyTo({ center: [point.longitude, point.latitude], zoom, essential: true, duration: mapMotionMs() });
     },
     setRoute(coordinates, fit) {
       route = coordinates;
@@ -604,7 +612,7 @@ export async function mountPeopleMap(
       if (!coordinates || coordinates.length === 0 || !fit) return;
       const bounds = new maplibre.LngLatBounds(coordinates[0], coordinates[0]);
       for (const coord of coordinates) bounds.extend(coord);
-      map.fitBounds(bounds, { padding: 64, animate: true });
+      map.fitBounds(bounds, { padding: 64, animate: mapMotionMs() > 0 });
     },
     setRoutePins(pins) {
       renderPins(pins, true);

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
+import { Pause, Play, X } from 'lucide-react';
 import type { Story, StoryRing, StoryViewer as StoryViewerUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { MusicCard } from '@/features/music';
@@ -13,6 +14,25 @@ export function StoryPhone({ children }: { children: ReactNode }) {
 }
 
 const PHOTO_MS = 5000;
+
+/** Barra do story: só `transform`. A duração é o tempo da foto (relógio), não um token de interface. */
+function storyBarStyle(
+  index: number,
+  storyIndex: number,
+  mediaType: string,
+  videoProgress: number,
+  reduceMotion: boolean,
+  frozen: boolean,
+): CSSProperties {
+  if (index < storyIndex) return { transform: 'scaleX(1)' };
+  if (index > storyIndex) return { transform: 'scaleX(0)' };
+  if (mediaType === 'video') return { transform: `scaleX(${videoProgress})` };
+  if (reduceMotion) return { transform: 'scaleX(1)' };
+  return {
+    animation: `storybar ${PHOTO_MS}ms linear`,
+    animationPlayState: frozen ? 'paused' : 'running',
+  };
+}
 
 export function StoryViewer({
   rings,
@@ -43,6 +63,7 @@ export function StoryViewer({
   const [error, setError] = useState('');
   const [viewers, setViewers] = useState<StoryViewerUser[] | null>(null);
   const [videoProgress, setVideoProgress] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const marked = useRef<Set<string>>(new Set());
   const remainingRef = useRef(PHOTO_MS);
@@ -70,6 +91,14 @@ export function StoryViewer({
     if (delta > 0) onClose();
   }
   goRef.current = go;
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => setReduceMotion(media.matches);
+    apply();
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -226,7 +255,7 @@ export function StoryViewer({
             {paused ? (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                 <span className="k-stage__pause" aria-hidden>
-                  ⏸
+                  <Pause size={28} />
                 </span>
               </div>
             ) : null}
@@ -238,18 +267,7 @@ export function StoryViewer({
                 <div key={item.id} className="k-stage__bar">
                   <i
                     key={`${item.id}-${index === storyIndex ? story.id : 'idle'}`}
-                    className={index < storyIndex ? 'w-full' : index > storyIndex ? 'w-0' : ''}
-                    style={
-                      index === storyIndex
-                        ? story.mediaType === 'video'
-                          ? { width: `${videoProgress * 100}%` }
-                          : {
-                              width: '100%',
-                              animation: `storybar ${PHOTO_MS}ms linear`,
-                              animationPlayState: frozen ? 'paused' : 'running',
-                            }
-                        : undefined
-                    }
+                    style={storyBarStyle(index, storyIndex, story.mediaType, videoProgress, reduceMotion, frozen)}
                   />
                 </div>
               ))}
@@ -280,10 +298,10 @@ export function StoryViewer({
                   aria-pressed={paused}
                   onClick={() => setPaused((current) => !current)}
                 >
-                  {paused ? '▶' : '⏸'}
+                  {paused ? <Play size={20} aria-hidden /> : <Pause size={20} aria-hidden />}
                 </button>
                 <button type="button" className="k-stage__icon" onClick={onClose} aria-label="Fechar">
-                  ✕
+                  <X size={20} aria-hidden />
                 </button>
               </div>
             </div>

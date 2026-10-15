@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { FormEvent, useEffect, useState } from 'react';
-import { CalendarPlus, Image as ImageIcon, Link2, Music } from 'lucide-react';
+import { CalendarPlus, Image as ImageIcon, Link2, Music, X } from 'lucide-react';
 import type { FeedItem, ReactionSummary } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { usePlayer } from '@/components/Player';
@@ -224,7 +224,7 @@ export function FeedScreen() {
                 <p className="k-meta truncate">{music.subtitle}</p>
               </div>
               <button type="button" className="icon-btn" aria-label="Tirar a música" onClick={() => setMusic(null)}>
-                ✕
+                <X size={18} aria-hidden />
               </button>
             </div>
           ) : null}
@@ -352,7 +352,7 @@ export function FeedScreen() {
                         ) : null}
                         {item.review ? (
                           <Link href={`/reviews/${item.review.id}`} className="mt-3 block border border-[var(--k-line)] p-3">
-                            <p className="text-[var(--primary)]">{'★'.repeat(item.review.rating)}</p>
+                            <p className="text-[var(--k-brand)]">{'★'.repeat(item.review.rating)}</p>
                             <h2 className="text-base font-semibold text-fg">{item.review.title}</h2>
                             <p className="mt-1 line-clamp-2 text-sm text-muted">{item.review.content}</p>
                           </Link>

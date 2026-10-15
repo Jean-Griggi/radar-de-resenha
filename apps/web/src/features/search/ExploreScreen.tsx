@@ -85,7 +85,7 @@ export function ExploreScreen() {
           <Skeleton className="h-40" />
         </div>
       ) : null}
-      {error ? <p className="text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error && search && searchIsEmpty(search) ? <EmptyState title="Nada encontrado." /> : null}
       {!loading && !error && search && !searchIsEmpty(search) ? (
         <div className="space-y-6">
@@ -157,7 +157,7 @@ export function ExploreScreen() {
           </Section>
           <Section title="Tags">
             {explore.tags.map((item) => (
-              <span key={item.name} className="text-[var(--accent)]">
+              <span key={item.name} className="text-[var(--k-brand)]">
                 #{item.name}
               </span>
             ))}

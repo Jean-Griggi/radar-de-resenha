@@ -29,12 +29,12 @@ export function ReviewDetailScreen() {
 
   return (
           <article className="card space-y-4 p-6">
-        <p className="text-[var(--warning)]">{'★'.repeat(review.rating)}</p>
+        <p className="text-[var(--k-warning)]">{'★'.repeat(review.rating)}</p>
         <h1 className="text-2xl font-semibold sm:text-3xl">{review.title}</h1>
         <p className="text-fg">{review.content}</p>
         <div className="flex flex-wrap gap-2">
           {review.tags?.map((tag) => (
-            <span key={tag} className="text-sm text-[var(--accent)]">
+            <span key={tag} className="text-sm text-[var(--k-brand)]">
               #{tag}
             </span>
           ))}

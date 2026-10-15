@@ -155,7 +155,7 @@ export function ConversationScreen() {
             <div key={message.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={`max-w-[80%] whitespace-pre-wrap break-words rounded-none px-3 py-2 text-sm ${
-                  mine ? 'bg-[var(--primary)] text-[var(--paper)]' : 'bg-[var(--secondary)] text-fg'
+                  mine ? 'bg-[var(--k-brand)] text-[var(--k-on-brand)]' : 'bg-[var(--k-bg-sunken)] text-fg'
                 }`}
               >
                 {message.image ? (
@@ -164,7 +164,7 @@ export function ConversationScreen() {
                   </a>
                 ) : null}
                 {message.content}
-                <span className={`mt-1 block text-right text-xs ${mine ? 'text-white/70' : 'text-muted'}`}>
+                <span className={`mt-1 block text-right text-sm ${mine ? 'text-[color-mix(in_srgb,var(--k-on-brand)_70%,transparent)]' : 'text-muted'}`}>
                   {timeLabel(message.createdAt)}
                 </span>
               </div>
@@ -174,10 +174,10 @@ export function ConversationScreen() {
         <div ref={endRef} />
       </div>
 
-      {error ? <p className="mt-2 text-sm text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-[var(--k-danger)]">{error}</p> : null}
 
       {photo ? (
-        <div className="mt-3 flex items-center gap-3 rounded-none border border-[var(--border)] p-2">
+        <div className="mt-3 flex items-center gap-3 rounded-none border border-[var(--k-line)] p-2">
           <img src={photo.url} alt="Prévia da foto a enviar" className="h-16 w-16 rounded-none object-cover" />
           <p className="min-w-0 flex-1 truncate text-sm text-muted">{photo.file.name}</p>
           <button type="button" className="icon-btn" aria-label="Tirar a foto" onClick={dropPhoto}>

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Music } from 'lucide-react';
+import { Music, Play } from 'lucide-react';
 
 /** Lista de faixas: começa com fio superior de 1 px na cor do texto (linha de encarte). */
 export function TrackList({ children, className = '' }: { children: ReactNode; className?: string }) {
@@ -62,7 +62,7 @@ export function TrackRow({
         <span className="k-meta">{label}</span>
       ) : showPlay ? (
         <span className="k-spotify-play" aria-hidden>
-          {current ? '♪' : '▶'}
+          {current ? <Music size={16} /> : <Play size={16} />}
         </span>
       ) : duration ? (
         <span className="k-track__d">{duration}</span>

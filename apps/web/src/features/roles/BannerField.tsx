@@ -55,13 +55,13 @@ export function BannerField({
   return (
     <div className="space-y-2">
       <span className="text-sm font-medium">Banner (opcional)</span>
-      <div className="overflow-hidden rounded-none border border-[var(--border)] bg-[var(--surface)]">
+      <div className="overflow-hidden rounded-none border border-[var(--k-line)] bg-[var(--k-surface-raised)]">
         {shown ? (
           <MediaImage src={shown} alt="Prévia do banner" className="h-40 w-full object-cover sm:h-52" />
         ) : (
           <button
             type="button"
-            className="flex h-40 w-full flex-col items-center justify-center gap-1 text-sm text-muted hover:bg-[var(--overlay)] sm:h-52"
+            className="flex h-40 w-full flex-col items-center justify-center gap-1 text-sm text-muted hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)] sm:h-52"
             onClick={() => inputRef.current?.click()}
           >
             <ImagePlus size={28} strokeWidth={1.5} aria-hidden />
@@ -86,7 +86,7 @@ export function BannerField({
           </Button>
         ) : null}
       </div>
-      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--k-danger)]">{error}</p> : null}
       <input
         ref={inputRef}
         type="file"

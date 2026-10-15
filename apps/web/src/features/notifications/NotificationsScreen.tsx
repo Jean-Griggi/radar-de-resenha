@@ -67,7 +67,7 @@ export function NotificationsScreen() {
           <Skeleton className="h-16" />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error && items.length === 0 ? <EmptyState title="Nenhuma notificação." /> : null}
       {!loading && !error ? (
         <ul className="space-y-3">

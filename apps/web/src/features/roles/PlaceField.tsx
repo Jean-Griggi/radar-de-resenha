@@ -81,12 +81,12 @@ export function PlaceField({
       {message ? <p className="text-sm text-muted">{message}</p> : null}
 
       {results.length > 0 ? (
-        <ul className="card divide-y divide-[var(--border)] overflow-hidden" aria-label="Resultados da busca">
+        <ul className="card divide-y divide-[var(--k-line)] overflow-hidden" aria-label="Resultados da busca">
           {results.map((place) => (
             <li key={`${place.latitude},${place.longitude},${place.label}`}>
               <button
                 type="button"
-                className="block w-full px-3 py-2 text-left text-sm hover:bg-[var(--overlay)]"
+                className="block w-full px-3 py-2 text-left text-sm hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]"
                 onClick={() => choose(place)}
               >
                 {place.label}

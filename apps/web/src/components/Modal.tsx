@@ -11,12 +11,17 @@ type OverlayProps = {
   title: string;
   description?: string;
   children: ReactNode;
-  /** Vidro líquido (`.k-glass`, DECISOES D19). Só para a folha de login das telas de entrada. */
-  glass?: boolean;
 };
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** Lê `--k-dur-*` (em ms). Com movimento reduzido o token já vem encurtado. */
+function durationMs(token: string, fallback: number) {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  const ms = Number.parseFloat(raw);
+  return Number.isFinite(ms) ? ms : fallback;
+}
 
 /**
  * Comportamento comum de Modal e Sheet: entrada/saída (a saída dura 160 ms antes de desmontar),
@@ -42,7 +47,7 @@ function useOverlay(open: boolean, onClose: () => void) {
       setPhase('closed');
       const trigger = triggerRef.current;
       if (trigger?.isConnected) trigger.focus();
-    }, 160);
+    }, durationMs('--k-dur-quick', 160));
     return () => window.clearTimeout(timer);
   }, [phase]);
 
@@ -102,7 +107,6 @@ function Dialog({
   title,
   description,
   children,
-  glass,
 }: OverlayProps & { kind: 'modal' | 'sheet' }) {
   const titleId = useId();
   const { phase, panelRef, onKeyDown, onBackdrop } = useOverlay(open, onClose);
@@ -116,7 +120,7 @@ function Dialog({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`${kind === 'modal' ? 'k-modal k-corners' : 'k-sheet'}${glass ? ' k-glass' : ''}`}
+        className={kind === 'modal' ? 'k-modal k-corners' : 'k-sheet'}
         onKeyDown={onKeyDown}
       >
         {kind === 'sheet' ? <span className="k-sheet__handle" aria-hidden /> : null}

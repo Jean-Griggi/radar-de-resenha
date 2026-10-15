@@ -73,10 +73,10 @@ export function ChatListScreen() {
         found.length === 0 ? (
           <p className="text-sm text-muted">Ninguém encontrado.</p>
         ) : (
-          <ul className="card divide-y divide-[var(--border)] overflow-hidden" aria-label="Pessoas encontradas">
+          <ul className="card divide-y divide-[var(--k-line)] overflow-hidden" aria-label="Pessoas encontradas">
             {found.map((person) => (
               <li key={person.id}>
-                <Link href={`/chat/${person.username}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--overlay)]">
+                <Link href={`/chat/${person.username}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]">
                   <Avatar src={person.avatar} name={person.name} size="sm" />
                   <span className="min-w-0 truncate">
                     {person.name} <span className="text-muted">@{person.username}</span>
@@ -88,7 +88,7 @@ export function ChatListScreen() {
         )
       ) : null}
       {loading ? <Skeleton className="h-40" /> : null}
-      {error ? <p className="text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-[var(--k-danger)]">{error}</p> : null}
 
       {!loading && !error ? (
         <>
@@ -98,10 +98,10 @@ export function ChatListScreen() {
               description="Procure uma pessoa acima ou escolha um amigo abaixo para começar."
             />
           ) : (
-            <ul className="card divide-y divide-[var(--border)] overflow-hidden">
+            <ul className="card divide-y divide-[var(--k-line)] overflow-hidden">
               {conversations.map(({ user, last, unread }) => (
                 <li key={user.id}>
-                  <Link href={`/chat/${user.username}`} className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--overlay)]">
+                  <Link href={`/chat/${user.username}`} className="flex items-center gap-3 px-4 py-3 hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]">
                     <Avatar src={user.avatar} name={user.name} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline justify-between gap-2">
@@ -114,7 +114,7 @@ export function ChatListScreen() {
                       </p>
                     </div>
                     {unread > 0 ? (
-                      <span className="flex h-6 min-w-6 items-center justify-center rounded-[var(--k-radius-control)] bg-[var(--primary)] px-1.5 text-xs font-bold text-[var(--paper)]">
+                      <span className="flex h-6 min-w-6 items-center justify-center rounded-[var(--k-radius-control)] bg-[var(--k-brand)] px-1.5 text-xs font-bold text-[var(--k-on-brand)]">
                         {unread > 9 ? '9+' : unread}
                       </span>
                     ) : null}

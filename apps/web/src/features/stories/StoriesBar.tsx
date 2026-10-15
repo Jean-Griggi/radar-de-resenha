@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Music, X } from 'lucide-react';
 import type { StoryRing } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -192,17 +193,17 @@ export function StoriesBar() {
             />
             {music ? (
               <div className="mt-2 flex items-center gap-2">
-                <span aria-hidden>♪</span>
+                <Music size={16} aria-hidden />
                 <span className="min-w-0 flex-1 truncate">
                   {music.title} · {music.subtitle}
                 </span>
                 <button type="button" className="k-stage__icon" aria-label="Tirar música" onClick={() => setMusic(null)}>
-                  ✕
+                  <X size={18} aria-hidden />
                 </button>
               </div>
             ) : (
               <button type="button" className="k-stage__textbtn" onClick={() => setPickingMusic(true)}>
-                ♪ Adicionar música
+                <Music size={16} aria-hidden /> Adicionar música
               </button>
             )}
             <div className="mt-3 flex justify-end gap-2">

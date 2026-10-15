@@ -116,7 +116,7 @@ export function MiniPlayer() {
       <div
         className={
           open
-            ? 'pointer-events-auto w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden border border-[var(--border)] bg-[var(--surface-elevated)]'
+            ? 'pointer-events-auto w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden border border-[var(--k-line)] bg-[var(--k-surface-raised)]'
             : 'pointer-events-none fixed top-0 -left-[9999px] w-[22rem]'
         }
         aria-hidden={!open}
@@ -125,7 +125,7 @@ export function MiniPlayer() {
           {track.cover ? (
             <img src={track.cover} alt="" className="k-cover h-10 w-10 shrink-0" width={40} height={40} />
           ) : (
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-none bg-[var(--accent-soft)]">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-none bg-[color-mix(in_srgb,var(--k-brand)_12%,transparent)]">
               <Music size={22} aria-hidden />
             </div>
           )}
@@ -165,10 +165,10 @@ export function MiniPlayer() {
         ) : null}
 
         {!isPlaylist ? (
-          <div className="border-t border-[var(--border)]">
+          <div className="border-t border-[var(--k-line)]">
             <button
               type="button"
-              className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium hover:bg-[var(--overlay)]"
+              className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]"
               aria-expanded={showLyrics}
               onClick={() => setShowLyrics((value) => !value)}
             >

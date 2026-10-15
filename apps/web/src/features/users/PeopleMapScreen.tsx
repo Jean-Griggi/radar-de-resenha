@@ -102,10 +102,10 @@ export function PeopleMapScreen() {
       </form>
       {message ? <p className="mb-3 text-sm text-muted">{message}</p> : null}
       {results.length > 0 ? (
-        <ul className="card mb-3 divide-y divide-[var(--border)] overflow-hidden" aria-label="Resultados da busca">
+        <ul className="card mb-3 divide-y divide-[var(--k-line)] overflow-hidden" aria-label="Resultados da busca">
           {results.map((place) => (
             <li key={`${place.latitude},${place.longitude},${place.label}`}>
-              <button type="button" className="block w-full px-3 py-2 text-left text-sm hover:bg-[var(--overlay)]" onClick={() => goTo(place, 12)}>
+              <button type="button" className="block w-full px-3 py-2 text-left text-sm hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]" onClick={() => goTo(place, 12)}>
                 {place.label}
               </button>
             </li>
@@ -113,7 +113,7 @@ export function PeopleMapScreen() {
         </ul>
       ) : null}
       {loading ? <Skeleton className="h-80" /> : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error ? (
         <>
           <RoutePanel

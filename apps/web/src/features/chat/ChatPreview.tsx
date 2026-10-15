@@ -65,13 +65,13 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
         <h2 className={rail ? 'k-meta k-agenda__heading' : 'text-lg font-medium'}>
           Mensagens
           {unread > 0 ? (
-            <span className={rail ? 'k-meta' : 'ml-2 rounded-[var(--k-radius-control)] bg-[var(--primary)] px-2 py-0.5 align-middle text-sm font-bold text-[var(--paper)]'}>
+            <span className={rail ? 'k-meta' : 'ml-2 rounded-[var(--k-radius-control)] bg-[var(--k-brand)] px-2 py-0.5 align-middle text-sm font-bold text-[var(--k-on-brand)]'}>
               {unread > 9 ? '9+' : unread}
             </span>
           ) : null}
         </h2>
         {rail ? null : (
-          <Link href="/chat" className="text-sm font-medium text-[var(--accent)] hover:underline">
+          <Link href="/chat" className="text-sm font-medium text-[var(--k-brand)] hover:underline">
             {action}
           </Link>
         )}
@@ -80,16 +80,16 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
       {conversations.length === 0 ? (
         <p className="text-sm text-muted">
           Nenhuma conversa ainda.{' '}
-          <Link href="/chat" className="text-[var(--accent)] hover:underline">
+          <Link href="/chat" className="text-[var(--k-brand)] hover:underline">
             Comece uma agora
           </Link>
           .
         </p>
       ) : (
-        <ul className="divide-y divide-[var(--border)]">
+        <ul className="divide-y divide-[var(--k-line)]">
           {conversations.slice(0, SHOWN).map(({ user, last, unread: count }) => (
             <li key={user.id}>
-              <Link href={`/chat/${user.username}`} className="flex items-center gap-3 py-2 hover:bg-[var(--overlay)]">
+              <Link href={`/chat/${user.username}`} className="flex items-center gap-3 py-2 hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]">
                 <Avatar src={user.avatar} name={user.name} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{user.name}</p>
@@ -99,7 +99,7 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
                   </p>
                 </div>
                 <span className="shrink-0 text-xs text-muted">{formatTimeAgo(last.createdAt)}</span>
-                {count > 0 ? <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--primary)]" aria-label={plural(count, 'não lida', 'não lidas')} /> : null}
+                {count > 0 ? <span className="h-2 w-2 shrink-0 bg-[var(--k-brand)]" aria-label={plural(count, 'não lida', 'não lidas')} /> : null}
               </Link>
             </li>
           ))}

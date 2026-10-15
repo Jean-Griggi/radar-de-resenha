@@ -87,7 +87,7 @@ export function CalendarScreen() {
         </div>
       </div>
       {loading ? <Skeleton className="mb-4 h-80" /> : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
       {ready ? (
         <>
           <div className="card p-2 sm:p-4">
@@ -109,21 +109,21 @@ export function CalendarScreen() {
                     disabled={!day}
                     onClick={() => setSelected(date)}
                     className={`relative flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-none p-1 text-left sm:min-h-24 sm:rounded-none sm:p-2 lg:min-h-28 ${
-                      selected === date ? 'bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]' : 'bg-[var(--overlay)]'
-                    } ${isToday && selected !== date ? 'ring-1 ring-[var(--accent)]' : ''} ${!day ? 'opacity-0' : ''}`}
+                      selected === date ? 'bg-[color-mix(in_srgb,var(--k-brand)_12%,transparent)] ring-1 ring-[var(--k-brand)]' : 'bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]'
+                    } ${isToday && selected !== date ? 'ring-1 ring-[var(--k-brand)]' : ''} ${!day ? 'opacity-0' : ''}`}
                   >
-                    <span className={`text-xs sm:text-sm ${isToday ? 'font-semibold text-[var(--accent)]' : ''}`}>{day}</span>
+                    <span className={`text-xs sm:text-sm ${isToday ? 'font-semibold text-[var(--k-brand)]' : ''}`}>{day}</span>
                     <span className="flex min-h-0 flex-1 flex-col gap-0.5">
                       {dayEvents.slice(0, 2).map((event) => (
                         <span
                           key={event.id}
-                          className="block truncate rounded-none bg-[var(--accent-soft)] px-1 py-0.5 text-xs leading-tight text-fg"
+                          className="block truncate rounded-none bg-[color-mix(in_srgb,var(--k-brand)_12%,transparent)] px-1 py-0.5 text-xs leading-tight text-fg"
                         >
                           {event.time ? `${event.time} ` : ''}
                           {event.title}
                         </span>
                       ))}
-                      {extra > 0 ? <span className="px-1 text-xs text-[var(--accent)]">+{extra}</span> : null}
+                      {extra > 0 ? <span className="px-1 text-xs text-[var(--k-brand)]">+{extra}</span> : null}
                     </span>
                   </button>
                 );
@@ -139,7 +139,7 @@ export function CalendarScreen() {
               <ul className="space-y-2">
                 {selectedEvents.map((event) => (
                   <li key={event.id}>
-                    <Link href={`/roles/${event.roleId}`} className="hover:text-[var(--accent)]">
+                    <Link href={`/roles/${event.roleId}`} className="hover:text-[var(--k-brand)]">
                       {event.time || '--:--'} — {event.title} · {event.category}
                     </Link>
                   </li>
@@ -152,7 +152,7 @@ export function CalendarScreen() {
               <h2 className="mb-3 font-medium">Próximos</h2>
               {upcoming.length === 0 ? <p className="text-sm text-muted">Nada marcado ainda.</p> : null}
               {upcoming.map((event) => (
-                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--accent)]">
+                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--k-brand)]">
                   {formatShortDate(event.date)} {event.time ?? ''} — {event.title}
                 </Link>
               ))}
@@ -161,7 +161,7 @@ export function CalendarScreen() {
               <h2 className="mb-3 font-medium">Passados</h2>
               {past.length === 0 ? <p className="text-sm text-muted">Nenhum rolê passado.</p> : null}
               {past.map((event) => (
-                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--accent)]">
+                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--k-brand)]">
                   {formatShortDate(event.date)} — {event.title}
                 </Link>
               ))}
