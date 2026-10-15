@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { Album, AudioClip, Photo } from '@resenhometro/shared';
-import { X } from 'lucide-react';
+import { Mic, X } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { EmptyState, Skeleton } from '@/components/Card';
 import { Field, Input } from '@/components/Field';
@@ -280,7 +280,10 @@ export function PhotosScreen() {
             {audios.map((audio) => (
               <div key={audio.id} className="card p-4">
                 <div className="flex items-center justify-between">
-                  <p>🎙️ {audio.name}</p>
+                  <p className="flex items-center gap-2">
+                  <Mic size={16} aria-hidden />
+                  {audio.name}
+                </p>
                   <button
                     type="button"
                     className="text-xs text-[var(--k-danger)]"

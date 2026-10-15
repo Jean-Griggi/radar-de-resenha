@@ -1,5 +1,6 @@
 'use client';
 
+import { Stars } from '@/components/Stars';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -29,7 +30,7 @@ export function ReviewDetailScreen() {
 
   return (
           <article className="card space-y-4 p-6">
-        <p className="text-[var(--k-warning)]">{'★'.repeat(review.rating)}</p>
+        <p className="text-[var(--k-warning)]"><Stars rating={review.rating} /></p>
         <h1 className="text-2xl font-semibold sm:text-3xl">{review.title}</h1>
         <p className="text-fg">{review.content}</p>
         <div className="flex flex-wrap gap-2">

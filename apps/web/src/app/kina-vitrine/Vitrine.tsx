@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type CSSProperties, type ReactNode } from 'react';
-import { Plus } from 'lucide-react';
+import { Camera, Music, Plus } from 'lucide-react';
 import { Avatar } from '@/components/Avatar';
 import { AvatarStack } from '@/components/AvatarStack';
 import { REACTION_EMOJI, type ReactionType } from '@resenhometro/shared';
@@ -11,6 +11,8 @@ import { Corners } from '@/components/Corners';
 import { Field, Input, Select, Textarea } from '@/components/Field';
 import { Ficha, FichaRow } from '@/components/FichaRow';
 import { Menu } from '@/components/Menu';
+import { Mesa, MesaSkeleton, type MesaEntry } from '@/components/Mesa';
+import { PhotoCarousel, type CarouselPhoto } from '@/components/PhotoCarousel';
 import { Modal, Sheet } from '@/components/Modal';
 import { Spinner } from '@/components/Spinner';
 import { Tabs } from '@/components/Tabs';
@@ -24,7 +26,10 @@ import { useTheme } from '@/components/Theme';
 
 /* Estados forçados para a vitrine: só tokens, para mostrar hover/foco/pressionado sem interação. */
 const hoverPrimary: CSSProperties = { background: 'var(--k-brand-hover)' };
-const pressPrimary: CSSProperties = { background: 'var(--k-brand-press)', transform: 'scale(0.98)' };
+const pressPrimary: CSSProperties = {
+  background: 'var(--k-brand-press)',
+  transform: 'scale(0.98)',
+};
 const focusRing: CSSProperties = { outline: '2px solid var(--k-focus)', outlineOffset: 2 };
 const hoverSecondary: CSSProperties = { background: 'var(--k-bg-sunken)' };
 
@@ -153,7 +158,10 @@ function ButtonSection() {
 
 function FieldSection() {
   return (
-    <Section title="Field / Input" meta="rótulo sempre visível · foco · erro · sucesso · desabilitado · título de rolê">
+    <Section
+      title="Field / Input"
+      meta="rótulo sempre visível · foco · erro · sucesso · desabilitado · título de rolê"
+    >
       <div className={ROW}>
         <div className="w-72">
           <Field label="Nome do rolê">
@@ -210,7 +218,10 @@ function FieldSection() {
 
 function AvatarSection() {
   return (
-    <Section title="Avatar e AvatarStack" meta="pessoas são pontos · iniciais em Fraunces · story visto / não visto">
+    <Section
+      title="Avatar e AvatarStack"
+      meta="pessoas são pontos · iniciais em Fraunces · story visto / não visto"
+    >
       <div className="flex flex-wrap items-center gap-8">
         <Cell label="xl">
           <Avatar name="Lia Moraes" size="xl" />
@@ -256,11 +267,21 @@ function AvatarSection() {
             max={5}
             total={12}
             label="12 pessoas confirmadas"
-            people={[{ name: 'Lia M' }, { name: 'Caio N' }, { name: 'Bia R' }, { name: 'Duda L' }, { name: 'Téo P' }, { name: 'Ana S' }]}
+            people={[
+              { name: 'Lia M' },
+              { name: 'Caio N' },
+              { name: 'Bia R' },
+              { name: 'Duda L' },
+              { name: 'Téo P' },
+              { name: 'Ana S' },
+            ]}
           />
         </Cell>
         <Cell label="AvatarStack · md, sem excedente">
-          <AvatarStack size="md" people={[{ name: 'Lia M' }, { name: 'Caio N' }, { name: 'Bia R' }]} />
+          <AvatarStack
+            size="md"
+            people={[{ name: 'Lia M' }, { name: 'Caio N' }, { name: 'Bia R' }]}
+          />
         </Cell>
       </div>
     </Section>
@@ -271,12 +292,20 @@ function CornersSection() {
   return (
     <Section title="Corners" meta="memória tem moldura · passe o mouse nos interativos">
       <div className="flex flex-wrap gap-12 p-2">
-        <Corners as="a" href="#vitrine" interactive className="block h-[150px] w-[200px] bg-[var(--k-bg-sunken)]" aria-label="Memória clicável" />
+        <Corners
+          as="a"
+          href="#vitrine"
+          interactive
+          className="block h-[150px] w-[200px] bg-[var(--k-bg-sunken)]"
+          aria-label="Memória clicável"
+        />
         <Corners size={16} interactive className="h-[150px] w-[240px] bg-[var(--k-bg-sunken)]" />
         <Corners size={22} className="h-[150px] w-[200px] bg-[var(--k-bg-sunken)]" />
         <div className="h-[150px] w-[200px] bg-[var(--k-bg-sunken)]" />
       </div>
-      <p className="k-help mt-3">A última não tem moldura: é um rolê futuro (presente). Cantos: 12 px, 16 px e 22 px.</p>
+      <p className="k-help mt-3">
+        A última não tem moldura: é um rolê futuro (presente). Cantos: 12 px, 16 px e 22 px.
+      </p>
     </Section>
   );
 }
@@ -329,7 +358,10 @@ const TAB_ITEMS = [
 function TabsSection() {
   const [tab, setTab] = useState('resumo');
   return (
-    <Section title="Tabs" meta="texto + sublinhado de 2 px · setas navegam · no celular a barra rola (reduza a janela)">
+    <Section
+      title="Tabs"
+      meta="texto + sublinhado de 2 px · setas navegam · no celular a barra rola (reduza a janela)"
+    >
       <div className="max-w-md">
         <Tabs label="Seções do perfil" items={TAB_ITEMS} value={tab} onChange={setTab} />
         <p className="k-help mt-3">Aba ativa: {tab}</p>
@@ -382,11 +414,24 @@ function TrackSection() {
       <div className="flex flex-wrap gap-12">
         <div className="w-full max-w-md">
           <TrackList>
-            <TrackRow index={1} title="Laranja Elétrica" artist="Os Postes" duration="3:41" current />
+            <TrackRow
+              index={1}
+              title="Laranja Elétrica"
+              artist="Os Postes"
+              duration="3:41"
+              current
+            />
             <TrackRow index={2} title="Rua Sem Saída" artist="Duda Lins" duration="4:02" />
-            <TrackRow index={3} title="Telhado com um título muito, muito longo que precisa truncar" artist="Banda Calçada" duration="2:58" />
+            <TrackRow
+              index={3}
+              title="Telhado com um título muito, muito longo que precisa truncar"
+              artist="Banda Calçada"
+              duration="2:58"
+            />
           </TrackList>
-          <p className="k-help mt-2">Lista: tocando (1), normal (2), título longo (3). Sem capa, ícone de música.</p>
+          <p className="k-help mt-2">
+            Lista: tocando (1), normal (2), título longo (3). Sem capa, ícone de música.
+          </p>
         </div>
         <div className="w-full max-w-sm">
           <TrackList>
@@ -438,10 +483,16 @@ function EmptySection() {
     <Section title="EmptyState" meta="uma frase em Fraunces + ação">
       <div className="flex flex-wrap gap-8">
         <div className="w-80">
-          <EmptyState title="Ninguém marcou nada ainda." action={<Button variant="ghost">Marcar um rolê</Button>} />
+          <EmptyState
+            title="Ninguém marcou nada ainda."
+            action={<Button variant="ghost">Marcar um rolê</Button>}
+          />
         </div>
         <div className="w-80">
-          <EmptyState title="Nenhuma música por aqui." description="Conecte o Spotify para ver as suas." />
+          <EmptyState
+            title="Nenhuma música por aqui."
+            description="Conecte o Spotify para ver as suas."
+          />
         </div>
         <div className="w-80">
           <EmptyState title="Essa rua não existe." action={<Button>Voltar para o início</Button>} />
@@ -468,7 +519,15 @@ function ToastSection() {
           <Button variant="secondary" onClick={() => toast.push('Algo deu errado', 'error')}>
             Disparar erro
           </Button>
-          <Button variant="secondary" onClick={() => toast.push('Você saiu do rolê', 'info', { label: 'Desfazer', onClick: () => undefined })}>
+          <Button
+            variant="secondary"
+            onClick={() =>
+              toast.push('Você saiu do rolê', 'info', {
+                label: 'Desfazer',
+                onClick: () => undefined,
+              })
+            }
+          >
             Disparar com ação
           </Button>
         </div>
@@ -482,7 +541,10 @@ function OverlaySection() {
   const [confirm, setConfirm] = useState(false);
   const [sheet, setSheet] = useState(false);
   return (
-    <Section title="Modal e Sheet" meta="foco preso · Esc fecha · foco volta ao gatilho · saída de 160 ms">
+    <Section
+      title="Modal e Sheet"
+      meta="foco preso · Esc fecha · foco volta ao gatilho · saída de 160 ms"
+    >
       <div className={ROW}>
         <Button variant="secondary" onClick={() => setModal(true)}>
           Abrir modal
@@ -494,7 +556,12 @@ function OverlaySection() {
           Abrir sheet (celular)
         </Button>
       </div>
-      <Modal open={modal} onClose={() => setModal(false)} title="Marcar um rolê" description="Dois campos e pronto.">
+      <Modal
+        open={modal}
+        onClose={() => setModal(false)}
+        title="Marcar um rolê"
+        description="Dois campos e pronto."
+      >
         <div className="space-y-4">
           <Field label="Nome do rolê">
             <Input data-autofocus placeholder="Ex.: Pôr do sol na laje" />
@@ -507,7 +574,12 @@ function OverlaySection() {
           </div>
         </div>
       </Modal>
-      <Modal open={confirm} onClose={() => setConfirm(false)} title="Excluir este rolê?" description="Não dá para desfazer.">
+      <Modal
+        open={confirm}
+        onClose={() => setConfirm(false)}
+        title="Excluir este rolê?"
+        description="Não dá para desfazer."
+      >
         <div className="flex justify-end gap-3">
           <Button variant="secondary" data-autofocus onClick={() => setConfirm(false)}>
             Manter
@@ -548,7 +620,12 @@ function MenuSection() {
             { label: 'Perfil', onSelect: () => setLast('Perfil') },
             { label: 'Configurações', onSelect: () => setLast('Configurações') },
             { label: 'Calendário', href: '#vitrine', separatorBefore: true },
-            { label: 'Sair', tone: 'danger', separatorBefore: true, onSelect: () => setLast('Sair') },
+            {
+              label: 'Sair',
+              tone: 'danger',
+              separatorBefore: true,
+              onSelect: () => setLast('Sair'),
+            },
           ]}
         />
         <p className="k-help pt-3">Último item escolhido: {last}</p>
@@ -559,7 +636,10 @@ function MenuSection() {
 
 function ReactionsSection() {
   return (
-    <Section title="Reações" meta="sem fundo · emoji + contagem mono · ativa com fio inferior de 2 px">
+    <Section
+      title="Reações"
+      meta="sem fundo · emoji + contagem mono · ativa com fio inferior de 2 px"
+    >
       <div className="flex flex-wrap gap-8">
         {(
           [
@@ -586,14 +666,19 @@ function ReactionsSection() {
           </Cell>
         ))}
       </div>
-      <p className="k-help mt-3">Mesmas classes do componente Reactions (que fala com a API, por isso aqui só o visual).</p>
+      <p className="k-help mt-3">
+        Mesmas classes do componente Reactions (que fala com a API, por isso aqui só o visual).
+      </p>
     </Section>
   );
 }
 
 function BrandSection() {
   return (
-    <Section title="BrandMark e BrandWordmark" meta="logo em SVG inline · símbolo · selo · carregamento">
+    <Section
+      title="BrandMark e BrandWordmark"
+      meta="logo em SVG inline · símbolo · selo · carregamento"
+    >
       <div className="flex flex-wrap items-center gap-10">
         <Cell label="BrandWordmark">
           <BrandWordmark />
@@ -617,6 +702,225 @@ function BrandSection() {
       <div className="mt-6">
         <BrandLoader compact label="Montando retrospectiva" />
       </div>
+    </Section>
+  );
+}
+
+/** Foto de mentira em SVG (sem rede): quadrado liso, só para mostrar a forma. */
+function demoPhoto(label: string, fill: string) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000"><rect width="800" height="1000" fill="${fill}"/><text x="50%" y="50%" fill="white" font-size="64" text-anchor="middle" font-family="sans-serif">${label}</text></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+const DEMO_ENTRIES: MesaEntry[] = [
+  {
+    id: 'd1',
+    label: 'Post de Ana, em Churrasco',
+    image: demoPhoto('1', 'dimgray'),
+    avatar: { name: 'Ana Beatriz' },
+    meta: 'SÁB 18 OUT',
+  },
+  {
+    id: 'd2',
+    label: 'Post de Caio',
+    text: 'Ninguém chegou cedo, mas ninguém quis ir embora.',
+    avatar: { name: 'Caio Lima' },
+    meta: 'HÁ 2 H',
+  },
+  {
+    id: 'd3',
+    label: 'Foto de Duda',
+    image: demoPhoto('3', 'slategray'),
+    avatar: { name: 'Duda Souza' },
+    meta: 'DOM 19 OUT',
+  },
+  {
+    id: 'd4',
+    label: 'Post de Bia, com nome de rolê comprido',
+    text: 'Nome longo para conferir a quebra sem reticências.',
+    avatar: { name: 'Bia' },
+    meta: 'SEG',
+  },
+];
+
+const DEMO_PHOTOS: CarouselPhoto[] = [
+  {
+    id: 'c1',
+    url: demoPhoto('1', 'dimgray'),
+    caption: 'Chegada',
+    authorName: 'Ana Beatriz',
+    createdAt: '2026-10-18T18:00:00Z',
+  },
+  {
+    id: 'c2',
+    url: demoPhoto('2', 'slategray'),
+    authorName: 'Caio Lima',
+    createdAt: '2026-10-18T20:00:00Z',
+  },
+  {
+    id: 'c3',
+    url: demoPhoto('3', 'darkolivegreen'),
+    caption: 'Saideira',
+    authorName: 'Duda Souza',
+    createdAt: '2026-10-19T01:00:00Z',
+  },
+];
+
+function MesaSection() {
+  return (
+    <Section
+      title="Mesa e tile"
+      meta="D20 · tile com foto, tile de texto, nome longo · carregando em fios e ponto · tocar abre o painel no app"
+    >
+      <Mesa label="Exemplo da Mesa" entries={DEMO_ENTRIES} onOpen={() => undefined} />
+      <p className="k-help mt-4">Carregando:</p>
+      <MesaSkeleton count={3} />
+    </Section>
+  );
+}
+
+function CarouselSection() {
+  return (
+    <Section
+      title="Carrossel de álbum"
+      meta="D21 · uma foto por vez · setas, Home, End · toque arrasta · legenda só se existir"
+    >
+      <PhotoCarousel title="Churrasco do Caio" photos={DEMO_PHOTOS} />
+    </Section>
+  );
+}
+
+function ProfileBarSection() {
+  return (
+    <Section
+      title="Barra do perfil"
+      meta="D22 · estado final (avatar dentro da barra, fio, nome ≥ 20 px) · a animação por rolagem está em /perfil/<usuário>"
+    >
+      <div className="flex flex-col gap-6">
+        <div className="relative flex h-14 items-center gap-3 border-b border-[var(--k-line)] bg-[var(--k-bg)] px-5">
+          <span className="[&_.k-avatar]:[--k-avatar:40px]">
+            <Avatar name="Ana Beatriz" />
+          </span>
+          <p className="k-display" style={{ fontSize: 'var(--k-fs-20)', lineHeight: 1.1 }}>
+            Ana Beatriz
+          </p>
+        </div>
+        <div className="relative flex h-14 items-center gap-3 border-b border-[var(--k-line)] bg-[var(--k-bg)] px-5">
+          <span className="[&_.k-avatar]:[--k-avatar:40px]">
+            <Avatar name="Maria Fernanda de Albuquerque Cavalcanti" />
+          </span>
+          <p
+            className="k-display max-h-[2.2em] overflow-hidden"
+            style={{ fontSize: 'var(--k-fs-20)', lineHeight: 1.1 }}
+          >
+            Maria Fernanda de Albuquerque Cavalcanti
+          </p>
+        </div>
+      </div>
+      <p className="k-help mt-2">
+        Sem animation-timeline ou com movimento reduzido: só a barra fixa com fio e nome (sem o
+        avatar).
+      </p>
+    </Section>
+  );
+}
+
+function TrackSheetSection() {
+  return (
+    <Section
+      title="Ficha de faixa"
+      meta="D23 · capa nítida com cantoneiras por fora · só a ficha: o player é o embed do Spotify, sem barra ondulada"
+    >
+      <div className="max-w-sm border border-[var(--k-line)] bg-[var(--k-surface-raised)]">
+        <div className="k-ficha-faixa">
+          <Corners
+            className="k-ficha-faixa__cover"
+            style={{ '--k-corner-offset': '0px' } as CSSProperties}
+          >
+            <span className="k-ficha-faixa__nocover" aria-hidden>
+              <Music size={28} />
+            </span>
+          </Corners>
+          <div className="k-ficha-faixa__text">
+            <p className="k-ficha-faixa__title k-display">Laranja Elétrica</p>
+            <p className="k-ficha-faixa__artist">Os Postes</p>
+            <a
+              href="https://open.spotify.com"
+              target="_blank"
+              rel="noreferrer"
+              className="k-ficha-faixa__link"
+            >
+              <span className="k-ficha-faixa__dot" aria-hidden />
+              Ouvir no Spotify
+            </a>
+          </div>
+        </div>
+      </div>
+      <p className="k-help mt-2">Carregando (aparece após 300 ms):</p>
+      <Spinner />
+    </Section>
+  );
+}
+
+function ChatRowsSection() {
+  const rows = [
+    { id: 'v1', name: 'Ana Beatriz', last: 'Chego em dez minutos', when: '18:30', unread: 3 },
+    { id: 'v2', name: 'Caio', last: '', when: 'Ontem', unread: 0 },
+    {
+      id: 'v3',
+      name: 'Maria Fernanda de Albuquerque Cavalcanti',
+      last: 'Bora marcar o próximo rolê então?',
+      when: 'Seg',
+      unread: 0,
+    },
+  ];
+  return (
+    <Section
+      title="Linha de conversa em acordeão"
+      meta="D24 · abrir uma fecha a outra · Enter e Espaço · o Plus gira 45° · não lida com ponto, contagem e texto acessível"
+    >
+      <ul className="k-chat-list max-w-xl" aria-label="Conversas de exemplo">
+        {rows.map((row) => (
+          <li key={row.id}>
+            <details name="vitrine-chat" className="k-chat-row">
+              <summary
+                aria-label={`Conversa com ${row.name}${row.unread ? `, ${row.unread} não lidas` : ''}, última mensagem ${row.when}`}
+              >
+                <Avatar name={row.name} size="sm" />
+                <span className="k-chat-row__main">
+                  <span className="k-chat-row__name">
+                    {row.unread ? <span className="k-chat-row__dot" aria-hidden /> : null}
+                    <span
+                      className={`k-display k-chat-row__title${row.unread ? ' k-chat-row__title--unread' : ''}`}
+                    >
+                      {row.name}
+                    </span>
+                  </span>
+                  <span className="k-chat-row__last">
+                    {row.last || (
+                      <>
+                        <Camera size={14} aria-hidden /> Foto
+                      </>
+                    )}
+                  </span>
+                </span>
+                <span className="k-chat-row__side">
+                  <span className="k-meta">{row.when}</span>
+                  {row.unread ? (
+                    <span className="k-meta k-chat-row__count">{row.unread}</span>
+                  ) : null}
+                </span>
+                <Plus size={20} className="k-chat-plus" aria-hidden />
+              </summary>
+              <div className="k-chat-row__body">
+                <p className="k-meta">{row.name}</p>
+                <p className="k-chat-row__text">{row.last || 'Foto'}</p>
+                <span className="button button--primary k-chat-row__open">Abrir conversa</span>
+              </div>
+            </details>
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 }
@@ -649,6 +953,11 @@ export function Vitrine() {
       <OverlaySection />
       <MenuSection />
       <ReactionsSection />
+      <MesaSection />
+      <CarouselSection />
+      <ProfileBarSection />
+      <TrackSheetSection />
+      <ChatRowsSection />
       <BrandSection />
     </main>
   );

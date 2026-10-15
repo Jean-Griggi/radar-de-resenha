@@ -1,5 +1,7 @@
 'use client';
 
+import { Stars } from '@/components/Stars';
+import { Mic } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
@@ -172,7 +174,10 @@ export function RoleDetailScreen() {
           <h2 className="font-medium">Áudios</h2>
           {role.audios.map((audio) => (
             <div key={audio.id}>
-              <p className="text-sm">🎙️ {audio.name}</p>
+              <p className="flex items-center gap-2 text-sm">
+                  <Mic size={16} aria-hidden />
+                  {audio.name}
+                </p>
               <audio controls src={audio.url} className="mt-1 w-full" />
             </div>
           ))}
@@ -195,7 +200,7 @@ export function RoleDetailScreen() {
         <h2 className="mb-4 font-medium">Resenha</h2>
         {role.review ? (
           <Link href={`/reviews/${role.review.id}`} className="block bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)] p-4">
-            <p className="text-[var(--k-brand)]">{'★'.repeat(role.review.rating)}</p>
+            <p className="text-[var(--k-brand)]"><Stars rating={role.review.rating} /></p>
             <h3 className="text-lg">{role.review.title}</h3>
             <p className="text-sm text-muted">{role.review.content}</p>
           </Link>

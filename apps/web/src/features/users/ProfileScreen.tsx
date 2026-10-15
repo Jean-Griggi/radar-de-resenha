@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, CircleAlert } from 'lucide-react';
+import { ArrowLeft, CircleAlert, Mic } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { Achievement, UserProfile } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
@@ -393,7 +393,10 @@ export function ProfileScreen() {
               {((content?.audios as { id: string; name: string; url: string }[]) ?? []).map(
                 (audio) => (
                   <div key={audio.id} className="card p-4">
-                    <p>🎙️ {audio.name}</p>
+                    <p className="flex items-center gap-2">
+                      <Mic size={16} aria-hidden />
+                      {audio.name}
+                    </p>
                     <audio controls src={audio.url} className="mt-2 w-full" />
                   </div>
                 ),

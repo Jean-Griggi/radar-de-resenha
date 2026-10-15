@@ -1,5 +1,6 @@
 'use client';
 
+import { Stars } from '@/components/Stars';
 import Link from 'next/link';
 import { Dispatch, FormEvent, SetStateAction, useEffect, useState } from 'react';
 import { CalendarPlus, Image as ImageIcon, Link2, Music, X } from 'lucide-react';
@@ -234,7 +235,9 @@ function FeedEntry({
                   href={`/reviews/${item.review.id}`}
                   className="mt-3 block border border-[var(--k-line)] p-3"
                 >
-                  <p className="text-[var(--k-brand)]">{'★'.repeat(item.review.rating)}</p>
+                  <p className="text-[var(--k-brand)]">
+                    <Stars rating={item.review.rating} />
+                  </p>
                   <h2 className="text-base font-semibold text-fg">{item.review.title}</h2>
                   <p className="mt-1 line-clamp-2 text-sm text-muted">{item.review.content}</p>
                 </Link>

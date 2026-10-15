@@ -149,3 +149,24 @@
 - Sem suporte a `<details name>` (Firefox antigo, Safari < 17.2), cada linha abre e fecha de forma independente.
 - `ChatPreview` (atalho do feed e da agenda) não foi redesenhado; só entra na varredura da Etapa H.
 - Nada visto no navegador.
+
+## Etapa H — re-varredura e documentação
+
+**O que foi feito.** Varredura de todo o código tocado nas etapas A a G (e conferência do restante) por hex, `rounded-*`, sombras, gradientes, `backdrop-filter`/`filter`, `text-[10px]/[11px]`, Fraunces < 20 px, ícones fora do `lucide-react`, `keyCode`, `console.log`, unpkg/Open Props, `localStorage` novo, durações e easings soltos. Achados e correções: tabela em `FASE5-RELATORIO.md` (seção "Pós-Fase 5: etapas A a H"). Em resumo: Fraunces de 12 px no carrossel, `★`/`🎙️`/`📷`/`←`/`→` trocados por ícones lucide (novo `components/Stars.tsx`). A vitrine ganhou as seções novas. `TESTE-FINAL.md` ganhou os itens 21 a 24 (total de 24).
+
+**Limitações por navegador.**
+- View Transitions (Mesa): sem `startViewTransition` ou com movimento reduzido, entra em fade de `--k-dur-base`. Sem `view-transition-class`, a imagem pode esticar durante a animação.
+- `animation-timeline: scroll()` (perfil): sem suporte ou com movimento reduzido, o perfil fica estático com a barra fina só com fio e nome (suporte varia por navegador; não verifiquei a tabela atual, conferir em caniuse).
+- `<details name>` (chat): sem suporte, cada linha abre e fecha de forma independente.
+- `:has()` e `color-mix()` já eram usados antes.
+
+**Pendências.**
+- Nada foi visto em navegador nas Partes 1 e 2. Roteiro: `TESTE-FINAL.md` (itens 21 a 24 são os novos).
+- Barra ondulada (D23): só se um dia houver player com progresso real (Web Playback SDK ou `<audio>` próprio). Hoje é embed do Spotify.
+- Atribuição ao Spotify: conferir contra o guia de marca vigente.
+- `--k-profile-header` (62/70 px) é a altura estimada do cabeçalho do app: validar em 360, 768 e 1280 px.
+- Prévia do chat com até 3 mensagens: exigiria dado novo na lista (hoje só a última).
+- Menu "..." no perfil, aba de publicações no perfil e título do rolê na foto: não existem nos dados.
+- `apps/api/tmp-open-pglite.mjs` continua solto e sem commit (não é meu).
+
+**Telas que ficaram de fora.** `ChatPreview` (atalho no feed e na agenda) segue no estilo anterior, só com o emoji trocado por ícone; `text-xs` restante em telas fora do PDF (G4); aba Rolês do perfil e rotas de rolê sem transição de tile.

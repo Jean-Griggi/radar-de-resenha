@@ -1,5 +1,6 @@
 'use client';
 
+import { Camera } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { PublicUser } from '@resenhometro/shared';
@@ -109,7 +110,11 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
                     className={`truncate text-xs ${count > 0 ? 'font-medium text-fg' : 'text-muted'}`}
                   >
                     {last.senderId === user.id ? '' : 'Você: '}
-                    {last.content || '📷 Foto'}
+                    {last.content || (
+                      <>
+                        <Camera size={12} aria-hidden /> Foto
+                      </>
+                    )}
                   </p>
                 </div>
                 <span className="shrink-0 text-xs text-muted">{formatTimeAgo(last.createdAt)}</span>

@@ -47,3 +47,28 @@ Antes, o bloco em `globals.css` (linhas 11–72) definia esses nomes e dezenas d
 - Lighthouse mobile (acessibilidade e LCP).
 - Olho humano no roteiro `docs/kina/TESTE-FINAL.md` (dois temas, 360 e 1280).
 - `text-xs` restante, se o Gabriel quiser o piso de 14 px também nas telas fora do PDF.
+
+## 5. Pós-Fase 5: etapas A a H
+
+Depois da Fase 5 entraram os extras D20 a D24 (detalhe em `docs/kina/EXTRAS-RELATORIO.md`). A varredura da Fase 5 foi repetida em todo o código tocado e **só achou o que está abaixo**.
+
+| Item | Achado | Correção |
+| --- | --- | --- |
+| Fraunces abaixo de 20 px | `.k-carousel__role` (rolê de origem no carrossel, 12 px) usava a fonte display | Voltou à fonte de interface, itálica |
+| Ícones fora do `lucide-react` | `★` (4 telas), `🎙️` (3), `📷` (chat) e `←` / `→` (calendário e conversa) | `Star` (componente `Stars` com nome acessível "Nota N de 5"), `Mic`, `Camera`, `ChevronLeft`/`ChevronRight`, `ArrowLeft` |
+| Hex | Só `themeColor` em `layout.tsx` (permitido) | Nada. A vitrine usa nomes de cor CSS nas fotos de mentira, não hex |
+| `rounded-*` | Só `rounded-[var(--k-radius-control)]` (2 px) em controles/selos | Mantido (controle) |
+| `box-shadow` | `inset` do `.k-glass` (D18) | Mantido |
+| Gradientes | Máscara de legenda do post (spec), `--k-scrim-photo` (texto sobre foto, story), cantoneiras e grade (desenho) | Mantidos. `--k-glow` existe nos tokens, mas **nenhuma tela o usa** |
+| `backdrop-filter` / `filter` | Só `.k-glass` e `.k-entry-scrim` (D18/D19) e `filter: none` | Nada |
+| `text-[10px]`/`text-[11px]`, `keyCode`, `console.log`, `debugger` | Nenhum | Nada |
+| unpkg, Open Props, Google Fonts, normalize | Nenhum | Nada |
+| `localStorage`/`sessionStorage` | Só os já existentes (tema, sessão, lugares salvos, cache do shell) | Nenhum novo |
+| Duração/easing soltos | Nenhum fora de `--k-dur-*` / `--k-ease-*` (as animações de rolagem do perfil usam `linear`, que é o que o timeline exige) | Nada |
+| Só `transform`/`opacity` | `visibility` no carrossel e no texto de login (alternância discreta, sem layout) | Mantido |
+| `view-transition-name` | Um nome por vez (`mesa-<id>`), tile cede ao painel | Conferido no código |
+| `prefers-reduced-motion` | Animações do perfil só dentro de `no-preference`; o `Plus` do chat para de girar; carrossel e Mesa já tinham fade | Conferido |
+
+**Vitrine `/kina-vitrine`:** acrescentadas as seções Mesa e tile, Carrossel de álbum, Barra do perfil (estado final), Ficha de faixa (com spinner) e Linha de conversa em acordeão. **Não há "Barra ondulada"**: não foi feita (ver Etapa F).
+
+**Portão:** `pnpm lint && pnpm typecheck && pnpm --filter @resenhometro/web build` passou ao fim de cada etapa e de novo na re-varredura. Nada visto no navegador.

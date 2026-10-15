@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
 import type { CalendarEvent } from '@resenhometro/shared';
@@ -76,13 +77,13 @@ export function CalendarScreen() {
         <h1 className="text-2xl font-semibold sm:text-3xl">Calendário</h1>
         <div className="flex items-center gap-2">
           <button type="button" className="button button--ghost min-h-11 min-w-11 px-3" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))} aria-label="Mês anterior">
-            ←
+            <ChevronLeft size={20} aria-hidden />
           </button>
           <p className="min-w-0 flex-1 px-2 py-1 text-center capitalize sm:flex-none">
             {cursor.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
           </p>
           <button type="button" className="button button--ghost min-h-11 min-w-11 px-3" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))} aria-label="Próximo mês">
-            →
+            <ChevronRight size={20} aria-hidden />
           </button>
         </div>
       </div>

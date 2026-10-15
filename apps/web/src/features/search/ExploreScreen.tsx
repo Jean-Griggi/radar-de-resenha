@@ -1,5 +1,6 @@
 'use client';
 
+import { Stars } from '@/components/Stars';
 import { Children, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -146,7 +147,7 @@ export function ExploreScreen() {
           <Section title="Resenhas">
             {explore.reviews.map((review) => (
               <Link key={review.id} href={`/reviews/${review.id}`}>
-                {'★'.repeat(review.rating)} {review.title}
+                <Stars rating={review.rating} /> {review.title}
               </Link>
             ))}
           </Section>
