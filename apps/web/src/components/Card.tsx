@@ -13,13 +13,16 @@ export function EmptyState({
   title,
   description,
   action,
+  line = false,
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
+  /** Variante sem fundo, alinhada à esquerda e com fio de 1 px acima (listas de uma página de seções). */
+  line?: boolean;
 }) {
   return (
-    <div className="k-empty">
+    <div className={line ? 'k-empty k-empty--line' : 'k-empty'}>
       <h3 className="k-empty__title">{title}</h3>
       {description ? <p className="k-empty__text">{description}</p> : null}
       {action ? <div className="k-empty__action">{action}</div> : null}

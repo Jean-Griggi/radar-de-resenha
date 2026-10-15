@@ -5,7 +5,7 @@ import type { Album, AudioClip, Photo } from '@resenhometro/shared';
 import { Mic, X } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { EmptyState, Skeleton } from '@/components/Card';
-import { Field, Input } from '@/components/Field';
+import { Input } from '@/components/Field';
 import { Mesa, useMesaViewer, MesaViewer, type MesaEntry } from '@/components/Mesa';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
@@ -196,28 +196,64 @@ export function PhotosScreen() {
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Fotos e áudios</h1>
-      <div className="card mb-5 grid gap-4 p-5 sm:grid-cols-2">
-        <Field label="Associar a um rolê (id opcional)">
-          <Input value={roleId} onChange={(e) => setRoleId(e.target.value)} placeholder="uuid do rolê" />
-        </Field>
-        <Field label="Enviar foto">
-          <Input type="file" accept={IMAGE_ACCEPT} onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
-          <p className="mt-1 text-xs text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
-        </Field>
-        <Field label="Enviar áudio">
-          <Input type="file" accept="audio/*" onChange={(e) => e.target.files?.[0] && uploadAudio(e.target.files[0])} />
-        </Field>
-        <div className="flex items-end">
+      <h1 className="k-page-title">Fotos e áudios</h1>
+      {/* Sem cartão: os grupos se separam por fio de 1 px e 24 px de respiro. */}
+      <div className="k-upload">
+        <div className="k-upload__cell">
+          <label className="k-label" htmlFor="upload-role">
+            Associar a um rolê (id opcional)
+          </label>
+          <Input id="upload-role" value={roleId} onChange={(e) => setRoleId(e.target.value)} placeholder="uuid do rolê" />
+        </div>
+        <div className="k-upload__cell">
+          <label className="k-label" htmlFor="upload-photo">
+            Enviar foto
+          </label>
+          <input
+            id="upload-photo"
+            type="file"
+            className="k-file"
+            accept={IMAGE_ACCEPT}
+            aria-describedby="upload-photo-help"
+            onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])}
+          />
+          <p id="upload-photo-help" className="k-help">
+            JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.
+          </p>
+        </div>
+        <div className="k-upload__cell">
+          <label className="k-label" htmlFor="upload-audio">
+            Enviar áudio
+          </label>
+          <input
+            id="upload-audio"
+            type="file"
+            className="k-file"
+            accept="audio/*"
+            onChange={(e) => e.target.files?.[0] && uploadAudio(e.target.files[0])}
+          />
+        </div>
+        <div className="k-upload__cell k-upload__cell--action">
           <Button type="button" variant={recording ? 'danger' : 'secondary'} onClick={() => (recording ? stopRecording() : startRecording())}>
             {recording ? 'Parar gravação' : 'Gravar história'}
           </Button>
         </div>
-        <form onSubmit={createAlbum} className="flex items-end gap-2 sm:col-span-2">
-          <Field label="Novo álbum">
-            <Input value={albumName} onChange={(e) => setAlbumName(e.target.value)} required />
-          </Field>
-          <Button type="submit">Criar álbum</Button>
+        <form onSubmit={createAlbum} className="k-upload__cell k-upload__album">
+          <div className="k-upload__album-field">
+            <label className="k-label" htmlFor="upload-album">
+              Novo álbum
+            </label>
+            <Input
+              id="upload-album"
+              value={albumName}
+              onChange={(e) => setAlbumName(e.target.value)}
+              placeholder="Nome do álbum"
+              required
+            />
+          </div>
+          <Button type="submit" variant="secondary">
+            Criar álbum
+          </Button>
         </form>
       </div>
 
@@ -232,10 +268,10 @@ export function PhotosScreen() {
 
       {!loading && !error ? (
         <>
-          <h2 className="mb-3 text-lg font-medium">Álbuns</h2>
-          {!error && albums.length === 0 ? <p className="mb-6 text-sm text-muted">Nenhum álbum ainda.</p> : null}
+          <h2 className="k-section-title">Álbuns</h2>
+          {!error && albums.length === 0 ? <EmptyState line title="Nenhum álbum ainda." /> : null}
           {albums.length > 0 ? (
-            <div className="mb-6">
+            <div>
               <Mesa
                 label="Álbuns"
                 entries={albums.map(albumEntry)}
@@ -254,8 +290,8 @@ export function PhotosScreen() {
             </div>
           ) : null}
 
-          <h2 className="mb-3 text-lg font-medium">Galeria</h2>
-          {!error && photos.length === 0 ? <EmptyState title="Nenhuma foto ainda." /> : null}
+          <h2 className="k-section-title">Galeria</h2>
+          {!error && photos.length === 0 ? <EmptyState line title="Nenhuma foto ainda." /> : null}
           {photos.length > 0 ? (
             <Mesa
               label="Galeria"
@@ -274,8 +310,8 @@ export function PhotosScreen() {
             />
           ) : null}
 
-          <h2 className="mt-8 mb-3 text-lg font-medium">Áudios</h2>
-          {!error && audios.length === 0 ? <p className="text-sm text-muted">Nenhum áudio ainda.</p> : null}
+          <h2 className="k-section-title">Áudios</h2>
+          {!error && audios.length === 0 ? <EmptyState line title="Nenhum áudio ainda." /> : null}
           <div className="space-y-3">
             {audios.map((audio) => (
               <div key={audio.id} className="card p-4">

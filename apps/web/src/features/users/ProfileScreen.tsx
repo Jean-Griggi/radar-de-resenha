@@ -214,63 +214,68 @@ export function ProfileScreen() {
           </button>
         </div>
         <Corners size={18} className="profile-id">
-          <div className="profile-id__row">
-            <div className="min-w-0">
-              <h1 className="profile-id__name k-display">{profile.name}</h1>
-              <p className="k-meta">
-                @{profile.username}
-                {profile.city ? ` · ${profile.city}` : ''}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {profile.isMe ? (
-                <Link href="/settings" className="button button--outline">
-                  Editar perfil
+          <h1 className="profile-id__name k-display">{profile.name}</h1>
+          <p className="k-meta">
+            @{profile.username}
+            {profile.city ? ` · ${profile.city}` : ''}
+          </p>
+          <p className="profile-id__bio">{profile.bio || 'Sem bio ainda.'}</p>
+          {/* Ordem do PDF: nome, @ e cidade, bio, ações. A principal (sódio) vem primeiro, depois as secundárias. */}
+          <div className="profile-actions">
+            {profile.isMe ? (
+              <Link href="/settings" className="button button--secondary">
+                Editar perfil
+              </Link>
+            ) : (
+              <>
+                <Button
+                  className="profile-actions__main"
+                  variant={profile.isFollowing ? 'secondary' : 'primary'}
+                  aria-pressed={profile.isFollowing ? true : undefined}
+                  onClick={follow}
+                >
+                  {profile.isFollowing ? 'Seguindo' : 'Seguir'}
+                </Button>
+                <Link href={`/chat/${profile.username}`} className="button button--secondary">
+                  Mensagem
                 </Link>
-              ) : (
-                <>
-                  <Link href={`/chat/${profile.username}`} className="button button--secondary">
-                    Mensagem
-                  </Link>
-                  {isFriend ? (
-                    <>
-                      <Button variant="secondary" disabled={busy} onClick={unfriend}>
-                        Amigos
-                      </Button>
-                      <Button variant="ghost" disabled={busy} onClick={unfriend}>
-                        Desfazer
-                      </Button>
-                    </>
-                  ) : isPendingIn ? (
-                    <>
-                      <Button variant="secondary" disabled={busy} onClick={acceptFriend}>
-                        Aceitar
-                      </Button>
-                      <Button variant="secondary" disabled={busy} onClick={rejectFriend}>
-                        Recusar
-                      </Button>
-                    </>
-                  ) : isPendingOut ? (
-                    <>
-                      <Button variant="secondary" disabled={busy} onClick={cancelFriend}>
-                        Pedido enviado
-                      </Button>
-                      <Button variant="ghost" disabled={busy} onClick={cancelFriend}>
-                        Cancelar
-                      </Button>
-                    </>
-                  ) : (
-                    <Button variant="secondary" disabled={busy} onClick={addFriend}>
-                      Adicionar
+                {isFriend ? (
+                  <>
+                    <Button variant="secondary" disabled={busy} onClick={unfriend}>
+                      Amigos
                     </Button>
-                  )}
-                  <Button onClick={follow}>{profile.isFollowing ? 'Seguindo' : 'Seguir'}</Button>
-                </>
-              )}
-            </div>
+                    <Button variant="ghost" disabled={busy} onClick={unfriend}>
+                      Desfazer
+                    </Button>
+                  </>
+                ) : isPendingIn ? (
+                  <>
+                    <Button variant="secondary" disabled={busy} onClick={acceptFriend}>
+                      Aceitar
+                    </Button>
+                    <Button variant="secondary" disabled={busy} onClick={rejectFriend}>
+                      Recusar
+                    </Button>
+                  </>
+                ) : isPendingOut ? (
+                  <>
+                    <Button variant="secondary" disabled={busy} onClick={cancelFriend}>
+                      Pedido enviado
+                    </Button>
+                    <Button variant="ghost" disabled={busy} onClick={cancelFriend}>
+                      Cancelar
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="secondary" disabled={busy} onClick={addFriend}>
+                    Adicionar
+                  </Button>
+                )}
+              </>
+            )}
           </div>
-          <p className="mt-4 max-w-2xl text-fg">{profile.bio || 'Sem bio ainda.'}</p>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {/* Ficha sem caixa nem fundo: valor mono, rótulo .k-meta, fios de 1 px. */}
+          <dl className="profile-stats">
             {[
               ['Rolês', profile.stats.roles],
               ['Resenhas', profile.stats.reviews],
@@ -279,11 +284,11 @@ export function ProfileScreen() {
               ['Seguindo', profile.stats.following],
             ].map(([label, value]) => (
               <div key={String(label)} className="profile-stat">
-                <p className="text-xl font-semibold">{value}</p>
-                <p className="k-meta">{label}</p>
+                <dd className="profile-stat__value">{value}</dd>
+                <dt className="k-meta">{label}</dt>
               </div>
             ))}
-          </div>
+          </dl>
         </Corners>
         <div className="k-profile__avatar">
           <Avatar src={profile.avatar} name={profile.name} size="xl" />

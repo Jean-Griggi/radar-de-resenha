@@ -47,7 +47,8 @@ export function Tabs<T extends string>({
   }
 
   return (
-    <div role="tablist" aria-label={label} className={`k-tabs ${className}`.trim()} onKeyDown={onKeyDown}>
+    <div className={`k-tabs-wrap ${className}`.trim()}>
+    <div role="tablist" aria-label={label} className="k-tabs" onKeyDown={onKeyDown}>
       {items.map((item, index) => {
         const selected = item.value === value;
         return (
@@ -67,6 +68,7 @@ export function Tabs<T extends string>({
           </button>
         );
       })}
+    </div>
     </div>
   );
 }

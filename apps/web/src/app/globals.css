@@ -534,13 +534,6 @@ table .font-display {
     cursor: not-allowed;
   }
 
-  .profile-stat {
-    border-radius: var(--k-radius-none);
-    background: color-mix(in srgb, var(--k-text) 5%, transparent);
-    padding: 0.75rem;
-    text-align: center;
-  }
-
   .chat-badge {
     position: absolute;
     top: -2px;

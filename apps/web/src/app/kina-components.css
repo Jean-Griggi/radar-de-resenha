@@ -383,20 +383,29 @@
   }
 
   /* ===================== Tabs (substitui .chip-tab nas abas) ===================== */
+  /* Rola na horizontal sem barra (nem vertical): overflow-y hidden, 4 px de respiro para o foco não ser cortado. */
+  .k-tabs-wrap {
+    border-bottom: 1px solid var(--k-line);
+  }
   .k-tabs {
     display: flex;
     gap: 28px;
+    padding: 4px 4px 0;
     overflow-x: auto;
-    border-bottom: 1px solid var(--k-line);
+    overflow-y: hidden;
     scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+  .k-tab:focus-visible {
+    outline-offset: -2px;
   }
   .k-tabs::-webkit-scrollbar {
     display: none;
   }
   .k-tab {
     flex: none;
+    scroll-snap-align: start;
     min-height: var(--k-touch);
-    margin-bottom: -1px;
     padding: 0 0 10px;
     border: 0;
     border-bottom: 2px solid transparent;
@@ -698,6 +707,126 @@
   }
   .k-empty__action {
     margin-top: 20px;
+  }
+  /* Em linha: sem fundo, sem centralizar; frase em Fraunces 20 px com fio de 1 px acima. */
+  .k-empty--line {
+    padding: var(--k-space-4) 0 0;
+    border-top: 1px solid var(--k-line);
+    background: none;
+    text-align: left;
+  }
+  .k-empty--line .k-empty__title {
+    font-size: var(--k-fs-20);
+  }
+
+  /* ===================== Página de seções: Fotos e áudios ===================== */
+  .k-page-title {
+    margin: 0 0 var(--k-space-8);
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-31);
+    font-weight: 400;
+    line-height: var(--k-lh-title);
+    overflow-wrap: anywhere;
+  }
+  .k-section-title {
+    margin: var(--k-space-12) 0 var(--k-space-4);
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-25);
+    font-weight: 400;
+    line-height: var(--k-lh-title);
+  }
+  /* Painel do formulário sem fundo: grupos separados por fio de 1 px e 24 px de respiro, mesma grade de antes. */
+  .k-upload {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--k-space-6);
+    margin-bottom: var(--k-space-6);
+  }
+  .k-upload__cell {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--k-space-2);
+  }
+  .k-upload > .k-upload__cell:nth-child(n + 2) {
+    padding-top: var(--k-space-6);
+    border-top: 1px solid var(--k-line);
+  }
+  /* Campos na mesma altura (44 px). */
+  .k-upload .input {
+    min-height: var(--k-touch);
+    height: var(--k-touch);
+    padding-block: 0;
+  }
+  .k-upload .input:focus {
+    padding-bottom: 0;
+  }
+  .k-upload .button {
+    min-height: var(--k-touch);
+  }
+  .k-upload__cell--action {
+    justify-content: flex-end;
+  }
+  .k-upload__album {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--k-space-3);
+  }
+  .k-upload__album-field {
+    display: flex;
+    flex: 1 1 200px;
+    max-width: 320px;
+    flex-direction: column;
+    gap: var(--k-space-2);
+  }
+  @media (min-width: 640px) {
+    .k-upload {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--k-space-6);
+    }
+    .k-upload > .k-upload__cell:nth-child(2) {
+      padding-top: 0;
+      border-top: 0;
+    }
+    .k-upload__album {
+      grid-column: 1 / -1;
+    }
+  }
+  /* <input type="file"> real e acessível (nunca display: none), com o botão nativo no visual da Kina. O nome do
+     arquivo escolhido herda .k-meta. */
+  .k-file {
+    width: 100%;
+    min-width: 0;
+    height: var(--k-touch);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--k-text-muted);
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
+    letter-spacing: var(--k-meta-tracking);
+    text-transform: uppercase;
+  }
+  .k-file::file-selector-button {
+    height: var(--k-touch);
+    margin-inline-end: var(--k-space-3);
+    padding: 0 var(--k-space-4);
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: transparent;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
+    cursor: pointer;
+  }
+  .k-file:hover::file-selector-button {
+    background: var(--k-bg-sunken);
   }
 
   /* ===================== Toast (inverso) ===================== */
@@ -1396,7 +1525,8 @@
     --k-profile-overlap: 72px;
     --k-profile-id-left: 0px;
     --k-profile-shift: var(--k-profile-bar); /* estático: a barra ocupa espaço acima da capa */
-    --k-profile-bar-inset: calc(var(--k-profile-bleed) + 1.25rem);
+    --k-profile-pad: 2rem; /* recuo interno do bloco: o avatar fica a ≥ 24 px da cantoneira superior esquerda */
+    --k-profile-bar-inset: calc(var(--k-profile-bleed) + var(--k-profile-pad));
     --k-profile-avatar-z: 1;
     position: relative;
     isolation: isolate;
@@ -1479,14 +1609,14 @@
     z-index: 1;
     width: 100%;
     margin-top: calc(var(--k-profile-overlap) * -1);
-    padding: 3.5rem 1.25rem 1.25rem;
+    padding: 3.5rem var(--k-profile-pad) 1.25rem;
     background: var(--k-bg);
   }
   .k-profile__avatar {
     position: absolute;
     z-index: var(--k-profile-avatar-z);
     top: calc(var(--k-profile-shift) + var(--k-profile-cover) - var(--k-profile-overlap));
-    left: calc(var(--k-profile-id-left) + 1.25rem);
+    left: calc(var(--k-profile-id-left) + var(--k-profile-pad));
     border-radius: var(--k-radius-person);
     outline: 5px solid var(--k-bg);
     transform: translateY(-50%);
@@ -1495,20 +1625,85 @@
   .k-profile__avatar .k-avatar {
     --k-avatar: var(--k-profile-avatar);
   }
-  .profile-id__row {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+  /* Nome completo, sem corte nem reticências: o bloco cresce (até 3 linhas em nomes comuns). */
   .profile-id__name {
     margin: 0;
-    overflow: hidden;
-    font-size: 34px;
+    font-size: clamp(28px, 4vw, 52px);
     line-height: 1.05;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
     overflow-wrap: anywhere;
+  }
+  .profile-id__bio {
+    max-width: var(--k-measure, 68ch);
+    margin: var(--k-space-4) 0 0;
+    overflow-wrap: anywhere;
+  }
+  /* Ações em linha abaixo da bio; todas com 44 px de altura e o mesmo padding horizontal. */
+  .profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-2);
+    margin-top: var(--k-space-4);
+  }
+  .profile-actions .button {
+    min-height: var(--k-touch);
+    padding-inline: var(--k-space-4);
+  }
+  /* Celular: a principal ocupa a largura disponível e as secundárias ficam compactas. */
+  .profile-actions__main {
+    flex: 1 1 100%;
+  }
+  @media (min-width: 640px) {
+    .profile-actions__main {
+      flex: 0 0 auto;
+    }
+  }
+  /* Ficha de contagens: sem caixa nem fundo; fio acima, fios verticais entre os itens. */
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: var(--k-space-6) 0 0;
+    border-top: 1px solid var(--k-line);
+  }
+  .profile-stat {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--k-space-1);
+    padding: var(--k-space-3) var(--k-space-3);
+    border-inline-start: 1px solid var(--k-line);
+    overflow-wrap: anywhere;
+  }
+  .profile-stat:nth-child(3n + 1) {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+  .profile-stat__value {
+    margin: 0;
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-20);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .profile-stat .k-meta {
+    margin: 0;
+  }
+  @media (min-width: 640px) {
+    .profile-stats {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .profile-stat {
+      padding-inline: var(--k-space-6);
+    }
+    .profile-stat:nth-child(3n + 1) {
+      padding-inline-start: var(--k-space-6);
+      border-inline-start: 1px solid var(--k-line);
+    }
+    .profile-stat:first-child {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+    }
   }
   .k-profile__tabs {
     position: sticky;
@@ -1560,9 +1755,6 @@
       --k-profile-avatar: 96px;
       --k-profile-dock-scale: 0.4167;
     }
-    .profile-id__name {
-      font-size: 52px;
-    }
   }
   @media (min-width: 1024px) {
     .k-profile {
@@ -1570,14 +1762,9 @@
       --k-profile-id-left: 24px;
     }
     .profile-id {
-      width: min(520px, calc(100% - 48px));
+      width: min(560px, calc(100% - 48px));
       margin-left: 24px;
       padding-top: 4rem;
-    }
-    .profile-id__row {
-      flex-direction: row;
-      align-items: flex-end;
-      justify-content: space-between;
     }
   }
   /* Rolagem: capa sobe a 60% da velocidade e escurece (camada sólida, sem blur), o avatar desce para dentro da
@@ -1586,7 +1773,7 @@
     @media (prefers-reduced-motion: no-preference) {
       .k-profile {
         --k-profile-shift: 0px;
-        --k-profile-bar-inset: calc(var(--k-profile-bleed) + 1.25rem + var(--k-profile-id-left) + var(--k-profile-dock) + 12px);
+        --k-profile-bar-inset: calc(var(--k-profile-bleed) + var(--k-profile-pad) + var(--k-profile-id-left) + var(--k-profile-dock) + 12px);
         --k-profile-avatar-z: 3;
         --k-profile-dock-y: calc(var(--k-profile-bar) / 2 - var(--k-profile-cover) + var(--k-profile-overlap) + var(--k-profile-range));
       }
