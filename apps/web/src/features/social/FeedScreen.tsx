@@ -11,9 +11,10 @@ import { EmptyState, Skeleton } from '@/components/Card';
 import { FeedComments } from './Comments';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { MediaImage } from '@/components/MediaImage';
+import { Post } from './Post';
 import { Reactions } from './Reactions';
 import { ChatPreview } from '@/features/chat';
-import { MusicCard, SpotifyPicker, type SpotifyChoice } from '@/features/music';
+import { SpotifyPicker, type SpotifyChoice } from '@/features/music';
 import { StoriesBar } from '@/features/stories';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
@@ -280,6 +281,45 @@ export function FeedScreen() {
 
         {!loading
           ? past.map((item) => {
+              if (item.type === 'post_created' && item.post) {
+                const post = item.post;
+                return (
+                  <ErrorBoundary
+                    key={item.id}
+                    fallback={
+                      <article className="card p-5">
+                        <p className="text-sm text-muted">Este item do feed não pôde ser exibido.</p>
+                      </article>
+                    }
+                  >
+                    <Post
+                      postId={post.id}
+                      authorName={item.actor?.name ?? post.author?.name ?? ''}
+                      username={item.actor?.username ?? post.author?.username}
+                      avatar={item.actor?.avatar ?? post.author?.avatar}
+                      createdAt={item.createdAt}
+                      content={post.content}
+                      music={post.music}
+                      onPlay={
+                        post.music
+                          ? () =>
+                              setTrack({
+                                title: post.music!.title,
+                                artist: post.music!.artist ?? 'Playlist',
+                                cover: post.music!.cover,
+                                spotifyUrl: post.music!.spotifyUrl,
+                              })
+                          : undefined
+                      }
+                      reactions={item.reactions ?? []}
+                      onReactions={(reactions: ReactionSummary[]) => {
+                        setItems((current) => current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)));
+                      }}
+                      comments={<FeedComments targetType="post" targetId={post.id} />}
+                    />
+                  </ErrorBoundary>
+                );
+              }
               const target = commentTarget(item);
               return (
               <ErrorBoundary
@@ -290,7 +330,7 @@ export function FeedScreen() {
                   </article>
                 }
               >
-                <article className={item.type === 'post_created' ? 'feed-post' : 'card feed-memory k-corners'}>
+                <article className="card feed-memory k-corners">
                   <div className="min-w-0 p-4">
                     <div className="flex items-start gap-3">
                       <Avatar src={item.actor?.avatar} name={item.actor?.name} size="sm" />
@@ -302,7 +342,7 @@ export function FeedScreen() {
                           <span className="text-muted">{LABELS[item.type] ?? item.type}</span>
                         </p>
                         <p className="k-meta">{formatTimeAgo(item.createdAt)}</p>
-                        {item.type !== 'post_created' && item.role ? (
+                        {item.role ? (
                           <Link href={`/roles/${item.role.id}`} className="mt-3 block border border-[var(--k-line)] p-3">
                             <p className="k-meta">{formatMeta(item.role.date, item.role.time)}</p>
                             <h2 className="k-display feed-memory__title">{item.role.title}</h2>
@@ -316,18 +356,6 @@ export function FeedScreen() {
                             <h2 className="text-base font-semibold text-fg">{item.review.title}</h2>
                             <p className="mt-1 line-clamp-2 text-sm text-muted">{item.review.content}</p>
                           </Link>
-                        ) : null}
-                        {item.post?.content ? <p className="mt-3 text-sm leading-6 text-fg">{item.post.content}</p> : null}
-                        {item.post?.music ? (
-                          <div className="mt-3">
-                            <MusicCard
-                              item={item.post.music}
-                              onSelect={() => {
-                                const track = item.post!.music!;
-                                setTrack({ title: track.title, artist: track.artist ?? 'Playlist', cover: track.cover, spotifyUrl: track.spotifyUrl });
-                              }}
-                            />
-                          </div>
                         ) : null}
                         {item.photo ? (
                           <MediaImage

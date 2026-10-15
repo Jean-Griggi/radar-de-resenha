@@ -21,6 +21,7 @@ export function TrackRow({
   current = false,
   compact = false,
   label = 'Trilha do rolê',
+  onSelect,
 }: {
   index?: number;
   cover?: string | null;
@@ -30,10 +31,12 @@ export function TrackRow({
   current?: boolean;
   compact?: boolean;
   label?: string;
+  /** Quando existe, a linha vira o botão de tocar (o player continua o de quem chama). */
+  onSelect?: () => void;
 }) {
   const cls = `k-track${current ? ' k-track--current' : ''}${compact ? ' k-track--compact' : ''}`;
-  return (
-    <li className={cls} aria-current={current ? 'true' : undefined}>
+  const cells = (
+    <>
       {compact ? null : <span className="k-track__n">{index != null ? String(index).padStart(2, '0') : ''}</span>}
       {cover ? (
         <img className="k-track__cover" src={cover} alt="" width={40} height={40} loading="lazy" />
@@ -47,6 +50,17 @@ export function TrackRow({
         <span className="k-track__artist block truncate">{artist}</span>
       </span>
       {compact ? <span className="k-meta">{label}</span> : duration ? <span className="k-track__d">{duration}</span> : <span />}
+    </>
+  );
+  return (
+    <li className={cls} aria-current={current ? 'true' : undefined}>
+      {onSelect ? (
+        <button type="button" className="k-track__play" onClick={onSelect} aria-label={`Tocar ${title}`}>
+          {cells}
+        </button>
+      ) : (
+        cells
+      )}
     </li>
   );
 }
