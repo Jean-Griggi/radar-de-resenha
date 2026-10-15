@@ -1304,14 +1304,10 @@
     color: var(--k-text-muted);
     font-size: var(--k-fs-16);
   }
-  .auth-panel__actions {
+  /* Cancelar: sozinho, centrado embaixo, longe do Entrar. */
+  .auth-panel__cancel {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--k-space-2) var(--k-space-4);
-  }
-  .auth-panel__actions .button--primary {
-    flex: 1 1 8rem;
+    margin: var(--k-space-2) auto 0;
   }
   .auth-panel__links {
     display: flex;

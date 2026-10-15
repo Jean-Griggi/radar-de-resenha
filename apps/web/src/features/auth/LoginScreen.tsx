@@ -331,18 +331,16 @@ export function LoginScreen() {
                     />
                   </Field>
                   {formError ? <FormError>{formError}</FormError> : null}
-                  <div className="auth-panel__actions">
-                    <Button type="submit" loading={loading}>
-                      {loading ? 'Entrando...' : 'Entrar'}
-                    </Button>
-                    <Button variant="ghost" onClick={close}>
-                      Cancelar
-                    </Button>
-                  </div>
+                  <Button type="submit" loading={loading} className="w-full">
+                    {loading ? 'Entrando...' : 'Entrar'}
+                  </Button>
                   <p className="auth-panel__links">
                     <Link href="/esqueci-senha">Esqueci a senha</Link>
                     <Link href="/cadastro">Criar conta</Link>
                   </p>
+                  <Button variant="ghost" onClick={close} className="auth-panel__cancel">
+                    Cancelar
+                  </Button>
                 </form>
               </div>
             </Corners>
