@@ -103,6 +103,7 @@ export function PlaceField({
         fallbackView={CUIABA_VIEW}
         heightClass="h-72"
         hint="Pesquise acima ou clique no mapa para marcar o ponto exato."
+        pin="role"
         onPick={(picked) => onChange({ location, point: picked })}
       />
 

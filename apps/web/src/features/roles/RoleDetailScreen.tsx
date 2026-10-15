@@ -235,7 +235,13 @@ export function RoleDetailScreen() {
         {role.latitude != null && role.longitude != null ? (
           <section>
             <h2 className="k-meta role-view__side-title">Onde</h2>
-            <LocationMap point={{ latitude: role.latitude, longitude: role.longitude }} avatar={null} heightClass="h-48" />
+            <LocationMap
+              point={{ latitude: role.latitude, longitude: role.longitude }}
+              avatar={null}
+              heightClass="h-48"
+              pin="role"
+              past={role.status === 'past'}
+            />
           </section>
         ) : null}
         <section className="space-y-3">

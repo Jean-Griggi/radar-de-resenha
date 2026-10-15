@@ -12,6 +12,16 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['**/dist/**', '**/.next/**', '**/node_modules/**', '**/.turbo/**', '**/next-env.d.ts'],
+    ignores: [
+      '**/dist/**',
+      '**/.next/**',
+      '**/.next-dev/**',
+      '**/node_modules/**',
+      '**/.turbo/**',
+      '**/next-env.d.ts',
+      // Cópias locais do worker do MapLibre e script avulso: não são código do app.
+      '**/public/maplibre/**',
+      'apps/api/tmp-open-pglite.mjs',
+    ],
   },
 );

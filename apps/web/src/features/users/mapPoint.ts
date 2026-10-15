@@ -194,14 +194,43 @@ export type MapControls = {
 
 type MapLibreModule = typeof import('maplibre-gl');
 
-/** MapLibre não lê `var()`. O worker do Turbopack aponta para um chunk que não existe; o arquivo real vai na URL. */
+/**
+ * MapLibre não lê `var()`. O `new URL` para o worker dentro de `node_modules` quebra o build do Next.
+ * Os dois arquivos (o worker importa `./maplibre-gl-shared.mjs`) ficam em `public/maplibre/`.
+ */
 function configureMapWorker(maplibre: MapLibreModule) {
-  const worker = new URL('../../../../node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs', import.meta.url);
-  maplibre.setWorkerUrl(worker.href);
+  maplibre.setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
 }
 
 function mapToken(name: string) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+/** Relê as cores quando a pessoa troca o tema (o atributo `data-theme` muda). */
+function watchTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => observer.disconnect();
+}
+
+const KINA_MARK =
+  '<svg viewBox="0 0 120 120" width="22" height="22" aria-hidden="true"><rect x="10" y="10" width="16" height="100" fill="currentColor"/><rect x="10" y="94" width="100" height="16" fill="currentColor"/><circle cx="47.2" cy="72.8" r="11" fill="currentColor"/></svg>';
+
+/** Rolê: quadrado sódio com o símbolo. Passado: só o símbolo, na cor do fio forte. */
+function rolePin(past: boolean): HTMLElement {
+  const el = document.createElement('div');
+  el.dataset.rolePin = past ? 'past' : 'next';
+  el.innerHTML = KINA_MARK;
+  el.style.cssText = [
+    'width:44px',
+    'height:44px',
+    'display:flex',
+    'align-items:center',
+    'justify-content:center',
+    past ? 'background:transparent' : `background:${mapToken('--k-brand')}`,
+    `color:${past ? mapToken('--k-line-strong') : mapToken('--k-bg')}`,
+  ].join(';');
+  return el;
 }
 
 /** Mesmo desenho do Avatar sem foto: círculo, fundo rebaixado, iniciais. */
@@ -210,8 +239,8 @@ function initialsFace(name: string | null | undefined): HTMLElement {
   face.dataset.locationPin = 'visible';
   face.textContent = initials(name);
   face.style.cssText = [
-    'width:40px',
-    'height:40px',
+    'width:44px',
+    'height:44px',
     'box-sizing:border-box',
     'border-radius:50%',
     'display:flex',
@@ -229,8 +258,8 @@ function avatarPin(url: string, name: string | null | undefined): HTMLElement {
   const wrap = document.createElement('div');
   wrap.dataset.locationPin = 'visible';
   wrap.style.cssText = [
-    'width:40px',
-    'height:40px',
+    'width:44px',
+    'height:44px',
     'box-sizing:border-box',
     'border-radius:50%',
     'overflow:hidden',
@@ -241,7 +270,7 @@ function avatarPin(url: string, name: string | null | undefined): HTMLElement {
   img.src = url;
   img.alt = '';
   img.referrerPolicy = 'no-referrer';
-  img.style.cssText = 'width:40px;height:40px;object-fit:cover;display:block';
+  img.style.cssText = 'width:44px;height:44px;object-fit:cover;display:block';
   img.onerror = () => {
     wrap.replaceWith(initialsFace(name));
   };
@@ -249,10 +278,14 @@ function avatarPin(url: string, name: string | null | undefined): HTMLElement {
   return wrap;
 }
 
-function pinElement(imageUrl: string | null, label: string | null, name: string | null | undefined): HTMLElement {
+function pinElement(
+  imageUrl: string | null,
+  label: string | null,
+  name: string | null | undefined,
+): HTMLElement {
   const root = document.createElement('div');
   root.dataset.locationPin = 'visible';
-  root.style.cssText = 'width:40px;height:40px;overflow:visible';
+  root.style.cssText = 'width:44px;height:44px;overflow:visible';
   root.append(imageUrl ? avatarPin(imageUrl, name) : initialsFace(name));
   if (label) {
     const place = document.createElement('span');
@@ -262,13 +295,13 @@ function pinElement(imageUrl: string | null, label: string | null, name: string 
     const fg = mapToken('--k-text');
     place.style.cssText = [
       'position:absolute',
-      'left:46px',
+      'left:50px',
       'top:50%',
       'transform:translateY(-50%)',
       'padding:2px 8px',
       `background:${bg}`,
       `color:${fg}`,
-      `font:600 12px/1.2 ${mapToken('--k-font-ui')}`,
+      `font:600 14px/1.2 ${mapToken('--k-font-ui')}`,
       'white-space:nowrap',
     ].join(';');
     root.append(place);
@@ -283,9 +316,14 @@ function placeMarker(
   avatar: string | null,
   placeName: string | null,
   name: string | null,
+  kind: 'person' | 'role' | 'role-past' = 'person',
 ) {
   const pin = pinContent(avatar, placeName);
-  const marker = new maplibre.Marker({ element: pinElement(pin.imageUrl, pin.label, name), anchor: 'center' });
+  const element = kind === 'person' ? pinElement(pin.imageUrl, pin.label, name) : rolePin(kind === 'role-past');
+  const marker = new maplibre.Marker({
+    element,
+    anchor: 'center',
+  });
   marker.getElement().dataset.locationPin = 'visible';
   return marker.setLngLat([point.longitude, point.latitude]).addTo(map);
 }
@@ -298,6 +336,9 @@ export async function mountLocationMap(
     avatar: string | null;
     placeName: string | null;
     onPick: (point: MapPoint) => void;
+    /** `role` = quadrado sódio. Pessoa continua foto redonda. */
+    pin?: 'person' | 'role';
+    past?: boolean;
     /** Onde o mapa abre enquanto não há ponto (padrão: visão do Brasil). */
     fallbackView?: MapFallbackView;
   },
@@ -315,23 +356,34 @@ export async function mountLocationMap(
     attributionControl: view.attributionControl,
     cooperativeGestures: !options.interactive,
   });
-  map.addControl(
-    new maplibre.NavigationControl({ showCompass: false }),
-    'top-right',
-  );
-  let marker: ReturnType<typeof placeMarker> | null = options.point
-    ? placeMarker(maplibre, map, options.point, options.avatar, options.placeName, null)
-    : null;
+  map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-right');
+  const pinKind = options.pin === 'role' ? (options.past ? 'role-past' : 'role') : 'person';
+  let shown: { point: MapPoint; avatar: string | null; placeName: string | null } | null = null;
+  let marker: ReturnType<typeof placeMarker> | null = null;
+
+  function putMarker(point: MapPoint, avatar: string | null, placeName: string | null) {
+    marker?.remove();
+    marker = placeMarker(maplibre, map, point, avatar, placeName, null, pinKind);
+    shown = { point, avatar, placeName };
+  }
+
+  if (options.point) putMarker(options.point, options.avatar, options.placeName);
 
   function show(point: MapPoint | null, avatar: string | null, placeName: string | null) {
     marker?.remove();
     marker = null;
+    shown = null;
     const next = locationMapView(point, options.fallbackView);
     map.setCenter(next.center);
     map.setZoom(next.zoom);
     if (!point) return;
-    marker = placeMarker(maplibre, map, point, avatar, placeName, null);
+    putMarker(point, avatar, placeName);
   }
+
+  const stopTheme = watchTheme(() => {
+    if (!shown) return;
+    putMarker(shown.point, shown.avatar, shown.placeName);
+  });
 
   const onClick = (event: { lngLat: { lat: number; lng: number } }) => {
     const picked = pointFromClick(event.lngLat.lat, event.lngLat.lng);
@@ -343,6 +395,7 @@ export async function mountLocationMap(
   return {
     sync: show,
     destroy() {
+      stopTheme();
       if (options.interactive) map.off('click', onClick);
       marker?.remove();
       map.remove();
@@ -381,10 +434,7 @@ export async function mountPeopleMap(
     fadeDuration: 0,
     attributionControl: view.attributionControl,
   });
-  map.addControl(
-    new maplibre.NavigationControl({ showCompass: false }),
-    'top-right',
-  );
+  map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-right');
 
   let markers: Array<ReturnType<typeof placeMarker>> = [];
   let latest = people;
@@ -399,16 +449,23 @@ export async function mountPeopleMap(
     map.setZoom(frame.zoom);
   }
 
-  function show(next: PeoplePin[]) {
+  function show(next: PeoplePin[], move = true) {
     latest = next;
     for (const marker of markers) marker.remove();
     markers = [];
     for (const person of next) {
-      const marker = placeMarker(maplibre, map, person, person.avatar, person.placeName, person.name);
+      const marker = placeMarker(
+        maplibre,
+        map,
+        person,
+        person.avatar,
+        person.placeName,
+        person.name,
+      );
       marker.getElement().dataset.mapPerson = person.id;
       markers.push(marker);
     }
-    if (map.loaded()) moveTo(next);
+    if (move && map.loaded()) moveTo(next);
   }
 
   let loaded = false;
@@ -429,8 +486,26 @@ export async function mountPeopleMap(
     }
     map.addSource('route', { type: 'geojson', data });
     const line = { 'line-cap': 'round' as const, 'line-join': 'round' as const };
-    map.addLayer({ id: 'route-casing', type: 'line', source: 'route', layout: line, paint: { 'line-color': '#ffffff', 'line-width': 9 } });
-    map.addLayer({ id: 'route-line', type: 'line', source: 'route', layout: line, paint: { 'line-color': '#2563eb', 'line-width': 5 } });
+    map.addLayer({
+      id: 'route-casing',
+      type: 'line',
+      source: 'route',
+      layout: line,
+      paint: { 'line-color': mapToken('--k-bg'), 'line-width': 9 },
+    });
+    map.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: 'route',
+      layout: line,
+      paint: { 'line-color': mapToken('--k-accent'), 'line-width': 5 },
+    });
+  }
+
+  function applyRoutePaint() {
+    if (!map.getLayer('route-line')) return;
+    map.setPaintProperty('route-line', 'line-color', mapToken('--k-accent'));
+    map.setPaintProperty('route-casing', 'line-color', mapToken('--k-bg'));
   }
 
   // A linha só precisa do estilo pronto; esperar o 'load' (que depende de todos os tiles) deixava a rota sem
@@ -447,6 +522,77 @@ export async function mountPeopleMap(
     if (route) drawRoute();
   });
 
+  let lastPins: RoutePin[] = [];
+  let lastMe: MapPoint | null = null;
+
+  function renderPins(pins: RoutePin[], move: boolean) {
+    lastPins = pins;
+    for (const marker of routeMarkers) marker.remove();
+    routeMarkers = pins.map((pin) => {
+      const el = document.createElement('div');
+      el.dataset.routePin = pin.kind;
+      el.title = pin.label;
+      el.textContent = pin.kind === 'from' ? 'A' : 'B';
+      el.style.cssText = [
+        'width:44px',
+        'height:44px',
+        'border-radius:50%',
+        'display:flex',
+        'align-items:center',
+        'justify-content:center',
+        `font:700 14px/1 ${mapToken('--k-font-ui')}`,
+        `color:${mapToken('--k-bg')}`,
+        `border:3px solid ${mapToken('--k-bg')}`,
+        `background:${pin.kind === 'from' ? mapToken('--k-success') : mapToken('--k-danger')}`,
+      ].join(';');
+      return new maplibre.Marker({ element: el, anchor: 'center' })
+        .setLngLat([pin.longitude, pin.latitude])
+        .addTo(map);
+    });
+    if (!move) return;
+    if (pins.length === 1) {
+      map.flyTo({ center: [pins[0]!.longitude, pins[0]!.latitude], zoom: 14, essential: true });
+    } else if (pins.length === 2) {
+      const bounds = new maplibre.LngLatBounds(
+        [pins[0]!.longitude, pins[0]!.latitude],
+        [pins[0]!.longitude, pins[0]!.latitude],
+      );
+      bounds.extend([pins[1]!.longitude, pins[1]!.latitude]);
+      map.fitBounds(bounds, { padding: 80, maxZoom: 15, animate: true });
+    }
+  }
+
+  function renderMe(point: MapPoint | null, follow: boolean) {
+    lastMe = point;
+    meMarker?.remove();
+    meMarker = null;
+    if (!point) return;
+    const dot = document.createElement('div');
+    const accent = mapToken('--k-accent');
+    dot.style.cssText = ['width:44px', 'height:44px', 'display:flex', 'align-items:center', 'justify-content:center'].join(';');
+    const core = document.createElement('span');
+    core.style.cssText = [
+      'width:18px',
+      'height:18px',
+      'border-radius:50%',
+      `background:${accent}`,
+      `border:3px solid ${mapToken('--k-bg')}`,
+      `box-shadow:0 0 0 6px color-mix(in srgb, ${accent} 25%, transparent)`,
+    ].join(';');
+    dot.append(core);
+    meMarker = new maplibre.Marker({ element: dot, anchor: 'center' })
+      .setLngLat([point.longitude, point.latitude])
+      .addTo(map);
+    if (follow) map.easeTo({ center: [point.longitude, point.latitude], duration: 600 });
+  }
+
+  const stopTheme = watchTheme(() => {
+    applyRoutePaint();
+    show(latest, false);
+    renderPins(lastPins, false);
+    renderMe(lastMe, false);
+  });
+
   return {
     sync: show,
     flyTo(point, zoom) {
@@ -461,34 +607,13 @@ export async function mountPeopleMap(
       map.fitBounds(bounds, { padding: 64, animate: true });
     },
     setRoutePins(pins) {
-      for (const marker of routeMarkers) marker.remove();
-      routeMarkers = pins.map((pin) => {
-        const el = document.createElement('div');
-        el.dataset.routePin = pin.kind;
-        el.title = pin.label;
-        el.textContent = pin.kind === 'from' ? 'A' : 'B';
-        el.style.cssText = `width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 14px/1 system-ui,sans-serif;color:#fff;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.45);background:${pin.kind === 'from' ? '#16a34a' : '#dc2626'}`;
-        return new maplibre.Marker({ element: el, anchor: 'center' }).setLngLat([pin.longitude, pin.latitude]).addTo(map);
-      });
-      if (pins.length === 1) {
-        map.flyTo({ center: [pins[0]!.longitude, pins[0]!.latitude], zoom: 14, essential: true });
-      } else if (pins.length === 2) {
-        const bounds = new maplibre.LngLatBounds([pins[0]!.longitude, pins[0]!.latitude], [pins[0]!.longitude, pins[0]!.latitude]);
-        bounds.extend([pins[1]!.longitude, pins[1]!.latitude]);
-        map.fitBounds(bounds, { padding: 80, maxZoom: 15, animate: true });
-      }
+      renderPins(pins, true);
     },
     setMe(point, follow) {
-      meMarker?.remove();
-      meMarker = null;
-      if (!point) return;
-      const dot = document.createElement('div');
-      dot.style.cssText =
-        'width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.25)';
-      meMarker = new maplibre.Marker({ element: dot, anchor: 'center' }).setLngLat([point.longitude, point.latitude]).addTo(map);
-      if (follow) map.easeTo({ center: [point.longitude, point.latitude], duration: 600 });
+      renderMe(point, follow);
     },
     destroy() {
+      stopTheme();
       for (const marker of routeMarkers) marker.remove();
       meMarker?.remove();
       for (const marker of markers) marker.remove();

@@ -22,12 +22,17 @@ export function LocationMap({
   fallbackView,
   heightClass = 'h-56',
   hint = 'Clique no mapa para escolher o lugar.',
+  pin = 'person',
+  past = false,
 }: {
   point: MapPoint | null;
   avatar: string | null;
   placeName?: string | null;
   interactive?: boolean;
   onPick?: (point: MapPoint) => void;
+  /** Rolê usa o quadrado sódio. Pessoa fica com a foto redonda. */
+  pin?: 'person' | 'role';
+  past?: boolean;
   /** Onde o mapa abre enquanto não há ponto. */
   fallbackView?: MapFallbackView;
   heightClass?: string;
@@ -64,6 +69,8 @@ export function LocationMap({
       placeName: pointRef.current ? placeNameRef.current : null,
       fallbackView: fallbackRef.current,
       onPick: (picked) => onPickRef.current?.(picked),
+      pin,
+      past,
     })
       .then((controls) => {
         if (cancelled) {
@@ -82,7 +89,7 @@ export function LocationMap({
       controlsRef.current = null;
       mapHost.remove();
     };
-  }, [interactive]);
+  }, [interactive, pin, past]);
 
   useEffect(() => {
     controlsRef.current?.sync(point, avatar, point ? placeName : null);

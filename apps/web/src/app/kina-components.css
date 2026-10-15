@@ -1881,6 +1881,29 @@
       gap: 22px;
     }
   }
+
+  /* Controles e balões do mapa: tokens, sem sombra. Os tiles continuam os do OSM. */
+  .maplibregl-ctrl-group {
+    border-radius: var(--k-radius-control);
+    background: var(--k-surface-raised);
+    border: 1px solid var(--k-line);
+    box-shadow: none;
+  }
+  .maplibregl-ctrl-group button {
+    width: var(--k-touch);
+    height: var(--k-touch);
+  }
+  .maplibregl-ctrl-attrib {
+    background: var(--k-surface-raised);
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-12);
+  }
+  .maplibregl-popup-content {
+    border-radius: var(--k-radius-none);
+    background: var(--k-surface-raised);
+    color: var(--k-text);
+    box-shadow: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
