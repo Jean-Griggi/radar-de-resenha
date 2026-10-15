@@ -7,6 +7,7 @@ import type { PublicUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { api, isApiCanceled } from '@/lib/api';
 import { formatTimeAgo, plural } from '@/lib/format';
+import { CHAT_CHANGED_EVENT } from './events';
 import type { ChatMessage } from './types';
 
 type Conversation = { user: PublicUser; last: ChatMessage; unread: number };
@@ -50,9 +51,11 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') void load();
     }, REFRESH_MS);
+    window.addEventListener(CHAT_CHANGED_EVENT, load);
     return () => {
       controller.abort();
       window.clearInterval(timer);
+      window.removeEventListener(CHAT_CHANGED_EVENT, load);
     };
   }, [visible]);
 

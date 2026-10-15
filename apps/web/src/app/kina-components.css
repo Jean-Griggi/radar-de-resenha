@@ -3253,25 +3253,119 @@
     border-bottom: 1px solid var(--k-line);
   }
 
-  /* ===================== Chat: conversa (só tokens, layout igual) ===================== */
-  .k-chat-thread {
+  /* ===================== Chat: conversa (tela aberta) ===================== */
+  /* Altura fluida: o viewport menos o cabeçalho do app, o respiro do shell e a barra inferior (celular). Só a lista
+     de mensagens rola; o resto da tela fica parado. */
+  .k-conv {
+    --k-conv-top: 62px; /* cabeçalho do app */
+    --k-conv-pad: 1rem; /* respiro superior do shell */
+    --k-conv-bottom: calc(8.5rem + env(safe-area-inset-bottom)); /* respiro inferior do shell (inclui a barra) */
     display: flex;
-    height: 60vh;
+    width: 100%;
+    max-width: 42rem;
+    height: calc(100dvh - var(--k-conv-top) - var(--k-conv-pad) - var(--k-conv-bottom));
+    min-height: 420px;
+    margin-inline: auto;
     flex-direction: column;
-    gap: var(--k-space-2);
+  }
+  @media (min-width: 640px) {
+    .k-conv {
+      --k-conv-top: 70px;
+      --k-conv-pad: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .k-conv {
+      --k-conv-bottom: 7rem;
+    }
+  }
+  .k-conv__head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--k-space-3);
+    padding-bottom: var(--k-space-3);
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-conv__back {
+    display: inline-flex;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    color: var(--k-text);
+  }
+  .k-conv__peer {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: var(--k-space-3);
+    color: inherit;
+    text-decoration: none;
+  }
+  .k-conv__head .k-avatar {
+    --k-avatar: 40px;
+  }
+  .k-conv__who {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+  /* Quebra em até 2 linhas, sem reticências. */
+  .k-conv__name {
+    margin: 0;
+    font-size: var(--k-fs-25);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .k-conv__log {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
     overflow-y: auto;
-    padding: var(--k-space-4);
+    padding: var(--k-space-4) 0;
+    background: var(--k-bg);
+  }
+  /* Ancora as mensagens embaixo sem perder o topo da rolagem (justify-content: flex-end cortaria o início). */
+  .k-conv__log > :first-child {
+    margin-top: auto;
+  }
+  .k-conv__empty {
+    margin: auto 0 0;
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-20);
+  }
+  .k-conv__skeleton {
+    display: grid;
+    gap: var(--k-space-2);
+    margin-top: auto;
   }
   .k-bubble-row {
     display: flex;
     justify-content: flex-start;
+    margin-top: var(--k-space-4);
   }
   .k-bubble-row--mine {
     justify-content: flex-end;
   }
+  /* Mensagens seguidas do mesmo remetente: 4 px; troca de remetente: 16 px. */
+  .k-bubble-row--same {
+    margin-top: var(--k-space-1);
+  }
+  .k-conv__log > :first-child.k-bubble-row {
+    margin-top: auto;
+  }
   .k-bubble {
-    max-width: 80%;
+    width: fit-content;
+    min-width: 96px;
+    max-width: 72%;
     padding: var(--k-space-2) var(--k-space-3);
+    font-size: var(--k-fs-16);
     overflow-wrap: anywhere;
     white-space: pre-wrap;
   }
@@ -3297,7 +3391,71 @@
   .k-bubble__time {
     display: block;
     margin-top: var(--k-space-1);
+    white-space: normal;
+  }
+  .k-bubble--mine .k-bubble__time {
     text-align: right;
+  }
+  .k-conv__alert {
+    flex: none;
+    margin: var(--k-space-2) 0 0;
+  }
+  .k-conv__photo {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--k-space-3);
+    margin-top: var(--k-space-3);
+    padding: var(--k-space-2);
+    border: 1px solid var(--k-line);
+  }
+  /* Campo de envio: fixo na base da coluna, com safe-area; botão de anexar de 44 px e campo de 44 px. */
+  .k-conv__form {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--k-space-2);
+    margin-top: var(--k-space-3);
+    padding-top: var(--k-space-3);
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  .k-conv__attach {
+    display: inline-flex;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: transparent;
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-conv__attach:hover {
+    background: var(--k-bg-sunken);
+  }
+  .k-conv__field {
+    min-width: 0;
+    flex: 1;
+  }
+  .k-conv__field .input {
+    min-height: var(--k-touch);
+    height: var(--k-touch);
+    padding-block: 0;
+  }
+  .k-conv__field .input:focus {
+    padding-bottom: 0;
+  }
+  .k-conv__form .button {
+    min-height: var(--k-touch);
+  }
+  .k-conv__reason {
+    flex-basis: 100%;
+    margin: 0;
   }
   /* Movimento reduzido: o Plus não gira. */
   @media (prefers-reduced-motion: reduce) {
