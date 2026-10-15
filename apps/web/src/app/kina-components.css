@@ -2622,4 +2622,85 @@
       transform: none;
     }
   }
+
+  /* ===================== Ficha de faixa (D23) =====================
+   * O player é o embed do Spotify (iframe): sem posição nem duração disponíveis, então só a ficha, sem barra
+   * ondulada e sem controles próprios. Capa nítida com cantoneiras por fora (folga de 6 px, sem tocar a capa). */
+  .k-ficha-faixa {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--k-space-3);
+    padding: var(--k-space-3);
+  }
+  .k-ficha-faixa__cover {
+    --k-corner-size: 8px;
+    padding: 6px;
+  }
+  .k-ficha-faixa__cover .k-cover,
+  .k-ficha-faixa__nocover {
+    display: block;
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+  }
+  .k-ficha-faixa__nocover {
+    display: grid;
+    place-items: center;
+    background: var(--k-bg-sunken);
+    color: var(--k-text-muted);
+  }
+  .k-ficha-faixa__text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--k-space-1);
+  }
+  .k-ficha-faixa__title {
+    margin: 0;
+    font-size: var(--k-fs-20);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .k-ficha-faixa__artist {
+    margin: 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    overflow-wrap: anywhere;
+  }
+  .k-ficha-faixa__link {
+    display: inline-flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    gap: var(--k-space-2);
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .k-ficha-faixa__dot {
+    width: 8px;
+    height: 8px;
+    background: var(--k-spotify);
+  }
+  .k-ficha-faixa__actions {
+    display: flex;
+    flex-direction: column;
+  }
+  .k-ficha-faixa__frame {
+    position: relative;
+  }
+  .k-ficha-faixa__loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+  @media (min-width: 1024px) {
+    .k-ficha-faixa__cover .k-cover,
+    .k-ficha-faixa__nocover {
+      width: 112px;
+      height: 112px;
+    }
+  }
 }

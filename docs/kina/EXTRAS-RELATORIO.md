@@ -116,3 +116,18 @@
 - O destino do avatar na barra é calculado por variáveis CSS (capa, sobreposição, faixa), sem JS. Se alguém mudar a altura da capa ou a sobreposição do bloco, atualizar `--k-profile-cover` / `--k-profile-overlap`.
 - O cartão "Localização" continua entre o bloco e as abas (já existia); a ordem do DOM pedida (capa, nome, ações, abas, conteúdo) vale com essa exceção.
 - Nada visto no navegador.
+
+## Etapa F — ficha de faixa (D23)
+
+**O que existia.** A música toca por **embed (iframe) do Spotify** (`open.spotify.com/embed/...`) dentro do `MiniPlayer` (`components/Player.tsx`), montado no layout raiz. Não há Web Playback SDK, `preview_url` próprio nem estado de reprodução no app: **não existe posição, duração, play/pause, anterior, próxima, shuffle nem "adicionar ao rolê"**. O embed não é personalizável. O `TrackRow` (encarte) continua como está.
+
+**Decisão: só a ficha de faixa.** Como não há progresso real, **a barra ondulada e os controles (SkipBack, Play/Pause, SkipForward) não foram feitos**: criar um player novo está fora do escopo e o embed não expõe o tempo. Ficou de fora também o `role="slider"`, pointer events e teclado da barra.
+
+**O que mudou** (`MiniPlayer`, painel aberto):
+- Ficha: capa quadrada nítida (96 px no celular, 112 px a partir de 1024 px, `object-fit: contain`, sem recorte, filtro ou raio), cantoneiras de 8 px **por fora**, num wrapper com folga de 6 px que não toca a capa. Sem capa: quadrado `--k-bg-sunken` com ícone de música.
+- Título em Fraunces 20 px (quebra, sem reticências), artista em Schibsted 14 px, e "Ouvir no Spotify" (link sublinhado de 44 px de alto, com um quadrado `--k-spotify` de 8 px como marca; o texto fica em `--k-text` para manter o contraste). Não imita o player verde e não usa o logo do Spotify (o repositório não tem o asset).
+- Carregando: o `Spinner` da Kina (ponto percorrendo o L, só aparece após 300 ms, rótulo "Carregando") fica sobre a área do embed até o `onLoad` do iframe.
+- Celular: painel em largura total, acima da barra inferior, com safe-area; desktop: painel de 24 rem no canto. "Recolher" e "Fechar" mantidos.
+- Mantidos como estavam: iframe sempre montado, letra (LRCLIB), rotas e estado do `PlayerProvider`. Escopos do Spotify não mudaram.
+
+**Limitações.** Atribuição conforme as diretrizes de marca do Spotify **não foi conferida online** (sem acesso a rede nesta tarefa): conferir se o link com o quadrado verde atende ao guia vigente. O botão "Recolher" ainda não é uma folha arrastável. Nada visto no navegador.
