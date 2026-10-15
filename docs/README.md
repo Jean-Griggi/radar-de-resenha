@@ -25,6 +25,8 @@ Feature que mexe em front e back fica numa pasta só (a da feature), não partid
 
 ## Abertos
 
-Nenhum plano aberto. Spec nova: `docs/front` ou `docs/back`.
+- [Meta coletiva para rolês — plano](back/meta-coletiva-plano.md), spec: [meta-coletiva.md](back/meta-coletiva.md).
+
+Spec nova: `docs/front` ou `docs/back`.
 
 Mobile e desktop existem só como pastas reservadas. Não implementar sem pedido explícito.

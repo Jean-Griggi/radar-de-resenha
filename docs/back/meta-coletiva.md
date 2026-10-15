@@ -9,6 +9,7 @@ Quem organiza um rolê que depende de um valor coletivo precisa acompanhar quant
 ## Comportamento
 
 - Ao criar ou editar um rolê, o organizador pode ativar uma meta coletiva em reais (R$) e informar o valor necessário para o evento acontecer.
+- Um rolê com meta coletiva ativa precisa ter data e horário de início definidos.
 - Se o organizador configurar uma contribuição mínima, o mínimo é R$ 1,00 e o máximo por participante é o valor total da meta. Sem mínimo configurado, a pessoa pode confirmar presença sem informar contribuição.
 - Ao confirmar presença em um rolê com meta ativa, a pessoa pode informar quanto pretende contribuir. A contribuição não é obrigatória, exceto se o organizador definir um valor mínimo obrigatório.
 - Todos que têm acesso ao rolê podem ver o valor da meta e o progresso agregado. Somente o organizador e a própria pessoa participante podem ver o valor individual informado por essa pessoa.
@@ -16,6 +17,7 @@ Quem organiza um rolê que depende de um valor coletivo precisa acompanhar quant
 - O progresso considera as contribuições informadas por participantes com presença confirmada. Se alguém cancelar a participação, sua contribuição deixa de compor o total.
 - A pessoa participante pode alterar o valor informado enquanto sua participação não estiver cancelada e o rolê não estiver cancelado nem encerrado. A alteração fica registrada no histórico.
 - Dois dias antes da data do rolê, se o total informado estiver abaixo da meta, o sistema notifica o organizador e solicita uma decisão. Os prazos usam a localidade configurada pelo organizador nas opções de perfil. As opções são cancelar o rolê, adiar para outra data ou manter o rolê com o total informado.
+- Se a meta for ativada quando faltarem menos de dois dias para o rolê e ainda não tiver sido atingida, a notificação de decisão é enviada imediatamente.
 - O organizador deve decidir até uma hora antes do horário do rolê. Se não decidir até esse limite, o rolê é cancelado automaticamente. O prazo usa a localidade configurada pelo organizador no perfil.
 - Se a meta for atingida enquanto a decisão estiver pendente, o rolê prossegue e a solicitação de decisão é encerrada.
 - Ao adiar, a meta e as contribuições existentes continuam válidas, e os prazos de notificação e decisão são recalculados com base na nova data. O acompanhamento permanece aberto se o organizador escolher manter o rolê mesmo sem atingir a meta.
@@ -27,10 +29,12 @@ Quem organiza um rolê que depende de um valor coletivo precisa acompanhar quant
 - O progresso deve ser calculado com as contribuições que contam para a meta; participações canceladas não entram no total.
 - A decisão de adiar deve incluir uma nova data. Meta, contribuições e histórico existentes são preservados ao adiar; os prazos são recalculados para a nova data.
 - Quando configurado, o mínimo por participante é R$ 1,00 e o máximo é o valor da meta. A ausência de contribuição é diferente de um valor informado.
+- Ativar a meta exige que o rolê tenha data e horário de início.
 - Nomes de rotas e formato final dos dados ficam para definição no planejamento técnico.
 
 ## Segurança
 
+- Pessoas sem autenticação não podem consultar dados da meta nem criar, alterar ou cancelar participações ou tomar decisões sobre o rolê.
 - Apenas uma pessoa autenticada pode criar ou alterar a própria participação e contribuição.
 - Somente o organizador do rolê pode configurar a meta e decidir entre cancelar, adiar ou manter.
 - O valor individual só pode ser retornado ao organizador e à própria pessoa participante. Para as demais pessoas autorizadas a acessar o rolê, a API retorna apenas o progresso agregado.
@@ -48,6 +52,7 @@ Quem organiza um rolê que depende de um valor coletivo precisa acompanhar quant
 
 - A meta é expressa em reais. Se houver contribuição mínima configurada, ela é R$ 1,00; o valor máximo por participante é o valor da meta.
 - A confirmação de presença funciona sem contribuição quando não houver mínimo obrigatório.
+- Não é possível ativar meta coletiva em rolê sem data e horário de início; se a meta for ativada a menos de dois dias e não tiver sido atingida, o organizador recebe a notificação imediatamente.
 - O cálculo exclui contribuições de participações canceladas e o progresso agregado é visível a quem tem acesso ao rolê.
 - O valor individual fica restrito ao organizador e à pessoa que o informou.
 - Dois dias antes do rolê, uma meta não atingida gera uma decisão pendente para o organizador. Ele pode decidir até uma hora antes do evento; sem decisão, o rolê é cancelado automaticamente.
