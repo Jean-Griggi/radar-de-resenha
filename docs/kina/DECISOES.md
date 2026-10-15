@@ -67,7 +67,7 @@ Só estas. Qualquer outra precisa de justificativa no PR.
 
 **Sobrepõe a regra "sem vidro/blur" e "sem sombras" SÓ nesta exceção.** Escopo exato: **vidro permitido apenas no card das telas de entrada (`.k-glass`). Proibido em qualquer outro lugar.**
 
-- "Telas de entrada" = o card de login (e a folha de login do celular, `Sheet`) e, por serem o mesmo card, cadastro, esqueci a senha e redefinir senha. A splash "Te vejo na Kina." não tem card; o botão "Entrar" continua sódio sólido.
+- "Telas de entrada" = o card de login (e a folha de login do celular, `Sheet`) e, por serem o mesmo card, cadastro, esqueci a senha e redefinir senha. **Atualização:** o botão "Entrar" da splash "Te vejo na Kina." também é vidro (`.k-glass.k-glass--soft`): bem transparente, com tinta de fundo e desfoque fortes que apagam quase por completo a grade e a mira atrás dele, sem refração. Isso abre mão do "botão sódio sólido" nessa tela por decisão do dono; o botão "Entrar" de dentro do card (enviar o formulário) continua sódio sólido.
 - Efeito: refração do fundo (mais forte nas bordas), desfoque leve, borda fina e brilho interno na borda de cima. Não é só blur.
 - Implementação: classe `.k-glass` em `kina-components.css` (só tokens `--k-*`, raio 2 px) + `GlassFilter` (filtro SVG `#k-glass`, só Chromium; Firefox/Safari caem no desfoque comum).
 - Acessibilidade: contraste do texto ≥ 4,5:1 nos dois temas (se faltar, subir `--k-glass-tint`); `prefers-reduced-transparency: reduce` → fundo sólido `--k-surface-raised`, sem `backdrop-filter`; o filtro não anima.

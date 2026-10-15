@@ -372,6 +372,14 @@ a.brand-wordmark:focus-visible {
   height: clamp(3.25rem, 14vw, 4.75rem);
 }
 
+/* Botão "Entrar" em vidro (D19): o símbolo segue a cor do texto e o ponto fica sódio. Fora de @layer pelo mesmo motivo acima. */
+.auth-enter .k-glass .brand-symbol {
+  color: var(--k-text);
+}
+.auth-enter .k-glass .brand-symbol circle {
+  fill: var(--k-brand);
+}
+
 .login-brand {
   display: flex;
   flex-direction: column;

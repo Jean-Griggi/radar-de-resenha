@@ -72,4 +72,5 @@ Decisão do dono do projeto, registrada em `DECISOES.md` (D19; o D18 já era Man
 - **Mapa de deslocamento:** versão com `feImage` + dois gradientes (vermelho em X, verde em Y, combinados com `screen`), sem fallback para `feTurbulence`. O sinal (puxa de dentro para fora ou o contrário) e o `scale` de 40 podem pedir ajuste fino olhando.
 - **Folha do celular:** atrás dela fica o escurecimento do overlay, que derrubaria o contraste com 12%. Por isso `.k-sheet.k-glass` usa tinta de 80%: é vidro bem mais discreto.
 - **Escopo ampliado:** o pedido falava em login e tela inicial. Apliquei também em cadastro/esqueci/redefinir (mesmo card), para as telas de entrada ficarem iguais; é só remover a classe se não quiser.
-- A splash em si (só título e botão) não tem card, então não recebeu vidro.
+- **Botão "Entrar" da splash em vidro** (`.k-glass.k-glass--soft`, depois do pedido seguinte): 55% de tinta de `--k-bg`, desfoque de 18 px, sem refração, borda em `--k-brand` a 60%. O texto passa a `--k-text` e o ponto do símbolo fica sódio. Contraste não medido no navegador; se a grade ainda aparecer demais atrás dele, suba a tinta. Com `prefers-reduced-transparency` ele vira sólido (`--k-surface-raised`).
+- A splash em si (só título e frase) não tem card.

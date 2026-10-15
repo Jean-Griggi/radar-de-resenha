@@ -142,7 +142,7 @@ export function LoginScreen() {
       ) : (
         <div ref={anchorRef} className="auth-enter">
           <div ref={shiftRef} className="auth-enter__shift">
-            <button ref={buttonRef} type="button" className="button button--primary" onClick={openPanel}>
+            <button ref={buttonRef} type="button" className="button k-glass k-glass--soft" onClick={openPanel}>
               <BrandSymbol />
               Entrar
             </button>
