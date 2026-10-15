@@ -8,7 +8,14 @@ import { Avatar } from '@/components/Avatar';
 import { usePlayer } from '@/components/Player';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/Card';
-import { Mesa, MesaSkeleton, MesaViewer, useMesaViewer, type MesaEntry } from '@/components/Mesa';
+import {
+  Mesa,
+  MesaSkeleton,
+  MesaViewer,
+  mesaTransitionStyle,
+  useMesaViewer,
+  type MesaEntry,
+} from '@/components/Mesa';
 import { FeedComments } from './Comments';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { MediaImage } from '@/components/MediaImage';
@@ -140,8 +147,12 @@ function FeedEntry({
   }) => void;
 }) {
   const image = feedImage(item);
+  // Tile com foto: a foto grande recebe o nome da transição. Tile de texto: o bloco do post/card.
+  const named = mesaTransitionStyle(item.id);
   const hero = image ? (
-    <MediaImage src={image} alt={item.photo?.caption || ''} className="k-mesa-viewer__image" />
+    <div className="k-mesa-viewer__hero" style={named}>
+      <MediaImage src={image} alt={item.photo?.caption || ''} className="k-mesa-viewer__image" />
+    </div>
   ) : null;
   const fallback = (
     <article className="card p-5">
@@ -180,6 +191,7 @@ function FeedEntry({
             );
           }}
           comments={<FeedComments targetType="post" targetId={post.id} />}
+          transitionStyle={image ? undefined : named}
         />
       </ErrorBoundary>
     );
@@ -189,7 +201,7 @@ function FeedEntry({
   return (
     <ErrorBoundary fallback={fallback}>
       {hero}
-      <article className="card feed-memory k-corners">
+      <article className="card feed-memory k-corners" style={image ? undefined : named}>
         <div className="min-w-0 p-4">
           <div className="flex items-start gap-3">
             <Avatar src={item.actor?.avatar} name={item.actor?.name} size="sm" />

@@ -8,9 +8,10 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react';
-import { createPortal } from 'react-dom';
+import { createPortal, flushSync } from 'react-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Avatar } from '@/components/Avatar';
+import { canViewTransition, withViewTransition } from '@/lib/viewTransition';
 
 /**
  * A Mesa (D20): índice de fotos espalhadas, estilo exposé. Grade CSS de 12 colunas (4 no celular) com
@@ -144,10 +145,30 @@ function findTile(id: string) {
   return document.querySelector<HTMLElement>(`[data-mesa-tile="${CSS.escape(id)}"]`);
 }
 
+function findMedia(id: string) {
+  return document.querySelector<HTMLElement>(`[data-mesa-media="${CSS.escape(id)}"]`);
+}
+
+/**
+ * Estilo que dá o nome da View Transition ao elemento do painel que "recebe" o tile (a foto grande, ou o
+ * bloco do post quando o tile é de texto). Só um elemento por vez tem o nome: o tile o perde ao abrir.
+ */
+export function mesaTransitionStyle(id: string): CSSProperties {
+  return { viewTransitionName: mesaName(id), viewTransitionClass: 'k-mesa' } as CSSProperties;
+}
+
+function nameTile(id: string, on: boolean) {
+  const media = findMedia(id);
+  if (!media) return;
+  media.style.viewTransitionName = on ? mesaName(id) : '';
+  media.style.setProperty('view-transition-class', on ? 'k-mesa' : '');
+}
+
 /**
  * Estado do item aberto a partir da Mesa. O item abre num painel por cima da página (sem trocar de rota), então
  * a rolagem da Mesa fica como estava. Entrar adiciona uma entrada ao histórico para o "voltar" do navegador fechar
- * o painel; o foco volta ao tile de origem.
+ * o painel; o foco volta ao tile de origem. Abrir e fechar rodam numa View Transition: a foto do tile cresce até
+ * o painel e volta ao lugar (sem suporte ou com movimento reduzido, o painel só aparece em fade).
  */
 export function useMesaViewer() {
   const [openId, setOpenId] = useState<string | null>(null);
@@ -156,14 +177,22 @@ export function useMesaViewer() {
 
   const finish = useCallback(() => {
     const id = openRef.current;
-    setOpenId(null);
     if (!id) return;
-    requestAnimationFrame(() => findTile(id)?.focus({ preventScroll: true }));
+    void withViewTransition(() => {
+      flushSync(() => setOpenId(null));
+      const tile = findTile(id);
+      tile?.focus({ preventScroll: true });
+      nameTile(id, true);
+    }).then(() => nameTile(id, false));
   }, []);
 
   const open = useCallback((id: string) => {
     window.history.pushState({ kinaMesa: true }, '');
-    setOpenId(id);
+    nameTile(id, true);
+    void withViewTransition(() => {
+      nameTile(id, false);
+      flushSync(() => setOpenId(id));
+    });
   }, []);
 
   const close = useCallback(() => {
@@ -184,7 +213,7 @@ export function useMesaViewer() {
 
 /**
  * Painel do item aberto: tela cheia na cor do fundo, `Esc` fecha, o resto da página fica inerte (foco preso) e a
- * página não rola por baixo. Com movimento reduzido entra em fade.
+ * página não rola por baixo. Sem View Transition (ou com movimento reduzido) entra em fade.
  */
 export function MesaViewer({
   open,
@@ -229,7 +258,7 @@ export function MesaViewer({
       aria-modal="true"
       aria-label={label}
       tabIndex={-1}
-      className="k-mesa-viewer"
+      className={canViewTransition() ? 'k-mesa-viewer' : 'k-mesa-viewer k-mesa-viewer--fade'}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
           event.stopPropagation();

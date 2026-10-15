@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import type { MusicItem, ReactionSummary } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { TrackList, TrackRow } from '@/components/TrackRow';
@@ -24,6 +24,7 @@ export function Post({
   reactions,
   onReactions,
   comments,
+  transitionStyle,
 }: {
   postId: string;
   authorName: string;
@@ -36,10 +37,12 @@ export function Post({
   reactions: ReactionSummary[];
   onReactions: (items: ReactionSummary[]) => void;
   comments?: ReactNode;
+  /** Nome da View Transition quando o post abre a partir de um tile de texto da Mesa. */
+  transitionStyle?: CSSProperties;
 }) {
   return (
     <article className="k-post">
-      <div className="k-post__block k-corners">
+      <div className="k-post__block k-corners" style={transitionStyle}>
         <div className="k-post__avatar">
           <Avatar src={avatar} name={authorName} />
         </div>
@@ -96,7 +99,12 @@ function Caption({ text }: { text: string }) {
         {text}
       </p>
       {overflows ? (
-        <button type="button" className="button button--ghost" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
+        <button
+          type="button"
+          className="button button--ghost"
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+        >
           {open ? 'ver menos' : 'ver mais'}
         </button>
       ) : null}

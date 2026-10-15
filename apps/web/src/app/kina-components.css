@@ -2173,7 +2173,6 @@
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--k-bg);
     color: var(--k-text);
-    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
   }
   .k-mesa-viewer__bar {
     position: sticky;
@@ -2215,5 +2214,40 @@
     max-height: 70vh;
     object-fit: cover;
     background: var(--k-bg-sunken);
+  }
+}
+
+/* ===================== Transição tile ⇄ item aberto (D20 B) =====================
+   Sem camada de propósito: os pseudo-elementos da View Transition vivem fora do DOM normal.
+   Só `transform` e `opacity` (o navegador anima o grupo com transform); sem sombra e sem desfoque. */
+::view-transition-group(*) {
+  animation-duration: var(--k-dur-scene);
+  animation-timing-function: var(--k-ease-arrive);
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  box-shadow: none;
+  filter: none;
+}
+/* A foto do tile e a foto do painel têm proporções diferentes: recortar (cover) em vez de esticar. */
+::view-transition-old(*.k-mesa),
+::view-transition-new(*.k-mesa) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@layer components {
+  /* Sem View Transition (ou com movimento reduzido): o painel entra em fade. */
+  .k-mesa-viewer--fade {
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-mesa-viewer__hero {
+    display: block;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .k-mesa__tile:active {
+      transform: none;
+    }
   }
 }
