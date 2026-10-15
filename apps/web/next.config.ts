@@ -34,6 +34,8 @@ const nextConfig: NextConfig = {
     ],
   },
   devIndicators: false,
+  // O `next build` apaga `.next`. O dev local usa outra pasta quando NEXT_DIST_DIR está definido.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
 };
 
 export default nextConfig;
