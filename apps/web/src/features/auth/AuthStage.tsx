@@ -1,11 +1,12 @@
 import type { ReactNode, RefObject } from 'react';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { ThemeToggle } from '@/components/Theme';
+import { AuthGrid } from './AuthGrid';
 import { AuthQuina } from './AuthQuina';
 import { GlassFilter } from './GlassFilter';
 
 /**
- * Fundo das telas de conta: grade de quarteirões e dois fios de 2 px cruzando no centro, em um único SVG (`AuthQuina`).
+ * Fundo das telas de conta: grade de quarteirões em canvas (`AuthGrid`: blocos giram com o mouse e na troca de tema) e dois fios de 2 px cruzando no centro em SVG (`AuthQuina`).
  * A frase “Te vejo na Kina.” e o rodapé só entram no login (DECISOES D1/D19).
  */
 export function AuthStage({
@@ -26,6 +27,7 @@ export function AuthStage({
   return (
     <main className="auth-stage">
       <GlassFilter />
+      <AuthGrid className="auth-stage__grid" />
       <AuthQuina hRef={fioHRef} vRef={fioVRef} />
       <ThemeToggle className="theme-toggle-corner" />
       <div className="auth-stage__brand">

@@ -1081,7 +1081,8 @@
     padding: 72px var(--k-space-4) var(--k-space-8);
     background: var(--k-bg);
   }
-  /* Grade e fios em um único SVG (AuthQuina), atrás de tudo: z 0 e sem ponteiro. */
+  /* Grade (canvas AuthGrid) e fios (SVG AuthQuina), atrás de tudo: z 0 e sem ponteiro. */
+  .auth-stage__grid,
   .auth-stage__quina {
     position: absolute;
     z-index: 0;
@@ -1090,13 +1091,6 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-  }
-  /* Quarteirões a 7%. */
-  .auth-quina__rua {
-    fill: none;
-    stroke: var(--k-text);
-    stroke-opacity: 0.07;
-    stroke-width: 1;
   }
   /* A quina: dois fios mais grossos que se cruzam no centro. O magnetismo escala o arco por `transform`. */
   .auth-quina__fio {
@@ -1279,6 +1273,10 @@
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
+  }
+  /* Item preso no tema antigo durante a troca por blocos: o texto herdado precisa seguir os tokens do próprio item. */
+  .auth-stage > [data-theme] {
+    color: var(--k-text);
   }
   .auth-panel__scroll {
     flex: 1 1 auto;

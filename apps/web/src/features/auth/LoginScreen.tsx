@@ -306,7 +306,7 @@ export function LoginScreen() {
             >
               <div className="auth-panel__scroll">
                 <h2 id={titleId} className="auth-panel__title k-display">
-                  Chegou na quina.
+                  Chegou na Kina.
                 </h2>
                 <p className="auth-panel__lead">Entre com seu e-mail.</p>
                 <form ref={formRef} onSubmit={onSubmit} className="space-y-4">

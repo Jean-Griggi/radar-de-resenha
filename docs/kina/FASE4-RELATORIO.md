@@ -10,8 +10,8 @@ Portão: `pnpm lint && pnpm typecheck && pnpm --filter @resenhometro/web build` 
 
 | Arquivo | Mudança |
 | --- | --- |
-| `features/auth/AuthQuina.tsx` (novo) | **Um único SVG** atrás de tudo: grade de quarteirões a 7% (`<pattern>`) e dois fios de 2 px que se cruzam no centro. `pointer-events: none`, `z-index: 0`. |
-| `features/auth/AuthGrid.tsx` (removido) | O canvas anterior (blocos que giram com o mouse e onda na troca de tema) saiu, porque o plano pede um único SVG. Está no histórico do git se quiserem de volta. A troca de tema nas telas de conta volta a usar o círculo padrão do `ThemeProvider`. |
+| `features/auth/AuthQuina.tsx` (novo) | SVG atrás de tudo só com os dois fios de 2 px que se cruzam no centro. `pointer-events: none`, `z-index: 0`. |
+| `features/auth/AuthGrid.tsx` | **Mantido** (restaurado a pedido): canvas da grade, com blocos que giram com o mouse e onda de blocos na troca de tema. A grade deixou de ser SVG; só os fios são. |
 | `features/auth/AuthStage.tsx` | Usa `AuthQuina`; título “Te vejo na Kina.” com saída pela esquerda quando o painel abre; rodapé mono “REDE PRIVADA · KINA”. |
 | `features/auth/LoginScreen.tsx` | Reescrito: botão sódio no vértice, magnetismo com mola 300/30, painel que cresce do vértice, Esc/Cancelar, erro no campo. Mesma chamada `POST /auth/login`, mesma sessão e mesma navegação. |
 | `app/kina-components.css`, `app/globals.css` | Estilos da quina, do painel (`.auth-entry`), do `.k-entry-scrim`, folha inferior no toque, movimento e transparência reduzidos. Saiu `.k-glass--soft` (o botão não é mais vidro). |
@@ -24,7 +24,7 @@ Os tokens de movimento (`--k-dur-instant/quick/base/move/scene`, `--k-ease-arriv
 - **Repouso:** botão sódio “Entrar” (raio 2 px) com o símbolo, no vértice; foco nele ao carregar. Clique no fundo também abre.
 - **Magnetismo** (só `(hover: hover) and (pointer: fine)`, sem `prefers-reduced-motion`, sem erro): a menos de 160 px o botão desliza até 8 px e os fios arqueiam na direção do cursor. A mola (rigidez 300, amortecimento 30) é integrada em `requestAnimationFrame`, sem biblioteca; o laço só roda enquanto algo se move e pausa com a aba oculta. O botão usa `translate3d`; os fios usam `scaleX/scaleY` sobre um arco pré-desenhado com `vector-effect: non-scaling-stroke` (o `d` nunca muda).
 - **Abrir** (clique, Enter, Espaço): o painel, centrado no vértice, anima `transform: scale(tamanho do botão → 1)` em 520 ms (`--k-dur-scene`, `--k-ease-arrive`, lidos do CSS); o conteúdo entra em fade na segunda metade; o scrim (`.k-entry-scrim`) entra só em `opacity`; o título sai pela esquerda; o foco vai para o e-mail.
-- **Painel:** `role="dialog"`, `aria-modal`, `aria-labelledby`, `.k-glass`, cantoneiras nos 4 cantos reais, “Chegou na quina.” e “Entre com seu e-mail.”, rótulos visíveis, foco preso, Esc e “Cancelar” devolvem o foco ao botão. Scroll interno quando a altura não couber, `min-height: 100dvh` no palco, safe-area.
+- **Painel:** `role="dialog"`, `aria-modal`, `aria-labelledby`, `.k-glass`, cantoneiras nos 4 cantos reais, “Chegou na Kina.” e “Entre com seu e-mail.”, rótulos visíveis, foco preso, Esc e “Cancelar” devolvem o foco ao botão. Scroll interno quando a altura não couber, `min-height: 100dvh` no palco, safe-area.
 - **Método de entrada real:** e-mail + senha. **Não existe “link de acesso” no código**, então não foi criado nem mostrado; ficam “Esqueci a senha” e “Criar conta”.
 - **Erro:** resposta 401 → “Senha incorreta. Tente de novo.” no campo Senha (ícone + texto, `aria-invalid`, `aria-describedby`, borda de 2 px, foco no campo). Outros erros (rede, 429) aparecem como mensagem geral, com o texto da API quando existe. O magnetismo fica desligado enquanto há erro; fechar o painel limpa o erro e a senha.
 - **Toque (`pointer: coarse`):** sem magnetismo; o botão afunda a 0,98 no `:active`; o painel abre como folha inferior (`k-sheet-in`, alça, safe-area).
