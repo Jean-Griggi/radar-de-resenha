@@ -56,3 +56,6 @@ Decisões revisadas: docs/kina/DECISOES.md (prioridade sobre o plano).
 
 ## D25 — navegação em barra de áreas e painel
 - D25 AMPLIA a regra de navegação (cabeçalho no desktop, barra inferior no celular) sem removê-las. O menu do avatar mantém só a conta (Perfil, Configurações, Sair); as 7 áreas (Mensagens, Calendário, Música, Estatísticas, Amigos, Mapa, Fotos) vão para uma barra de áreas sticky abaixo do cabeçalho (≥ 1024 px) e para um painel em linhas aberto pelo avatar (< 1024 px). A barra inferior do celular não muda.
+
+## D26 — layout largo e alinhado
+- D26 revoga "grade de 1200 px" e "coluna central de 620 px" do PDF SÓ para telas ≥ 1024 px (celular e tablet não mudam). Tokens `--k-gutter`, `--k-container` (1440 px; 1600 px a partir de 1920 px), `--k-rail` (380 px; 420 px a partir de 1920 px) e `--k-measure` (68ch), utilitário `.k-container`. Cabeçalho, barra de áreas e conteúdo usam o MESMO `.k-container`. Grade ≥ 1024 px: feed fluido + coluna direita fixa, sem sticky nela. Texto de leitura limitado a `--k-measure`; mídia ocupa a coluna toda. D18, D19 e D25 continuam valendo.

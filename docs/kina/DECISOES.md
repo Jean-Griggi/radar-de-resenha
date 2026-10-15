@@ -110,9 +110,20 @@ Só estas. Qualquer outra precisa de justificativa no PR.
 - A barra inferior do celular (Feed, Explorar, Criar, Rolês, Perfil) continua igual. O "+" continua sendo só o botão "Criar".
 - Contador de não lidas em Mensagens só se o dado já existir (hoje o cabeçalho não busca o total de mensagens do chat, então não há contador).
 
+### D26 — Layout largo e alinhado (decisão do dono do projeto)
+
+Hoje o conteúdo ocupa ~45% da largura num monitor largo e o cabeçalho não alinha com ele. **Revoga "grade de 1200 px" e "coluna central de 620 px" do PDF SÓ para telas ≥ 1024 px**; celular e tablet não mudam.
+
+- Tokens de layout (`--k-gutter`, `--k-container`, `--k-rail`, `--k-measure`) e o utilitário `.k-container`: 1440 px (1600 px a partir de 1920 px), coluna direita de 380 px (420 px a partir de 1920 px).
+- Cabeçalho, barra de áreas (D25) e conteúdo usam o **mesmo** `.k-container` (mesmas bordas). O logo alinha com a borda esquerda do feed e o avatar com a borda direita da coluna direita.
+- Grade ≥ 1024 px: feed fluido + coluna direita fixa (`.k-layout`). Sem barra lateral esquerda e sem colunas novas.
+- Blocos de leitura (texto do post, descrição do rolê, comentários, bio) têm `max-width: var(--k-measure)`; mídia (Mesa, capas, fotos, stories) ocupa a largura toda da coluna do feed.
+- A coluna direita usa rolagem normal: **sem `position: sticky`**, sem overflow e sem `max-height` próprios.
+- D18, D19 e D25 continuam valendo.
+
 ### Exceções anteriores que continuam valendo (não remover)
 
-- D20 a D25 não podem ser removidas por varreduras futuras.
+- D20 a D26 não podem ser removidas por varreduras futuras.
 - D18 (`.k-glass`) e D19 (`.k-entry-scrim`), apenas na tela de entrada.
 - Hex permitidos: `--k-spotify`, valores do MapLibre lidos dos tokens, e-mail HTML e `themeColor`.
 

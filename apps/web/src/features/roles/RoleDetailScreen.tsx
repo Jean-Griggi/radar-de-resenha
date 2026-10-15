@@ -107,7 +107,7 @@ export function RoleDetailScreen() {
       ) : (
         cover
       )}
-      {role.description ? <p className="role-view__desc">{role.description}</p> : <p className="role-view__desc">Sem descrição.</p>}
+      {role.description ? <p className="role-view__desc k-measure">{role.description}</p> : <p className="role-view__desc">Sem descrição.</p>}
       <Ficha className="role-view__ficha">
         <FichaRow label="Quando" mono>
           {formatMeta(role.date, role.time)}

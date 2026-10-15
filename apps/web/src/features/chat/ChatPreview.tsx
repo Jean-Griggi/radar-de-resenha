@@ -18,13 +18,13 @@ const REFRESH_MS = 20_000;
 /** Atalho das mensagens no feed: últimas conversas, quantas não lidas e o caminho para todas. */
 export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
   const [conversations, setConversations] = useState<Conversation[] | null>(null);
-  // O painel lateral só aparece em tela larga (xl). Cada lugar renderiza só quando é o visível,
+  // O painel lateral só aparece a partir de 1024 px (lg). Cada lugar renderiza só quando é o visível,
   // para não buscar as conversas duas vezes.
   const [wide, setWide] = useState(false);
   const visible = placement === 'rail' ? wide : !wide;
 
   useEffect(() => {
-    const query = window.matchMedia('(min-width: 1280px)');
+    const query = window.matchMedia('(min-width: 1024px)');
     const update = () => setWide(query.matches);
     update();
     query.addEventListener('change', update);

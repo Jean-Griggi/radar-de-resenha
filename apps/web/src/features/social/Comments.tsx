@@ -40,7 +40,7 @@ export function Comments({
   }
 
   return (
-    <section className={compact ? 'space-y-3' : 'space-y-4'}>
+    <section className={`k-measure ${compact ? 'space-y-3' : 'space-y-4'}`}>
       <form onSubmit={(event) => submit(event, replyTo ?? undefined)} className="flex gap-2">
         <Avatar src={me?.avatar} name={me?.name} size="sm" />
         <div className="min-w-0 flex-1">

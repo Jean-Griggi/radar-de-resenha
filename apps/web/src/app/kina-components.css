@@ -1552,7 +1552,7 @@
   .k-profile {
     --k-profile-header: calc(var(--k-header-h) + var(--k-areas-h)); /* cabeçalho + barra de áreas (sticky), para a barra fina encostar embaixo */
     --k-profile-bar: 56px;
-    --k-profile-bleed: 0.75rem; /* sangria lateral da capa e da barra (padding do main) */
+    --k-profile-bleed: var(--k-gutter); /* sangria lateral da capa e da barra (a margem lateral do contêiner) */
     --k-profile-cover: clamp(280px, 40vh, 420px);
     --k-profile-avatar: 80px;
     --k-profile-dock: 40px;
@@ -1780,7 +1780,6 @@
   }
   @media (min-width: 640px) {
     .k-profile {
-      --k-profile-bleed: 1rem;
       margin-top: -1.5rem;
     }
   }
@@ -2016,12 +2015,12 @@
 
   /* ===================== Feed (plano 3.7 + D3, D8, D9) ===================== */
   /* Blocos do feed (título, stories, convites, composer, Mesa): respiro de 48 + 48 px com um fio de 1 px no meio. */
+  /* D26: o feed ocupa a coluna fluida do layout (sem 680 px fixos). */
   .feed {
     display: grid;
     gap: 0;
     width: 100%;
-    max-width: 680px;
-    margin-inline: auto;
+    min-width: 0;
   }
   .feed > * + * {
     margin-top: var(--k-space-12);
@@ -2290,8 +2289,13 @@
     line-height: 1.5;
   }
   .k-post__body {
+    max-width: var(--k-measure);
     overflow-wrap: anywhere;
     white-space: pre-wrap;
+  }
+  /* Blocos de leitura limitados à medida (D26); mídia ocupa a largura toda da coluna. */
+  .k-measure {
+    max-width: var(--k-measure);
   }
   .k-post__foot {
     display: grid;
@@ -2717,6 +2721,8 @@
     position: relative;
     grid-column: span var(--span-m);
     min-width: 0;
+    /* Nenhum tile desproporcional em tela larga: a foto recorta (cover) dentro do teto de 520 px. */
+    max-height: 520px;
   }
   @media (min-width: 768px) {
     .k-mesa {
@@ -3744,4 +3750,33 @@
 .k-areas-demo .k-areas {
   display: block;
   min-width: 860px;
+}
+
+/* ===================== Layout largo e alinhado (D26) ===================== */
+@layer components {
+  /* Abaixo de 1024 px nada muda: coluna única e a coluna direita continua escondida (os atalhos "Próximos" e
+     "Mensagens" do feed fazem esse papel). */
+  .k-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  @media (min-width: 1024px) {
+    .k-layout {
+      grid-template-columns: minmax(0, 1fr) var(--k-rail);
+      gap: 48px;
+    }
+  }
+  /* Telas de formulário: coluna única de até 1100 px, alinhada ao contêiner (sem a coluna direita). */
+  .k-layout[data-page="form"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .k-layout[data-page="form"] > main {
+    max-width: 1100px;
+  }
+  /* Rolagem normal (sem sticky: a lista de sugestões pode ser mais alta que a tela), sem overflow nem max-height
+     próprios, para não haver uma segunda barra de rolagem. */
+  .k-rail {
+    align-self: start;
+  }
 }
