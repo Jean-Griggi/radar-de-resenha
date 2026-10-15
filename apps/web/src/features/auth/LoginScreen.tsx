@@ -71,8 +71,12 @@ export function LoginScreen() {
     if (getUser()) router.replace('/');
   }, [router]);
 
+  // Devolve o foco ao botão só depois de fechar o painel. Na montagem não: foco programático
+  // acende o :focus-visible e o anel apareceria sem a pessoa ter usado o teclado.
+  const mounted = useRef(false);
   useEffect(() => {
-    if (!panel && !sheet) buttonRef.current?.focus();
+    if (mounted.current && !panel && !sheet) buttonRef.current?.focus();
+    mounted.current = true;
   }, [panel, sheet]);
 
   useEffect(() => {

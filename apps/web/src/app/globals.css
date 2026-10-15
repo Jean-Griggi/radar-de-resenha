@@ -387,6 +387,15 @@ a.brand-wordmark:focus-visible {
   z-index: 50;
   background: var(--k-surface-raised);
   border: 1px solid var(--k-line);
+  border-radius: var(--k-radius-control);
+  min-width: var(--k-touch);
+  min-height: var(--k-touch);
+  transition: border-color var(--k-dur-quick) var(--k-ease-arrive);
+}
+
+.theme-toggle-corner:hover,
+.theme-toggle-corner:focus-visible {
+  border-color: var(--k-text);
 }
 
 .theme-toggle-icon {

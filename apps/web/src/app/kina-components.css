@@ -1008,20 +1008,28 @@
   }
 
   /* ===================== Login / auth (plano 3.2 + D1) ===================== */
+  /* Painel centrado no fluxo (flex): se a altura não couber, a página cresce e rola, e a grade e os fios (inset 0) acompanham.
+     `isolation` cria o contexto de empilhamento: grade e fios (z 0) ficam atrás de todo conteúdo (z 2). */
   .auth-stage {
     position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-height: 100dvh;
+    padding: 72px var(--k-space-4) var(--k-space-8);
     background: var(--k-bg);
   }
   .auth-stage__grid {
     position: absolute;
+    z-index: 0;
     inset: 0;
     pointer-events: none;
   }
   .auth-stage__h,
   .auth-stage__v {
     position: absolute;
-    z-index: 1;
+    z-index: 0;
     pointer-events: none;
     background: color-mix(in srgb, var(--k-text) 55%, transparent);
   }
@@ -1046,7 +1054,7 @@
   .auth-stage__phrase {
     position: absolute;
     z-index: 2;
-    bottom: calc(50% + 48px);
+    bottom: calc(50% + 28px + var(--k-space-8)); /* meia altura do botão (56 px) + respiro */
     left: 50%;
     width: min(12em, calc(100% - 32px));
     margin: 0;
@@ -1087,29 +1095,22 @@
   .auth-panel {
     position: relative;
     z-index: 2;
-    width: min(420px, calc(100% - 32px));
-    margin: 14vh auto 32px;
+    width: min(420px, 100%);
+    margin: 0;
     padding: 28px 24px 24px;
     background: var(--k-surface-raised);
+    /* Cantoneiras encostadas nos cantos reais do painel (o padrão é 6 px para fora). */
+    --k-corner-offset: 0px;
   }
   .auth-panel--quina {
-    position: fixed;
-    top: 50%;
-    left: 50%;
     display: flex;
     flex-direction: column;
-    width: min(420px, calc(100vw - 32px));
-    max-height: calc(100dvh - 32px);
-    margin: 0;
-    overflow: visible;
-    transform: translate(-50%, -50%);
     animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
   }
   .auth-panel__scroll {
     flex: 1 1 auto;
     min-height: 0;
-    overflow-y: auto;
-    /* O outline do foco (2 px + offset 2 px) fica dentro do scroll, senão o overflow corta as laterais e sobram duas linhas. */
+    /* Respiro para o outline do foco (2 px + offset 2 px) não encostar nas bordas do painel. */
     padding: 8px;
   }
   .auth-panel--error {

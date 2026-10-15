@@ -93,8 +93,8 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       type="button"
       onClick={toggle}
       className={`icon-btn ${className}`}
-      aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
-      aria-pressed={theme === 'light'}
+      aria-label="Alternar tema"
+      aria-pressed={theme === 'dark'}
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
