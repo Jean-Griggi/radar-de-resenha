@@ -1180,7 +1180,8 @@
   }
   .k-agenda .k-ficha-row {
     grid-template-columns: 92px minmax(0, 1fr) 16px;
-    align-items: start;
+    align-items: center;
+    min-height: 56px;
   }
   .k-agenda__create {
     display: inline-flex;
@@ -1196,6 +1197,20 @@
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+  .k-agenda__person-name {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  /* "Ver mais (N)": <details> nativo, sem requisição; o resumo é o alvo de 44 px. */
+  .k-agenda__more > summary {
+    display: flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    color: var(--k-brand-text);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    cursor: pointer;
   }
   .k-agenda__person {
     display: flex;
@@ -1981,37 +1996,222 @@
   }
 
   /* ===================== Feed (plano 3.7 + D3, D8, D9) ===================== */
+  /* Blocos do feed (título, stories, convites, composer, Mesa): respiro de 48 + 48 px com um fio de 1 px no meio. */
   .feed {
     display: grid;
-    gap: 28px;
+    gap: 0;
     width: 100%;
     max-width: 680px;
     margin-inline: auto;
   }
-  .feed-future {
+  .feed > * + * {
+    margin-top: var(--k-space-12);
+    padding-top: var(--k-space-12);
+    border-top: 1px solid var(--k-line);
+  }
+  .k-feed-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--k-space-2) var(--k-space-4);
+  }
+  .k-feed-head__title {
+    margin: 0;
+    font-size: var(--k-fs-39);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
+  /* Convite de rolê: compacto, sem fundo e sem moldura. A data fica à esquerda a partir de 768 px. */
+  .k-invites {
     display: grid;
-    gap: 16px;
+    gap: 0;
   }
-  .feed-future__day {
+  .k-invite {
+    display: grid;
+    gap: var(--k-space-3) var(--k-space-6);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .k-invite + .k-invite {
+    margin-top: var(--k-space-8);
+    padding-top: var(--k-space-8);
+    border-top: 1px solid var(--k-line);
+  }
+  .k-invite__author {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--k-space-2);
+    margin: 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .k-invite__author .k-avatar {
+    margin-top: 1px;
+  }
+  .k-invite__name {
+    color: var(--k-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .k-invite__name:hover {
+    text-decoration: underline;
+  }
+  .k-invite__when {
+    display: flex;
+    flex-direction: column;
+    gap: var(--k-space-1);
+  }
+  .k-invite__dayrow {
+    display: flex;
+    align-items: baseline;
+    gap: var(--k-space-2);
+    margin: 0;
+  }
+  .k-invite__day {
     font-family: var(--k-font-mono);
-    font-size: 64px;
+    font-size: var(--k-fs-49);
+    font-variant-numeric: tabular-nums;
     font-weight: 500;
-    line-height: 0.9;
+    line-height: 0.95;
   }
-  .feed-future__cover {
+  .k-invite__when .k-meta {
+    margin: 0;
+  }
+  .k-invite__body {
+    display: grid;
+    min-width: 0;
+    gap: var(--k-space-2);
+  }
+  .k-invite__cover {
     display: block;
     width: 100%;
-    height: 220px;
+    aspect-ratio: 3 / 2;
+    max-height: 420px;
+    margin-bottom: var(--k-space-2);
     object-fit: cover;
   }
-  .feed-future__title {
-    margin: 12px 0 0;
-    font-size: 30px;
+  .k-invite__title {
+    margin: 0;
+    font-size: var(--k-fs-31);
     line-height: 1.1;
+    overflow-wrap: anywhere;
   }
-  .feed-future__place {
-    margin: 6px 0 0;
+  .k-invite__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .k-invite__title a:hover {
+    text-decoration: underline;
+  }
+  .k-invite__place {
+    margin: 0;
     color: var(--k-text-muted);
+    font-size: var(--k-fs-16);
+    overflow-wrap: anywhere;
+  }
+  .k-invite__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-2);
+    margin-top: var(--k-space-2);
+  }
+  .k-invite__actions .button {
+    min-height: var(--k-touch);
+  }
+  @media (min-width: 768px) {
+    .k-invite {
+      grid-template-columns: 140px minmax(0, 1fr);
+    }
+    .k-invite__author {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Comentários recolhidos (<details> nativo): o resumo é o alvo de 44 px; sem animar altura. */
+  .k-comments {
+    border-top: 1px solid var(--k-line);
+    margin-top: var(--k-space-2);
+  }
+  .k-comments > summary {
+    display: flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    gap: var(--k-space-2);
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .k-comments > summary::-webkit-details-marker {
+    display: none;
+  }
+  .k-comments__icon {
+    margin-inline-start: auto;
+  }
+  .k-comments[open] .k-comments__icon {
+    transform: rotate(45deg);
+  }
+  .k-comments__body {
+    padding: var(--k-space-2) 0 var(--k-space-4);
+  }
+
+  /* Composer: é um campo, então mantém o fundo rebaixado; fio de 1 px acima da barra de ações. */
+  .k-composer {
+    padding: var(--k-space-4);
+    background: var(--k-bg-sunken);
+  }
+  .k-composer__field {
+    display: flex;
+    gap: var(--k-space-3);
+  }
+  .k-composer__text {
+    min-width: 0;
+    min-height: 64px;
+    flex: 1;
+    resize: vertical;
+    border: 0;
+    background: transparent;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    line-height: 1.5;
+  }
+  .k-composer__text::placeholder {
+    color: var(--k-text-subtle);
+  }
+  .k-composer__text:focus-visible {
+    outline-offset: 4px;
+  }
+  .k-composer__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--k-space-2) var(--k-space-4);
+    margin-top: var(--k-space-4);
+    padding-top: var(--k-space-3);
+    border-top: 1px solid var(--k-line);
+  }
+  .k-composer__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-1);
+  }
+  .k-composer__send {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    max-width: 100%;
+  }
+  .k-composer__send .button {
+    min-height: var(--k-touch);
+  }
+  .k-composer__send .k-reason {
+    text-align: right;
   }
   .feed-memory {
     padding: 16px;
@@ -2405,12 +2605,6 @@
   }
   .feed .composer-chip {
     font-size: var(--k-fs-14);
-  }
-  @media (min-width: 1024px) {
-    .feed-future {
-      grid-template-columns: 96px minmax(0, 1fr);
-      gap: 22px;
-    }
   }
 
   /* Controles e balões do mapa: tokens, sem sombra. Os tiles continuam os do OSM. */

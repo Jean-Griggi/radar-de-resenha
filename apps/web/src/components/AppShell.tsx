@@ -55,6 +55,8 @@ const MORE_NAV = [
   { href: '/photos', label: 'Fotos' },
 ];
 
+const SUGGESTIONS_SHOWN = 5;
+
 function navActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/';
   if (href === '/roles') return pathname.startsWith('/roles') && !pathname.startsWith('/roles/new');
@@ -263,7 +265,8 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
 }
 
 function ShellAside({ right }: { right?: ReactNode }) {
-  return <div className="space-y-8 xl:sticky xl:top-[4.75rem]">{right ?? <DefaultRail />}</div>;
+  // Sem position: sticky: a lista longa de sugestões deixaria o fim inalcançável. Rolagem normal.
+  return <div className="space-y-8">{right ?? <DefaultRail />}</div>;
 }
 
 function DefaultRail() {
@@ -309,6 +312,36 @@ function DefaultRail() {
     };
   }, []);
 
+  function renderPerson(person: RailPerson) {
+    return (
+      <li key={person.id} className="k-agenda__person">
+        <Avatar src={person.avatar} name={person.name} size="sm" />
+        <Link href={`/perfil/${person.username}`} className="min-w-0 flex-1 break-words">
+          <p className="k-agenda__person-name">{person.name}</p>
+          <p className="k-meta break-all">@{person.username}</p>
+        </Link>
+        <button
+          type="button"
+          className="button button--secondary shrink-0"
+          disabled={following === person.id}
+          onClick={async () => {
+            setFollowing(person.id);
+            try {
+              await api.post(`/users/${person.id}/follow`);
+              const next = people.filter((item) => item.id !== person.id);
+              setPeople(next);
+              setCachedSuggestions(next);
+            } finally {
+              setFollowing(null);
+            }
+          }}
+        >
+          Seguir
+        </button>
+      </li>
+    );
+  }
+
   return (
     <div className="grid gap-8">
       <section className="k-agenda" aria-labelledby="agenda-title">
@@ -332,35 +365,13 @@ function DefaultRail() {
           Sugestões
         </h2>
         {people.length === 0 ? <p className="k-agenda__empty">Ninguém para seguir agora.</p> : null}
-        <ul className="k-agenda__people">
-          {people.map((person) => (
-            <li key={person.id} className="k-agenda__person">
-              <Avatar src={person.avatar} name={person.name} size="sm" />
-              <Link href={`/perfil/${person.username}`} className="min-w-0 flex-1">
-                <p className="truncate">{person.name}</p>
-                <p className="k-meta truncate">@{person.username}</p>
-              </Link>
-              <button
-                type="button"
-                className="button button--secondary shrink-0"
-                disabled={following === person.id}
-                onClick={async () => {
-                  setFollowing(person.id);
-                  try {
-                    await api.post(`/users/${person.id}/follow`);
-                    const next = people.filter((item) => item.id !== person.id);
-                    setPeople(next);
-                    setCachedSuggestions(next);
-                  } finally {
-                    setFollowing(null);
-                  }
-                }}
-              >
-                Seguir
-              </button>
-            </li>
-          ))}
-        </ul>
+        <ul className="k-agenda__people">{people.slice(0, SUGGESTIONS_SHOWN).map(renderPerson)}</ul>
+        {people.length > SUGGESTIONS_SHOWN ? (
+          <details className="k-agenda__more">
+            <summary>Ver mais ({people.length - SUGGESTIONS_SHOWN})</summary>
+            <ul className="k-agenda__people">{people.slice(SUGGESTIONS_SHOWN).map(renderPerson)}</ul>
+          </details>
+        ) : null}
       </section>
       <div className="sm:col-span-2 xl:col-span-1">
         <ChatPreview placement="rail" />

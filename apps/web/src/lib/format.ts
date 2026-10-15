@@ -65,6 +65,27 @@ export function formatMoney(value?: number | null) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+/** Dia, dia da semana e a linha curta do convite de rolê ("out · 20h"), mais "em N dias" quando for futuro. */
+export function inviteWhen(date?: string | null, time?: string | null) {
+  const day = parseDay(date);
+  if (!day) return null;
+  const weekday = day.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+  const month = day.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+  const match = time ? /^(d{1,2}):(d{2})/.exec(time) : null;
+  const hour = match ? ` · ${Number(match[1])}h${match[2] === '00' ? '' : match[2]}` : '';
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.round((startOfDay(day) - startOfDay(new Date())) / 86_400_000);
+  const countdown = days > 1 ? `em ${days} dias` : days === 1 ? 'em 1 dia' : days === 0 ? 'hoje' : null;
+  return { day: String(day.getDate()).padStart(2, '0'), weekday, line: `${month}${hour}`, countdown };
+}
+
+/** Data de hoje no cabeçalho do feed ("qui 15 out"); a caixa alta vem do `.k-meta`. */
+export function formatToday(now = new Date()) {
+  const parts = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).formatToParts(now);
+  const pick = (type: string) => parts.find((part) => part.type === type)?.value.replace('.', '') ?? '';
+  return `${pick('weekday')} ${pick('day')} ${pick('month')}`;
+}
+
 /**
  * Data e hora no formato mono da Kina: "sáb 18 out · 18h" (a caixa alta vem do `.k-meta`).
  * Sem data válida devolve o texto original; sem hora, só a data.

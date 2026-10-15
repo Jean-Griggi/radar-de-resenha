@@ -28,7 +28,7 @@ import { StoriesBar } from '@/features/stories';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
-import { formatMeta, formatTimeAgo, plural } from '@/lib/format';
+import { formatMeta, formatTimeAgo, formatToday, inviteWhen, plural } from '@/lib/format';
 import {
   peekUpcomingRoles,
   setCachedUpcomingRoles,
@@ -75,7 +75,7 @@ function UpcomingStrip() {
   if (roles.length === 0) return null;
 
   return (
-    <section className="feed-next xl:hidden" aria-label="Próximos">
+    <section className="feed-next lg:hidden" aria-label="Próximos">
       <h2 className="k-meta">Próximos</h2>
       <ul>
         {roles.map((role) => (
@@ -306,6 +306,100 @@ function FeedEntry({
   );
 }
 
+/**
+ * Convite de rolê no feed: compacto, sem fundo e sem moldura (presente não tem moldura). A forma (data grande,
+ * título em serifa) é o que o diferencia dos outros itens; não há rótulo de seção. Comentários recolhidos.
+ */
+function InviteCard({
+  item,
+  primary,
+  onBora,
+  onSaveLink,
+  setItems,
+}: {
+  item: FeedItem;
+  /** Só o primeiro convite (o mais próximo) leva o "Bora" em sódio: uma ação principal por tela. */
+  primary: boolean;
+  onBora: (roleId: string) => void;
+  onSaveLink: (path: string) => void;
+  setItems: Dispatch<SetStateAction<FeedItem[]>>;
+}) {
+  const role = item.role!;
+  const when = inviteWhen(role.date, role.time);
+  const target = commentTarget(item);
+  return (
+    <article className="k-invite">
+      <p className="k-invite__author">
+        <Avatar src={item.actor?.avatar} name={item.actor?.name} size="xs" />
+        <span>
+          <Link href={`/perfil/${item.actor?.username}`} className="k-invite__name">
+            {item.actor?.name}
+          </Link>{' '}
+          {LABELS[item.type] ?? item.type}
+        </span>
+      </p>
+      <div className="k-invite__when">
+        {when ? (
+          <>
+            <p className="k-invite__dayrow">
+              <span className="k-invite__day">{when.day}</span>
+              <span className="k-meta">{when.weekday}</span>
+            </p>
+            <p className="k-meta">
+              {when.line}
+              {when.countdown ? ` · ${when.countdown}` : ''}
+            </p>
+          </>
+        ) : (
+          <p className="k-meta">{formatMeta(role.date, role.time)}</p>
+        )}
+      </div>
+      <div className="k-invite__body">
+        {role.coverPhoto ? (
+          <MediaImage src={role.coverPhoto} alt="" className="k-invite__cover" />
+        ) : null}
+        {item.photo ? (
+          <MediaImage
+            src={item.photo.url}
+            alt={item.photo.caption || 'Foto'}
+            className="k-invite__cover"
+          />
+        ) : null}
+        <h2 className="k-display k-invite__title">
+          <Link href={`/roles/${role.id}`}>{role.title}</Link>
+        </h2>
+        <p className="k-invite__place">{role.location || 'Local a combinar'}</p>
+        <div className="k-invite__actions">
+          <Button variant={primary ? 'primary' : 'secondary'} onClick={() => onBora(role.id)}>
+            Bora
+          </Button>
+          <button
+            type="button"
+            className="button button--ghost gap-1.5"
+            onClick={() => onSaveLink(`/roles/${role.id}`)}
+          >
+            <Link2 size={16} strokeWidth={2} aria-hidden />
+            Salvar
+          </button>
+        </div>
+        <Reactions
+          targetType="role"
+          targetId={role.id}
+          items={item.reactions ?? []}
+          onChange={(reactions: ReactionSummary[]) => {
+            setItems((current) =>
+              current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)),
+            );
+          }}
+        />
+        {target ? (
+          <FeedComments targetType={target.targetType} targetId={target.targetId} collapsible />
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
 export function FeedScreen() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -318,6 +412,9 @@ export function FeedScreen() {
   const toast = useToast();
   const me = getUser();
   const mesa = useMesaViewer();
+  // A data de hoje sai só no cliente (depois de montar), para não haver diferença entre servidor e navegador.
+  const [today, setToday] = useState('');
+  useEffect(() => setToday(formatToday()), []);
 
   async function load(signal?: AbortSignal) {
     try {
@@ -378,87 +475,54 @@ export function FeedScreen() {
   }
 
   const composerEmpty = !content.trim() && !music;
-  const future = items.filter((item) => item.role?.status === 'upcoming');
+  // Convites: o rolê mais próximo primeiro (sem data, por último).
+  const when = (item: FeedItem) => `${item.role?.date ?? '9999'} ${item.role?.time ?? ''}`;
+  const future = items
+    .filter((item) => item.role?.status === 'upcoming')
+    .sort((x, y) => when(x).localeCompare(when(y)));
   const past = items.filter((item) => item.role?.status !== 'upcoming');
   const openItem = past.find((item) => item.id === mesa.openId);
 
   return (
     <div className="feed">
-      <h1 className="sr-only">Feed</h1>
-      {!loading && !error
-        ? future.map((item) =>
-            item.role ? (
-              <article key={item.id} className="feed-future">
-                <div className="feed-future__when">
-                  <span className="feed-future__day">
-                    {item.role.date ? item.role.date.slice(8, 10) : '—'}
-                  </span>
-                  <span className="k-meta">{formatMeta(item.role.date, item.role.time)}</span>
-                </div>
-                <div>
-                  {item.role.coverPhoto ? (
-                    <MediaImage src={item.role.coverPhoto} alt="" className="feed-future__cover" />
-                  ) : null}
-                  {item.photo ? (
-                    <MediaImage
-                      src={item.photo.url}
-                      alt={item.photo.caption || 'Foto'}
-                      className="feed-future__cover"
-                    />
-                  ) : null}
-                  <p>
-                    <Link href={`/perfil/${item.actor?.username}`}>{item.actor?.name}</Link>{' '}
-                    <span>{LABELS[item.type] ?? item.type}</span>
-                  </p>
-                  <h2 className="k-display feed-future__title">
-                    <Link href={`/roles/${item.role.id}`}>{item.role.title}</Link>
-                  </h2>
-                  <p className="feed-future__place">{item.role.location || 'Local a combinar'}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button onClick={() => bora(item.role!.id)}>Bora</Button>
-                    <button
-                      type="button"
-                      className="button button--ghost"
-                      onClick={() => saveLink(`/roles/${item.role!.id}`)}
-                    >
-                      Salvar
-                    </button>
-                  </div>
-                  <Reactions
-                    targetType="role"
-                    targetId={item.role.id}
-                    items={item.reactions ?? []}
-                    onChange={(reactions: ReactionSummary[]) => {
-                      setItems((current) =>
-                        current.map((entry) =>
-                          entry.id === item.id ? { ...entry, reactions } : entry,
-                        ),
-                      );
-                    }}
-                  />
-                  {commentTarget(item) ? (
-                    <FeedComments
-                      targetType={commentTarget(item)!.targetType}
-                      targetId={commentTarget(item)!.targetId}
-                    />
-                  ) : null}
-                </div>
-              </article>
-            ) : null,
-          )
-        : null}
-      <StoriesBar />
+      {/* Ordem do DOM = ordem visual: título, stories, convites, composer, Mesa. */}
+      <header className="k-feed-head">
+        <h1 className="k-display k-feed-head__title">Hoje na Kina</h1>
+        {today ? <time className="k-meta">{today}</time> : null}
+      </header>
+      <div>
+        <StoriesBar />
+      </div>
+      {!loading && !error && future.length > 0 ? (
+        <section className="k-invites" aria-label="Rolês marcados">
+          {future.map((item, index) => (
+            <InviteCard
+              key={item.id}
+              item={item}
+              primary={index === 0}
+              onBora={bora}
+              onSaveLink={saveLink}
+              setItems={setItems}
+            />
+          ))}
+        </section>
+      ) : null}
       <UpcomingStrip />
       <ChatPreview placement="feed" />
 
-      <form onSubmit={publish} className="card p-4">
-        <div className="flex gap-3">
+      <form onSubmit={publish} className="k-composer">
+        <div className="k-composer__field">
           <Avatar src={me?.avatar} name={me?.name} />
+          <label className="sr-only" htmlFor="composer-text">
+            O que está acontecendo?
+          </label>
           <textarea
+            id="composer-text"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="O que está acontecendo?"
-            className="min-h-20 min-w-0 flex-1 resize-none bg-transparent text-sm text-fg outline-none placeholder:text-muted"
+            rows={2}
+            className="k-composer__text"
           />
         </div>
         {music ? (
@@ -490,14 +554,14 @@ export function FeedScreen() {
             />
           </div>
         ) : null}
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
-          <div className="flex flex-wrap gap-1.5">
+        <div className="k-composer__bar">
+          <div className="k-composer__actions">
             <Link href="/roles/new" className="composer-chip">
-              <CalendarPlus size={16} strokeWidth={2} aria-hidden />
+              <CalendarPlus size={20} strokeWidth={2} aria-hidden />
               Criar rolê
             </Link>
             <Link href="/photos" className="composer-chip">
-              <ImageIcon size={16} strokeWidth={2} aria-hidden />
+              <ImageIcon size={20} strokeWidth={2} aria-hidden />
               Foto
             </Link>
             <button
@@ -506,7 +570,7 @@ export function FeedScreen() {
               aria-pressed={pickingMusic}
               onClick={() => setPickingMusic((open) => !open)}
             >
-              <Music size={16} strokeWidth={2} aria-hidden />
+              <Music size={20} strokeWidth={2} aria-hidden />
               Música
             </button>
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useId, useState } from 'react';
+import { Plus } from 'lucide-react';
 import type { Comment as CommentType } from '@resenhometro/shared';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
@@ -113,10 +114,13 @@ export function FeedComments({
   targetType,
   targetId,
   accent = false,
+  collapsible = false,
 }: {
   targetType: string;
   targetId: string;
   accent?: boolean;
+  /** No feed: bloco recolhido (<details>), com a contagem no resumo; o formulário e a lista só aparecem abertos. */
+  collapsible?: boolean;
 }) {
   const [comments, setComments] = useState<CommentType[]>([]);
   const [error, setError] = useState('');
@@ -136,9 +140,8 @@ export function FeedComments({
     void load();
   }, [targetType, targetId]);
 
-  return (
-    <div>
-      <p className="mb-2 text-label text-muted">Comentários</p>
+  const body = (
+    <>
       {error ? <p className="mb-2 text-xs text-[var(--k-danger)]">{error}</p> : null}
       <Comments
         compact
@@ -150,6 +153,27 @@ export function FeedComments({
         }}
         onChanged={load}
       />
+    </>
+  );
+
+  if (collapsible) {
+    const total = comments.reduce((sum, item) => sum + 1 + (item.replies?.length ?? 0), 0);
+    return (
+      <details className="k-comments">
+        <summary>
+          Comentários
+          {total > 0 ? <span className="k-meta">{total}</span> : null}
+          <Plus size={16} aria-hidden className="k-comments__icon" />
+        </summary>
+        <div className="k-comments__body">{body}</div>
+      </details>
+    );
+  }
+
+  return (
+    <div>
+      <p className="mb-2 text-label text-muted">Comentários</p>
+      {body}
     </div>
   );
 }
