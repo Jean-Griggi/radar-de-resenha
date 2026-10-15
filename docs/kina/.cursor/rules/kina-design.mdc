@@ -46,3 +46,6 @@ Referência visual: docs/kina/design/reference/ (PDF e mockups HTML).
 
 ## Textos
 "Cola?" (confirmar presença), "Marcar um rolê" (criar), "Ninguém chegou ainda." (vazio), "Essa rua não existe." (404). Nome do produto: Kina.
+
+## D25 — navegação em barra de áreas e painel
+- D25 AMPLIA a regra de navegação (cabeçalho no desktop, barra inferior no celular) sem removê-las. O menu do avatar mantém só a conta (Perfil, Configurações, Sair); as 7 áreas (Mensagens, Calendário, Música, Estatísticas, Amigos, Mapa, Fotos) vão para uma barra de áreas sticky abaixo do cabeçalho (≥ 1024 px) e para um painel em linhas aberto pelo avatar (< 1024 px). A barra inferior do celular não muda.

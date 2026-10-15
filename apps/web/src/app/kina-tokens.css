@@ -219,3 +219,19 @@ a.k-corners:hover::after, button.k-corners:hover::after,
     linear-gradient(90deg, color-mix(in srgb, var(--k-text) 7%, transparent) 1px, transparent 1px);
   background-size: 64px 64px;
 }
+
+/* ---------- Layout largo e alinhado (D26) + cabeçalho e barra de áreas (D25) ----------
+   Vale só a partir de 1024 px: celular e tablet não mudam. Cabeçalho, barra de áreas e conteúdo usam o MESMO
+   .k-container (mesmas bordas esquerda e direita). */
+:root {
+  --k-gutter: clamp(16px, 3vw, 48px);
+  --k-container: 1440px;
+  --k-rail: 380px;
+  --k-measure: 68ch;
+  --k-header-h: 62px;   /* linha do cabeçalho do app (sem a barra de áreas) */
+  --k-areas-h: 0px;     /* barra de áreas: 48 px a partir de 1024 px */
+}
+@media (min-width: 640px) { :root { --k-header-h: 70px; } }
+@media (min-width: 1024px) { :root { --k-areas-h: 48px; } }
+@media (min-width: 1920px) { :root { --k-container: 1600px; --k-rail: 420px; } }
+.k-container { width: min(100% - 2 * var(--k-gutter), var(--k-container)); margin-inline: auto; }

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, type CSSProperties, type ReactNode } from 'react';
-import { Camera, Music, Plus } from 'lucide-react';
+import { Camera, LogOut, Music, Plus, Settings, User } from 'lucide-react';
 import { Avatar } from '@/components/Avatar';
+import { AccountPanel, AreasBar } from '@/components/AreasNav';
 import { AvatarStack } from '@/components/AvatarStack';
 import { REACTION_EMOJI, type ReactionType } from '@resenhometro/shared';
 import { Button } from '@/components/Button';
@@ -634,6 +635,58 @@ function MenuSection() {
   );
 }
 
+function NavSection() {
+  return (
+    <Section
+      title="Navegação (D25)"
+      meta="barra de áreas ≥ 1024 px · painel < 1024 px · menu de conta · item ativo com ponto sódio"
+    >
+      <div className="grid gap-10">
+        <div>
+          <p className="k-meta mb-3">Barra de áreas (≥ 1024 px; a rota ativa aqui é Música)</p>
+          <div className="k-areas-demo">
+            <AreasBar pathname="/music" />
+          </div>
+          <p className="k-help mt-3">
+            Passe o mouse (ponteiro fino, sem movimento reduzido) para ver o marcador de página; o foco por
+            teclado recebe o mesmo efeito. Abaixo de 1024 px a barra some e entra o painel.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-start gap-8">
+          <div>
+            <p className="k-meta mb-3">Painel (&lt; 1024 px): botão do avatar</p>
+            <AccountPanel
+              pathname="/music"
+              profileHref="/perfil"
+              onLogout={() => undefined}
+              avatar={<Avatar name="Lia Moraes" size="sm" />}
+            />
+            <p className="k-help mt-3">Visível só abaixo de 1024 px: o painel abre sob o cabeçalho, em largura total.</p>
+          </div>
+          <div>
+            <p className="k-meta mb-3">Menu de conta (≥ 1024 px)</p>
+            <Menu
+              label="Menu da conta"
+              trigger={<Avatar name="Lia Moraes" size="sm" />}
+              items={[
+                { label: 'Perfil', href: '#vitrine', icon: <User size={18} aria-hidden />, current: true },
+                { label: 'Configurações', href: '#vitrine', icon: <Settings size={18} aria-hidden /> },
+                {
+                  label: 'Sair',
+                  tone: 'danger',
+                  icon: <LogOut size={18} aria-hidden />,
+                  separatorBefore: true,
+                  onSelect: () => undefined,
+                },
+              ]}
+            />
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
 function ReactionsSection() {
   return (
     <Section
@@ -952,6 +1005,7 @@ export function Vitrine() {
       <ToastSection />
       <OverlaySection />
       <MenuSection />
+      <NavSection />
       <ReactionsSection />
       <MesaSection />
       <CarouselSection />

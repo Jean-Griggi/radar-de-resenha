@@ -983,6 +983,11 @@
       opacity: 0;
     }
   }
+  @keyframes k-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
   @keyframes k-modal-in {
     from {
       opacity: 0;
@@ -1022,7 +1027,22 @@
     border-radius: var(--k-radius-none);
     background: var(--k-surface-raised);
     box-shadow: var(--k-shadow-overlay);
-    animation: k-modal-in var(--k-dur-quick) var(--k-ease-arrive);
+    /* Entrada: 8 px + opacidade (240 ms); saída só em opacidade (160 ms). */
+    animation: k-modal-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-menu__panel--out {
+    animation: k-fade-out var(--k-dur-quick) var(--k-ease-leave) forwards;
+    pointer-events: none;
+  }
+  .k-menu__dot {
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--k-brand);
+  }
+  .k-menu__item--current {
+    font-weight: 600;
   }
   .k-menu__panel--end {
     right: 0;
@@ -1530,7 +1550,7 @@
     --k-profile-range: 240px;
   }
   .k-profile {
-    --k-profile-header: 62px; /* altura do cabeçalho do app (sticky), para a barra fina encostar embaixo dele */
+    --k-profile-header: calc(var(--k-header-h) + var(--k-areas-h)); /* cabeçalho + barra de áreas (sticky), para a barra fina encostar embaixo */
     --k-profile-bar: 56px;
     --k-profile-bleed: 0.75rem; /* sangria lateral da capa e da barra (padding do main) */
     --k-profile-cover: clamp(280px, 40vh, 420px);
@@ -1549,7 +1569,7 @@
   }
   .k-profile__bar {
     position: sticky;
-    top: calc(var(--k-profile-header) + max(0px, env(safe-area-inset-top) - 0.5rem));
+    top: calc(var(--k-profile-header) + env(safe-area-inset-top));
     z-index: 2;
     display: flex;
     align-items: center;
@@ -1722,7 +1742,7 @@
   }
   .k-profile__tabs {
     position: sticky;
-    top: calc(var(--k-profile-header) + var(--k-profile-bar) + max(0px, env(safe-area-inset-top) - 0.5rem));
+    top: calc(var(--k-profile-header) + var(--k-profile-bar) + env(safe-area-inset-top));
     z-index: 2;
     background: var(--k-bg);
   }
@@ -1760,7 +1780,6 @@
   }
   @media (min-width: 640px) {
     .k-profile {
-      --k-profile-header: 70px;
       --k-profile-bleed: 1rem;
       margin-top: -1.5rem;
     }
@@ -3257,7 +3276,7 @@
   /* Altura fluida: o viewport menos o cabeçalho do app, o respiro do shell e a barra inferior (celular). Só a lista
      de mensagens rola; o resto da tela fica parado. */
   .k-conv {
-    --k-conv-top: 62px; /* cabeçalho do app */
+    --k-conv-top: calc(var(--k-header-h) + var(--k-areas-h) + env(safe-area-inset-top)); /* cabeçalho + barra de áreas */
     --k-conv-pad: 1rem; /* respiro superior do shell */
     --k-conv-bottom: calc(8.5rem + env(safe-area-inset-bottom)); /* respiro inferior do shell (inclui a barra) */
     display: flex;
@@ -3270,7 +3289,6 @@
   }
   @media (min-width: 640px) {
     .k-conv {
-      --k-conv-top: 70px;
       --k-conv-pad: 1.5rem;
     }
   }
@@ -3472,4 +3490,258 @@
     gap: 2px;
     vertical-align: middle;
   }
+}
+
+/* ===================== Navegação: barra de áreas e painel (D25) ===================== */
+@layer components {
+  /* Cabeçalho: altura explícita (a barra de áreas e as barras fixas das telas se apoiam nela). */
+  .k-header {
+    padding-top: env(safe-area-inset-top);
+  }
+  .k-header__inner {
+    display: flex;
+    height: var(--k-header-h);
+    align-items: center;
+    gap: var(--k-space-2);
+  }
+  @media (min-width: 640px) {
+    .k-header__inner {
+      gap: var(--k-space-3);
+    }
+  }
+  /* Busca: centralizada entre a navegação e as ações; as ações ficam coladas na borda direita do contêiner. */
+  .k-header__search {
+    position: relative;
+    min-width: 0;
+    flex: 1 1 auto;
+    max-width: 560px;
+    margin-inline: auto;
+  }
+  .k-header__actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--k-space-1);
+    margin-inline-start: auto;
+  }
+  @media (min-width: 640px) {
+    .k-header__actions {
+      gap: var(--k-space-2);
+    }
+  }
+  @media (max-width: 1023px) {
+    /* Sem a navegação de texto, a busca ocupa o espaço e empurra as ações. */
+    .k-header__search {
+      max-width: none;
+      margin-inline: 0;
+    }
+  }
+
+  /* Barra de áreas (≥ 1024 px): 48 px, fundo --k-bg, fio de 1 px na base, sem sombra e sem blur. */
+  .k-areas {
+    display: none;
+    height: var(--k-areas-h);
+    border-bottom: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  @media (min-width: 1024px) {
+    .k-areas {
+      display: block;
+    }
+  }
+  .k-areas__row {
+    display: flex;
+    height: 100%;
+    align-items: stretch;
+    gap: var(--k-space-1);
+  }
+  .k-areas {
+    --k-drop: 10px;
+    --k-lerp-0: 1;
+    --k-lerp-1: calc(sin(30deg));
+    --k-lerp-2: calc(sin(20deg));
+    --k-lerp-3: calc(sin(10deg));
+  }
+  .k-areas__link {
+    position: relative;
+    display: inline-flex;
+    height: 48px;
+    min-width: var(--k-touch);
+    align-items: center;
+    gap: var(--k-space-2);
+    padding: 0 var(--k-space-3);
+    color: var(--k-text-muted);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transform: translateY(calc(var(--lerp, 0) * var(--k-drop)));
+    transition: transform var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-areas__link:hover,
+  .k-areas__link[aria-current="page"] {
+    color: var(--k-text);
+  }
+  .k-areas__link:focus-visible {
+    outline-offset: -2px;
+  }
+  /* Ativo: ponto sódio antes do rótulo + peso 600 + aria-current (nunca só cor). O espaço do ponto é reservado. */
+  .k-areas__dot {
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: 50%;
+    background: transparent;
+  }
+  .k-areas__dot--on {
+    background: var(--k-brand);
+  }
+  /* Hover "marcador de página": só ponteiro fino, sem movimento reduzido, só transform. A aba sob o ponteiro
+     desce 10 px e as vizinhas descem menos (sen 30°, 20°, 10°). Foco por teclado recebe o mesmo efeito. */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+    .k-areas__link:is(:hover, :focus-visible) {
+      --lerp: var(--k-lerp-0);
+      z-index: 3;
+      background: var(--k-bg);
+      border: 1px solid var(--k-line-strong);
+      border-top: 0;
+    }
+    .k-areas__link:has(+ :is(:hover, :focus-visible)),
+    :is(:hover, :focus-visible) + .k-areas__link {
+      --lerp: var(--k-lerp-1);
+    }
+    .k-areas__link:has(+ .k-areas__link + :is(:hover, :focus-visible)),
+    :is(:hover, :focus-visible) + .k-areas__link + .k-areas__link {
+      --lerp: var(--k-lerp-2);
+    }
+  }
+  /* Se as 7 abas não couberem (1024 a 1099 px): só o ícone nas inativas (o rótulo segue como nome acessível). */
+  @media (min-width: 1024px) and (max-width: 1099px) {
+    .k-areas__link:not([aria-current="page"]) .k-areas__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  /* Botão do avatar (< 1024 px). */
+  .k-account__button {
+    display: inline-flex;
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  /* Painel abaixo do cabeçalho, largura total, rolável quando a altura não couber. Menu de navegação, não modal. */
+  .k-panel {
+    position: fixed;
+    inset-inline: 0;
+    top: calc(var(--k-header-h) + env(safe-area-inset-top));
+    z-index: 35;
+    max-height: calc(100dvh - var(--k-header-h) - env(safe-area-inset-top) - var(--k-tabbar));
+    overflow-y: auto;
+    padding: var(--k-space-4) var(--k-gutter) var(--k-space-6);
+    border-bottom: 1px solid var(--k-line);
+    background: var(--k-bg);
+    animation: k-panel-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-panel--out {
+    animation: k-fade-out var(--k-dur-quick) var(--k-ease-leave) forwards;
+    pointer-events: none;
+  }
+  @media (min-width: 1024px) {
+    .k-panel {
+      display: none;
+    }
+  }
+  .k-panel__label {
+    margin: var(--k-space-4) 0 var(--k-space-1);
+  }
+  .k-panel__label:first-child {
+    margin-top: 0;
+  }
+  .k-panel__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--k-line);
+  }
+  .k-panel__list > li {
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-panel__row {
+    display: flex;
+    width: 100%;
+    min-height: 56px;
+    align-items: center;
+    gap: var(--k-space-3);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .k-panel__row--active {
+    font-weight: 600;
+  }
+  .k-panel__text {
+    min-width: 0;
+    flex: 1;
+    overflow-wrap: anywhere;
+  }
+  /* A seta aparece no hover e no foco (opacidade + 4 px) e fica sempre visível na linha ativa. */
+  .k-panel__arrow {
+    flex: none;
+    opacity: 0;
+    transition:
+      opacity var(--k-dur-quick) var(--k-ease-arrive),
+      transform var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-panel__row:is(:hover, :focus-visible) .k-panel__arrow {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+  .k-panel__row--active .k-panel__arrow {
+    opacity: 1;
+  }
+  .k-panel__row--danger {
+    color: var(--k-danger);
+  }
+  @keyframes k-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .k-panel {
+      animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+    }
+    .k-panel__row:is(:hover, :focus-visible) .k-panel__arrow {
+      transform: none;
+    }
+  }
+}
+
+/* Vitrine: a barra de áreas aparece em qualquer largura, dentro de uma faixa rolável (a barra real só existe a partir de 1024 px). */
+.k-areas-demo {
+  overflow-x: auto;
+  padding-bottom: 16px;
+}
+.k-areas-demo .k-areas {
+  display: block;
+  min-width: 860px;
 }

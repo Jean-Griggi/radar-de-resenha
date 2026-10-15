@@ -53,3 +53,6 @@ Decisões revisadas: docs/kina/DECISOES.md (prioridade sobre o plano).
 - D23: ficha de faixa / "tocando agora" com barra de progresso ONDULADA (só se houver player com progresso real).
 - D24: lista de conversas do chat em acordeão exclusivo (`<details name="chat-lista">`).
 - D18 (`.k-glass`), D19 (`.k-entry-scrim`), D20 e D21 continuam valendo; varreduras futuras não podem desfazê-las.
+
+## D25 — navegação em barra de áreas e painel
+- D25 AMPLIA a regra de navegação (cabeçalho no desktop, barra inferior no celular) sem removê-las. O menu do avatar mantém só a conta (Perfil, Configurações, Sair); as 7 áreas (Mensagens, Calendário, Música, Estatísticas, Amigos, Mapa, Fotos) vão para uma barra de áreas sticky abaixo do cabeçalho (≥ 1024 px) e para um painel em linhas aberto pelo avatar (< 1024 px). A barra inferior do celular não muda.

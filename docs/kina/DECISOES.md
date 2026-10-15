@@ -100,9 +100,19 @@ Só estas. Qualquer outra precisa de justificativa no PR.
 
 - A lista de conversas do chat é um acordeão exclusivo (`<details name="chat-lista">`): abrir uma linha fecha a outra. Sem requisição nova, sem mudar tempo real.
 
+### D25 — Navegação em barra de áreas e painel (decisão do dono do projeto)
+
+**AMPLIA** a regra de navegação (cabeçalho no desktop, barra inferior no celular) **sem removê-las**.
+
+- O menu do avatar é descentralizado: as áreas do app (Mensagens, Calendário, Música, Estatísticas, Amigos, Mapa, Fotos) saem dele.
+- **≥ 1024 px:** barra de áreas sticky logo abaixo do cabeçalho (`<nav aria-label="Áreas">`, 48 px, no mesmo contêiner do cabeçalho). Item ativo = ponto sódio + peso 600 + `aria-current="page"`. Hover "marcador de página" (só ponteiro fino e sem movimento reduzido, só `transform`). O avatar abre o menu de conta: **Perfil, Configurações e Sair**.
+- **< 1024 px:** o avatar do cabeçalho é um `<button aria-expanded aria-controls aria-haspopup="true" aria-label="Menu">` que abre um painel em linhas, com dois grupos (ÁREAS e CONTA). Fecha com Esc, clique fora, escolha de linha e mudança de rota; sem trava de foco e sem travar a rolagem.
+- A barra inferior do celular (Feed, Explorar, Criar, Rolês, Perfil) continua igual. O "+" continua sendo só o botão "Criar".
+- Contador de não lidas em Mensagens só se o dado já existir (hoje o cabeçalho não busca o total de mensagens do chat, então não há contador).
+
 ### Exceções anteriores que continuam valendo (não remover)
 
-- D20 a D24 não podem ser removidas por varreduras futuras.
+- D20 a D25 não podem ser removidas por varreduras futuras.
 - D18 (`.k-glass`) e D19 (`.k-entry-scrim`), apenas na tela de entrada.
 - Hex permitidos: `--k-spotify`, valores do MapLibre lidos dos tokens, e-mail HTML e `themeColor`.
 

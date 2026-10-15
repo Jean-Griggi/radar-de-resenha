@@ -45,3 +45,6 @@ Decisões revisadas: docs/kina/DECISOES.md (prioridade sobre o plano).
 - **D20:** o feed é a "Mesa" (fotos espalhadas, estilo exposé); tocar numa foto a faz crescer até o post e sair do post volta ao lugar com a animação inversa. A Mesa é a ÚNICA visão do feed (sem seletor Lista|Mesa). Revoga "navegação não muda" SÓ para a lista de posts do feed. Vale também para publicações do perfil, fotos e álbuns (índices).
 - **D21:** álbum e visualizador de fotos são carrossel de UMA foto por vez (a grade/Mesa continua como índice).
 - Continuam valendo e NÃO podem ser removidas: D18 (`.k-glass`) e D19 (`.k-entry-scrim`), só na tela de entrada. Hex permitidos: `--k-spotify`, valores do MapLibre lidos dos tokens, e-mail HTML, `themeColor`.
+
+## D25 — navegação em barra de áreas e painel
+- D25 AMPLIA a regra de navegação (cabeçalho no desktop, barra inferior no celular) sem removê-las. O menu do avatar mantém só a conta (Perfil, Configurações, Sair); as 7 áreas (Mensagens, Calendário, Música, Estatísticas, Amigos, Mapa, Fotos) vão para uma barra de áreas sticky abaixo do cabeçalho (≥ 1024 px) e para um painel em linhas aberto pelo avatar (< 1024 px). A barra inferior do celular não muda.

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState, type ReactNode } from 'react';
-import { Bell, Compass, House, Plus, Search, Sparkles, User } from 'lucide-react';
+import { Bell, Compass, House, LogOut, Plus, Search, Settings, Sparkles, User } from 'lucide-react';
 import { api } from '@/lib/api';
 import { clearAuth, getUser, type AuthUser } from '@/lib/auth';
 import { formatMeta, plural } from '@/lib/format';
@@ -23,6 +23,7 @@ import {
   type RailRole,
 } from '@/lib/shellCache';
 import { Avatar } from './Avatar';
+import { AccountPanel, AreasBar } from './AreasNav';
 import { BrandWordmark } from './BrandWordmark';
 import { ErrorBoundary } from './ErrorBoundary';
 import { Ficha, FichaRow } from './FichaRow';
@@ -43,16 +44,6 @@ const BOTTOM_NAV = [
   { href: '/roles/new', label: 'Criar', icon: Plus, create: true },
   { href: '/roles', label: 'Rolês', icon: Sparkles },
   { href: '/perfil', label: 'Perfil', icon: User, profile: true },
-];
-
-const MORE_NAV = [
-  { href: '/chat', label: 'Mensagens' },
-  { href: '/calendar', label: 'Calendário' },
-  { href: '/music', label: 'Música' },
-  { href: '/stats', label: 'Estatísticas' },
-  { href: '/amigos', label: 'Amigos' },
-  { href: '/mapa', label: 'Mapa' },
-  { href: '/photos', label: 'Fotos' },
 ];
 
 const SUGGESTIONS_SHOWN = 5;
@@ -154,17 +145,17 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
 
   const profileHref = user?.username ? `/perfil/${user.username}` : '/perfil';
 
+  // D25: o menu do avatar mantém só a conta. As áreas foram para a barra de áreas (≥ 1024 px) e o painel (< 1024 px).
   const accountItems: MenuItem[] = [
-    { label: 'Perfil', href: profileHref },
-    ...MORE_NAV.map((item) => ({ label: item.label, href: item.href })),
-    { label: 'Configurações', href: '/settings' },
-    { label: 'Sair', onSelect: logout, tone: 'danger', separatorBefore: true },
+    { label: 'Perfil', href: profileHref, icon: <User size={18} aria-hidden />, current: pathname.startsWith('/perfil') },
+    { label: 'Configurações', href: '/settings', icon: <Settings size={18} aria-hidden />, current: pathname.startsWith('/settings') },
+    { label: 'Sair', onSelect: logout, tone: 'danger', icon: <LogOut size={18} aria-hidden />, separatorBefore: true },
   ];
 
   return (
     <div className="min-h-screen">
       <header className="shell-chrome k-header sticky top-0 z-40">
-        <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-3 sm:px-4 sm:py-3 2xl:max-w-[1536px]">
+        <div className="k-container k-header__inner">
           <BrandWordmark href="/" />
           <nav className="hidden items-stretch self-stretch lg:flex" aria-label="Principal">
             {TOP_NAV.map((item) => {
@@ -186,7 +177,7 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
               <Plus size={22} strokeWidth={2.5} aria-hidden />
             </Link>
           </div>
-          <form onSubmit={search} className="relative min-w-0 flex-1" role="search">
+          <form onSubmit={search} className="k-header__search" role="search">
             <label className="sr-only" htmlFor="search">
               Buscar
             </label>
@@ -199,24 +190,35 @@ export function AppShell({ children, right }: { children: ReactNode; right?: Rea
               className="input pr-4 pl-10 sm:px-4 sm:pl-10"
             />
           </form>
-          <ThemeToggle />
-          <Link href="/notifications" className="icon-btn relative" aria-label={unread > 0 ? `Notificações, ${plural(unread, 'não lida', 'não lidas')}` : 'Notificações'}>
-            <Bell size={20} strokeWidth={2} aria-hidden />
-            {unread > 0 ? <span className="chat-badge chat-badge--header">{unread > 9 ? '9+' : unread}</span> : null}
-          </Link>
-          <Menu
-            key={pathname}
-            className="shrink-0"
-            label="Menu da conta"
-            items={accountItems}
-            trigger={
-              <>
-                <Avatar src={user?.avatar} name={user?.name} size="sm" />
-                <span className="hidden max-w-28 truncate text-sm lg:block">{user?.name}</span>
-              </>
-            }
-          />
+          <div className="k-header__actions">
+            <ThemeToggle />
+            <Link href="/notifications" className="icon-btn relative" aria-label={unread > 0 ? `Notificações, ${plural(unread, 'não lida', 'não lidas')}` : 'Notificações'}>
+              <Bell size={20} strokeWidth={2} aria-hidden />
+              {unread > 0 ? <span className="chat-badge chat-badge--header">{unread > 9 ? '9+' : unread}</span> : null}
+            </Link>
+            {/* ≥ 1024 px: menu de conta (Perfil, Configurações, Sair). */}
+            <Menu
+              key={pathname}
+              className="hidden shrink-0 lg:block"
+              label="Menu da conta"
+              items={accountItems}
+              trigger={
+                <>
+                  <Avatar src={user?.avatar} name={user?.name} size="sm" />
+                  <span className="hidden max-w-28 truncate text-sm lg:block">{user?.name}</span>
+                </>
+              }
+            />
+            {/* < 1024 px: o avatar abre o painel de áreas e conta. */}
+            <AccountPanel
+              pathname={pathname}
+              profileHref={profileHref}
+              onLogout={logout}
+              avatar={<Avatar src={user?.avatar} name={user?.name} size="sm" />}
+            />
+          </div>
         </div>
+        <AreasBar pathname={pathname} />
       </header>
 
       <div

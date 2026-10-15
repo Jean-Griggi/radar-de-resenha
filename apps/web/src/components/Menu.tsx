@@ -12,6 +12,8 @@ export type MenuItem = {
   tone?: 'danger';
   /** Fio separador acima deste item. */
   separatorBefore?: boolean;
+  /** Item da página atual: ponto sódio + peso 600 + `aria-current="page"` (nunca só cor). */
+  current?: boolean;
 };
 
 /**
@@ -33,6 +35,8 @@ export function Menu({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
+  // Saída: o painel continua montado até o fade de opacidade terminar (--k-dur-quick).
+  const [closing, setClosing] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const itemRefs = useRef<Array<HTMLElement | null>>([]);
@@ -40,8 +44,15 @@ export function Menu({
 
   const close = useCallback((returnFocus: boolean) => {
     setOpen(false);
+    setClosing(true);
     if (returnFocus) triggerRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    if (!closing) return;
+    const timer = window.setTimeout(() => setClosing(false), 240);
+    return () => window.clearTimeout(timer);
+  }, [closing]);
 
   // Foco no primeiro item ao abrir.
   useEffect(() => {
@@ -52,11 +63,11 @@ export function Menu({
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(event.target as Node)) close(false);
     };
     document.addEventListener('pointerdown', onPointerDown);
     return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [open]);
+  }, [open, close]);
 
   function focusItem(index: number) {
     const count = items.length;
@@ -78,6 +89,7 @@ export function Menu({
   function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key === 'ArrowDown' && !open) {
       event.preventDefault();
+      setClosing(false);
       setOpen(true);
     }
   }
@@ -92,17 +104,24 @@ export function Menu({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => (open ? close(false) : (setClosing(false), setOpen(true)))}
         onKeyDown={onTriggerKeyDown}
       >
         {trigger}
       </button>
-      {open ? (
-        <div id={menuId} role="menu" aria-label={label} className={`k-menu__panel k-menu__panel--${align}`} onKeyDown={onPanelKeyDown}>
+      {open || closing ? (
+        <div
+          id={menuId}
+          role="menu"
+          aria-label={label}
+          className={`k-menu__panel k-menu__panel--${align}${open ? '' : ' k-menu__panel--out'}`}
+          onKeyDown={onPanelKeyDown}
+        >
           {items.map((item, index) => {
-            const className = `k-menu__item${item.tone === 'danger' ? ' k-menu__item--danger' : ''}${item.separatorBefore ? ' k-menu__item--sep' : ''}`;
+            const className = `k-menu__item${item.tone === 'danger' ? ' k-menu__item--danger' : ''}${item.separatorBefore ? ' k-menu__item--sep' : ''}${item.current ? ' k-menu__item--current' : ''}`;
             const content = (
               <>
+                {item.current ? <span className="k-menu__dot" aria-hidden /> : null}
                 {item.icon}
                 {item.label}
               </>
@@ -118,6 +137,7 @@ export function Menu({
                   role="menuitem"
                   tabIndex={-1}
                   className={className}
+                  aria-current={item.current ? 'page' : undefined}
                   onClick={() => close(false)}
                 >
                   {content}
