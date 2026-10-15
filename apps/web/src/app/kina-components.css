@@ -1081,7 +1081,8 @@
     padding: 72px var(--k-space-4) var(--k-space-8);
     background: var(--k-bg);
   }
-  .auth-stage__grid {
+  /* Grade e fios em um único SVG (AuthQuina), atrás de tudo: z 0 e sem ponteiro. */
+  .auth-stage__quina {
     position: absolute;
     z-index: 0;
     inset: 0;
@@ -1090,24 +1091,27 @@
     height: 100%;
     pointer-events: none;
   }
-  .auth-stage__h,
-  .auth-stage__v {
-    position: absolute;
-    z-index: 0;
-    pointer-events: none;
-    background: color-mix(in srgb, var(--k-text) 55%, transparent);
+  /* Quarteirões a 7%. */
+  .auth-quina__rua {
+    fill: none;
+    stroke: var(--k-text);
+    stroke-opacity: 0.07;
+    stroke-width: 1;
   }
-  .auth-stage__h {
-    top: 50%;
-    right: 0;
-    left: 0;
-    height: 2px;
+  /* A quina: dois fios mais grossos que se cruzam no centro. O magnetismo escala o arco por `transform`. */
+  .auth-quina__fio {
+    fill: none;
+    stroke: var(--k-text);
+    stroke-opacity: 0.55;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    will-change: transform;
   }
-  .auth-stage__v {
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 2px;
+  .auth-quina__fio--h {
+    transform: scaleY(0.001);
+  }
+  .auth-quina__fio--v {
+    transform: scaleX(0.001);
   }
   .auth-stage__brand {
     position: absolute;
@@ -1127,9 +1131,32 @@
     font-size: var(--k-fs-39);
     line-height: 0.98;
     letter-spacing: -0.02em;
+    transition:
+      transform var(--k-dur-scene) var(--k-ease-leave),
+      opacity var(--k-dur-scene) var(--k-ease-leave);
   }
   .auth-stage__phrase em {
     font-style: italic;
+  }
+  /* Painel aberto: o título sai pela esquerda. */
+  .auth-stage__phrase[data-out] {
+    transform: translateX(calc(-50% - var(--k-space-16)));
+    opacity: 0;
+  }
+  .auth-stage__foot {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    bottom: max(var(--k-space-6), env(safe-area-inset-bottom));
+    left: 0;
+    margin: 0;
+    text-align: center;
+  }
+  /* Clique no fundo, no repouso, abre o painel. Fica abaixo do conteúdo (z 2) e acima da quina (z 0). */
+  .auth-stage__hit {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
   }
   .auth-enter {
     position: absolute;
@@ -1142,7 +1169,13 @@
   /* O magnetismo desloca este invólucro. O botão fica com largura do conteúdo (o transform não entra na medida). */
   .auth-enter__shift {
     width: max-content;
-    transition: transform var(--k-dur-base) var(--k-ease-arrive);
+    will-change: transform;
+  }
+  /* Painel aberto: o botão “vira” o painel, então some (só opacity). */
+  .auth-enter[data-open] {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--k-dur-quick) var(--k-ease-leave);
   }
   .auth-enter .button {
     width: max-content;
@@ -1166,10 +1199,39 @@
     /* Cantoneiras encostadas nos cantos reais do painel (o padrão é 6 px para fora). */
     --k-corner-offset: 0px;
   }
-  .auth-panel--quina {
+  /* Painel do login: centrado no vértice da quina (o mesmo ponto do botão), com scroll quando a altura não couber. */
+  .auth-entry {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    width: min(420px, calc(100% - 2 * var(--k-space-4)));
+    height: fit-content;
+    margin: auto;
+  }
+  .auth-panel--entry.k-glass {
     display: flex;
     flex-direction: column;
-    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+    width: 100%;
+    max-height: calc(100dvh - 2 * var(--k-space-8));
+    --k-glass-tint: 35%; /* sobe a tinta para o texto passar de 4,5:1 sobre os fios e a grade */
+  }
+  .auth-entry[data-state="closing"] {
+    opacity: 0;
+    transition: opacity var(--k-dur-quick) var(--k-ease-leave);
+  }
+  /* Fundo atrás do painel: desfoca e escurece. D19: exceção de blur junto com .k-glass; anima só opacity. */
+  .k-entry-scrim {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    background: color-mix(in srgb, var(--k-bg) 55%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    animation: k-fade-in var(--k-dur-scene) var(--k-ease-arrive);
+  }
+  .k-entry-scrim[data-state="closing"] {
+    opacity: 0;
+    transition: opacity var(--k-dur-quick) var(--k-ease-leave);
   }
   /* ===================== .k-glass — vidro líquido (DECISOES D19) =====================
      EXCEÇÃO ao "sem vidro/sombra": permitido SÓ no card das telas de entrada (login, cadastro, esqueci e redefinir senha)
@@ -1193,19 +1255,6 @@
   .k-sheet.k-glass {
     --k-glass-tint: 80%;
   }
-  /* Variante "soft" (botão "Entrar" da tela inicial): vidro bem transparente, mas com tinta de fundo e desfoque fortes,
-     para apagar quase por completo o que passa atrás (grade e mira). Sem refração: o botão é pequeno e deformaria o texto. */
-  .k-glass.k-glass--soft {
-    background: color-mix(in srgb, var(--k-bg) 55%, transparent);
-    border-color: color-mix(in srgb, var(--k-brand) 60%, transparent);
-    color: var(--k-text);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    backdrop-filter: blur(18px) saturate(1.2);
-  }
-  .k-glass.k-glass--soft:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--k-bg) 70%, transparent);
-    border-color: var(--k-brand);
-  }
   /* Refração só onde o navegador aceita filtro SVG em backdrop-filter. GlassFilter marca <html data-glass-refract>
      apenas no Chromium; Firefox e Safari ficam no desfoque comum acima. */
   @supports (backdrop-filter: url(#k-glass)) {
@@ -1214,17 +1263,10 @@
       backdrop-filter: url(#k-glass) blur(6px) saturate(1.4);
     }
   }
-  @supports (backdrop-filter: url(#k-glass)) {
-    :root[data-glass-refract] .k-glass.k-glass--soft {
-      -webkit-backdrop-filter: blur(18px) saturate(1.2);
-      backdrop-filter: blur(18px) saturate(1.2);
-    }
-  }
   @media (prefers-reduced-transparency: reduce) {
     .k-glass,
-    .k-glass.k-glass--soft,
     :root[data-glass-refract] .k-glass,
-    :root[data-glass-refract] .k-glass.k-glass--soft {
+    .auth-panel--entry.k-glass {
       background: var(--k-surface-raised);
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
@@ -1232,19 +1274,27 @@
     .k-glass .input {
       background: var(--k-bg-sunken);
     }
-  }
-  /* Item preso no tema antigo durante a troca por blocos: o texto herdado precisa seguir os tokens do próprio item. */
-  .auth-stage > [data-theme] {
-    color: var(--k-text);
+    .k-entry-scrim {
+      background: color-mix(in srgb, var(--k-bg) 92%, transparent);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
   }
   .auth-panel__scroll {
     flex: 1 1 auto;
     min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     /* Respiro para o outline do foco (2 px + offset 2 px) não encostar nas bordas do painel. */
     padding: 8px;
   }
   .auth-panel--error {
     border: 2px solid var(--k-danger);
+  }
+  /* Erro no campo: borda de 2 px em volta, além do ícone + texto ligados por aria-describedby. */
+  .auth-panel .input[aria-invalid="true"] {
+    border: 2px solid var(--k-danger);
+    padding: 9px 11px;
   }
   .auth-panel__title {
     margin: 0;
@@ -1256,15 +1306,27 @@
     color: var(--k-text-muted);
     font-size: var(--k-fs-16);
   }
+  .auth-panel__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--k-space-2) var(--k-space-4);
+  }
+  .auth-panel__actions .button--primary {
+    flex: 1 1 8rem;
+  }
   .auth-panel__links {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 8px 16px;
+    gap: 0 16px;
     margin-top: 14px;
     font-size: var(--k-fs-14);
   }
   .auth-panel__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--k-touch);
     color: var(--k-text);
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -1274,10 +1336,42 @@
       font-size: var(--k-fs-49);
     }
   }
-  @media (max-width: 899px) {
-    .auth-stage__phrase {
-      top: max(72px, 10vh);
-      bottom: auto;
+  /* Toque: sem magnetismo (o JS não liga); o painel abre como folha inferior, colada na base e com safe-area. */
+  @media (pointer: coarse) {
+    .auth-entry {
+      position: fixed;
+      inset: auto 0 0;
+      width: 100%;
+      margin: 0;
+      animation: k-sheet-in var(--k-dur-move) var(--k-ease-arrive);
+    }
+    .auth-panel--entry.k-glass {
+      --k-glass-tint: 80%;
+      max-height: calc(100dvh - var(--k-space-12));
+      border-right: 0;
+      border-bottom: 0;
+      border-left: 0;
+      border-radius: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .auth-panel--entry::before {
+      content: "";
+      position: absolute;
+      top: var(--k-space-2);
+      left: 50%;
+      width: 40px;
+      height: 4px;
+      background: var(--k-line-strong);
+      transform: translateX(-50%);
+    }
+  }
+  /* Movimento reduzido: sem magnetismo (JS), sem crescimento e sem folha deslizando; o painel só aparece em fade. */
+  @media (prefers-reduced-motion: reduce) {
+    .auth-entry {
+      animation: k-fade-in var(--k-dur-base) linear;
+    }
+    .auth-stage__phrase[data-out] {
+      transform: translateX(-50%);
     }
   }
 
@@ -1926,10 +2020,7 @@
   .k-ficha-row__mark {
     transition: none;
   }
-  .auth-panel,
-  .auth-panel--quina,
-  .auth-enter__shift,
-  .auth-enter .button {
+  .auth-panel {
     animation: k-fade-in 160ms linear;
     transition: none;
   }
