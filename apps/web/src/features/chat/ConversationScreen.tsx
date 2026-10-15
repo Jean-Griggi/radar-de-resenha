@@ -7,6 +7,7 @@ import { ArrowLeft, CircleAlert, ImagePlus, X } from 'lucide-react';
 import type { PublicUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { CROP, cropImage } from '@/components/ImageCropper';
 import { Skeleton } from '@/components/Card';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { IMAGE_ACCEPT, postFile, shrinkImage } from '@/lib/upload';
@@ -106,7 +107,9 @@ export function ConversationScreen() {
     if (!loading) fieldRef.current?.focus({ preventScroll: true });
   }, [loading]);
 
-  function pickPhoto(file: File) {
+  async function pickPhoto(original: File) {
+    const file = await cropImage(original, CROP.free);
+    if (!file) return;
     setPhoto((current) => {
       if (current) URL.revokeObjectURL(current.url);
       return { file, url: URL.createObjectURL(file) };

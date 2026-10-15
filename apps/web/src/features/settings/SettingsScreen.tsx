@@ -11,6 +11,7 @@ import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { postFile, shrinkImage, IMAGE_ACCEPT } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
+import { CROP, cropImage } from '@/components/ImageCropper';
 import { LocationMap } from '@/features/users/LocationMap';
 import { useTheme, type ThemeChoice } from '@/components/Theme';
 import { PlaceSearch } from '@/features/users/PlaceSearch';
@@ -96,7 +97,10 @@ export function SettingsScreen() {
     [],
   );
 
-  function pick(kind: 'avatar' | 'cover', file: File) {
+  async function pick(kind: 'avatar' | 'cover', original: File) {
+    // Personalizar: a pessoa escolhe a parte da imagem antes de ela ir para a prévia.
+    const file = await cropImage(original, CROP[kind]);
+    if (!file) return;
     setPending((current) => {
       if (current[kind]) URL.revokeObjectURL(current[kind].url);
       return { ...current, [kind]: { file, url: URL.createObjectURL(file) } };

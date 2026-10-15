@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { Album, AudioClip, Photo } from '@resenhometro/shared';
 import { Mic, X } from 'lucide-react';
 import { Button } from '@/components/Button';
+import { CROP, cropImage } from '@/components/ImageCropper';
 import { EmptyState, Skeleton } from '@/components/Card';
 import { Input } from '@/components/Field';
 import { Mesa, useMesaViewer, MesaViewer, type MesaEntry } from '@/components/Mesa';
@@ -67,7 +68,10 @@ export function PhotosScreen() {
     };
   }, []);
 
-  async function uploadPhoto(file: File) {
+  async function uploadPhoto(original: File) {
+    // Personalizar: proporção e parte da foto (ou "Original" para mandar inteira).
+    const file = await cropImage(original, CROP.free);
+    if (!file) return;
     try {
       await postFile('/photos', 'photo', file, { roleId: roleId || undefined });
       toast.push('Foto adicionada');

@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from 'react';
 import { CircleAlert, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/Button';
+import { CROP, cropImage } from '@/components/ImageCropper';
 import { MediaImage } from '@/components/MediaImage';
 import { IMAGE_ACCEPT } from '@/lib/upload';
 
@@ -44,14 +45,16 @@ export function BannerField({
 
   const shown = previewUrl ?? (removed ? null : currentUrl);
 
-  function pick(next: File | undefined) {
+  async function pick(next: File | undefined) {
     if (!next) return;
     if (next.size > MAX_MB * 1024 * 1024) {
       setError(`A imagem passa de ${MAX_MB} MB. Escolha uma menor.`);
       return;
     }
     setError('');
-    onFile(next);
+    // Personalizar: a pessoa escolhe a parte da imagem que vira o banner (3:2, como aparece).
+    const cropped = await cropImage(next, CROP.banner);
+    if (cropped) onFile(cropped);
   }
 
   return (

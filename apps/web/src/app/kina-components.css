@@ -2722,6 +2722,17 @@
     background: var(--k-stage-bg);
     color: var(--k-stage-text);
   }
+  /* A partir de 640 px o story tem o tamanho da tela de um celular (9:16), centrado; o resto da página fica
+     escurecido pelo contorno gigante (sem sombra). No celular continua em tela cheia. */
+  @media (min-width: 640px) {
+    .k-stage {
+      inset: 0;
+      width: min(100vw, calc(min(92dvh, 760px) * 9 / 16));
+      height: min(92dvh, 760px);
+      margin: auto;
+      outline: 100vmax solid var(--k-overlay);
+    }
+  }
   .k-stage__media {
     position: absolute;
     inset: 0;
@@ -4040,5 +4051,78 @@
      próprios, para não haver uma segunda barra de rolagem. */
   .k-rail {
     align-self: start;
+  }
+}
+
+/* ===================== Personalizar imagem (recorte) ===================== */
+@layer components {
+  .k-crop__aspects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-2);
+    margin-bottom: var(--k-space-3);
+  }
+  .k-crop__aspects .chip-tab[aria-pressed="true"] {
+    border-color: var(--k-text);
+    font-weight: 600;
+    border-bottom-width: 2px;
+  }
+  /* Quadro do recorte: a proporção vem de --crop-aspect; nunca passa de 55% da altura da janela. */
+  .k-crop__frame {
+    position: relative;
+    width: min(100%, calc(55dvh * var(--crop-aspect, 1)));
+    aspect-ratio: var(--crop-aspect, 1);
+    margin-inline: auto;
+    overflow: hidden;
+    background: var(--k-bg-sunken);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .k-crop__frame:active {
+    cursor: grabbing;
+  }
+  .k-crop__image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    max-width: none;
+    transform-origin: center;
+    pointer-events: none;
+  }
+  .k-crop__loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+  /* Avatar: o círculo mostra o que aparece; fora dele a imagem fica esmaecida (contorno gigante, sem sombra). */
+  .k-crop__mask {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    outline: 100vmax solid color-mix(in srgb, var(--k-bg) 60%, transparent);
+    pointer-events: none;
+  }
+  .k-crop__zoom {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-3);
+    margin-top: var(--k-space-4);
+  }
+  .k-crop__zoom input {
+    flex: 1;
+    min-height: var(--k-touch);
+    accent-color: var(--k-brand);
+  }
+  .k-crop__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--k-space-2);
+    margin-top: var(--k-space-4);
+  }
+  .k-crop__actions .button {
+    min-height: var(--k-touch);
   }
 }

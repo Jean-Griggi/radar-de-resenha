@@ -5,6 +5,7 @@ import { Music, Plus, X } from 'lucide-react';
 import type { StoryRing } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { CROP, cropImage } from '@/components/ImageCropper';
 import { SpotifyPicker, type SpotifyChoice } from '@/features/music';
 import { StoryViewer, StoryPhone } from './StoryViewer';
 import { useToast } from '@/components/Toast';
@@ -67,12 +68,16 @@ export function StoriesBar() {
     setViewer({ ring: index, story: firstUnseen < 0 ? 0 : firstUnseen });
   }
 
-  function pickFile(file: File | undefined) {
+  async function pickFile(original: File | undefined) {
+    if (!original) return;
+    const isVideo = original.type.startsWith('video/') || /\.(mp4|webm|mov)$/i.test(original.name);
+    // Personalizar: imagem de story é 9:16 e a pessoa escolhe a parte que aparece. Vídeo segue como veio.
+    const file = isVideo ? original : await cropImage(original, CROP.story);
     if (!file) return;
     setDraft({
       file,
       preview: URL.createObjectURL(file),
-      isVideo: file.type.startsWith('video/') || /\.(mp4|webm|mov)$/i.test(file.name),
+      isVideo,
     });
     setCaption('');
     setMusic(null);

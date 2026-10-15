@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import localFont from 'next/font/local';
+import { CropHost } from '@/components/ImageCropper';
 import { PlayerProvider } from '@/components/Player';
 import { ThemeProvider } from '@/components/Theme';
 import { ToastProvider } from '@/components/Toast';
@@ -91,6 +92,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="relative z-10">
             <ToastProvider>
               <PlayerProvider>{children}</PlayerProvider>
+              <CropHost />
             </ToastProvider>
           </div>
         </ThemeProvider>
