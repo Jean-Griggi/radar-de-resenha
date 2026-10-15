@@ -16,7 +16,7 @@ export async function sendMail(to: string, subject: string, html: string) {
   });
 
   await transporter.sendMail({
-    from: env.MAIL_FROM || `Resenhômetro <${env.SMTP_USER}>`,
+    from: env.MAIL_FROM || `Kina <${env.SMTP_USER}>`,
     to,
     subject,
     html,
@@ -29,11 +29,11 @@ function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
 }
 
-/** Cores da identidade Redesenha: fundo estrutural escuro, papel #F3F1EC e vermelho de marca. Sem violeta. */
+/** Cores do e-mail (ainda da identidade anterior; paleta Kina fica para a Fase 4.5): fundo estrutural escuro, papel #F3F1EC e vermelho de marca. Sem violeta. */
 export function passwordResetEmail(name: string, resetUrl: string) {
   return `
     <div style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0b0b0f;color:#f3f1ec;border-radius:16px">
-      <p style="letter-spacing:.3em;font-size:11px;color:#e31d3c;margin:0">RESENHÔMETRO</p>
+      <p style="letter-spacing:.3em;font-size:11px;color:#e31d3c;margin:0">KINA</p>
       <h1 style="font-size:22px;margin:12px 0 16px">Redefinir senha</h1>
       <p style="color:#a8a8b4;line-height:1.5">Oi, ${escapeHtml(name)}. Recebemos um pedido para redefinir sua senha. O link vale por 1 hora e só funciona uma vez.</p>
       <p style="margin:28px 0">

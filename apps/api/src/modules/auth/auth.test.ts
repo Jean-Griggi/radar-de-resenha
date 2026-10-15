@@ -878,12 +878,12 @@ describe('Resenhômetro API', () => {
       expect(known.body).not.toContain('redefinir-senha');
     });
 
-    it('e-mail usa a origem da web, a marca Redesenha e não usa violeta', async () => {
+    it('e-mail usa a origem da web, a marca Kina e não usa violeta', async () => {
       const { email } = await newAccount('rp2');
       await forgot(email);
       const { html } = mailbox.sent[0];
       expect(html).toContain('http://localhost:3000/redefinir-senha?token=');
-      expect(html).toContain('RESENHÔMETRO');
+      expect(html).toContain('KINA');
       expect(html).not.toMatch(/#8b5cf6|#a78bfa|#d946ef|violet|purple/i);
     });
 

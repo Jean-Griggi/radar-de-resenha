@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Music, Plus, X } from 'lucide-react';
 import type { StoryRing } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { CROP, cropImage } from '@/components/ImageCropper';
 import { SpotifyPicker, type SpotifyChoice } from '@/features/music';
 import { StoryViewer, StoryPhone } from './StoryViewer';
 import { useToast } from '@/components/Toast';
@@ -66,12 +68,16 @@ export function StoriesBar() {
     setViewer({ ring: index, story: firstUnseen < 0 ? 0 : firstUnseen });
   }
 
-  function pickFile(file: File | undefined) {
+  async function pickFile(original: File | undefined) {
+    if (!original) return;
+    const isVideo = original.type.startsWith('video/') || /\.(mp4|webm|mov)$/i.test(original.name);
+    // Personalizar: imagem de story é 9:16 e a pessoa escolhe a parte que aparece. Vídeo segue como veio.
+    const file = isVideo ? original : await cropImage(original, CROP.story);
     if (!file) return;
     setDraft({
       file,
       preview: URL.createObjectURL(file),
-      isVideo: file.type.startsWith('video/') || /\.(mp4|webm|mov)$/i.test(file.name),
+      isVideo,
     });
     setCaption('');
     setMusic(null);
@@ -102,80 +108,82 @@ export function StoriesBar() {
   }
 
   const playableRings = rings.filter((ring) => ring.stories.length > 0);
+  // "Seu story" sempre primeiro; o resto segue a ordem da API.
+  const orderedRings = [...rings].sort(
+    (a, b) => Number(b.author.id === me?.id) - Number(a.author.id === me?.id),
+  );
 
   return (
     <>
-      <section className="card -mx-1 overflow-hidden p-3">
-        <div className="flex gap-4 overflow-x-auto pb-1">
+      <section className="k-stories" aria-label="Stories">
+        <ul className="k-stories__row">
           {loading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex w-16 shrink-0 flex-col items-center gap-2">
-                <div className="h-14 w-14 animate-pulse rounded-full bg-overlay" />
-                <div className="h-3 w-12 animate-pulse rounded bg-overlay" />
-              </div>
+              <li key={i} className="k-stories__item">
+                <div className="skeleton k-stories__bone" />
+                <div className="skeleton h-3 w-12" />
+              </li>
             ))
           ) : (
-            rings.map((ring) => {
+            orderedRings.map((ring) => {
               const isMe = ring.author.id === me?.id;
               const emptyMine = isMe && ring.stories.length === 0;
+              const label = isMe ? 'Seu story' : ring.author.name.split(' ')[0];
+              const avatar = (
+                <span className={emptyMine ? 'k-stories__avatar k-stories__avatar--empty' : 'k-stories__avatar'}>
+                  <Avatar
+                    src={ring.author.avatar}
+                    name={ring.author.name}
+                    size="lg"
+                    glow={!emptyMine && ring.hasUnseen}
+                    seen={!emptyMine && !ring.hasUnseen}
+                  />
+                  {emptyMine ? (
+                    <span className="k-stories__add" aria-hidden>
+                      <Plus size={14} strokeWidth={2.5} />
+                    </span>
+                  ) : null}
+                </span>
+              );
               return (
-                <div key={ring.author.id} className="flex w-16 shrink-0 flex-col items-center gap-1.5">
-                  <div className="relative">
+                <li key={ring.author.id} className="k-stories__item">
+                  {/* O item inteiro (avatar + rótulo) é o alvo. */}
+                  <button
+                    type="button"
+                    className="k-stories__hit"
+                    aria-label={
+                      emptyMine
+                        ? 'Adicionar ao seu story'
+                        : ring.hasUnseen
+                          ? `Stories de ${ring.author.name}, não vistos`
+                          : `Stories de ${ring.author.name}`
+                    }
+                    onClick={() => {
+                      if (emptyMine) {
+                        inputRef.current?.click();
+                        return;
+                      }
+                      openRing(ring);
+                    }}
+                  >
+                    {avatar}
+                    <span className="k-stories__label">{label}</span>
+                  </button>
+                  {isMe && !emptyMine ? (
                     <button
                       type="button"
-                      aria-label={
-                        emptyMine
-                          ? 'Adicionar story'
-                          : ring.hasUnseen
-                            ? `Stories de ${ring.author.name}, não vistos`
-                            : `Stories de ${ring.author.name}`
-                      }
-                      onClick={() => {
-                        if (emptyMine) {
-                          inputRef.current?.click();
-                          return;
-                        }
-                        openRing(ring);
-                      }}
+                      className="k-stories__add k-stories__add--button"
+                      aria-label="Adicionar ao seu story"
+                      onClick={() => inputRef.current?.click()}
                     >
-                      <span
-                        className={`relative block rounded-full ${
-                          emptyMine
-                            ? 'bg-[var(--line)] p-[2px]'
-                            : ring.hasUnseen
-                              ? 'story-ring-unseen bg-[var(--brand-red)] p-[3px]'
-                              : isMe
-                                ? 'bg-[var(--accent)] p-[2px]'
-                                : 'bg-[var(--line)] p-[2px]'
-                        }`}
-                      >
-                        {ring.hasUnseen && !isMe ? (
-                          <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[var(--accent)] ring-2 ring-[var(--card)]" aria-hidden />
-                        ) : null}
-                        <span className="block rounded-full bg-[var(--card)] p-[2px]">
-                          <Avatar src={ring.author.avatar} name={ring.author.name} size="lg" />
-                        </span>
-                      </span>
+                      <Plus size={14} strokeWidth={2.5} aria-hidden />
                     </button>
-                    {isMe ? (
-                      <button
-                        type="button"
-                        className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-bold text-[var(--paper)]"
-                        aria-label="Adicionar story"
-                        onClick={() => inputRef.current?.click()}
-                      >
-                        +
-                      </button>
-                    ) : null}
-                  </div>
-                  <span className="w-full truncate text-center text-[11px] text-muted">
-                    {isMe ? 'Seu story' : ring.author.name.split(' ')[0]}
-                  </span>
-                </div>
+                  ) : null}
+                </li>
               );
             })
           )}
-        </div>
+        </ul>
         <input
           ref={inputRef}
           type="file"
@@ -189,60 +197,52 @@ export function StoriesBar() {
       </section>
 
       {draft ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-zinc-950/90 p-3 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-3">
-            <StoryPhone>
-              {draft.isVideo ? (
-                <video src={draft.preview} className="h-full w-full object-cover object-center" autoPlay loop muted playsInline />
-              ) : (
-                <img src={draft.preview} alt="Prévia" className="h-full w-full object-cover object-center" />
-              )}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-7 pt-10">
-                <input
-                  value={caption}
-                  onChange={(event) => setCaption(event.target.value)}
-                  maxLength={200}
-                  placeholder="Legenda (opcional)"
-                  className="w-full rounded-full border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
-                />
-                {music ? (
-                  <div className="mt-2 flex items-center gap-2 rounded-full bg-black/50 px-3 py-1.5 text-xs text-white">
-                    <span aria-hidden>♪</span>
-                    <span className="min-w-0 flex-1 truncate">
-                      {music.title} · {music.subtitle}
-                    </span>
-                    <button type="button" className="text-white/70" aria-label="Tirar música" onClick={() => setMusic(null)}>
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="mt-2 rounded-full border border-white/25 px-3 py-1.5 text-xs text-white"
-                    onClick={() => setPickingMusic(true)}
-                  >
-                    ♪ Adicionar música
-                  </button>
-                )}
-                <div className="mt-3 flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => {
-                      URL.revokeObjectURL(draft.preview);
-                      setDraft(null);
-                      setMusic(null);
-                      setPickingMusic(false);
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="button" disabled={publishing} onClick={publish}>
-                    {publishing ? 'Publicando…' : 'Publicar'}
-                  </Button>
-                </div>
+        <StoryPhone>
+          {draft.isVideo ? (
+            <video src={draft.preview} className="h-full w-full object-cover object-center" autoPlay loop muted playsInline />
+          ) : (
+            <img src={draft.preview} alt="Prévia" className="h-full w-full object-cover object-center" />
+          )}
+          <div className="k-stage__reply">
+            <input
+              value={caption}
+              onChange={(event) => setCaption(event.target.value)}
+              maxLength={200}
+              placeholder="Legenda (opcional)"
+              className="k-stage__field"
+            />
+            {music ? (
+              <div className="mt-2 flex items-center gap-2">
+                <Music size={16} aria-hidden />
+                <span className="min-w-0 flex-1 truncate">
+                  {music.title} · {music.subtitle}
+                </span>
+                <button type="button" className="k-stage__icon" aria-label="Tirar música" onClick={() => setMusic(null)}>
+                  <X size={18} aria-hidden />
+                </button>
               </div>
-            </StoryPhone>
+            ) : (
+              <button type="button" className="k-stage__textbtn" onClick={() => setPickingMusic(true)}>
+                <Music size={16} aria-hidden /> Adicionar música
+              </button>
+            )}
+            <div className="mt-3 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  URL.revokeObjectURL(draft.preview);
+                  setDraft(null);
+                  setMusic(null);
+                  setPickingMusic(false);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="button" disabled={publishing} onClick={publish}>
+                {publishing ? 'Publicando…' : 'Publicar'}
+              </Button>
+            </div>
           </div>
           {pickingMusic ? (
             <div className="absolute inset-x-3 bottom-3 z-10 mx-auto max-w-md">
@@ -255,7 +255,7 @@ export function StoriesBar() {
               />
             </div>
           ) : null}
-        </div>
+        </StoryPhone>
       ) : null}
 
       {viewer && playableRings.length > 0 ? (

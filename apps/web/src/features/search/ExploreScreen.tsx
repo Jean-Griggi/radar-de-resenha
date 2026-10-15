@@ -1,11 +1,13 @@
 'use client';
 
+import { Stars } from '@/components/Stars';
+import { Children, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import type { SearchResults } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState, Skeleton } from '@/components/Card';
+import { Tag } from '@/components/Tag';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 
 type ExploreData = {
@@ -84,7 +86,7 @@ export function ExploreScreen() {
           <Skeleton className="h-40" />
         </div>
       ) : null}
-      {error ? <p className="text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error && search && searchIsEmpty(search) ? <EmptyState title="Nada encontrado." /> : null}
       {!loading && !error && search && !searchIsEmpty(search) ? (
         <div className="space-y-6">
@@ -103,6 +105,7 @@ export function ExploreScreen() {
               </Link>
             ))}
           </Section>
+          <Section title="Lugares">{search.places.map((place) => <span key={place}>{place}</span>)}</Section>
           <Section title="Resenhas">
             {search.reviews.map((review) => (
               <Link key={review.id} href={`/reviews/${review.id}`} className="card p-3">
@@ -110,9 +113,7 @@ export function ExploreScreen() {
               </Link>
             ))}
           </Section>
-          <Section title="Tags">{search.tags.map((tag) => <span key={tag}>#{tag}</span>)}</Section>
-          <Section title="Lugares">{search.places.map((place) => <span key={place}>{place}</span>)}</Section>
-          <Section title="Músicas">
+          <Section title="Música">
             {search.music.map((track) => (
               <p key={track.id}>
                 {track.title}
@@ -120,6 +121,7 @@ export function ExploreScreen() {
               </p>
             ))}
           </Section>
+          <Section title="Tags">{search.tags.map((tag) => <span key={tag}>#{tag}</span>)}</Section>
         </div>
       ) : null}
       {!loading && !error && !q && explore ? (
@@ -128,7 +130,7 @@ export function ExploreScreen() {
             {explore.featuredRoles.map((role) => (
               <Link key={role.id} href={`/roles/${role.id}`} className="card block p-4">
                 <p>{role.title}</p>
-                <p className="text-xs text-muted">
+                <p className="k-meta">
                   {role.category} · {role.location}
                 </p>
               </Link>
@@ -145,20 +147,18 @@ export function ExploreScreen() {
           <Section title="Resenhas">
             {explore.reviews.map((review) => (
               <Link key={review.id} href={`/reviews/${review.id}`}>
-                {'★'.repeat(review.rating)} {review.title}
+                <Stars rating={review.rating} /> {review.title}
               </Link>
             ))}
           </Section>
           <Section title="Categorias">
             {explore.categories.map((item) => (
-              <span key={item.name} className="rounded-full bg-[var(--overlay)] px-3 py-1 text-sm">
-                {item.name} · {item.count}
-              </span>
+              <Tag key={item.name}>{item.name} · {item.count}</Tag>
             ))}
           </Section>
           <Section title="Tags">
             {explore.tags.map((item) => (
-              <span key={item.name} className="text-[var(--accent)]">
+              <span key={item.name} className="text-[var(--k-brand)]">
                 #{item.name}
               </span>
             ))}
@@ -185,10 +185,11 @@ export function ExploreScreen() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const empty = Children.count(children) === 0;
   return (
     <section className="card space-y-3 p-5">
       <h2 className="font-medium">{title}</h2>
-      <div className="flex flex-col gap-2">{children}</div>
+      {empty ? <p className="text-sm text-muted">Nada por aqui ainda.</p> : <div className="flex flex-col gap-2">{children}</div>}
     </section>
   );
 }

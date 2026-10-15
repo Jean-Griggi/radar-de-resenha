@@ -22,12 +22,20 @@ export function LocationMap({
   fallbackView,
   heightClass = 'h-56',
   hint = 'Clique no mapa para escolher o lugar.',
+  pin = 'person',
+  past = false,
+  guardScroll,
 }: {
   point: MapPoint | null;
   avatar: string | null;
   placeName?: string | null;
   interactive?: boolean;
   onPick?: (point: MapPoint) => void;
+  /** Rolê usa o quadrado sódio. Pessoa fica com a foto redonda. */
+  pin?: 'person' | 'role';
+  past?: boolean;
+  /** Gestos cooperativos: a rolagem da página não fica presa ao mapa. */
+  guardScroll?: boolean;
   /** Onde o mapa abre enquanto não há ponto. */
   fallbackView?: MapFallbackView;
   heightClass?: string;
@@ -50,15 +58,23 @@ export function LocationMap({
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
+    // Cada montagem ganha o próprio contêiner: o MapLibre põe a classe `maplibregl-map` nele e a tira no
+    // `remove()`. Com o Strict Mode (monta, desmonta, monta) um mapa descartado tirava a classe do mapa vivo.
+    const mapHost = document.createElement('div');
+    mapHost.className = 'h-full w-full';
+    host.appendChild(mapHost);
     let cancelled = false;
     setFailed(false);
-    mountLocationMap(host, {
+    mountLocationMap(mapHost, {
       interactive,
       point: pointRef.current,
       avatar: avatarRef.current,
       placeName: pointRef.current ? placeNameRef.current : null,
       fallbackView: fallbackRef.current,
       onPick: (picked) => onPickRef.current?.(picked),
+      pin,
+      past,
+      guardScroll,
     })
       .then((controls) => {
         if (cancelled) {
@@ -75,8 +91,9 @@ export function LocationMap({
       cancelled = true;
       controlsRef.current?.destroy();
       controlsRef.current = null;
+      mapHost.remove();
     };
-  }, [interactive]);
+  }, [interactive, pin, past, guardScroll]);
 
   useEffect(() => {
     controlsRef.current?.sync(point, avatar, point ? placeName : null);
@@ -86,12 +103,12 @@ export function LocationMap({
     <div data-location-map={failed ? 'closed' : 'open'}>
       <div
         ref={hostRef}
-        className={`${heightClass} w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]`}
+        className={`${heightClass} relative w-full overflow-hidden border border-[var(--k-line)] bg-[var(--k-surface-raised)]`}
         role="application"
         aria-label={interactive ? 'Minimapa para escolher a localização' : 'Mapa da localização'}
       />
-      {failed ? <p className="mt-2 text-sm text-[var(--danger)]">Não foi possível abrir o mapa.</p> : null}
-      {interactive && !failed ? <p className="mt-2 text-xs text-muted">{hint}</p> : null}
+      {failed ? <p className="mt-2 text-sm text-[var(--k-danger)]">Não foi possível abrir o mapa.</p> : null}
+      {interactive && !failed && hint ? <p className="k-help mt-2">{hint}</p> : null}
     </div>
   );
 }
@@ -130,9 +147,12 @@ export function PeopleMap({
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
+    const mapHost = document.createElement('div'); // ver o comentário em LocationMap
+    mapHost.className = 'h-full w-full';
+    host.appendChild(mapHost);
     let cancelled = false;
     setFailed(false);
-    mountPeopleMap(host, peopleRef.current)
+    mountPeopleMap(mapHost, peopleRef.current)
       .then((controls) => {
         if (cancelled) {
           controls.destroy();
@@ -151,6 +171,7 @@ export function PeopleMap({
       cancelled = true;
       controlsRef.current?.destroy();
       controlsRef.current = null;
+      mapHost.remove();
     };
   }, []);
 
@@ -178,11 +199,11 @@ export function PeopleMap({
     <div data-people-map={failed ? 'closed' : 'open'}>
       <div
         ref={hostRef}
-        className="h-[70vh] min-h-80 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]"
+        className="relative h-[70vh] min-h-80 w-full overflow-hidden border border-[var(--k-line)] bg-[var(--k-surface-raised)]"
         role="application"
         aria-label="Mapa das pessoas"
       />
-      {failed ? <p className="mt-2 text-sm text-[var(--danger)]">Não foi possível abrir o mapa.</p> : null}
+      {failed ? <p className="mt-2 text-sm text-[var(--k-danger)]">Não foi possível abrir o mapa.</p> : null}
     </div>
   );
 }

@@ -1,11 +1,13 @@
 'use client';
 
+import { Camera } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { PublicUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { api, isApiCanceled } from '@/lib/api';
-import { formatTimeAgo } from '@/lib/format';
+import { formatTimeAgo, plural } from '@/lib/format';
+import { CHAT_CHANGED_EVENT } from './events';
 import type { ChatMessage } from './types';
 
 type Conversation = { user: PublicUser; last: ChatMessage; unread: number };
@@ -16,13 +18,13 @@ const REFRESH_MS = 20_000;
 /** Atalho das mensagens no feed: últimas conversas, quantas não lidas e o caminho para todas. */
 export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
   const [conversations, setConversations] = useState<Conversation[] | null>(null);
-  // O painel lateral só aparece em tela larga (xl). Cada lugar renderiza só quando é o visível,
+  // O painel lateral só aparece a partir de 1024 px (lg). Cada lugar renderiza só quando é o visível,
   // para não buscar as conversas duas vezes.
   const [wide, setWide] = useState(false);
   const visible = placement === 'rail' ? wide : !wide;
 
   useEffect(() => {
-    const query = window.matchMedia('(min-width: 1280px)');
+    const query = window.matchMedia('(min-width: 1024px)');
     const update = () => setWide(query.matches);
     update();
     query.addEventListener('change', update);
@@ -35,10 +37,13 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
 
     async function load() {
       try {
-        const { data } = await api.get<Conversation[]>('/chat/conversations', { signal: controller.signal });
+        const { data } = await api.get<Conversation[]>('/chat/conversations', {
+          signal: controller.signal,
+        });
         if (!controller.signal.aborted) setConversations(data);
       } catch (err) {
-        if (!isApiCanceled(err) && !controller.signal.aborted) setConversations((current) => current ?? []);
+        if (!isApiCanceled(err) && !controller.signal.aborted)
+          setConversations((current) => current ?? []);
       }
     }
 
@@ -46,9 +51,11 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') void load();
     }, REFRESH_MS);
+    window.addEventListener(CHAT_CHANGED_EVENT, load);
     return () => {
       controller.abort();
       window.clearInterval(timer);
+      window.removeEventListener(CHAT_CHANGED_EVENT, load);
     };
   }, [visible]);
 
@@ -56,50 +63,80 @@ export function ChatPreview({ placement }: { placement: 'feed' | 'rail' }) {
 
   const unread = conversations.reduce((sum, item) => sum + item.unread, 0);
 
+  const rail = placement === 'rail';
+  const action = conversations.length > SHOWN ? 'Ver todas' : 'Abrir mensagens';
+
   return (
-    <section className="card p-4" aria-label="Mensagens">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-lg font-medium">
+    <section className={rail ? undefined : 'card p-4'} aria-label="Mensagens">
+      <div className={rail ? undefined : 'mb-2 flex items-center justify-between gap-2'}>
+        <h2 className={rail ? 'k-meta k-agenda__heading' : 'text-lg font-medium'}>
           Mensagens
           {unread > 0 ? (
-            <span className="ml-2 rounded-full bg-[var(--primary)] px-2 py-0.5 align-middle text-xs font-bold text-[var(--paper)]">
+            <span
+              className={
+                rail
+                  ? 'k-meta'
+                  : 'ml-2 rounded-[var(--k-radius-control)] bg-[var(--k-brand)] px-2 py-0.5 align-middle text-sm font-bold text-[var(--k-on-brand)]'
+              }
+            >
               {unread > 9 ? '9+' : unread}
             </span>
           ) : null}
         </h2>
-        <Link href="/chat" className="text-sm font-medium text-[var(--accent)] hover:underline">
-          {conversations.length > SHOWN ? 'Ver todas' : 'Abrir mensagens'}
-        </Link>
+        {rail ? null : (
+          <Link href="/chat" className="text-sm font-medium text-[var(--k-brand)] hover:underline">
+            {action}
+          </Link>
+        )}
       </div>
 
       {conversations.length === 0 ? (
         <p className="text-sm text-muted">
           Nenhuma conversa ainda.{' '}
-          <Link href="/chat" className="text-[var(--accent)] hover:underline">
+          <Link href="/chat" className="text-[var(--k-brand)] hover:underline">
             Comece uma agora
           </Link>
           .
         </p>
       ) : (
-        <ul className="divide-y divide-[var(--border)]">
+        <ul className="divide-y divide-[var(--k-line)]">
           {conversations.slice(0, SHOWN).map(({ user, last, unread: count }) => (
             <li key={user.id}>
-              <Link href={`/chat/${user.username}`} className="flex items-center gap-3 py-2 hover:bg-[var(--overlay)]">
+              <Link
+                href={`/chat/${user.username}`}
+                className="flex items-center gap-3 py-2 hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]"
+              >
                 <Avatar src={user.avatar} name={user.name} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{user.name}</p>
-                  <p className={`truncate text-xs ${count > 0 ? 'font-medium text-fg' : 'text-muted'}`}>
+                  <p
+                    className={`truncate text-xs ${count > 0 ? 'font-medium text-fg' : 'text-muted'}`}
+                  >
                     {last.senderId === user.id ? '' : 'Você: '}
-                    {last.content || '📷 Foto'}
+                    {last.content || (
+                      <>
+                        <Camera size={12} aria-hidden /> Foto
+                      </>
+                    )}
                   </p>
                 </div>
                 <span className="shrink-0 text-xs text-muted">{formatTimeAgo(last.createdAt)}</span>
-                {count > 0 ? <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--primary)]" aria-label={`${count} não lidas`} /> : null}
+                {count > 0 ? (
+                  <span
+                    className="h-2 w-2 shrink-0 bg-[var(--k-brand)]"
+                    aria-label={plural(count, 'não lida', 'não lidas')}
+                  />
+                ) : null}
               </Link>
             </li>
           ))}
         </ul>
       )}
+      {rail ? (
+        <Link href="/chat" className="k-agenda__create">
+          {action}
+        </Link>
+      ) : null}
     </section>
   );
 }

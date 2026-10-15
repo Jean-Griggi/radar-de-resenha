@@ -1,11 +1,54 @@
-import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
+'use client';
 
-export function Field({ label, children }: { label: string; children: ReactNode }) {
+import {
+  cloneElement,
+  isValidElement,
+  useId,
+  type InputHTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from 'react';
+import { CircleAlert } from 'lucide-react';
+
+/** Erro geral de formulário (fora de um campo): ícone + texto, anunciado por leitor de tela. */
+export function FormError({ children }: { children: ReactNode }) {
   return (
-    <label className="block space-y-1.5">
-      <span className="text-label text-muted">{label}</span>
+    <p role="alert" className="k-msg k-msg--error">
+      <CircleAlert size={16} aria-hidden />
       {children}
-    </label>
+    </p>
+  );
+}
+
+/**
+ * Rótulo sempre visível acima do campo. Com `error`, o campo ganha `aria-invalid` e `aria-describedby`
+ * apontando para a mensagem (ícone + texto, nunca só cor). Sem `error`, o filho é renderizado como antes.
+ */
+export function Field({ label, children, error }: { label: string; children: ReactNode; error?: string }) {
+  const messageId = useId();
+  const control =
+    error && isValidElement(children)
+      ? cloneElement(children as ReactElement<Record<string, unknown>>, {
+          'aria-invalid': true,
+          'aria-describedby': messageId,
+        })
+      : children;
+
+  return (
+    <div className="space-y-1.5">
+      <label className="block space-y-1.5">
+        <span className="k-label block">{label}</span>
+        {control}
+      </label>
+      {error ? (
+        <p id={messageId} className="k-msg k-msg--error">
+          <CircleAlert size={16} aria-hidden />
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

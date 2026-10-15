@@ -39,10 +39,10 @@ function RoleBadges({ role }: { role: Role }) {
       {badges.map((badge) => (
         <span
           key={badge.label}
-          className={`inline-flex min-h-6 items-center rounded-full border-2 px-2 text-label ${
+          className={`inline-flex min-h-6 items-center rounded-[var(--k-radius-control)] border-2 px-2 text-label ${
             badge.tone === 'accent'
-              ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--paper)]'
-              : 'border-[var(--text)] text-fg'
+              ? 'border-[var(--k-brand)] bg-[var(--k-brand)] text-[var(--k-on-brand)]'
+              : 'border-[var(--k-text)] text-fg'
           }`}
         >
           {badge.label}
@@ -108,8 +108,8 @@ export function RolesListScreen() {
             key={item.id}
             type="button"
             onClick={() => setFilter(item.id)}
-            className={`min-h-11 rounded-full border-2 px-3 text-sm font-bold ${
-              filter === item.id ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--paper)]' : 'border-line text-muted hover:border-[var(--text)]'
+            className={`min-h-11 rounded-[var(--k-radius-control)] border-2 px-3 text-sm font-bold ${
+              filter === item.id ? 'border-[var(--k-brand)] bg-[var(--k-brand)] text-[var(--k-on-brand)]' : 'border-line text-muted hover:border-[var(--k-text)]'
             }`}
           >
             {item.label}
@@ -122,7 +122,7 @@ export function RolesListScreen() {
           <Skeleton className="h-40" />
         </div>
       ) : null}
-      {error ? <p className="text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error && roles.length === 0 ? (
         <EmptyState
           title="Você ainda não tem nenhum rolê."

@@ -9,6 +9,10 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   skeleton?: boolean;
 };
 
+/*
+ * Visual da Kina (DECISOES T14): `outline` = `secondary`, `ghost` = `text`, `danger` = secondary em tom de perigo.
+ * Confirmação destrutiva cheia: acrescente `className="button--danger-solid"`.
+ */
 const variants = {
   primary: 'button--primary',
   secondary: 'button--secondary',
@@ -40,8 +44,13 @@ export function Button({
       disabled={isDisabled}
       aria-busy={loading || undefined}
     >
-      {loading ? <span className="button__spinner" aria-hidden /> : null}
       {children}
+      {loading ? (
+        <span className="button__dots" aria-hidden>
+          <i />
+          <i />
+        </span>
+      ) : null}
     </button>
   );
 }

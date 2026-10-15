@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useId, useState } from 'react';
+import { Plus } from 'lucide-react';
 import type { Comment as CommentType } from '@resenhometro/shared';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
@@ -14,16 +15,21 @@ export function Comments({
   onSubmit,
   onChanged,
   compact = false,
+  accent = !compact,
 }: {
   comments: CommentType[];
   onSubmit: (content: string, parentId?: string) => Promise<void>;
   onChanged?: () => void;
   compact?: boolean;
+  /** "Enviar" fica sódio SÓ com texto (tela de detalhe, onde é a ação principal); no feed é sempre secundário. */
+  accent?: boolean;
 }) {
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const fieldId = useId();
+  const reasonId = useId();
   const me = getUser();
+  const empty = !text.trim();
 
   async function submit(event: FormEvent, parentId?: string) {
     event.preventDefault();
@@ -34,7 +40,7 @@ export function Comments({
   }
 
   return (
-    <section className={compact ? 'space-y-3' : 'space-y-4'}>
+    <section className={`k-measure ${compact ? 'space-y-3' : 'space-y-4'}`}>
       <form onSubmit={(event) => submit(event, replyTo ?? undefined)} className="flex gap-2">
         <Avatar src={me?.avatar} name={me?.name} size="sm" />
         <div className="min-w-0 flex-1">
@@ -47,7 +53,8 @@ export function Comments({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? 'Responder…' : 'Comentar…'}
-              className="input composer rounded-full"
+              className="input"
+              aria-describedby={empty ? reasonId : undefined}
             />
           ) : (
             <textarea
@@ -56,20 +63,34 @@ export function Comments({
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? 'Escreva uma resposta...' : 'Escreva um comentário...'}
               className="input min-h-20"
+              aria-describedby={empty ? reasonId : undefined}
             />
           )}
           <div className="mt-2 flex items-center gap-2">
-            <Button type="submit">{compact ? 'Enviar' : 'Publicar'}</Button>
+            {/* Sódio só com texto (a ação principal da tela); vazio = secundário e desabilitado, com o motivo em texto. */}
+            <Button
+              type="submit"
+              variant={accent && !empty ? 'primary' : 'secondary'}
+              disabled={empty}
+              aria-describedby={empty ? reasonId : undefined}
+            >
+              {compact ? 'Enviar' : 'Publicar'}
+            </Button>
             {replyTo ? (
               <button type="button" className="text-xs text-muted" onClick={() => setReplyTo(null)}>
                 Cancelar resposta
               </button>
             ) : null}
           </div>
+          {empty ? (
+            <p id={reasonId} className="k-reason">
+              Escreva um comentário.
+            </p>
+          ) : null}
         </div>
       </form>
       <ul className={compact ? 'max-h-52 space-y-3 overflow-y-auto pr-1' : 'space-y-4'}>
-        {comments.length === 0 ? <li className="text-xs text-muted">Seja o primeiro a comentar.</li> : null}
+        {comments.length === 0 ? <li className="k-reason">Seja o primeiro a comentar.</li> : null}
         {comments.map((comment) => (
           <li key={comment.id} className="space-y-3">
             <CommentItem comment={comment} compact={compact} onReply={() => setReplyTo(comment.id)} onChanged={onChanged} />
@@ -89,7 +110,18 @@ export function Comments({
   );
 }
 
-export function FeedComments({ targetType, targetId }: { targetType: string; targetId: string }) {
+export function FeedComments({
+  targetType,
+  targetId,
+  accent = false,
+  collapsible = false,
+}: {
+  targetType: string;
+  targetId: string;
+  accent?: boolean;
+  /** No feed: bloco recolhido (<details>), com a contagem no resumo; o formulário e a lista só aparecem abertos. */
+  collapsible?: boolean;
+}) {
   const [comments, setComments] = useState<CommentType[]>([]);
   const [error, setError] = useState('');
 
@@ -108,12 +140,12 @@ export function FeedComments({ targetType, targetId }: { targetType: string; tar
     void load();
   }, [targetType, targetId]);
 
-  return (
-    <div>
-      <p className="mb-2 text-label text-muted">Comentários</p>
-      {error ? <p className="mb-2 text-xs text-[var(--danger)]">{error}</p> : null}
+  const body = (
+    <>
+      {error ? <p className="mb-2 text-xs text-[var(--k-danger)]">{error}</p> : null}
       <Comments
         compact
+        accent={accent}
         comments={comments}
         onSubmit={async (content, parentId) => {
           const { data } = await api.post<CommentType[]>('/comments', { targetType, targetId, content, parentId });
@@ -121,6 +153,27 @@ export function FeedComments({ targetType, targetId }: { targetType: string; tar
         }}
         onChanged={load}
       />
+    </>
+  );
+
+  if (collapsible) {
+    const total = comments.reduce((sum, item) => sum + 1 + (item.replies?.length ?? 0), 0);
+    return (
+      <details className="k-comments">
+        <summary>
+          Comentários
+          {total > 0 ? <span className="k-meta">{total}</span> : null}
+          <Plus size={16} aria-hidden className="k-comments__icon" />
+        </summary>
+        <div className="k-comments__body">{body}</div>
+      </details>
+    );
+  }
+
+  return (
+    <div>
+      <p className="mb-2 text-label text-muted">Comentários</p>
+      {body}
     </div>
   );
 }
@@ -141,7 +194,7 @@ function CommentItem({
     <div className="flex gap-2">
       <Avatar src={comment.author?.avatar} name={comment.author?.name} size="sm" />
       <div className="min-w-0 flex-1">
-        <div className="rounded-2xl bg-overlay px-3 py-2">
+        <div className="rounded-none bg-overlay px-3 py-2">
           <p className="text-sm font-medium text-fg">{comment.author?.name}</p>
           <p className="text-sm text-fg">{comment.content}</p>
         </div>
@@ -157,7 +210,7 @@ function CommentItem({
                 await api.delete(`/comments/${comment.id}`);
                 onChanged?.();
               }}
-              className="hover:text-[var(--danger)]"
+              className="hover:text-[var(--k-danger)]"
             >
               Excluir
             </button>

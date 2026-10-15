@@ -1,0 +1,4128 @@
+/*
+ * Componentes Kina (Fase 2). Referência: docs/kina/design/components-spec.md e reference/componentes.html.
+ * Regras: só tokens --k-*; raio 0 ou 2 px (só pessoas são redondas); sem sombra, gradiente ou vidro;
+ * animar só transform e opacity. Em camada `components`, para as utilitárias do Tailwind poderem sobrescrever.
+ */
+@layer components {
+  /* Fraunces só a partir de 20 px: título pequeno (text-xs/sm/base/lg) em h1–h3 volta para a fonte de interface. */
+  :is(h1, h2, h3, h4):is(.text-xs, .text-sm, .text-base, .text-lg) {
+    font-family: var(--k-font-ui);
+    font-variation-settings: normal;
+  }
+
+  /* ===================== Button ===================== */
+  .button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--k-space-2);
+    min-width: var(--k-touch);
+    min-height: 48px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: var(--k-radius-control);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    font-weight: 600;
+    line-height: 1.25;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform var(--k-dur-instant) var(--k-ease-arrive);
+  }
+
+  /* 40 px da spec, com piso de 44 px de área de toque (CLAUDE.md: alvos ≥ 44 px). */
+  @media (min-width: 1024px) {
+    .button {
+      min-height: 44px;
+      font-size: var(--k-fs-14);
+    }
+  }
+
+  .button--primary {
+    background: var(--k-brand);
+    color: var(--k-on-brand);
+  }
+  .button--primary:hover:not(:disabled) {
+    background: var(--k-brand-hover);
+  }
+  .button--primary:active:not(:disabled) {
+    background: var(--k-brand-press);
+    transform: scale(0.98);
+  }
+
+  /* `outline` e `secondary` são o mesmo visual (DECISOES T14). */
+  .button--secondary,
+  .button--outline {
+    background: transparent;
+    color: var(--k-text);
+    border-color: var(--k-line-strong);
+  }
+  .button--secondary:hover:not(:disabled),
+  .button--outline:hover:not(:disabled) {
+    background: var(--k-bg-sunken);
+  }
+  .button--secondary:active:not(:disabled),
+  .button--outline:active:not(:disabled),
+  .button--danger:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  /* `danger` = secondary com texto e borda de perigo (T14). A versão cheia é só para confirmação destrutiva. */
+  .button--danger {
+    background: transparent;
+    color: var(--k-danger);
+    border-color: var(--k-danger);
+  }
+  .button--danger:hover:not(:disabled) {
+    background: var(--k-bg-sunken);
+  }
+  .button--danger-solid {
+    background: var(--k-danger);
+    color: var(--k-on-brand);
+    border-color: var(--k-danger);
+  }
+  .button--danger-solid:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--k-danger) 88%, var(--k-text));
+  }
+
+  /* `ghost` se comporta como o botão `text` da spec: sem fundo nem borda, sublinhado de 1 px que vira 2 px. */
+  .button--ghost {
+    background: none;
+    color: var(--k-text);
+    padding: 0 4px;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+  .button--ghost:hover:not(:disabled) {
+    text-decoration-thickness: 2px;
+  }
+
+  .button:disabled:not([aria-busy="true"]) {
+    background: var(--k-bg-sunken);
+    color: var(--k-text-subtle);
+    border-color: var(--k-line);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .button--secondary:disabled:not([aria-busy="true"]),
+  .button--outline:disabled:not([aria-busy="true"]),
+  .button--danger:disabled:not([aria-busy="true"]) {
+    background: transparent;
+  }
+  .button--ghost:disabled:not([aria-busy="true"]) {
+    background: none;
+    border-color: transparent;
+  }
+  .button[aria-busy="true"] {
+    cursor: progress;
+  }
+
+  /* Carregando: rótulo mantido e dois pontos à direita, dentro do padding (a largura não muda). */
+  .button__dots {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    display: inline-flex;
+    gap: 3px;
+    transform: translateY(-50%);
+  }
+  .button__dots i {
+    width: 4px;
+    height: 4px;
+    border-radius: 0;
+    background: currentColor;
+    animation: k-dots calc(var(--k-dur-scene) * 2) var(--k-ease-arrive) infinite;
+  }
+  .button__dots i:nth-child(2) {
+    animation-delay: var(--k-dur-scene);
+  }
+  .button--ghost .button__dots {
+    right: -14px;
+  }
+  @keyframes k-dots {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .k-help {
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+
+  /* ===================== Field / Input ===================== */
+  .k-label {
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--k-text);
+  }
+
+  .input {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--k-line-strong);
+    border-radius: 0;
+    background: var(--k-bg-sunken);
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    line-height: 1.5;
+    transition: none;
+  }
+  .input::placeholder {
+    color: var(--k-text-subtle);
+  }
+  /* Foco: borda de 2 px; o padding cede 1 px para a altura não mudar. */
+  .input:focus,
+  .input[aria-invalid="true"] {
+    border-bottom-width: 2px;
+    padding-bottom: 9px;
+  }
+  .input:focus {
+    border-bottom-color: var(--k-text);
+  }
+  .input[aria-invalid="true"] {
+    border-bottom-color: var(--k-danger);
+  }
+  .input.is-valid {
+    border-bottom: 2px solid var(--k-success);
+    padding-bottom: 9px;
+  }
+  .input:disabled {
+    color: var(--k-text-subtle);
+    border-bottom-color: var(--k-line);
+    cursor: not-allowed;
+  }
+
+  /* Título de rolê (variação display): Fraunces, sem fundo, borda inferior de 2 px. */
+  .input--display {
+    background: none;
+    border-bottom: 2px solid var(--k-text);
+    padding: 0 0 6px;
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: 34px;
+    line-height: 1.1;
+  }
+
+  .k-msg {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--k-fs-14);
+    line-height: 1.3;
+  }
+  .k-msg svg {
+    flex: none;
+  }
+  .k-msg--error {
+    color: var(--k-danger);
+  }
+  .k-msg--ok {
+    color: var(--k-success);
+  }
+
+  /* ===================== Avatar e AvatarStack (pessoas são pontos) ===================== */
+  .k-avatar {
+    --k-avatar: 48px;
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    width: var(--k-avatar);
+    height: var(--k-avatar);
+  }
+  .k-avatar--xs {
+    --k-avatar: 24px;
+  }
+  .k-avatar--sm {
+    --k-avatar: 32px;
+  }
+  .k-avatar--md {
+    --k-avatar: 48px;
+  }
+  .k-avatar--lg {
+    --k-avatar: 58px;
+  }
+  .k-avatar--xl {
+    --k-avatar: 80px;
+  }
+  @media (min-width: 640px) {
+    .k-avatar--lg {
+      --k-avatar: 72px;
+    }
+    .k-avatar--xl {
+      --k-avatar: 96px;
+    }
+  }
+
+  .k-avatar__face {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--k-radius-person);
+    background: var(--k-bg-sunken);
+    color: var(--k-text);
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: max(var(--k-fs-12), calc(var(--k-avatar) * 0.4));
+    line-height: 1;
+  }
+  /* Fraunces só a partir de 20 px: nos avatares menores as iniciais ficam em Schibsted. */
+  .k-avatar--xs .k-avatar__face,
+  .k-avatar--sm .k-avatar__face,
+  .k-avatar--md .k-avatar__face {
+    font-family: var(--k-font-ui);
+    font-variation-settings: normal;
+    font-weight: 600;
+  }
+  .k-avatar__face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Story não visto: anel de 2 px na marca com folga de 3 px (o contorno segue o raio). */
+  .k-avatar--ring .k-avatar__face {
+    outline: 2px solid var(--k-brand);
+    outline-offset: 3px;
+  }
+  .k-avatar--seen .k-avatar__face {
+    outline: 2px solid var(--k-line);
+    outline-offset: 3px;
+  }
+  .k-avatar__presence {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 28%;
+    height: 28%;
+    min-width: 8px;
+    min-height: 8px;
+    border: 2px solid var(--k-bg);
+    border-radius: var(--k-radius-person);
+    background: var(--k-text-muted);
+  }
+  .k-avatar__presence--on {
+    background: var(--k-success);
+  }
+
+  .k-stack {
+    display: inline-flex;
+    align-items: center;
+  }
+  .k-stack__item {
+    display: inline-flex;
+  }
+  .k-stack__item .k-avatar__face {
+    outline: 2px solid var(--k-stack-ring, var(--k-bg));
+  }
+  /* Sobreposição de 30% do tamanho. */
+  .k-stack--xs .k-stack__item + .k-stack__item {
+    margin-left: -7px;
+  }
+  .k-stack--sm .k-stack__item + .k-stack__item {
+    margin-left: -10px;
+  }
+  .k-stack--md .k-stack__item + .k-stack__item {
+    margin-left: -14px;
+  }
+  .k-stack__more {
+    margin-left: var(--k-space-2);
+  }
+
+  /* ===================== Tag (ponto + texto mono, sem pílula) ===================== */
+  .k-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .k-tag::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--k-radius-person);
+    background: var(--k-tag-dot, var(--k-text));
+  }
+  .k-tag--brand {
+    --k-tag-dot: var(--k-brand);
+  }
+  .k-tag--text {
+    --k-tag-dot: var(--k-text);
+  }
+  .k-tag--success {
+    --k-tag-dot: var(--k-success);
+  }
+  .k-tag--warning {
+    --k-tag-dot: var(--k-warning);
+  }
+  .k-tag--danger {
+    --k-tag-dot: var(--k-danger);
+  }
+}
+
+@layer components {
+  /* ===================== Card (.card) — espaço + fio; memória ganha .k-corners ===================== */
+  .card {
+    background: var(--k-surface-raised);
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-none);
+    transition: none;
+  }
+  .card--lift:hover {
+    border-color: var(--k-line-strong);
+  }
+
+  /* ===================== Tabs (substitui .chip-tab nas abas) ===================== */
+  /* Rola na horizontal sem barra (nem vertical): overflow-y hidden, 4 px de respiro para o foco não ser cortado. */
+  .k-tabs-wrap {
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-tabs {
+    display: flex;
+    gap: 28px;
+    padding: 4px 4px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+  .k-tab:focus-visible {
+    outline-offset: -2px;
+  }
+  .k-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .k-tab {
+    flex: none;
+    scroll-snap-align: start;
+    min-height: var(--k-touch);
+    padding: 0 0 10px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--k-text-muted);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    font-weight: 500;
+    cursor: pointer;
+    transition: none;
+  }
+  .k-tab:hover {
+    color: var(--k-text);
+  }
+  .k-tab[aria-selected="true"] {
+    border-bottom-color: var(--k-text);
+    color: var(--k-text);
+    font-weight: 600;
+  }
+
+  /* `.chip-tab` sobrou só em botões e links que não são abas (RoutePanel, ChatList): vira controle secundário. */
+  .chip-tab {
+    display: inline-flex;
+    min-height: var(--k-touch);
+    flex-shrink: 0;
+    align-items: center;
+    padding: 0 16px;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: transparent;
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    font-weight: 500;
+    line-height: 1.25;
+    transition: none;
+  }
+  .chip-tab:hover {
+    background: var(--k-bg-sunken);
+  }
+
+  /* ===================== FichaRow / Ficha ===================== */
+  .k-ficha {
+    width: 100%;
+  }
+  .k-ficha-row {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: var(--k-touch);
+    padding: 14px 0;
+    border: 0;
+    border-bottom: 1px solid var(--k-line);
+    background: none;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    line-height: 1.4;
+    text-align: left;
+  }
+  .k-ficha-row--mark {
+    grid-template-columns: 18px 84px 1fr;
+  }
+  .k-ficha-row--chevron {
+    grid-template-columns: 84px 1fr 16px;
+  }
+  .k-ficha-row--mark.k-ficha-row--chevron {
+    grid-template-columns: 18px 84px 1fr 16px;
+  }
+  button.k-ficha-row,
+  a.k-ficha-row {
+    cursor: pointer;
+  }
+  button.k-ficha-row:hover,
+  a.k-ficha-row:hover {
+    background: var(--k-bg-sunken);
+  }
+  /* Ponto de 10 px: cheio (sódio) = preenchido, anel de 1,5 px = vazio. É pessoa/ponto, então fica redondo. */
+  .k-ficha-row__mark {
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid var(--k-line-strong);
+    border-radius: 50%;
+    transition: none;
+  }
+  .k-ficha-group {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .k-ficha-row__mark--done {
+    border-color: var(--k-brand);
+    background: var(--k-brand);
+  }
+  .k-ficha-row__value--mono {
+    font-family: var(--k-font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .k-ficha-row__value--empty {
+    color: var(--k-text-muted);
+  }
+
+  /* ===================== TrackRow (linha de encarte) ===================== */
+  .k-tracks {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--k-text);
+    list-style: none;
+  }
+  .k-track {
+    display: grid;
+    grid-template-columns: 22px 40px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-track__n,
+  .k-track__d {
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
+    font-variant-numeric: tabular-nums;
+    color: var(--k-text-muted);
+  }
+  /* Capa quadrada, raio 0 e sem filtro: nunca recortar nem cobrir capa de álbum. */
+  .k-track__cover {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: var(--k-bg-sunken);
+    color: var(--k-text-muted);
+    border-radius: 0;
+    object-fit: contain;
+    filter: none;
+  }
+  .k-cover {
+    border-radius: 0;
+    object-fit: contain;
+    filter: none;
+  }
+  .k-spotify-play {
+    display: inline-flex;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--k-radius-control);
+    background: var(--k-spotify);
+    color: var(--k-tinta-900);
+    cursor: pointer;
+  }
+  .k-spotify-credit {
+    flex: none;
+    color: var(--k-accent);
+    font-size: var(--k-fs-14);
+  }
+  .k-track:has(.k-spotify-credit) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .k-track:has(.k-spotify-credit) > .k-track__play {
+    flex: 1;
+    min-width: 0;
+  }
+  .k-track__title {
+    font-size: var(--k-fs-16);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .k-track__artist {
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+  .k-track--current .k-track__title {
+    color: var(--k-brand-text);
+    font-weight: 600;
+  }
+  .k-track--compact {
+    grid-template-columns: 40px 1fr auto;
+    padding: 0;
+    border-bottom: 0;
+  }
+  /* O botão de tocar ocupa a grade inteira da linha, sem mudar o desenho. */
+  .k-track:has(.k-track__play) {
+    display: block;
+    padding: 0;
+  }
+  .k-track__play {
+    display: grid;
+    grid-template-columns: 22px 40px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .k-track--compact .k-track__play {
+    grid-template-columns: 40px 1fr auto;
+    padding: 0;
+  }
+  .k-track__play:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ===================== Skeleton (fios e pontos, sem gradiente) ===================== */
+  .skeleton {
+    pointer-events: none;
+    user-select: none;
+    color: transparent !important;
+    border: 1px solid var(--k-line) !important;
+    background: none !important;
+    animation: k-pulse calc(var(--k-dur-scene) * 2) var(--k-ease-arrive) infinite;
+  }
+  .skeleton--line {
+    height: 1px;
+    border: 0 !important;
+    background: var(--k-line) !important;
+  }
+  .skeleton--dot {
+    border: 0 !important;
+    border-radius: var(--k-radius-person);
+    background: var(--k-line) !important;
+  }
+  .button.skeleton {
+    min-width: 7.5rem;
+  }
+  .input.skeleton {
+    display: block;
+  }
+  @keyframes k-pulse {
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  /* ===================== Spinner (ponto percorrendo o L) ===================== */
+  .k-spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    color: var(--k-text);
+    /* Só aparece depois de 300 ms de espera (spec): opacidade, sem JavaScript. */
+    opacity: 0;
+    animation: k-spinner-in var(--k-dur-instant) var(--k-ease-arrive) var(--k-dur-move) forwards;
+  }
+  .k-spinner--lg {
+    width: 56px;
+    height: 56px;
+  }
+  .k-spinner svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .k-spinner__dot {
+    fill: var(--k-brand);
+    animation: k-walk calc(var(--k-dur-scene) * 2) var(--k-ease-arrive) infinite alternate;
+  }
+  @keyframes k-spinner-in {
+    to {
+      opacity: 1;
+    }
+  }
+  /* Do canto do L (18, 102) até o topo do traço vertical (18, 18); o ponto repousa em (47,73). */
+  @keyframes k-walk {
+    from {
+      transform: translate(-29.2px, 29.2px);
+    }
+    to {
+      transform: translate(-29.2px, -54.8px);
+    }
+  }
+
+  /* ===================== EmptyState ===================== */
+  .k-empty {
+    padding: 32px;
+    background: var(--k-bg-sunken);
+    text-align: center;
+  }
+  .k-empty__title {
+    margin: 0;
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-25);
+    font-weight: 400;
+    line-height: var(--k-lh-title);
+  }
+  .k-empty__text {
+    margin: 8px 0 0;
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+  .k-empty__action {
+    margin-top: 20px;
+  }
+  /* Em linha: sem fundo, sem centralizar; frase em Fraunces 20 px com fio de 1 px acima. */
+  .k-empty--line {
+    padding: var(--k-space-4) 0 0;
+    border-top: 1px solid var(--k-line);
+    background: none;
+    text-align: left;
+  }
+  .k-empty--line .k-empty__title {
+    font-size: var(--k-fs-20);
+  }
+
+  /* ===================== Página de seções: Fotos e áudios ===================== */
+  .k-page-title {
+    margin: 0 0 var(--k-space-8);
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-31);
+    font-weight: 400;
+    line-height: var(--k-lh-title);
+    overflow-wrap: anywhere;
+  }
+  .k-section-title {
+    margin: var(--k-space-12) 0 var(--k-space-4);
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-25);
+    font-weight: 400;
+    line-height: var(--k-lh-title);
+  }
+  /* Painel do formulário sem fundo: grupos separados por fio de 1 px e 24 px de respiro, mesma grade de antes. */
+  .k-upload {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--k-space-6);
+    margin-bottom: var(--k-space-6);
+  }
+  .k-upload__cell {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--k-space-2);
+  }
+  .k-upload > .k-upload__cell:nth-child(n + 2) {
+    padding-top: var(--k-space-6);
+    border-top: 1px solid var(--k-line);
+  }
+  /* Campos na mesma altura (44 px). */
+  .k-upload .input {
+    min-height: var(--k-touch);
+    height: var(--k-touch);
+    padding-block: 0;
+  }
+  .k-upload .input:focus {
+    padding-bottom: 0;
+  }
+  .k-upload .button {
+    min-height: var(--k-touch);
+  }
+  .k-upload__cell--action {
+    justify-content: flex-end;
+  }
+  .k-upload__album {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--k-space-3);
+  }
+  .k-upload__album-field {
+    display: flex;
+    flex: 1 1 200px;
+    max-width: 320px;
+    flex-direction: column;
+    gap: var(--k-space-2);
+  }
+  @media (min-width: 640px) {
+    .k-upload {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--k-space-6);
+    }
+    .k-upload > .k-upload__cell:nth-child(2) {
+      padding-top: 0;
+      border-top: 0;
+    }
+    .k-upload__album {
+      grid-column: 1 / -1;
+    }
+  }
+  /* <input type="file"> real e acessível (nunca display: none), com o botão nativo no visual da Kina. O nome do
+     arquivo escolhido herda .k-meta. */
+  .k-file {
+    width: 100%;
+    min-width: 0;
+    height: var(--k-touch);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--k-text-muted);
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
+    letter-spacing: var(--k-meta-tracking);
+    text-transform: uppercase;
+  }
+  .k-file::file-selector-button {
+    height: var(--k-touch);
+    margin-inline-end: var(--k-space-3);
+    padding: 0 var(--k-space-4);
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: transparent;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
+    cursor: pointer;
+  }
+  .k-file:hover::file-selector-button {
+    background: var(--k-bg-sunken);
+  }
+
+  /* ===================== Toast (inverso) ===================== */
+  .k-toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--k-radius-none);
+    background: var(--k-text);
+    color: var(--k-bg);
+    font-size: var(--k-fs-14);
+    line-height: 1.4;
+    animation: k-toast-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-toast svg {
+    flex: none;
+  }
+  .k-toast__message {
+    flex: 1;
+    min-width: 0;
+  }
+  .k-toast__action {
+    flex: none;
+    min-height: var(--k-touch);
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  @keyframes k-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+}
+
+@layer components {
+  /* ===================== Modal / Sheet ===================== */
+  .k-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--k-z-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--k-space-4);
+    background: var(--k-overlay);
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-overlay--sheet {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .k-overlay[data-state="closing"] {
+    opacity: 0;
+    animation: none;
+    transition: opacity var(--k-dur-quick) var(--k-ease-leave);
+  }
+
+  .k-modal {
+    --k-corner-size: 16px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(520px, 100%);
+    max-height: calc(100dvh - 48px);
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-none);
+    background: var(--k-surface-raised);
+    color: var(--k-text);
+    box-shadow: var(--k-shadow-overlay);
+    animation: k-modal-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-overlay[data-state="closing"] .k-modal {
+    animation: none;
+  }
+
+  .k-sheet {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 88dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--k-line);
+    border-radius: var(--k-radius-none);
+    background: var(--k-surface-raised);
+    color: var(--k-text);
+    box-shadow: var(--k-shadow-overlay);
+    animation: k-sheet-in var(--k-dur-move) var(--k-ease-arrive);
+  }
+  .k-overlay[data-state="closing"] .k-sheet {
+    animation: none;
+  }
+  .k-sheet__handle {
+    width: 40px;
+    height: 4px;
+    margin: 10px auto 0;
+    background: var(--k-line-strong);
+  }
+
+  .k-dialog__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--k-space-4);
+    padding: var(--k-space-6) var(--k-space-6) var(--k-space-3);
+  }
+  .k-dialog__title {
+    margin: 0;
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-25);
+    font-weight: 400;
+    line-height: var(--k-lh-title);
+  }
+  .k-sheet .k-dialog__title {
+    font-size: 26px;
+  }
+  .k-dialog__description {
+    margin: 4px 0 0;
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+  .k-dialog__close {
+    display: inline-flex;
+    flex: none;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    margin: -8px -8px 0 0;
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-dialog__close:hover {
+    background: var(--k-bg-sunken);
+  }
+  .k-dialog__body {
+    overflow-y: auto;
+    padding: 0 var(--k-space-6) var(--k-space-6);
+  }
+
+  @keyframes k-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes k-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes k-modal-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes k-sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  /* ===================== Menu ===================== */
+  .k-menu {
+    position: relative;
+    display: inline-block;
+  }
+  .k-menu__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    justify-content: center;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .k-menu__panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    z-index: var(--k-z-overlay);
+    min-width: 220px;
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-none);
+    background: var(--k-surface-raised);
+    box-shadow: var(--k-shadow-overlay);
+    /* Entrada: 8 px + opacidade (240 ms); saída só em opacidade (160 ms). */
+    animation: k-modal-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-menu__panel--out {
+    animation: k-fade-out var(--k-dur-quick) var(--k-ease-leave) forwards;
+    pointer-events: none;
+  }
+  .k-menu__dot {
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--k-brand);
+  }
+  .k-menu__item--current {
+    font-weight: 600;
+  }
+  .k-menu__panel--end {
+    right: 0;
+  }
+  .k-menu__panel--start {
+    left: 0;
+  }
+  .k-menu__item {
+    display: flex;
+    width: 100%;
+    min-height: var(--k-touch);
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-14);
+    line-height: 1.25;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .k-menu__item:hover,
+  .k-menu__item:focus-visible {
+    background: var(--k-bg-sunken);
+  }
+  .k-menu__item:focus-visible {
+    outline-offset: -2px;
+  }
+  .k-menu__item--danger {
+    color: var(--k-danger);
+  }
+  .k-menu__item--sep {
+    border-top: 1px solid var(--k-line);
+  }
+
+  /* ===================== Reactions (D6): sem fundo, emoji + contagem mono, fio inferior na ativa ===================== */
+  .reaction-btn {
+    display: inline-flex;
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 10px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--k-radius-none);
+    background: none;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-16);
+    cursor: pointer;
+    transition: none;
+  }
+  /* Alinhadas à esquerda, no recuo do nome do autor: o emoji (centrado no alvo de 44 px) cai na borda do texto. */
+  .k-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-1);
+    margin-inline-start: -12px;
+  }
+  .reaction-btn:hover:not(:disabled) {
+    color: var(--k-text);
+  }
+  /* A ativa tem fio inferior de 2 px na marca (forma, não só cor) e a contagem em texto pleno. */
+  .reaction-btn[aria-pressed="true"] {
+    border-bottom-color: var(--k-brand);
+    color: var(--k-text);
+  }
+  .reaction-btn[aria-pressed="true"] .k-meta {
+    color: var(--k-text);
+  }
+
+  /* ===================== TabBar (celular) e agenda (DECISOES §5) ===================== */
+  .k-tabbar__list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    height: var(--k-tabbar);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--k-line);
+  }
+  .k-tabbar__slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+  .k-tabbar__link {
+    position: relative;
+    display: flex;
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    font-weight: 500;
+    line-height: 1.1;
+    opacity: 0.62;
+    text-decoration: none;
+  }
+  .k-tabbar__link.is-active {
+    font-weight: 600;
+    opacity: 1;
+  }
+  .k-tabbar__dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: transparent;
+  }
+  .k-tabbar__link.is-active .k-tabbar__dot {
+    background: var(--k-brand);
+  }
+  .k-tabbar__create {
+    display: flex;
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    margin-top: -26px;
+    border-radius: 50%;
+    outline: 6px solid var(--k-bg);
+    background: var(--k-brand);
+    color: var(--k-on-brand);
+    text-decoration: none;
+  }
+  .k-tabbar__create:hover {
+    background: var(--k-brand-hover);
+  }
+  .k-agenda__heading {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--k-text);
+    color: var(--k-text-muted);
+  }
+  .k-agenda__empty {
+    margin: 14px 0 0;
+    font-size: var(--k-fs-14);
+    color: var(--k-text-muted);
+  }
+  .k-agenda__name {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 20px;
+    line-height: 1.15;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+  }
+  .k-agenda .k-ficha-row {
+    grid-template-columns: 92px minmax(0, 1fr) 16px;
+    align-items: center;
+    min-height: 56px;
+  }
+  .k-agenda__create {
+    display: inline-flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    margin-top: 8px;
+    color: var(--k-brand-text);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .k-agenda__people {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .k-agenda__person-name {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  /* "Ver mais (N)": <details> nativo, sem requisição; o resumo é o alvo de 44 px. */
+  .k-agenda__more > summary {
+    display: flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    color: var(--k-brand-text);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .k-agenda__person {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--k-touch);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--k-line);
+  }
+
+  /* ===================== Login / auth (plano 3.2 + D1) ===================== */
+  /* Painel centrado no fluxo (flex): se a altura não couber, a página cresce e rola, e a grade e os fios (inset 0) acompanham.
+     `isolation` cria o contexto de empilhamento: grade e fios (z 0) ficam atrás de todo conteúdo (z 2). */
+  .auth-stage {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    padding:
+      max(72px, env(safe-area-inset-top))
+      max(var(--k-space-4), env(safe-area-inset-right))
+      max(var(--k-space-8), env(safe-area-inset-bottom))
+      max(var(--k-space-4), env(safe-area-inset-left));
+    background: var(--k-bg);
+  }
+  /* Grade (canvas AuthGrid) e fios (SVG AuthQuina), atrás de tudo: z 0 e sem ponteiro. */
+  .auth-stage__grid,
+  .auth-stage__quina {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  /* A quina: dois fios mais grossos que se cruzam no centro. O magnetismo escala o arco por `transform`. */
+  .auth-quina__fio {
+    fill: none;
+    stroke: var(--k-text);
+    stroke-opacity: 0.55;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    will-change: transform;
+  }
+  .auth-quina__fio--h {
+    transform: scaleY(0.001);
+  }
+  .auth-quina__fio--v {
+    transform: scaleX(0.001);
+  }
+  .auth-stage__brand {
+    position: absolute;
+    z-index: 2;
+    top: max(16px, env(safe-area-inset-top));
+    left: max(16px, env(safe-area-inset-left));
+  }
+  .auth-stage__phrase {
+    position: absolute;
+    z-index: 2;
+    bottom: calc(50% + 28px + var(--k-space-8)); /* meia altura do botão (56 px) + respiro */
+    left: 50%;
+    width: min(12em, calc(100% - 32px));
+    margin: 0;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: var(--k-fs-39);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    transition:
+      transform var(--k-dur-scene) var(--k-ease-leave),
+      opacity var(--k-dur-scene) var(--k-ease-leave);
+  }
+  .auth-stage__phrase em {
+    font-style: italic;
+  }
+  /* Painel aberto: o título sai pela esquerda. */
+  .auth-stage__phrase[data-out] {
+    transform: translateX(calc(-50% - var(--k-space-16)));
+    opacity: 0;
+  }
+  .auth-stage__foot {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    bottom: max(var(--k-space-6), env(safe-area-inset-bottom));
+    left: 0;
+    margin: 0;
+    text-align: center;
+  }
+  /* Clique no fundo, no repouso, abre o painel. Fica abaixo do conteúdo (z 2) e acima da quina (z 0). */
+  .auth-stage__hit {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+  }
+  .auth-enter {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    width: max-content;
+    transform: translate(-50%, -50%);
+  }
+  /* O magnetismo desloca este invólucro. O botão fica com largura do conteúdo (o transform não entra na medida). */
+  .auth-enter__shift {
+    width: max-content;
+    will-change: transform;
+  }
+  /* Painel aberto: o botão “vira” o painel, então some (só opacity). */
+  .auth-enter[data-open] {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--k-dur-quick) var(--k-ease-leave);
+  }
+  .auth-enter .button {
+    width: max-content;
+    height: 56px;
+    padding: 0 24px;
+    overflow: visible;
+    white-space: nowrap;
+    font-size: var(--k-fs-20);
+  }
+  /* No ponto sódio o símbolo inteiro fica na cor do texto do botão (o ponto da marca some no fundo). */
+  .auth-enter .brand-symbol circle {
+    fill: currentColor;
+  }
+  .auth-panel {
+    position: relative;
+    z-index: 2;
+    width: min(420px, 100%);
+    margin: 0;
+    padding: 28px 24px 24px;
+    background: var(--k-surface-raised); /* sobrescrito por .k-glass nas telas de entrada */
+    /* Cantoneiras encostadas nos cantos reais do painel (o padrão é 6 px para fora). */
+    --k-corner-offset: 0px;
+  }
+  /* Painel do login: centrado no vértice da quina (o mesmo ponto do botão), com scroll quando a altura não couber. */
+  .auth-entry {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    width: min(420px, calc(100% - 2 * var(--k-space-4)));
+    height: fit-content;
+    margin: auto;
+  }
+  .auth-panel--entry.k-glass {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: calc(100dvh - 2 * var(--k-space-8));
+    --k-glass-tint: 35%; /* sobe a tinta para o texto passar de 4,5:1 sobre os fios e a grade */
+  }
+  .auth-entry[data-state="closing"] {
+    opacity: 0;
+    transition: opacity var(--k-dur-quick) var(--k-ease-leave);
+  }
+  /* Fundo atrás do painel: desfoca e escurece. D19: exceção de blur junto com .k-glass; anima só opacity. */
+  .k-entry-scrim {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    background: color-mix(in srgb, var(--k-bg) 55%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    animation: k-fade-in var(--k-dur-scene) var(--k-ease-arrive);
+  }
+  .k-entry-scrim[data-state="closing"] {
+    opacity: 0;
+    transition: opacity var(--k-dur-quick) var(--k-ease-leave);
+  }
+  /* ===================== .k-glass — vidro líquido (DECISOES D19) =====================
+     EXCEÇÃO ao "sem vidro/sombra": permitido SÓ no painel de login (`.auth-panel--entry.k-glass`), inclusive a folha do toque.
+     Cadastro, esqueci e redefinir ficam opacos. Proibido em qualquer outro lugar. O filtro não anima.
+     Camadas: (1) refração do fundo (filtro SVG #k-glass, só Chromium, ver GlassFilter); (2) desfoque leve;
+     (3) borda fina e brilho interno na borda de cima. Só tokens --k-*; nada de animar o filtro. */
+  .k-glass {
+    --k-glass-tint: 12%;
+    background: color-mix(in srgb, var(--k-surface-raised) var(--k-glass-tint), transparent);
+    border: 1px solid color-mix(in srgb, var(--k-text) 22%, transparent);
+    border-radius: var(--k-radius-control);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--k-text) 25%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    backdrop-filter: blur(12px) saturate(1.4);
+  }
+  /* Campos translúcidos também, para o vidro valer dentro do card. */
+  .k-glass .input {
+    background: color-mix(in srgb, var(--k-bg) 22%, transparent);
+  }
+  /* Refração só onde o navegador aceita filtro SVG em backdrop-filter. GlassFilter marca <html data-glass-refract>
+     apenas no Chromium; Firefox e Safari ficam no desfoque comum acima. */
+  @supports (backdrop-filter: url(#k-glass)) {
+    :root[data-glass-refract] .k-glass {
+      -webkit-backdrop-filter: url(#k-glass) blur(6px) saturate(1.4);
+      backdrop-filter: url(#k-glass) blur(6px) saturate(1.4);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .k-glass,
+    :root[data-glass-refract] .k-glass,
+    .auth-panel--entry.k-glass {
+      background: var(--k-surface-raised);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .k-glass .input {
+      background: var(--k-bg-sunken);
+    }
+    .k-entry-scrim {
+      background: color-mix(in srgb, var(--k-bg) 92%, transparent);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  /* Item preso no tema antigo durante a troca por blocos: o texto herdado precisa seguir os tokens do próprio item. */
+  .auth-stage > [data-theme] {
+    color: var(--k-text);
+  }
+  .auth-panel__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Respiro para o outline do foco (2 px + offset 2 px) não encostar nas bordas do painel. */
+    padding: 8px;
+  }
+  .auth-panel--error {
+    border: 2px solid var(--k-danger);
+  }
+  /* Erro no campo: borda de 2 px em volta, além do ícone + texto ligados por aria-describedby. */
+  .auth-panel .input[aria-invalid="true"] {
+    border: 2px solid var(--k-danger);
+    padding: 9px 11px;
+  }
+  .auth-panel__title {
+    margin: 0;
+    font-size: var(--k-fs-31);
+    line-height: 1.05;
+  }
+  .auth-panel__lead {
+    margin: 8px 0 20px;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-16);
+  }
+  .auth-panel__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 16px;
+    margin-top: 14px;
+    font-size: var(--k-fs-14);
+  }
+  .auth-panel__links a,
+  .auth-panel__links button {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--k-touch);
+    color: var(--k-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+  }
+  @media (min-width: 1024px) {
+    .auth-stage__phrase {
+      font-size: var(--k-fs-49);
+    }
+  }
+  /* Toque: sem magnetismo (o JS não liga); o painel abre como folha inferior, colada na base e com safe-area. */
+  @media (pointer: coarse) {
+    .auth-entry {
+      position: fixed;
+      inset: auto 0 0;
+      width: 100%;
+      margin: 0;
+      animation: k-sheet-in var(--k-dur-move) var(--k-ease-arrive);
+    }
+    .auth-panel--entry.k-glass {
+      --k-glass-tint: 80%;
+      max-height: calc(100dvh - var(--k-space-12));
+      border-right: 0;
+      border-bottom: 0;
+      border-left: 0;
+      border-radius: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .auth-panel--entry::before {
+      content: "";
+      position: absolute;
+      top: var(--k-space-2);
+      left: 50%;
+      width: 40px;
+      height: 4px;
+      background: var(--k-line-strong);
+      transform: translateX(-50%);
+    }
+  }
+  /* Movimento reduzido: sem magnetismo (JS), sem crescimento e sem folha deslizando; o painel só aparece em fade. */
+  @media (prefers-reduced-motion: reduce) {
+    .auth-entry {
+      animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+    }
+    .auth-stage__phrase[data-out] {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ===================== Perfil: capa que vira barra (D22; plano 3.4 + D5, D7, D15) =====================
+   * Animação guiada pela rolagem, CSS puro. Só transform e opacity. Sem suporte a `animation-timeline`
+   * ou com movimento reduzido, o perfil fica estático: barra fina fixa só com fio e nome. */
+  :root {
+    --k-profile-range: 240px;
+  }
+  .k-profile {
+    --k-profile-header: calc(var(--k-header-h) + var(--k-areas-h)); /* cabeçalho + barra de áreas (sticky), para a barra fina encostar embaixo */
+    --k-profile-bar: 56px;
+    --k-profile-bleed: var(--k-gutter); /* sangria lateral da capa e da barra (a margem lateral do contêiner) */
+    --k-profile-cover: clamp(280px, 40vh, 420px);
+    --k-profile-avatar: 80px;
+    --k-profile-dock: 40px;
+    --k-profile-dock-scale: 0.5; /* 40 / avatar */
+    --k-profile-overlap: 72px;
+    --k-profile-id-left: 0px;
+    --k-profile-shift: var(--k-profile-bar); /* estático: a barra ocupa espaço acima da capa */
+    --k-profile-pad: 2rem; /* recuo interno do bloco: o avatar fica a ≥ 24 px da cantoneira superior esquerda */
+    --k-profile-bar-inset: calc(var(--k-profile-bleed) + var(--k-profile-pad));
+    --k-profile-avatar-z: 1;
+    position: relative;
+    isolation: isolate;
+    margin-top: -1rem;
+  }
+  .k-profile__bar {
+    position: sticky;
+    top: calc(var(--k-profile-header) + env(safe-area-inset-top));
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    height: var(--k-profile-bar);
+    margin: 0 calc(var(--k-profile-bleed) * -1);
+    padding: 0 var(--k-profile-bleed) 0 var(--k-profile-bar-inset);
+    pointer-events: none;
+  }
+  .k-profile__bar-bg {
+    position: absolute;
+    inset: 0;
+    border-bottom: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  .k-profile__bar-name {
+    position: relative;
+    margin: 0;
+    max-height: 2.2em;
+    overflow: hidden;
+    font-size: var(--k-fs-20);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .k-profile .profile-cover {
+    position: relative;
+    height: var(--k-profile-cover);
+    margin: 0 calc(var(--k-profile-bleed) * -1);
+    overflow: hidden;
+    background: var(--k-bg-sunken);
+  }
+  .profile-cover__media {
+    position: absolute;
+    inset: calc(var(--k-profile-range) * -0.4) 0 0;
+  }
+  .profile-cover__empty {
+    display: grid;
+    height: 100%;
+    min-height: var(--k-profile-cover);
+    place-items: center;
+    background-color: var(--k-bg-sunken);
+  }
+  .profile-cover__initials {
+    font-size: clamp(4.5rem, 18vw, 9rem);
+    line-height: 1;
+    color: color-mix(in srgb, var(--k-text) 6%, transparent);
+  }
+  .k-profile__scrim {
+    position: absolute;
+    inset: 0;
+    background: var(--k-stage-bg);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .k-profile__back {
+    position: absolute;
+    top: var(--k-space-3);
+    left: calc(var(--k-profile-bleed) + var(--k-space-3));
+    z-index: 3;
+    display: inline-flex;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: var(--k-bg);
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .profile-id {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    margin-top: calc(var(--k-profile-overlap) * -1);
+    padding: 3.5rem var(--k-profile-pad) 1.25rem;
+    background: var(--k-bg);
+  }
+  .k-profile__avatar {
+    position: absolute;
+    z-index: var(--k-profile-avatar-z);
+    top: calc(var(--k-profile-shift) + var(--k-profile-cover) - var(--k-profile-overlap));
+    left: calc(var(--k-profile-id-left) + var(--k-profile-pad));
+    border-radius: var(--k-radius-person);
+    outline: 5px solid var(--k-bg);
+    transform: translateY(-50%);
+    transform-origin: left center;
+  }
+  .k-profile__avatar .k-avatar {
+    --k-avatar: var(--k-profile-avatar);
+  }
+  /* Nome completo, sem corte nem reticências: o bloco cresce (até 3 linhas em nomes comuns). */
+  .profile-id__name {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 52px);
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+  .profile-id__bio {
+    max-width: var(--k-measure, 68ch);
+    margin: var(--k-space-4) 0 0;
+    overflow-wrap: anywhere;
+  }
+  /* Ações em linha abaixo da bio; todas com 44 px de altura e o mesmo padding horizontal. */
+  .profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-2);
+    margin-top: var(--k-space-4);
+  }
+  .profile-actions .button {
+    min-height: var(--k-touch);
+    padding-inline: var(--k-space-4);
+  }
+  /* Celular: a principal ocupa a largura disponível e as secundárias ficam compactas. */
+  .profile-actions__main {
+    flex: 1 1 100%;
+  }
+  @media (min-width: 640px) {
+    .profile-actions__main {
+      flex: 0 0 auto;
+    }
+  }
+  /* Ficha de contagens: sem caixa nem fundo; fio acima, fios verticais entre os itens. */
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: var(--k-space-6) 0 0;
+    border-top: 1px solid var(--k-line);
+  }
+  .profile-stat {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--k-space-1);
+    padding: var(--k-space-3) var(--k-space-3);
+    border-inline-start: 1px solid var(--k-line);
+    overflow-wrap: anywhere;
+  }
+  .profile-stat:nth-child(3n + 1) {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+  .profile-stat__value {
+    margin: 0;
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-20);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .profile-stat .k-meta {
+    margin: 0;
+  }
+  @media (min-width: 640px) {
+    .profile-stats {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .profile-stat {
+      padding-inline: var(--k-space-6);
+    }
+    .profile-stat:nth-child(3n + 1) {
+      padding-inline-start: var(--k-space-6);
+      border-inline-start: 1px solid var(--k-line);
+    }
+    .profile-stat:first-child {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+    }
+  }
+  .k-profile__tabs {
+    position: sticky;
+    top: calc(var(--k-profile-header) + var(--k-profile-bar) + env(safe-area-inset-top));
+    z-index: 2;
+    background: var(--k-bg);
+  }
+  .k-profile__error {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    color: var(--k-danger);
+  }
+  .k-profile--loading .k-profile__skel-cover {
+    height: var(--k-profile-cover);
+    margin: 0 calc(var(--k-profile-bleed) * -1);
+  }
+  .profile-tile {
+    min-width: 0;
+    padding: 12px;
+  }
+  .profile-tile--photo {
+    padding: 0;
+  }
+  .profile-tile__title {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 22px;
+    line-height: 1.15;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+  }
+  .profile-tile__photo {
+    display: block;
+    width: 100%;
+    height: 9rem;
+    object-fit: cover;
+  }
+  @media (min-width: 640px) {
+    .k-profile {
+      margin-top: -1.5rem;
+    }
+  }
+  @media (min-width: 768px) {
+    .k-profile {
+      --k-profile-avatar: 96px;
+      --k-profile-dock-scale: 0.4167;
+    }
+  }
+  @media (min-width: 1024px) {
+    .k-profile {
+      --k-profile-overlap: 120px;
+      --k-profile-id-left: 24px;
+    }
+    .profile-id {
+      width: min(560px, calc(100% - 48px));
+      margin-left: 24px;
+      padding-top: 4rem;
+    }
+  }
+  /* Rolagem: capa sobe a 60% da velocidade e escurece (camada sólida, sem blur), o avatar desce para dentro da
+   * barra (translate + scale) e o nome da barra aparece no fim. Faixas num lugar só: `--k-profile-range`. */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .k-profile {
+        --k-profile-shift: 0px;
+        --k-profile-bar-inset: calc(var(--k-profile-bleed) + var(--k-profile-pad) + var(--k-profile-id-left) + var(--k-profile-dock) + 12px);
+        --k-profile-avatar-z: 3;
+        --k-profile-dock-y: calc(var(--k-profile-bar) / 2 - var(--k-profile-cover) + var(--k-profile-overlap) + var(--k-profile-range));
+      }
+      .k-profile__bar {
+        margin-bottom: calc(var(--k-profile-bar) * -1);
+      }
+      .k-profile__bar-bg,
+      .k-profile__bar-name {
+        opacity: 0;
+      }
+      .profile-cover__media {
+        animation: k-profile-cover-parallax linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 var(--k-profile-range);
+      }
+      .k-profile__scrim {
+        animation: k-profile-scrim linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 var(--k-profile-range);
+      }
+      .k-profile__avatar {
+        animation: k-profile-avatar-dock linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 var(--k-profile-range);
+      }
+      .k-profile__bar-bg,
+      .k-profile__bar-name {
+        animation: k-profile-fade-in linear both;
+        animation-timeline: scroll(root);
+        animation-range: calc(var(--k-profile-range) * 0.6) var(--k-profile-range);
+      }
+    }
+  }
+  @keyframes k-profile-cover-parallax {
+    to {
+      transform: translateY(calc(var(--k-profile-range) * 0.4));
+    }
+  }
+  @keyframes k-profile-scrim {
+    to {
+      opacity: 0.6;
+    }
+  }
+  @keyframes k-profile-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes k-profile-avatar-dock {
+    from {
+      transform: translateY(-50%);
+    }
+    to {
+      transform: translateY(calc(-50% + var(--k-profile-dock-y))) scale(var(--k-profile-dock-scale));
+    }
+  }
+
+  /* ===================== Marcar / editar rolê (plano 3.5 + D13 + etapa O) ===================== */
+  .role-form {
+    display: grid;
+    gap: var(--k-space-8);
+  }
+  .role-form__title {
+    margin: 0;
+    font-size: var(--k-fs-39);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .role-form__grid {
+    display: grid;
+    gap: var(--k-space-8);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .role-form__body {
+    display: grid;
+    min-width: 0;
+    gap: var(--k-space-6);
+  }
+  /* Capa à esquerda (5/12) e ficha à direita (7/12) a partir de 768 px; a capa acompanha a rolagem. */
+  @media (min-width: 768px) {
+    .role-form__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0 var(--k-space-12);
+      align-items: start;
+    }
+    .role-form__cover {
+      position: sticky;
+      top: calc(var(--k-header-h) + var(--k-areas-h) + var(--k-space-4));
+      grid-column: span 5;
+      align-self: start;
+    }
+    .role-form__body {
+      grid-column: span 7;
+    }
+  }
+
+  /* Rótulos: todos no mesmo estilo mono (nada de negrito sans solto). */
+  .role-form .k-label {
+    color: var(--k-text-muted);
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
+    font-weight: 400;
+    letter-spacing: var(--k-meta-tracking);
+    text-transform: uppercase;
+  }
+
+  /* Capa: um só controle (o <label> do input de arquivo). */
+  .role-banner {
+    display: grid;
+    gap: var(--k-space-2);
+    padding: var(--k-space-2);
+  }
+  .role-banner__area {
+    display: block;
+    aspect-ratio: 3 / 2;
+    background: var(--k-bg-sunken);
+    cursor: pointer;
+  }
+  .role-banner__area:focus-within {
+    outline: var(--k-line-focus) solid var(--k-focus);
+    outline-offset: 2px;
+  }
+  .role-banner__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .role-banner__empty {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--k-space-2);
+    padding: var(--k-space-4);
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    text-align: center;
+  }
+  .role-banner__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--k-space-2);
+  }
+  .role-banner__meta .button {
+    min-height: var(--k-touch);
+  }
+
+  /* Nome: Fraunces grande, sem fundo, fio inferior de 1 px (2 px no foco). Cresce com o texto. */
+  .role-name {
+    display: grid;
+    gap: var(--k-space-1);
+  }
+  .role-name__input {
+    width: 100%;
+    min-width: 0;
+    padding: 0 0 var(--k-space-2);
+    border: 0;
+    border-bottom: 1px solid var(--k-line-strong);
+    border-radius: 0;
+    background: none;
+    color: var(--k-text);
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: clamp(28px, 4vw, 39px);
+    line-height: 1.15;
+    field-sizing: content;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    resize: none;
+  }
+  .role-name__input::placeholder {
+    color: var(--k-text-subtle);
+  }
+  .role-name__input:focus {
+    padding-bottom: calc(var(--k-space-2) - 1px);
+    border-bottom-width: 2px;
+    border-bottom-color: var(--k-text);
+  }
+
+  /* Ficha: rótulo | valor, 56 px de altura mínima, fio de 1 px entre linhas, sem fundo e sem cartão. */
+  .role-ficha .k-ficha-row {
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+    gap: var(--k-space-1) var(--k-space-3);
+    min-height: 56px;
+    padding: var(--k-space-3) 0;
+  }
+  .role-ficha .k-ficha-row__mark {
+    grid-column: 1;
+    grid-row: 1;
+    margin-top: 3px;
+  }
+  .role-ficha .k-ficha-row > .k-meta {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .role-ficha .k-ficha-row > :last-child {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+  }
+  @media (min-width: 640px) {
+    .role-ficha .k-ficha-row {
+      grid-template-columns: 20px 120px minmax(0, 1fr);
+      align-items: center;
+    }
+    .role-ficha .k-ficha-row > .k-meta {
+      grid-row: 1;
+    }
+    .role-ficha .k-ficha-row > :last-child {
+      grid-column: 3;
+      grid-row: 1;
+    }
+  }
+  .role-ficha__pair {
+    display: grid;
+    gap: var(--k-space-2);
+  }
+  @media (min-width: 480px) {
+    .role-ficha__pair {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Campos nativos: 44 px, raio 2 px, fundo rebaixado, fio inferior de 1 px (2 px no foco e no erro). */
+  .role-form .input {
+    height: var(--k-touch);
+    min-height: var(--k-touch);
+    padding: 0 var(--k-space-3);
+    border-radius: var(--k-radius-control);
+  }
+  .role-form .input:focus,
+  .role-form .input[aria-invalid="true"] {
+    padding-bottom: 0;
+  }
+  .role-form input[type="date"],
+  .role-form input[type="time"] {
+    color-scheme: inherit;
+  }
+  .role-form input::-webkit-calendar-picker-indicator {
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    margin-right: calc(var(--k-space-3) * -1);
+    cursor: pointer;
+    background-position: center;
+  }
+  .role-form .k-select {
+    position: relative;
+    display: block;
+  }
+  .role-form .k-select select {
+    padding-right: var(--k-space-12);
+    appearance: none;
+  }
+  .role-form .k-select__chevron {
+    position: absolute;
+    top: 50%;
+    right: var(--k-space-3);
+    transform: translateY(-50%);
+    color: var(--k-text);
+    pointer-events: none;
+  }
+
+  /* Local: campo + Pesquisar na mesma linha; o botão desce abaixo de 480 px. */
+  .role-place {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-2);
+  }
+  .role-place .input {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+  .role-place .button {
+    min-height: var(--k-touch);
+  }
+
+  /* Mapa: tiles do OSM, raio 0, fio de 1 px; controles retangulares de 44 px; atribuição sempre legível. */
+  .role-map {
+    height: clamp(240px, 36vh, 360px);
+  }
+  .role-ficha [data-location-map] > [role="application"] {
+    border-color: var(--k-line-strong);
+    border-radius: 0;
+  }
+  .role-ficha .maplibregl-ctrl-group {
+    border: 1px solid var(--k-line-strong);
+    border-radius: 0;
+    background: var(--k-bg);
+  }
+  .role-ficha .maplibregl-ctrl-group button {
+    border-radius: 0;
+    background-color: var(--k-bg);
+  }
+  .role-ficha .maplibregl-ctrl-attrib {
+    display: block;
+    color: var(--k-text-muted);
+  }
+
+  /* Descrição recolhida (<details>), sem animar altura. */
+  .role-desc > summary {
+    display: flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    border-bottom: 1px solid var(--k-line);
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .role-desc[open] > summary {
+    margin-bottom: var(--k-space-3);
+  }
+  .role-desc .role-desc__text {
+    height: auto;
+    min-height: 96px;
+    padding: var(--k-space-3);
+    resize: vertical;
+  }
+
+  /* Barra de ação fixa embaixo: fio no topo, safe-area, sem sombra e sem blur. Única ação principal. */
+  .role-form__publish {
+    position: sticky;
+    bottom: calc(var(--k-tabbar) + env(safe-area-inset-bottom));
+    z-index: 3;
+    display: grid;
+    gap: var(--k-space-2);
+    padding: var(--k-space-3) 0 calc(var(--k-space-3) + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  .role-form__publish-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--k-space-3);
+  }
+  .role-form__publish .button {
+    min-height: var(--k-touch);
+  }
+  .role-form__error {
+    margin: 0;
+  }
+  .role-form__hint {
+    margin: 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+  }
+  @media (min-width: 1024px) {
+    .role-form__publish {
+      bottom: 0;
+      padding-bottom: var(--k-space-3);
+    }
+  }
+
+  /* ===================== Ver rolê (plano 3.6 + D12) ===================== */
+  .role-view__main {
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+  }
+  .role-cover {
+    position: relative;
+    min-height: 240px;
+    height: 40vh;
+    overflow: hidden;
+    background: var(--k-bg-sunken);
+  }
+  .role-cover__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .role-cover__scrim {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 55%;
+    background: var(--k-scrim-photo);
+  }
+  .role-cover__title {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+  }
+  .role-cover__status {
+    color: var(--k-brand-text);
+  }
+  .role-cover__name {
+    margin: 4px 0 0;
+    overflow: hidden;
+    color: var(--k-stage-text);
+    font-size: var(--k-fs-39);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+  }
+  .role-cover__title--plain .role-cover__name,
+  .role-cover__title--plain .role-cover__status {
+    color: var(--k-text);
+  }
+  .role-cover__title--plain .role-cover__status {
+    color: var(--k-brand-text);
+  }
+  .role-view__desc {
+    margin: 0;
+    font-size: var(--k-fs-16);
+  }
+  .role-view__people {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+  .role-view__rsvp {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .role-view__side {
+    display: grid;
+    gap: 24px;
+    align-content: start;
+    margin-top: 24px;
+  }
+  .role-view__side-title {
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--k-text);
+  }
+  @media (min-width: 1024px) {
+    .role-cover {
+      height: 52vh;
+    }
+    .role-cover__name {
+      font-size: var(--k-fs-61);
+    }
+    .role-view {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 32px;
+      align-items: start;
+    }
+    .role-view__ficha {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 28px;
+    }
+    .role-view__side {
+      margin-top: 0;
+    }
+  }
+
+  /* ===================== Feed (plano 3.7 + D3, D8, D9) ===================== */
+  /* Blocos do feed (título, stories, convites, composer, Mesa): respiro de 48 + 48 px com um fio de 1 px no meio. */
+  /* D26: o feed ocupa a coluna fluida do layout (sem 680 px fixos). */
+  .feed {
+    display: grid;
+    gap: 0;
+    width: 100%;
+    min-width: 0;
+  }
+  .feed > * + * {
+    margin-top: var(--k-space-12);
+    padding-top: var(--k-space-12);
+    border-top: 1px solid var(--k-line);
+  }
+  .k-feed-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--k-space-2) var(--k-space-4);
+  }
+  .k-feed-head__title {
+    margin: 0;
+    font-size: var(--k-fs-39);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
+  /* Convite de rolê: compacto, sem fundo e sem moldura. A data fica à esquerda a partir de 768 px. */
+  .k-invites {
+    display: grid;
+    gap: 0;
+  }
+  .k-invite {
+    display: grid;
+    gap: var(--k-space-3) var(--k-space-6);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .k-invite + .k-invite {
+    margin-top: var(--k-space-8);
+    padding-top: var(--k-space-8);
+    border-top: 1px solid var(--k-line);
+  }
+  .k-invite__author {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--k-space-2);
+    margin: 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .k-invite__author .k-avatar {
+    margin-top: 1px;
+  }
+  .k-invite__name {
+    color: var(--k-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .k-invite__name:hover {
+    text-decoration: underline;
+  }
+  .k-invite__when {
+    display: flex;
+    flex-direction: column;
+    gap: var(--k-space-1);
+  }
+  .k-invite__dayrow {
+    display: flex;
+    align-items: baseline;
+    gap: var(--k-space-2);
+    margin: 0;
+  }
+  .k-invite__day {
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-49);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    line-height: 0.95;
+  }
+  .k-invite__when .k-meta {
+    margin: 0;
+  }
+  .k-invite__body {
+    display: grid;
+    min-width: 0;
+    gap: var(--k-space-2);
+  }
+  .k-invite__cover {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    max-height: 420px;
+    margin-bottom: var(--k-space-2);
+    object-fit: cover;
+  }
+  .k-invite__title {
+    margin: 0;
+    font-size: var(--k-fs-31);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .k-invite__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .k-invite__title a:hover {
+    text-decoration: underline;
+  }
+  .k-invite__place {
+    margin: 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-16);
+    overflow-wrap: anywhere;
+  }
+  .k-invite__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-2);
+    margin-top: var(--k-space-2);
+  }
+  .k-invite__actions .button {
+    min-height: var(--k-touch);
+  }
+  @media (min-width: 768px) {
+    .k-invite {
+      grid-template-columns: 140px minmax(0, 1fr);
+    }
+    .k-invite__author {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Comentários recolhidos (<details> nativo): o resumo é o alvo de 44 px; sem animar altura. */
+  .k-comments {
+    border-top: 1px solid var(--k-line);
+    margin-top: var(--k-space-2);
+  }
+  .k-comments > summary {
+    display: flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    gap: var(--k-space-2);
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .k-comments > summary::-webkit-details-marker {
+    display: none;
+  }
+  .k-comments__icon {
+    margin-inline-start: auto;
+  }
+  .k-comments[open] .k-comments__icon {
+    transform: rotate(45deg);
+  }
+  .k-comments__body {
+    padding: var(--k-space-2) 0 var(--k-space-4);
+  }
+
+  /* Composer: é um campo, então mantém o fundo rebaixado; fio de 1 px acima da barra de ações. */
+  .k-composer {
+    padding: var(--k-space-4);
+    background: var(--k-bg-sunken);
+  }
+  .k-composer__field {
+    display: flex;
+    gap: var(--k-space-3);
+  }
+  .k-composer__text {
+    min-width: 0;
+    min-height: 64px;
+    flex: 1;
+    resize: vertical;
+    border: 0;
+    background: transparent;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    line-height: 1.5;
+  }
+  .k-composer__text::placeholder {
+    color: var(--k-text-subtle);
+  }
+  .k-composer__text:focus-visible {
+    outline-offset: 4px;
+  }
+  .k-composer__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--k-space-2) var(--k-space-4);
+    margin-top: var(--k-space-4);
+    padding-top: var(--k-space-3);
+    border-top: 1px solid var(--k-line);
+  }
+  .k-composer__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-1);
+  }
+  .k-composer__send {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    max-width: 100%;
+  }
+  .k-composer__send .button {
+    min-height: var(--k-touch);
+  }
+  .k-composer__send .k-reason {
+    text-align: right;
+  }
+  .feed-memory {
+    padding: 16px;
+  }
+  /* Post sem rolê (D3/D4): bloco elevado, avatar vazando, sem faixa e sem imagem. */
+  .k-post__block {
+    position: relative;
+    background: var(--k-surface-raised);
+    padding: 40px 24px 20px;
+  }
+  .k-post {
+    padding-top: 28px;
+  }
+  .k-post__avatar {
+    position: absolute;
+    top: -28px;
+    left: 20px;
+    z-index: 1;
+  }
+  .k-post__avatar .k-avatar {
+    --k-avatar: 56px;
+  }
+  .k-post__avatar .k-avatar__face {
+    outline: 4px solid var(--k-bg);
+    outline-offset: 0;
+  }
+  .k-post__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .k-post__name {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 25px;
+    line-height: 1.1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+  }
+  .k-post__name a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .k-post__name a:hover {
+    text-decoration: underline;
+  }
+  .k-post__caption {
+    margin-top: 12px;
+  }
+  .k-post__body {
+    margin: 0;
+    font-size: var(--k-fs-16);
+    line-height: 1.5;
+  }
+  .k-post__body {
+    max-width: var(--k-measure);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  /* Blocos de leitura limitados à medida (D26); mídia ocupa a largura toda da coluna. */
+  .k-measure {
+    max-width: var(--k-measure);
+  }
+  .k-post__foot {
+    display: grid;
+    gap: var(--k-space-2);
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--k-line);
+  }
+  .k-post__track {
+    min-width: 0;
+    border-top: 0;
+  }
+  /* Detalhe com foto: o texto vem sem moldura e sem fundo de cartão (presente não tem moldura). */
+  .k-post--bare .k-post__block {
+    background: none;
+  }
+  .feed-memory--bare {
+    padding: 0;
+  }
+  /* Motivo de um botão desabilitado: texto de 14 px ligado por aria-describedby (estado nunca só por cor). */
+  .k-reason {
+    margin: var(--k-space-1) 0 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    line-height: 1.4;
+  }
+  .k-post__comments {
+    padding: 12px 16px 0;
+  }
+  @media (min-width: 1024px) {
+    .k-post {
+      padding-top: 0;
+      padding-left: 36px;
+    }
+    .k-post__block {
+      padding: 24px 32px 20px 56px;
+    }
+    .k-post__avatar {
+      top: 24px;
+      left: -36px;
+    }
+    .k-post__avatar .k-avatar {
+      --k-avatar: 72px;
+    }
+    .k-post__name {
+      font-size: 31px;
+    }
+  }
+  .feed-memory__title {
+    margin: 4px 0;
+    overflow: hidden;
+    font-size: 22px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+  }
+  /* Stories: pontos de 58 px. Não visto = anel de 2 px da marca (o `glow` do Avatar). */
+  /* Faixa horizontal: rolagem sem barra visível, com encaixe suave (o foco ganha 4 px de respiro). */
+  .k-stories__row {
+    display: flex;
+    gap: 16px;
+    margin: 0;
+    padding: 6px 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    list-style: none;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+  .k-stories__row::-webkit-scrollbar {
+    display: none;
+  }
+  .k-stories__item {
+    position: relative;
+    display: flex;
+    width: 72px;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    scroll-snap-align: start;
+  }
+  .k-stories__hit {
+    display: flex;
+    width: 100%;
+    min-height: var(--k-touch);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--k-space-2);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-stories__avatar {
+    position: relative;
+    display: inline-flex;
+  }
+  .k-stories__item .k-avatar--lg {
+    --k-avatar: 58px;
+  }
+  /* Sem story: fio de 1 px, não o anel da marca. */
+  .k-stories__avatar--empty .k-avatar__face {
+    outline: 1px solid var(--k-line-strong);
+    outline-offset: 3px;
+  }
+  /* Uma linha só; as reticências valem só para o rótulo. */
+  .k-stories__label {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    color: var(--k-text);
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
+    letter-spacing: var(--k-meta-tracking);
+    line-height: 1.2;
+    text-align: center;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  /* Selo "+" de 20x20, raio 2 px, no canto inferior direito do avatar: não cobre iniciais nem rótulo. */
+  .k-stories__add {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--k-radius-control);
+    background: var(--k-text);
+    color: var(--k-bg);
+  }
+  /* Quando já há story, "+" é um botão à parte; a área de toque de 44 px vem do pseudo-elemento. */
+  .k-stories__add--button {
+    right: 5px;
+    bottom: auto;
+    top: 44px;
+    cursor: pointer;
+  }
+  .k-stories__add--button::after {
+    position: absolute;
+    inset: -12px;
+    content: "";
+  }
+  .k-stories__bone {
+    width: 58px;
+    height: 58px;
+    border-radius: var(--k-radius-person);
+  }
+
+  /* Palco do story: tela cheia, sem moldura, escuro nos dois temas. */
+  .k-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    overflow: hidden;
+    background: var(--k-stage-bg);
+    color: var(--k-stage-text);
+  }
+  /* A partir de 640 px o story tem o tamanho da tela de um celular (9:16), centrado; o resto da página fica
+     escurecido pelo contorno gigante (sem sombra). No celular continua em tela cheia. */
+  @media (min-width: 640px) {
+    .k-stage {
+      inset: 0;
+      width: min(100vw, calc(min(92dvh, 760px) * 9 / 16));
+      height: min(92dvh, 760px);
+      margin: auto;
+      outline: 100vmax solid var(--k-overlay);
+    }
+  }
+  .k-stage__media {
+    position: absolute;
+    inset: 0;
+    background: var(--k-stage-bg);
+  }
+  .k-stage__media img,
+  .k-stage__media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .k-stage__chrome {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    padding: 16px 12px 24px;
+    background: color-mix(in srgb, var(--k-stage-bg) 72%, transparent);
+    color: var(--k-stage-text);
+  }
+  .k-stage__bars {
+    display: flex;
+    gap: 4px;
+  }
+  .k-stage__bar {
+    height: 2px;
+    flex: 1;
+    overflow: hidden;
+    background: var(--k-stage-progress);
+  }
+  .k-stage__bar > i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: left center;
+    background: var(--k-stage-text);
+  }
+  .k-stage__who {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .k-stage__who .k-meta {
+    color: var(--k-stage-text);
+  }
+  .k-stage__caption {
+    margin: 2px 0 0;
+    color: var(--k-stage-text);
+    font-size: var(--k-fs-14);
+  }
+  .k-stage__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .k-stage__icon {
+    display: flex;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: none;
+    color: var(--k-stage-text);
+    font-size: var(--k-fs-16);
+    cursor: pointer;
+  }
+  .k-stage__textbtn {
+    min-height: var(--k-touch);
+    border: 0;
+    background: none;
+    color: var(--k-stage-text);
+    font-size: var(--k-fs-14);
+    cursor: pointer;
+  }
+  .k-stage__textbtn--danger {
+    color: var(--k-danger);
+  }
+  .k-stage__reply {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: 24px 12px 28px;
+    background: color-mix(in srgb, var(--k-stage-bg) 72%, transparent);
+  }
+  .k-stage__reply .input,
+  .k-stage__field {
+    width: 100%;
+    min-height: var(--k-touch);
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-control);
+    background: var(--k-stage-bg);
+    color: var(--k-stage-text);
+    font: inherit;
+    font-size: var(--k-fs-14);
+    padding: 8px 16px;
+  }
+  .k-stage__error {
+    margin: 8px 0 0;
+    color: var(--k-danger);
+    font-size: var(--k-fs-14);
+  }
+  .k-stage__sheet {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    max-height: 55%;
+    overflow-y: auto;
+    padding: 16px 16px 32px;
+    background: var(--k-stage-bg);
+    color: var(--k-stage-text);
+  }
+  .k-stage__pause {
+    display: flex;
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--k-stage-bg) 72%, transparent);
+    color: var(--k-stage-text);
+    font-size: 24px;
+  }
+  .k-stage .k-track,
+  .music-on-stage {
+    color: var(--k-stage-text);
+  }
+  .music-on-stage {
+    background: color-mix(in srgb, var(--k-stage-bg) 72%, transparent);
+  }
+  .k-stage .button--ghost {
+    color: var(--k-stage-text);
+  }
+
+  .feed-error {
+    margin: 0;
+    color: var(--k-danger);
+    font-size: var(--k-fs-16);
+  }
+  .feed-next ul {
+    display: flex;
+    gap: 10px;
+    margin: 8px 0 0;
+    padding: 0;
+    overflow-x: auto;
+    list-style: none;
+  }
+  .feed-next a {
+    display: block;
+    width: 150px;
+    flex: none;
+    border-top: 2px solid var(--k-text);
+    padding-top: 8px;
+    text-decoration: none;
+  }
+  .feed-next__name {
+    display: -webkit-box;
+    margin-top: 4px;
+    overflow: hidden;
+    font-size: 20px;
+    line-height: 1.15;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+  }
+  .feed .composer-chip {
+    font-size: var(--k-fs-14);
+  }
+
+  /* Controles e balões do mapa: tokens, sem sombra. Os tiles continuam os do OSM. */
+  .maplibregl-ctrl-group {
+    border-radius: var(--k-radius-control);
+    background: var(--k-surface-raised);
+    border: 1px solid var(--k-line);
+    box-shadow: none;
+  }
+  .maplibregl-ctrl-group button {
+    width: var(--k-touch);
+    height: var(--k-touch);
+  }
+  .maplibregl-ctrl-attrib {
+    background: var(--k-surface-raised);
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-12);
+  }
+  .maplibregl-popup-content {
+    border-radius: var(--k-radius-none);
+    background: var(--k-surface-raised);
+    color: var(--k-text);
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Movimento reduzido: só fade (160 ms), sem deslocamento. */
+  .k-overlay,
+  .k-modal,
+  .k-sheet,
+  .k-menu__panel {
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-overlay[data-state="closing"] {
+    transition: none;
+  }
+  .reaction-btn {
+    transition: none;
+  }
+  .card,
+  .k-tab,
+  .chip-tab,
+  .k-ficha-row__mark {
+    transition: none;
+  }
+  .auth-panel {
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+    transition: none;
+  }
+  .skeleton {
+    animation: none;
+  }
+  /* Sem movimento: o ponto só pulsa em opacidade. */
+  .k-spinner__dot {
+    animation: none;
+    opacity: 1;
+    transform: translate(-29.2px, -12px);
+  }
+  .k-toast {
+    animation: none;
+  }
+  .button,
+  .input {
+    transition: none;
+  }
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+  .button__dots i {
+    animation: none;
+    opacity: 0.6;
+  }
+  .k-stage__bar > i {
+    animation: none !important;
+  }
+}
+
+@layer components {
+  /* ===================== Mesa (D20): fotos espalhadas, estilo exposé ===================== */
+  .k-mesa {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: var(--k-space-4);
+    margin: 0;
+    padding: var(--k-space-2);
+    list-style: none;
+  }
+  .k-mesa__item {
+    position: relative;
+    grid-column: span var(--span-m);
+    min-width: 0;
+    /* Nenhum tile desproporcional em tela larga: a foto recorta (cover) dentro do teto de 520 px. */
+    max-height: 520px;
+  }
+  @media (min-width: 768px) {
+    .k-mesa {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--k-space-6);
+    }
+    .k-mesa__item {
+      grid-column: span var(--span-d);
+    }
+  }
+  .k-mesa__tile {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: var(--k-bg-sunken);
+    color: var(--k-text);
+    text-align: left;
+    cursor: pointer;
+    transition: transform var(--k-dur-instant) var(--k-ease-arrive);
+  }
+  .k-mesa__tile:active {
+    transform: scale(0.98);
+  }
+  .k-mesa__media {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Tile de texto: o trecho corta sem reticências; a faixa da base fica livre. */
+  .k-mesa__text {
+    padding: var(--k-space-4) var(--k-space-4) 52px;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    font-size: var(--k-fs-20);
+    line-height: 1.2;
+    background: var(--k-bg-sunken);
+  }
+  .k-mesa__strip {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    min-height: 36px;
+    padding: var(--k-space-1) var(--k-space-2);
+    background: var(--k-bg);
+  }
+  /* Controle irmão do tile (excluir): alvo de 44 px no canto, fora do <button> do tile. */
+  .k-mesa__action {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: var(--k-bg);
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-mesa__ghost {
+    position: relative;
+  }
+  .k-mesa__ghost .skeleton--dot {
+    position: absolute;
+    bottom: var(--k-space-2);
+    left: var(--k-space-2);
+    width: 24px;
+    height: 24px;
+  }
+  .k-mesa__ghost .skeleton--line {
+    position: absolute;
+    bottom: var(--k-space-4);
+    left: 44px;
+    width: 40%;
+  }
+
+  /* Item aberto a partir da Mesa: tela cheia na cor do fundo, sem sombra e sem desfoque. */
+  .k-mesa-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--k-z-overlay);
+    overflow-y: auto;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--k-bg);
+    color: var(--k-text);
+  }
+  .k-mesa-viewer__bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    padding: 0 var(--k-space-4);
+    padding-top: env(safe-area-inset-top);
+    border-bottom: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  .k-mesa-viewer__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 var(--k-space-3);
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .k-mesa-viewer__body {
+    display: grid;
+    gap: var(--k-space-4);
+    width: 100%;
+    max-width: 680px;
+    margin-inline: auto;
+    padding: var(--k-space-6) var(--k-space-4) var(--k-space-12);
+  }
+  /* Foto do detalhe: cantoneiras (6 px para fora) só ao redor dela; a proporção é reservada (sem layout shift)
+     e a foto nunca é cortada (contain sobre o fundo rebaixado). O nome da transição vive na <img>. */
+  .k-mesa-viewer__frame {
+    width: 100%;
+    max-height: min(70dvh, 720px);
+    aspect-ratio: 4 / 3;
+    background: var(--k-bg-sunken);
+  }
+  .k-mesa-viewer__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--k-bg-sunken);
+  }
+}
+
+/* ===================== Transição tile ⇄ item aberto (D20 B) =====================
+   Sem camada de propósito: os pseudo-elementos da View Transition vivem fora do DOM normal.
+   Só `transform` e `opacity` (o navegador anima o grupo com transform); sem sombra e sem desfoque. */
+::view-transition-group(*) {
+  animation-duration: var(--k-dur-scene);
+  animation-timing-function: var(--k-ease-arrive);
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  box-shadow: none;
+  filter: none;
+}
+/* A foto do tile e a foto do painel têm proporções diferentes: recortar (cover) em vez de esticar. */
+::view-transition-old(*.k-mesa),
+::view-transition-new(*.k-mesa) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@layer components {
+  /* Sem View Transition (ou com movimento reduzido): o painel entra em fade. */
+  .k-mesa-viewer--fade {
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-mesa-viewer__hero {
+    display: block;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .k-mesa__tile:active {
+      transform: none;
+    }
+  }
+}
+
+@layer components {
+  /* ===================== Carrossel de fotos (D21): uma foto por vez ===================== */
+  .k-mesa-viewer__body:has(.k-carousel) {
+    max-width: 1100px;
+  }
+  .k-carousel {
+    display: grid;
+    gap: var(--k-space-4);
+    padding: var(--k-space-2);
+    outline-offset: 4px;
+  }
+  .k-carousel__title {
+    margin: 0;
+    font-size: var(--k-fs-31);
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+  .k-carousel__stage {
+    --k-corner-size: 16px;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    max-height: 70vh;
+    background: var(--k-bg-sunken);
+    touch-action: pan-y;
+  }
+  .k-carousel__slide {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity var(--k-dur-base) var(--k-ease-leave),
+      visibility 0s linear var(--k-dur-base);
+  }
+  .k-carousel__slide.is-current {
+    z-index: 1;
+    visibility: visible;
+    opacity: 1;
+    transition:
+      opacity var(--k-dur-quick) var(--k-ease-arrive),
+      visibility 0s;
+  }
+  .k-carousel__photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .k-carousel__loading {
+    position: absolute;
+    inset: 0;
+  }
+  .k-carousel__failed {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--k-space-3);
+    height: 100%;
+    padding: var(--k-space-6);
+    color: var(--k-text-muted);
+    text-align: center;
+  }
+  /* Revelação: um painel da cor do fundo encolhe em scaleX sobre a foto. */
+  .k-carousel__veil {
+    position: absolute;
+    inset: 0;
+    background: var(--k-bg);
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+  .k-carousel__slide.is-current .k-carousel__veil {
+    animation: k-reveal var(--k-dur-scene) var(--k-ease-arrive) forwards;
+  }
+  @keyframes k-reveal {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0);
+    }
+  }
+  .k-carousel__info {
+    display: grid;
+    gap: var(--k-space-2);
+    animation: k-carousel-info var(--k-dur-base) var(--k-ease-arrive) var(--k-dur-quick) both;
+  }
+  @keyframes k-carousel-info {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+  }
+  .k-carousel__caption {
+    margin: 0;
+    font-size: var(--k-fs-16);
+  }
+  .k-carousel__info .k-meta {
+    margin: 0;
+  }
+  .k-carousel__info .k-meta > * + *::before {
+    content: ' · ';
+  }
+  .k-carousel__role {
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--k-brand-text);
+  }
+  .k-carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--k-space-4);
+  }
+  .k-carousel__controls .k-meta {
+    margin: 0;
+  }
+  .k-carousel__buttons {
+    display: flex;
+  }
+  .k-carousel__buttons button {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--k-line-strong);
+    border-radius: 0;
+    background: var(--k-bg);
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-carousel__buttons button + button {
+    margin-left: -1px;
+  }
+  .k-carousel__buttons button:hover {
+    background: var(--k-bg-sunken);
+  }
+  .k-carousel__buttons button:active {
+    transform: scale(0.98);
+  }
+  @media (min-width: 768px) {
+    .k-carousel {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 0;
+      row-gap: var(--k-space-4);
+    }
+    /* Foto em 10/12 (colunas 3 a 12), ~60vh; o título ocupa 4 colunas: metade fora, metade sobre a foto. */
+    .k-carousel__stage {
+      grid-column: 3 / -1;
+      grid-row: 1;
+      aspect-ratio: auto;
+      height: 60vh;
+      min-height: 320px;
+      max-height: none;
+    }
+    .k-carousel__title {
+      grid-column: 1 / 5;
+      grid-row: 1;
+      z-index: 2;
+      align-self: center;
+      max-height: calc(100% - 96px);
+      overflow: hidden;
+      padding: var(--k-space-6);
+      background: var(--k-bg);
+      font-size: var(--k-fs-39);
+    }
+    .k-carousel__info {
+      grid-column: 3 / -1;
+    }
+    .k-carousel__controls {
+      grid-column: 3 / -1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* Sem painel nem deslocamento: só fade. */
+    .k-carousel__veil {
+      display: none;
+    }
+    .k-carousel__info {
+      animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive) both;
+    }
+    .k-carousel__buttons button:active {
+      transform: none;
+    }
+  }
+
+  /* ===================== Ficha de faixa (D23) =====================
+   * O player é o embed do Spotify (iframe): sem posição nem duração disponíveis, então só a ficha, sem barra
+   * ondulada e sem controles próprios. Capa nítida com cantoneiras por fora (folga de 6 px, sem tocar a capa). */
+  .k-ficha-faixa {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--k-space-3);
+    padding: var(--k-space-3);
+  }
+  .k-ficha-faixa__cover {
+    --k-corner-size: 8px;
+    padding: 6px;
+  }
+  .k-ficha-faixa__cover .k-cover,
+  .k-ficha-faixa__nocover {
+    display: block;
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+  }
+  .k-ficha-faixa__nocover {
+    display: grid;
+    place-items: center;
+    background: var(--k-bg-sunken);
+    color: var(--k-text-muted);
+  }
+  .k-ficha-faixa__text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--k-space-1);
+  }
+  .k-ficha-faixa__title {
+    margin: 0;
+    font-size: var(--k-fs-20);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .k-ficha-faixa__artist {
+    margin: 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    overflow-wrap: anywhere;
+  }
+  .k-ficha-faixa__link {
+    display: inline-flex;
+    min-height: var(--k-touch);
+    align-items: center;
+    gap: var(--k-space-2);
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .k-ficha-faixa__dot {
+    width: 8px;
+    height: 8px;
+    background: var(--k-spotify);
+  }
+  .k-ficha-faixa__actions {
+    display: flex;
+    flex-direction: column;
+  }
+  .k-ficha-faixa__frame {
+    position: relative;
+  }
+  .k-ficha-faixa__loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+  @media (min-width: 1024px) {
+    .k-ficha-faixa__cover .k-cover,
+    .k-ficha-faixa__nocover {
+      width: 112px;
+      height: 112px;
+    }
+  }
+
+  /* ===================== Chat: lista em acordeão exclusivo (D24) =====================
+   * `<details name="chat-lista">` nativo: só um aberto por vez, sem JS. Sem suporte ao `name`, cada linha abre
+   * e fecha sozinha. O conteúdo aberto entra só com opacidade; nada anima altura. */
+  .k-chat-list {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--k-line);
+    list-style: none;
+  }
+  .k-chat-list > li {
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-chat-row summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--k-space-3);
+    min-height: 64px;
+    padding: var(--k-space-2) 0;
+    cursor: pointer;
+    list-style: none;
+  }
+  .k-chat-row summary::-webkit-details-marker {
+    display: none;
+  }
+  .k-chat-row__main {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .k-chat-row__name {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    min-width: 0;
+  }
+  .k-chat-row__dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    background: var(--k-brand);
+  }
+  .k-chat-row__title {
+    overflow: hidden;
+    font-size: var(--k-fs-20);
+    line-height: 1.15;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+  .k-chat-row__title--unread {
+    font-weight: 600;
+  }
+  .k-chat-row__last {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-1);
+    overflow: hidden;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .k-chat-row__side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .k-chat-row__count {
+    color: var(--k-text);
+    font-weight: 600;
+  }
+  .k-chat-plus {
+    flex: none;
+    transition: transform var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  details[open] > summary .k-chat-plus {
+    transform: rotate(45deg);
+  }
+  .k-chat-row__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--k-space-2);
+    padding: 0 0 var(--k-space-4);
+    animation: k-fade-in var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-chat-row__text {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-1);
+    margin: 0;
+    font-size: var(--k-fs-16);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  .k-chat-row__open {
+    margin-top: var(--k-space-2);
+  }
+  .k-chat-row__skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-3);
+    min-height: 64px;
+    border-bottom: 1px solid var(--k-line);
+  }
+
+  /* ===================== Chat: conversa (tela aberta) ===================== */
+  /* Altura fluida: o viewport menos o cabeçalho do app, o respiro do shell e a barra inferior (celular). Só a lista
+     de mensagens rola; o resto da tela fica parado. */
+  .k-conv {
+    --k-conv-top: calc(var(--k-header-h) + var(--k-areas-h) + env(safe-area-inset-top)); /* cabeçalho + barra de áreas */
+    --k-conv-pad: 1rem; /* respiro superior do shell */
+    --k-conv-bottom: calc(8.5rem + env(safe-area-inset-bottom)); /* respiro inferior do shell (inclui a barra) */
+    display: flex;
+    width: 100%;
+    max-width: 42rem;
+    height: calc(100dvh - var(--k-conv-top) - var(--k-conv-pad) - var(--k-conv-bottom));
+    min-height: 420px;
+    margin-inline: auto;
+    flex-direction: column;
+  }
+  @media (min-width: 640px) {
+    .k-conv {
+      --k-conv-pad: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .k-conv {
+      --k-conv-bottom: 7rem;
+    }
+  }
+  .k-conv__head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--k-space-3);
+    padding-bottom: var(--k-space-3);
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-conv__back {
+    display: inline-flex;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    color: var(--k-text);
+  }
+  .k-conv__peer {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: var(--k-space-3);
+    color: inherit;
+    text-decoration: none;
+  }
+  .k-conv__head .k-avatar {
+    --k-avatar: 40px;
+  }
+  .k-conv__who {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+  /* Quebra em até 2 linhas, sem reticências. */
+  .k-conv__name {
+    margin: 0;
+    font-size: var(--k-fs-25);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .k-conv__log {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: var(--k-space-4) 0;
+    background: var(--k-bg);
+  }
+  /* Ancora as mensagens embaixo sem perder o topo da rolagem (justify-content: flex-end cortaria o início). */
+  .k-conv__log > :first-child {
+    margin-top: auto;
+  }
+  .k-conv__empty {
+    margin: auto 0 0;
+    font-family: var(--k-font-display);
+    font-variation-settings: var(--k-display-axes);
+    font-size: var(--k-fs-20);
+  }
+  .k-conv__skeleton {
+    display: grid;
+    gap: var(--k-space-2);
+    margin-top: auto;
+  }
+  .k-bubble-row {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: var(--k-space-4);
+  }
+  .k-bubble-row--mine {
+    justify-content: flex-end;
+  }
+  /* Mensagens seguidas do mesmo remetente: 4 px; troca de remetente: 16 px. */
+  .k-bubble-row--same {
+    margin-top: var(--k-space-1);
+  }
+  .k-conv__log > :first-child.k-bubble-row {
+    margin-top: auto;
+  }
+  .k-bubble {
+    width: fit-content;
+    min-width: 96px;
+    max-width: 72%;
+    padding: var(--k-space-2) var(--k-space-3);
+    font-size: var(--k-fs-16);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  .k-bubble--theirs {
+    border: 1px solid transparent;
+    background: var(--k-bg-sunken);
+  }
+  .k-bubble--mine {
+    border: 1px solid var(--k-line-strong);
+    text-align: right;
+  }
+  .k-bubble__text {
+    margin: 0;
+    font-size: var(--k-fs-16);
+  }
+  .k-bubble__image {
+    display: block;
+    width: 100%;
+    max-height: 18rem;
+    margin: var(--k-space-1) 0;
+    object-fit: cover;
+  }
+  .k-bubble__time {
+    display: block;
+    margin-top: var(--k-space-1);
+    white-space: normal;
+  }
+  .k-bubble--mine .k-bubble__time {
+    text-align: right;
+  }
+  .k-conv__alert {
+    flex: none;
+    margin: var(--k-space-2) 0 0;
+  }
+  .k-conv__photo {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--k-space-3);
+    margin-top: var(--k-space-3);
+    padding: var(--k-space-2);
+    border: 1px solid var(--k-line);
+  }
+  /* Campo de envio: fixo na base da coluna, com safe-area; botão de anexar de 44 px e campo de 44 px. */
+  .k-conv__form {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--k-space-2);
+    margin-top: var(--k-space-3);
+    padding-top: var(--k-space-3);
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  .k-conv__attach {
+    display: inline-flex;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: transparent;
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-conv__attach:hover {
+    background: var(--k-bg-sunken);
+  }
+  .k-conv__field {
+    min-width: 0;
+    flex: 1;
+  }
+  .k-conv__field .input {
+    min-height: var(--k-touch);
+    height: var(--k-touch);
+    padding-block: 0;
+  }
+  .k-conv__field .input:focus {
+    padding-bottom: 0;
+  }
+  .k-conv__form .button {
+    min-height: var(--k-touch);
+  }
+  .k-conv__reason {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  /* Movimento reduzido: o Plus não gira. */
+  @media (prefers-reduced-motion: reduce) {
+    details[open] > summary .k-chat-plus {
+      transform: none;
+    }
+    .k-chat-plus {
+      transition: none;
+    }
+  }
+
+  .k-stars {
+    display: inline-flex;
+    gap: 2px;
+    vertical-align: middle;
+  }
+}
+
+/* ===================== Navegação: barra de áreas e painel (D25) ===================== */
+@layer components {
+  /* Cabeçalho: altura explícita (a barra de áreas e as barras fixas das telas se apoiam nela). */
+  .k-header {
+    padding-top: env(safe-area-inset-top);
+  }
+  .k-header__inner {
+    display: flex;
+    height: var(--k-header-h);
+    align-items: center;
+    gap: var(--k-space-2);
+  }
+  @media (min-width: 640px) {
+    .k-header__inner {
+      gap: var(--k-space-3);
+    }
+  }
+  /* Busca: centralizada entre a navegação e as ações; as ações ficam coladas na borda direita do contêiner. */
+  .k-header__search {
+    position: relative;
+    min-width: 0;
+    flex: 1 1 auto;
+    max-width: 560px;
+    margin-inline: auto;
+  }
+  .k-header__actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--k-space-1);
+    margin-inline-start: auto;
+  }
+  @media (min-width: 640px) {
+    .k-header__actions {
+      gap: var(--k-space-2);
+    }
+  }
+  @media (max-width: 1023px) {
+    /* Sem a navegação de texto, a busca ocupa o espaço e empurra as ações. */
+    .k-header__search {
+      max-width: none;
+      margin-inline: 0;
+    }
+  }
+
+  /* Barra de áreas (≥ 1024 px): 48 px, fundo --k-bg, fio de 1 px na base, sem sombra e sem blur. */
+  .k-areas {
+    display: none;
+    height: var(--k-areas-h);
+    border-bottom: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  @media (min-width: 1024px) {
+    .k-areas {
+      display: block;
+    }
+  }
+  .k-areas__row {
+    display: flex;
+    height: 100%;
+    align-items: stretch;
+    gap: var(--k-space-1);
+  }
+  .k-areas {
+    --k-drop: 10px;
+    --k-lerp-0: 1;
+    --k-lerp-1: calc(sin(30deg));
+    --k-lerp-2: calc(sin(20deg));
+    --k-lerp-3: calc(sin(10deg));
+  }
+  .k-areas__link {
+    position: relative;
+    display: inline-flex;
+    height: 48px;
+    min-width: var(--k-touch);
+    align-items: center;
+    gap: var(--k-space-2);
+    padding: 0 var(--k-space-3);
+    color: var(--k-text-muted);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-14);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transform: translateY(calc(var(--lerp, 0) * var(--k-drop)));
+    transition: transform var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-areas__link:hover,
+  .k-areas__link[aria-current="page"] {
+    color: var(--k-text);
+  }
+  .k-areas__link:focus-visible {
+    outline-offset: -2px;
+  }
+  /* Ativo: ponto sódio antes do rótulo + peso 600 + aria-current (nunca só cor). O espaço do ponto é reservado. */
+  .k-areas__dot {
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: 50%;
+    background: transparent;
+  }
+  .k-areas__dot--on {
+    background: var(--k-brand);
+  }
+  /* Hover "marcador de página": só ponteiro fino, sem movimento reduzido, só transform. A aba sob o ponteiro
+     desce 10 px e as vizinhas descem menos (sen 30°, 20°, 10°). Foco por teclado recebe o mesmo efeito. */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+    .k-areas__link:is(:hover, :focus-visible) {
+      --lerp: var(--k-lerp-0);
+      z-index: 3;
+      background: var(--k-bg);
+      border: 1px solid var(--k-line-strong);
+      border-top: 0;
+    }
+    .k-areas__link:has(+ :is(:hover, :focus-visible)),
+    :is(:hover, :focus-visible) + .k-areas__link {
+      --lerp: var(--k-lerp-1);
+    }
+    .k-areas__link:has(+ .k-areas__link + :is(:hover, :focus-visible)),
+    :is(:hover, :focus-visible) + .k-areas__link + .k-areas__link {
+      --lerp: var(--k-lerp-2);
+    }
+  }
+  /* Se as 7 abas não couberem (1024 a 1099 px): só o ícone nas inativas (o rótulo segue como nome acessível). */
+  @media (min-width: 1024px) and (max-width: 1099px) {
+    .k-areas__link:not([aria-current="page"]) .k-areas__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  /* Botão do avatar (< 1024 px). */
+  .k-account__button {
+    display: inline-flex;
+    min-width: var(--k-touch);
+    min-height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  /* Painel abaixo do cabeçalho, largura total, rolável quando a altura não couber. Menu de navegação, não modal. */
+  .k-panel {
+    position: fixed;
+    inset-inline: 0;
+    top: calc(var(--k-header-h) + env(safe-area-inset-top));
+    z-index: 35;
+    max-height: calc(100dvh - var(--k-header-h) - env(safe-area-inset-top) - var(--k-tabbar));
+    overflow-y: auto;
+    padding: var(--k-space-4) var(--k-gutter) var(--k-space-6);
+    border-bottom: 1px solid var(--k-line);
+    background: var(--k-bg);
+    animation: k-panel-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-panel--out {
+    animation: k-fade-out var(--k-dur-quick) var(--k-ease-leave) forwards;
+    pointer-events: none;
+  }
+  @media (min-width: 1024px) {
+    .k-panel {
+      display: none;
+    }
+  }
+  .k-panel__label {
+    margin: var(--k-space-4) 0 var(--k-space-1);
+  }
+  .k-panel__label:first-child {
+    margin-top: 0;
+  }
+  .k-panel__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--k-line);
+  }
+  .k-panel__list > li {
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-panel__row {
+    display: flex;
+    width: 100%;
+    min-height: 56px;
+    align-items: center;
+    gap: var(--k-space-3);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    font-family: var(--k-font-ui);
+    font-size: var(--k-fs-16);
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .k-panel__row--active {
+    font-weight: 600;
+  }
+  .k-panel__text {
+    min-width: 0;
+    flex: 1;
+    overflow-wrap: anywhere;
+  }
+  /* A seta aparece no hover e no foco (opacidade + 4 px) e fica sempre visível na linha ativa. */
+  .k-panel__arrow {
+    flex: none;
+    opacity: 0;
+    transition:
+      opacity var(--k-dur-quick) var(--k-ease-arrive),
+      transform var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-panel__row:is(:hover, :focus-visible) .k-panel__arrow {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+  .k-panel__row--active .k-panel__arrow {
+    opacity: 1;
+  }
+  .k-panel__row--danger {
+    color: var(--k-danger);
+  }
+  @keyframes k-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .k-panel {
+      animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+    }
+    .k-panel__row:is(:hover, :focus-visible) .k-panel__arrow {
+      transform: none;
+    }
+  }
+}
+
+/* Vitrine: a barra de áreas aparece em qualquer largura, dentro de uma faixa rolável (a barra real só existe a partir de 1024 px). */
+.k-areas-demo {
+  overflow-x: auto;
+  padding-bottom: 16px;
+}
+.k-areas-demo .k-areas {
+  display: block;
+  min-width: 860px;
+}
+
+/* ===================== Layout largo e alinhado (D26) ===================== */
+@layer components {
+  /* Abaixo de 1024 px nada muda: coluna única e a coluna direita continua escondida (os atalhos "Próximos" e
+     "Mensagens" do feed fazem esse papel). */
+  .k-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  @media (min-width: 1024px) {
+    .k-layout {
+      grid-template-columns: minmax(0, 1fr) var(--k-rail);
+      gap: 48px;
+    }
+  }
+  /* Telas de formulário: coluna única de até 1100 px, alinhada ao contêiner (sem a coluna direita). */
+  .k-layout[data-page="form"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .k-layout[data-page="form"] > main {
+    max-width: 1100px;
+  }
+  /* Rolagem normal (sem sticky: a lista de sugestões pode ser mais alta que a tela), sem overflow nem max-height
+     próprios, para não haver uma segunda barra de rolagem. */
+  .k-rail {
+    align-self: start;
+  }
+}
+
+/* ===================== Personalizar imagem (recorte) ===================== */
+@layer components {
+  .k-crop__aspects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-2);
+    margin-bottom: var(--k-space-3);
+  }
+  .k-crop__aspects .chip-tab[aria-pressed="true"] {
+    border-color: var(--k-text);
+    font-weight: 600;
+    border-bottom-width: 2px;
+  }
+  /* Quadro do recorte: a proporção vem de --crop-aspect; nunca passa de 55% da altura da janela. */
+  .k-crop__frame {
+    position: relative;
+    width: min(100%, calc(55dvh * var(--crop-aspect, 1)));
+    aspect-ratio: var(--crop-aspect, 1);
+    margin-inline: auto;
+    overflow: hidden;
+    background: var(--k-bg-sunken);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .k-crop__frame:active {
+    cursor: grabbing;
+  }
+  .k-crop__image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    max-width: none;
+    transform-origin: center;
+    pointer-events: none;
+  }
+  .k-crop__loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+  /* Avatar: o círculo mostra o que aparece; fora dele a imagem fica esmaecida (contorno gigante, sem sombra). */
+  .k-crop__mask {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    outline: 100vmax solid color-mix(in srgb, var(--k-bg) 60%, transparent);
+    pointer-events: none;
+  }
+  .k-crop__zoom {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-3);
+    margin-top: var(--k-space-4);
+  }
+  .k-crop__zoom input {
+    flex: 1;
+    min-height: var(--k-touch);
+    accent-color: var(--k-brand);
+  }
+  .k-crop__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--k-space-2);
+    margin-top: var(--k-space-4);
+  }
+  .k-crop__actions .button {
+    min-height: var(--k-touch);
+  }
+}

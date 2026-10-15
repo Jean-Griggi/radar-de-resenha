@@ -127,6 +127,7 @@ describe('mapPoint', () => {
       {
         id: 'a',
         username: 'ana',
+        name: 'ana',
         latitude: -23.5,
         longitude: -46.6,
         avatar: 'https://cdn.example/ana.png',
@@ -135,6 +136,7 @@ describe('mapPoint', () => {
       {
         id: 'c',
         username: 'caio',
+        name: 'caio',
         latitude: -22.9,
         longitude: -43.2,
         avatar: null,

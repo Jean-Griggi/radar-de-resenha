@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
 import type { CalendarEvent } from '@resenhometro/shared';
@@ -76,22 +77,22 @@ export function CalendarScreen() {
         <h1 className="text-2xl font-semibold sm:text-3xl">Calendário</h1>
         <div className="flex items-center gap-2">
           <button type="button" className="button button--ghost min-h-11 min-w-11 px-3" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))} aria-label="Mês anterior">
-            ←
+            <ChevronLeft size={20} aria-hidden />
           </button>
           <p className="min-w-0 flex-1 px-2 py-1 text-center capitalize sm:flex-none">
             {cursor.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
           </p>
           <button type="button" className="button button--ghost min-h-11 min-w-11 px-3" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))} aria-label="Próximo mês">
-            →
+            <ChevronRight size={20} aria-hidden />
           </button>
         </div>
       </div>
       {loading ? <Skeleton className="mb-4 h-80" /> : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
       {ready ? (
         <>
           <div className="card p-2 sm:p-4">
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-muted sm:gap-2 sm:text-xs">
+            <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted sm:gap-2">
               {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((d, index) => (
                 <span key={`${d}-${index}`}>{d}</span>
               ))}
@@ -108,22 +109,22 @@ export function CalendarScreen() {
                     type="button"
                     disabled={!day}
                     onClick={() => setSelected(date)}
-                    className={`relative flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left sm:min-h-24 sm:rounded-xl sm:p-2 lg:min-h-28 ${
-                      selected === date ? 'bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]' : 'bg-[var(--overlay)]'
-                    } ${isToday && selected !== date ? 'ring-1 ring-[var(--accent)]' : ''} ${!day ? 'opacity-0' : ''}`}
+                    className={`relative flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-none p-1 text-left sm:min-h-24 sm:rounded-none sm:p-2 lg:min-h-28 ${
+                      selected === date ? 'bg-[color-mix(in_srgb,var(--k-brand)_12%,transparent)] ring-1 ring-[var(--k-brand)]' : 'bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]'
+                    } ${isToday && selected !== date ? 'ring-1 ring-[var(--k-brand)]' : ''} ${!day ? 'opacity-0' : ''}`}
                   >
-                    <span className={`text-xs sm:text-sm ${isToday ? 'font-semibold text-[var(--accent)]' : ''}`}>{day}</span>
+                    <span className={`text-xs sm:text-sm ${isToday ? 'font-semibold text-[var(--k-brand)]' : ''}`}>{day}</span>
                     <span className="flex min-h-0 flex-1 flex-col gap-0.5">
                       {dayEvents.slice(0, 2).map((event) => (
                         <span
                           key={event.id}
-                          className="block truncate rounded bg-[var(--accent-soft)] px-1 py-0.5 text-[9px] leading-tight text-fg sm:text-[11px]"
+                          className="block truncate rounded-none bg-[color-mix(in_srgb,var(--k-brand)_12%,transparent)] px-1 py-0.5 text-xs leading-tight text-fg"
                         >
                           {event.time ? `${event.time} ` : ''}
                           {event.title}
                         </span>
                       ))}
-                      {extra > 0 ? <span className="px-1 text-[9px] text-[var(--accent)] sm:text-[10px]">+{extra}</span> : null}
+                      {extra > 0 ? <span className="px-1 text-xs text-[var(--k-brand)]">+{extra}</span> : null}
                     </span>
                   </button>
                 );
@@ -139,7 +140,7 @@ export function CalendarScreen() {
               <ul className="space-y-2">
                 {selectedEvents.map((event) => (
                   <li key={event.id}>
-                    <Link href={`/roles/${event.roleId}`} className="hover:text-[var(--accent)]">
+                    <Link href={`/roles/${event.roleId}`} className="hover:text-[var(--k-brand)]">
                       {event.time || '--:--'} — {event.title} · {event.category}
                     </Link>
                   </li>
@@ -152,7 +153,7 @@ export function CalendarScreen() {
               <h2 className="mb-3 font-medium">Próximos</h2>
               {upcoming.length === 0 ? <p className="text-sm text-muted">Nada marcado ainda.</p> : null}
               {upcoming.map((event) => (
-                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--accent)]">
+                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--k-brand)]">
                   {formatShortDate(event.date)} {event.time ?? ''} — {event.title}
                 </Link>
               ))}
@@ -161,7 +162,7 @@ export function CalendarScreen() {
               <h2 className="mb-3 font-medium">Passados</h2>
               {past.length === 0 ? <p className="text-sm text-muted">Nenhum rolê passado.</p> : null}
               {past.map((event) => (
-                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--accent)]">
+                <Link key={event.id} href={`/roles/${event.roleId}`} className="block py-1 text-sm hover:text-[var(--k-brand)]">
                   {formatShortDate(event.date)} — {event.title}
                 </Link>
               ))}

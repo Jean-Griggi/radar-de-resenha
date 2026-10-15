@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { LocateFixed, X } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Field';
 import { searchAddress, type PlaceResult } from '@/lib/geocode';
@@ -67,7 +68,7 @@ function SpotPicker({
     <div className="space-y-2">
       <p className="text-label text-muted">{title}</p>
       {spot ? (
-        <div className="flex items-center justify-between gap-2 rounded-[var(--radius-md)] border border-[var(--border)] px-3 py-2 text-sm">
+        <div className="flex items-center justify-between gap-2 rounded-none border border-[var(--k-line)] px-3 py-2 text-sm">
           <span className="min-w-0 truncate">{spot.label}</span>
           <span className="flex shrink-0 gap-1">
             <Button type="button" variant="ghost" onClick={() => setSaving((v) => !v)}>
@@ -114,12 +115,12 @@ function SpotPicker({
       ) : null}
       {message ? <p className="text-sm text-muted">{message}</p> : null}
       {results.length > 0 ? (
-        <ul className="card divide-y divide-[var(--border)] overflow-hidden">
+        <ul className="card divide-y divide-[var(--k-line)] overflow-hidden">
           {results.map((place) => (
             <li key={`${place.latitude},${place.longitude},${place.label}`}>
               <button
                 type="button"
-                className="block w-full px-3 py-2 text-left text-sm hover:bg-[var(--overlay)]"
+                className="block w-full px-3 py-2 text-left text-sm hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]"
                 onClick={() => choose({ label: place.name, point: { latitude: place.latitude, longitude: place.longitude } })}
               >
                 {place.label}
@@ -131,8 +132,9 @@ function SpotPicker({
       {!spot ? (
         <div className="flex flex-wrap gap-2">
           {onUseMyLocation ? (
-            <button type="button" className="chip-tab" onClick={onUseMyLocation}>
-              📍 Minha localização
+            <button type="button" className="chip-tab gap-1.5" onClick={onUseMyLocation}>
+              <LocateFixed size={16} strokeWidth={2} aria-hidden />
+              Minha localização
             </button>
           ) : null}
           {saved.map((place) => (
@@ -146,11 +148,11 @@ function SpotPicker({
               </button>
               <button
                 type="button"
-                className="px-1 text-xs text-muted hover:text-fg"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center text-sm text-muted hover:text-fg"
                 aria-label={`Apagar ${place.name}`}
                 onClick={() => onDelete(place.id)}
               >
-                ✕
+                <X size={18} aria-hidden />
               </button>
             </span>
           ))}

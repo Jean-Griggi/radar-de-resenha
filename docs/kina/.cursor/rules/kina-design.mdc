@@ -1,0 +1,54 @@
+---
+description: Identidade visual Kina — regras obrigatórias para qualquer alteração de UI, estilos, componentes ou textos de interface
+globs:
+alwaysApply: true
+---
+
+# Identidade visual Kina
+
+Fonte de verdade: @docs/kina/PLANO-IMPLEMENTACAO.md, @docs/kina/design/components-spec.md e @docs/kina/design/tokens.css.
+Referência visual: docs/kina/design/reference/ (PDF e mockups HTML).
+
+## Escopo
+- O redesign é só visual. NÃO alterar rotas, chamadas de API, contratos de dados, autenticação, validação, estado global ou nomes de campos.
+- NÃO criar funcionalidades que o design descreve mas o código não tem. Registrar em docs/kina/AUDITORIA.md (seção "Divergências").
+- Antes de editar: listar os arquivos que serão tocados e o plano em poucas linhas.
+
+## Tokens
+- Usar apenas variáveis `--k-*` (ou classes `k-*` do preset Tailwind). Proibido hexadecimal, rgb() ou nomes de cor em componentes.
+- Tema via `data-theme` no <html>. Proibido duplicar valores com `dark:`; os tokens já trocam.
+
+## Forma
+- Raio: 0 em superfícies e imagens; 2px (`--k-radius-control`) em controles; círculo só para pessoas (avatares, presença) e o botão "Criar".
+- Sem box-shadow, exceto overlays (`--k-shadow-overlay`). Sem gradientes decorativos. Sem backdrop-filter. Sem chips/pílulas coloridas (usar Tag: ponto + texto mono).
+- Memória (publicação, rolê passado) leva `.k-corners`. Presente (story, convite, rolê futuro) não.
+- Separar conteúdo com espaço e fios de 1px `--k-line`, não com cartões.
+
+## Tipografia
+- `.k-display` (Fraunces) para nomes de pessoas, nomes de rolês e títulos >= 20px.
+- Schibsted Grotesk (`--k-font-ui`) para interface e texto.
+- `.k-meta` (IBM Plex Mono, caixa alta) para datas, horas, contagens e durações. Formato de data: `SÁB 18 OUT · 18H`.
+
+## Cor
+- Uma ação principal por tela com `--k-brand`. `--k-accent` só em links de texto e "você" no mapa.
+- Estado nunca indicado só por cor: sempre ícone, forma (ponto) ou texto junto.
+
+## Movimento
+- Só `transform` e `opacity`. Durações e curvas dos tokens (`--k-dur-*`, `--k-ease-*`).
+- Respeitar `prefers-reduced-motion` (sem magnetismo, parallax ou loops).
+
+## Acessibilidade
+- Rótulo visível em todo campo; erro com ícone + texto + `aria-describedby`.
+- Foco visível com `:focus-visible`; alvos >= 44px; contraste AA.
+
+## Mídia
+- Fotos de usuários sem filtro. Capas de álbum do Spotify intactas, com atribuição; cantoneiras só por fora.
+
+## Textos
+"Cola?" (confirmar presença), "Marcar um rolê" (criar), "Ninguém chegou ainda." (vazio), "Essa rua não existe." (404). Nome do produto: Kina.
+
+## D25 — navegação em barra de áreas e painel
+- D25 AMPLIA a regra de navegação (cabeçalho no desktop, barra inferior no celular) sem removê-las. O menu do avatar mantém só a conta (Perfil, Configurações, Sair); as 7 áreas (Mensagens, Calendário, Música, Estatísticas, Amigos, Mapa, Fotos) vão para uma barra de áreas sticky abaixo do cabeçalho (≥ 1024 px) e para um painel em linhas aberto pelo avatar (< 1024 px). A barra inferior do celular não muda.
+
+## D26 — layout largo e alinhado
+- D26 revoga "grade de 1200 px" e "coluna central de 620 px" do PDF SÓ para telas ≥ 1024 px (celular e tablet não mudam). Tokens `--k-gutter`, `--k-container` (1440 px; 1600 px a partir de 1920 px), `--k-rail` (380 px; 420 px a partir de 1920 px) e `--k-measure` (68ch), utilitário `.k-container`. Cabeçalho, barra de áreas e conteúdo usam o MESMO `.k-container`. Grade ≥ 1024 px: feed fluido + coluna direita fixa, sem sticky nela. Texto de leitura limitado a `--k-measure`; mídia ocupa a coluna toda. D18, D19 e D25 continuam valendo.

@@ -1,22 +1,38 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
+import { Pause, Play, X } from 'lucide-react';
 import type { Story, StoryRing, StoryViewer as StoryViewerUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { MusicCard } from '@/features/music';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+import { formatTimeAgo } from '@/lib/format';
 
+/** Palco em tela cheia, sem moldura. O fundo e o texto usam --k-stage-* nos dois temas. */
 export function StoryPhone({ children }: { children: ReactNode }) {
-  return (
-    <div className="relative">
-      <div className="story-phone relative overflow-hidden rounded-3xl bg-black shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/15">
-        <div className="absolute inset-0 overflow-hidden rounded-3xl">{children}</div>
-      </div>
-    </div>
-  );
+  return <div className="k-stage">{children}</div>;
 }
 
 const PHOTO_MS = 5000;
+
+/** Barra do story: só `transform`. A duração é o tempo da foto (relógio), não um token de interface. */
+function storyBarStyle(
+  index: number,
+  storyIndex: number,
+  mediaType: string,
+  videoProgress: number,
+  reduceMotion: boolean,
+  frozen: boolean,
+): CSSProperties {
+  if (index < storyIndex) return { transform: 'scaleX(1)' };
+  if (index > storyIndex) return { transform: 'scaleX(0)' };
+  if (mediaType === 'video') return { transform: `scaleX(${videoProgress})` };
+  if (reduceMotion) return { transform: 'scaleX(1)' };
+  return {
+    animation: `storybar ${PHOTO_MS}ms linear`,
+    animationPlayState: frozen ? 'paused' : 'running',
+  };
+}
 
 export function StoryViewer({
   rings,
@@ -47,6 +63,7 @@ export function StoryViewer({
   const [error, setError] = useState('');
   const [viewers, setViewers] = useState<StoryViewerUser[] | null>(null);
   const [videoProgress, setVideoProgress] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const marked = useRef<Set<string>>(new Set());
   const remainingRef = useRef(PHOTO_MS);
@@ -74,6 +91,14 @@ export function StoryViewer({
     if (delta > 0) onClose();
   }
   goRef.current = go;
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => setReduceMotion(media.matches);
+    apply();
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -175,18 +200,14 @@ export function StoryViewer({
   if (!story || !ring) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-zinc-950/90 p-3 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <StoryPhone>
       <div
-        className="relative"
+        className="k-stage__media"
         onClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <StoryPhone>
           <div
-            className="absolute inset-0 bg-zinc-900"
+            className="absolute inset-0"
             onPointerDown={() => setHolding(true)}
             onPointerUp={() => setHolding(false)}
             onPointerCancel={() => setHolding(false)}
@@ -233,65 +254,56 @@ export function StoryViewer({
             />
             {paused ? (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/55 text-2xl text-white" aria-hidden>
-                  ⏸
+                <span className="k-stage__pause" aria-hidden>
+                  <Pause size={28} />
                 </span>
               </div>
             ) : null}
           </div>
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-3 pb-8 pt-4">
-            <div className="flex gap-1">
+          <div className="k-stage__chrome pointer-events-none">
+            <div className="k-stage__bars">
               {ring.stories.map((item, index) => (
-                <div key={item.id} className="h-0.5 flex-1 overflow-hidden rounded-full bg-white/30">
-                  <div
+                <div key={item.id} className="k-stage__bar">
+                  <i
                     key={`${item.id}-${index === storyIndex ? story.id : 'idle'}`}
-                    className={`h-full bg-white ${
-                      index < storyIndex ? 'w-full' : index > storyIndex ? 'w-0' : ''
-                    }`}
-                    style={
-                      index === storyIndex
-                        ? story.mediaType === 'video'
-                          ? { width: `${videoProgress * 100}%` }
-                          : {
-                              width: '100%',
-                              animation: `storybar ${PHOTO_MS}ms linear`,
-                              animationPlayState: frozen ? 'paused' : 'running',
-                            }
-                        : undefined
-                    }
+                    style={storyBarStyle(index, storyIndex, story.mediaType, videoProgress, reduceMotion, frozen)}
                   />
                 </div>
               ))}
             </div>
-            <div className="pointer-events-auto mt-3 flex items-center gap-2">
+            <div className="k-stage__who pointer-events-auto">
               <Avatar src={story.author.avatar} name={story.author.name} size="sm" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">{story.author.name}</p>
-                {story.caption ? <p className="truncate text-xs text-white/70">{story.caption}</p> : null}
+                <p className="k-meta truncate">
+                  {story.author.name} · {formatTimeAgo(story.createdAt)}
+                </p>
+                {story.caption ? <p className="k-stage__caption truncate">{story.caption}</p> : null}
               </div>
-              {isOwn ? (
-                <>
-                  <button type="button" className="text-[11px] text-white/80" onClick={loadViewers}>
-                    {story.viewCount ?? 0} viram
-                  </button>
-                  <button type="button" className="text-[11px] text-rose-300" onClick={remove}>
-                    Apagar
-                  </button>
-                </>
-              ) : null}
-              <button
-                type="button"
-                className="flex h-11 w-11 items-center justify-center text-lg text-white"
-                aria-label={paused ? 'Continuar story' : 'Pausar story'}
-                aria-pressed={paused}
-                onClick={() => setPaused((current) => !current)}
-              >
-                {paused ? '▶' : '⏸'}
-              </button>
-              <button type="button" className="flex h-11 w-11 items-center justify-center text-white" onClick={onClose} aria-label="Fechar">
-                ✕
-              </button>
+              <div className="k-stage__actions">
+                {isOwn ? (
+                  <>
+                    <button type="button" className="k-stage__textbtn" onClick={loadViewers}>
+                      {story.viewCount ?? 0} viram
+                    </button>
+                    <button type="button" className="k-stage__textbtn k-stage__textbtn--danger" onClick={remove}>
+                      Apagar
+                    </button>
+                  </>
+                ) : null}
+                <button
+                  type="button"
+                  className="k-stage__icon"
+                  aria-label={paused ? 'Continuar story' : 'Pausar story'}
+                  aria-pressed={paused}
+                  onClick={() => setPaused((current) => !current)}
+                >
+                  {paused ? <Play size={20} aria-hidden /> : <Pause size={20} aria-hidden />}
+                </button>
+                <button type="button" className="k-stage__icon" onClick={onClose} aria-label="Fechar">
+                  <X size={20} aria-hidden />
+                </button>
+              </div>
             </div>
             {story.music ? (
               <div className="pointer-events-auto mt-2" onPointerDown={(event) => event.stopPropagation()}>
@@ -303,7 +315,7 @@ export function StoryViewer({
           {!isOwn ? (
             <form
               onSubmit={sendReply}
-              className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-7 pt-10"
+              className="k-stage__reply"
               onPointerDown={(event) => event.stopPropagation()}
             >
               <div className="flex gap-2">
@@ -314,43 +326,38 @@ export function StoryViewer({
                   onBlur={() => setComposing(false)}
                   placeholder="Responder…"
                   maxLength={280}
-                  className="min-w-0 flex-1 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
+                  className="k-stage__field min-w-0 flex-1"
                 />
-                <button
-                  type="submit"
-                  disabled={sending || !reply.trim()}
-                  className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black disabled:opacity-50"
-                >
+                <button type="submit" disabled={sending || !reply.trim()} className="button button--primary">
                   Enviar
                 </button>
               </div>
-              {error ? <p className="mt-2 text-xs text-rose-300">{error}</p> : null}
+              {error ? <p className="k-stage__error">{error}</p> : null}
             </form>
           ) : error ? (
-            <p className="absolute inset-x-0 bottom-8 text-center text-xs text-rose-300">{error}</p>
+            <p className="k-stage__error absolute inset-x-0 bottom-8 text-center">{error}</p>
           ) : null}
 
           {viewers ? (
-            <div className="absolute inset-x-0 bottom-0 max-h-[55%] overflow-y-auto rounded-t-2xl bg-zinc-950/95 p-4 pb-8">
+            <div className="k-stage__sheet">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm font-medium text-white">Quem viu</p>
-                <button type="button" className="text-xs text-white/70" onClick={() => setViewers(null)}>
+                <p className="k-meta">Quem viu</p>
+                <button type="button" className="k-stage__textbtn" onClick={() => setViewers(null)}>
                   Fechar
                 </button>
               </div>
-              {viewers.length === 0 ? <p className="text-sm text-white/60">Ninguém ainda.</p> : null}
+              {viewers.length === 0 ? <p>Ninguém ainda.</p> : null}
               <ul className="space-y-3">
                 {viewers.map((item) => (
                   <li key={item.user.id} className="flex items-center gap-3">
                     <Avatar src={item.user.avatar} name={item.user.name} size="sm" />
-                    <span className="text-sm text-white">{item.user.name}</span>
+                    <span>{item.user.name}</span>
                   </li>
                 ))}
               </ul>
             </div>
           ) : null}
-        </StoryPhone>
       </div>
-    </div>
+    </StoryPhone>
   );
 }

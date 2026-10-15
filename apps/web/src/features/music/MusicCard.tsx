@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Play, X } from 'lucide-react';
 import type { MusicItem } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { MediaImage } from '@/components/MediaImage';
@@ -62,9 +63,9 @@ export function MusicCard({
   }, [autoplay, open, ref?.kind, ref?.id]);
   const canPlay = Boolean(onSelect) || (inline && Boolean(ref));
   const onMedia = tone === 'story';
-  const surface = onMedia ? 'bg-black/45 backdrop-blur-sm' : 'bg-[var(--overlay)]';
-  const titleColor = onMedia ? 'text-white' : '';
-  const mutedColor = onMedia ? 'text-white/70' : 'text-muted';
+  const surface = onMedia ? 'music-on-stage' : 'bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]';
+  const titleColor = onMedia ? 'text-[var(--k-stage-text)]' : '';
+  const mutedColor = onMedia ? 'text-[var(--k-stage-text)]' : 'text-muted';
 
   function play() {
     if (inline) {
@@ -75,19 +76,15 @@ export function MusicCard({
   }
 
   return (
-    <div className={`rounded-xl p-2.5 ${surface}`}>
+    <div className={`rounded-none p-2.5 ${surface}`}>
       <div className="flex items-center gap-3">
-        <MediaImage src={item.cover} alt={`Capa de ${item.title}`} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+        <MediaImage src={item.cover} alt={`Capa de ${item.title}`} className="k-cover h-10 w-10 shrink-0" />
         <div className="min-w-0 flex-1">
           <p className={`truncate text-sm font-medium ${titleColor}`}>{item.title}</p>
           <p className={`truncate text-xs ${mutedColor}`}>
-            {item.kind === 'playlist' ? (
-              <span className="rounded-full border border-current px-1.5 py-px text-[11px] uppercase tracking-wide">Playlist</span>
-            ) : (
-              item.artist
-            )}
+            {item.kind === 'playlist' ? 'Playlist' : item.artist}
           </p>
-          <p className={`mt-1 flex items-center gap-1.5 text-xs ${mutedColor}`}>
+          <p className={`mt-1 flex items-center gap-1.5 text-sm ${mutedColor}`}>
             <Avatar src={item.addedBy.avatar} name={item.addedBy.name} size="sm" />
             <span className="truncate">Colocada por {item.addedBy.name}</span>
           </p>
@@ -98,19 +95,24 @@ export function MusicCard({
             onClick={play}
             aria-label={open ? `Fechar ${item.title}` : `Tocar ${item.title}`}
             aria-pressed={inline ? open : undefined}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1DB954] text-lg text-black"
+            className="k-spotify-play"
           >
-            {open ? '✕' : '▶'}
+            {open ? <X size={18} aria-hidden /> : <Play size={18} aria-hidden />}
           </button>
         ) : null}
       </div>
-      {autoplay && open && !embedFailed ? <div ref={hostRef} className="mt-2 w-full overflow-hidden rounded-xl" /> : null}
+      {item.spotifyUrl ? (
+        <a className="k-spotify-credit mt-2 inline-block" href={item.spotifyUrl} target="_blank" rel="noreferrer">
+          Spotify
+        </a>
+      ) : null}
+      {autoplay && open && !embedFailed ? <div ref={hostRef} className="mt-2 w-full overflow-hidden" /> : null}
       {inline && open && ref && (!autoplay || embedFailed) ? (
         <iframe
           title={`Tocando: ${item.title}`}
           src={spotifyEmbedSrc(ref)}
           height={spotifyEmbedHeight(ref.kind)}
-          className="mt-2 w-full rounded-xl border-0"
+          className="mt-2 w-full rounded-none border-0"
           style={{ colorScheme: 'normal' }}
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"

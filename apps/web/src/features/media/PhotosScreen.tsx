@@ -2,16 +2,21 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { Album, AudioClip, Photo } from '@resenhometro/shared';
+import { Mic, X } from 'lucide-react';
 import { Button } from '@/components/Button';
+import { CROP, cropImage } from '@/components/ImageCropper';
 import { EmptyState, Skeleton } from '@/components/Card';
-import { Field, Input } from '@/components/Field';
-import { MediaImage } from '@/components/MediaImage';
+import { Input } from '@/components/Field';
+import { Mesa, useMesaViewer, MesaViewer, type MesaEntry } from '@/components/Mesa';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+import { formatMeta, plural } from '@/lib/format';
+import { PhotoViewer, type ViewerPhoto } from './PhotoViewer';
 import { IMAGE_ACCEPT, postFile } from '@/lib/upload';
 
 export function PhotosScreen() {
   const toast = useToast();
+  const mesa = useMesaViewer();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [audios, setAudios] = useState<AudioClip[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -63,7 +68,10 @@ export function PhotosScreen() {
     };
   }, []);
 
-  async function uploadPhoto(file: File) {
+  async function uploadPhoto(original: File) {
+    // Personalizar: proporção e parte da foto (ou "Original" para mandar inteira).
+    const file = await cropImage(original, CROP.free);
+    if (!file) return;
     try {
       await postFile('/photos', 'photo', file, { roleId: roleId || undefined });
       toast.push('Foto adicionada');
@@ -101,6 +109,62 @@ export function PhotosScreen() {
     }
   }
 
+  async function deleteAlbum(albumId: string) {
+    if (!confirm('Excluir álbum?')) return;
+    try {
+      await api.delete(`/albums/${albumId}`);
+      await load();
+    } catch (err) {
+      if (isApiCanceled(err)) return;
+      toast.push(apiErrorMessage(err, 'Não foi possível excluir o álbum'), 'error');
+    }
+  }
+
+  async function deletePhoto(photoId: string) {
+    try {
+      await api.delete(`/photos/${photoId}`);
+      await load();
+    } catch (err) {
+      if (isApiCanceled(err)) return;
+      toast.push(apiErrorMessage(err, 'Não foi possível excluir a foto'), 'error');
+    }
+  }
+
+  function albumEntry(album: Album): MesaEntry {
+    return {
+      id: `album-${album.id}`,
+      label: `Álbum ${album.name}, ${plural(album.photos?.length ?? 0, 'foto', 'fotos')}`,
+      image: album.cover ?? album.photos?.[0]?.url ?? null,
+      text: album.name,
+      meta: plural(album.photos?.length ?? 0, 'foto', 'fotos'),
+    };
+  }
+
+  function photoEntry(photo: Photo): MesaEntry {
+    return {
+      id: `photo-${photo.id}`,
+      label: photo.author?.name ? `Foto de ${photo.author.name}` : 'Foto',
+      image: photo.url,
+      text: photo.caption || undefined,
+      avatar: photo.author ? { src: photo.author.avatar, name: photo.author.name } : undefined,
+      meta: formatMeta(photo.createdAt),
+      dateTime: photo.createdAt,
+    };
+  }
+
+  function toViewerPhoto(photo: Photo): ViewerPhoto {
+    return {
+      id: photo.id,
+      url: photo.url,
+      caption: photo.caption,
+      authorName: photo.author?.name,
+      createdAt: photo.createdAt,
+    };
+  }
+
+  const openAlbum = mesa.openId?.startsWith('album-') ? albums.find((album) => `album-${album.id}` === mesa.openId) : undefined;
+  const openPhoto = mesa.openId?.startsWith('photo-') ? photos.find((photo) => `photo-${photo.id}` === mesa.openId) : undefined;
+
   function stopRecording() {
     clearLimitTimer();
     const recorder = mediaRef.current;
@@ -136,28 +200,64 @@ export function PhotosScreen() {
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Fotos e áudios</h1>
-      <div className="card mb-5 grid gap-4 p-5 sm:grid-cols-2">
-        <Field label="Associar a um rolê (id opcional)">
-          <Input value={roleId} onChange={(e) => setRoleId(e.target.value)} placeholder="uuid do rolê" />
-        </Field>
-        <Field label="Enviar foto">
-          <Input type="file" accept={IMAGE_ACCEPT} onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
-          <p className="mt-1 text-xs text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
-        </Field>
-        <Field label="Enviar áudio">
-          <Input type="file" accept="audio/*" onChange={(e) => e.target.files?.[0] && uploadAudio(e.target.files[0])} />
-        </Field>
-        <div className="flex items-end">
+      <h1 className="k-page-title">Fotos e áudios</h1>
+      {/* Sem cartão: os grupos se separam por fio de 1 px e 24 px de respiro. */}
+      <div className="k-upload">
+        <div className="k-upload__cell">
+          <label className="k-label" htmlFor="upload-role">
+            Associar a um rolê (id opcional)
+          </label>
+          <Input id="upload-role" value={roleId} onChange={(e) => setRoleId(e.target.value)} placeholder="uuid do rolê" />
+        </div>
+        <div className="k-upload__cell">
+          <label className="k-label" htmlFor="upload-photo">
+            Enviar foto
+          </label>
+          <input
+            id="upload-photo"
+            type="file"
+            className="k-file"
+            accept={IMAGE_ACCEPT}
+            aria-describedby="upload-photo-help"
+            onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])}
+          />
+          <p id="upload-photo-help" className="k-help">
+            JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.
+          </p>
+        </div>
+        <div className="k-upload__cell">
+          <label className="k-label" htmlFor="upload-audio">
+            Enviar áudio
+          </label>
+          <input
+            id="upload-audio"
+            type="file"
+            className="k-file"
+            accept="audio/*"
+            onChange={(e) => e.target.files?.[0] && uploadAudio(e.target.files[0])}
+          />
+        </div>
+        <div className="k-upload__cell k-upload__cell--action">
           <Button type="button" variant={recording ? 'danger' : 'secondary'} onClick={() => (recording ? stopRecording() : startRecording())}>
             {recording ? 'Parar gravação' : 'Gravar história'}
           </Button>
         </div>
-        <form onSubmit={createAlbum} className="flex items-end gap-2 sm:col-span-2">
-          <Field label="Novo álbum">
-            <Input value={albumName} onChange={(e) => setAlbumName(e.target.value)} required />
-          </Field>
-          <Button type="submit">Criar álbum</Button>
+        <form onSubmit={createAlbum} className="k-upload__cell k-upload__album">
+          <div className="k-upload__album-field">
+            <label className="k-label" htmlFor="upload-album">
+              Novo álbum
+            </label>
+            <Input
+              id="upload-album"
+              value={albumName}
+              onChange={(e) => setAlbumName(e.target.value)}
+              placeholder="Nome do álbum"
+              required
+            />
+          </div>
+          <Button type="submit" variant="secondary">
+            Criar álbum
+          </Button>
         </form>
       </div>
 
@@ -168,75 +268,65 @@ export function PhotosScreen() {
           <Skeleton className="h-32" />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
 
       {!loading && !error ? (
         <>
-          <h2 className="mb-3 text-lg font-medium">Álbuns</h2>
-          {!error && albums.length === 0 ? <p className="mb-6 text-sm text-muted">Nenhum álbum ainda.</p> : null}
-          <div className="mb-6 grid gap-3 sm:grid-cols-3">
-            {albums.map((album) => (
-              <div key={album.id} className="card p-4">
-                {album.cover ? (
-                  <MediaImage src={album.cover} alt={album.name} className="mb-2 h-24 w-full rounded-lg object-cover" />
-                ) : null}
-                <p>{album.name}</p>
-                <p className="text-xs text-muted">{album.photos?.length ?? 0} fotos</p>
+          <h2 className="k-section-title">Álbuns</h2>
+          {!error && albums.length === 0 ? <EmptyState line title="Nenhum álbum ainda." /> : null}
+          {albums.length > 0 ? (
+            <div>
+              <Mesa
+                label="Álbuns"
+                entries={albums.map(albumEntry)}
+                onOpen={mesa.open}
+                renderExtra={(id) => (
+                  <button
+                    type="button"
+                    className="k-mesa__action"
+                    aria-label="Excluir álbum"
+                    onClick={() => deleteAlbum(id.replace(/^album-/, ''))}
+                  >
+                    <X size={18} aria-hidden />
+                  </button>
+                )}
+              />
+            </div>
+          ) : null}
+
+          <h2 className="k-section-title">Galeria</h2>
+          {!error && photos.length === 0 ? <EmptyState line title="Nenhuma foto ainda." /> : null}
+          {photos.length > 0 ? (
+            <Mesa
+              label="Galeria"
+              entries={photos.map(photoEntry)}
+              onOpen={mesa.open}
+              renderExtra={(id) => (
                 <button
                   type="button"
-                  className="mt-2 text-xs text-[var(--danger)]"
-                  onClick={async () => {
-                    if (!confirm('Excluir álbum?')) return;
-                    try {
-                      await api.delete(`/albums/${album.id}`);
-                      await load();
-                    } catch (err) {
-                      if (isApiCanceled(err)) return;
-                      toast.push(apiErrorMessage(err, 'Não foi possível excluir o álbum'), 'error');
-                    }
-                  }}
+                  className="k-mesa__action"
+                  aria-label="Excluir foto"
+                  onClick={() => deletePhoto(id.replace(/^photo-/, ''))}
                 >
-                  Excluir
+                  <X size={18} aria-hidden />
                 </button>
-              </div>
-            ))}
-          </div>
+              )}
+            />
+          ) : null}
 
-          <h2 className="mb-3 text-lg font-medium">Galeria</h2>
-          {!error && photos.length === 0 ? <EmptyState title="Nenhuma foto ainda." /> : null}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {photos.map((photo) => (
-              <figure key={photo.id} className="relative">
-                <MediaImage src={photo.url} alt={photo.caption || 'Foto'} className="h-28 w-full rounded-xl object-cover sm:h-40" />
-                <button
-                  type="button"
-                  className="absolute top-2 right-2 rounded-full bg-black/60 px-2 text-xs"
-                  onClick={async () => {
-                    try {
-                      await api.delete(`/photos/${photo.id}`);
-                      await load();
-                    } catch (err) {
-                      if (isApiCanceled(err)) return;
-                      toast.push(apiErrorMessage(err, 'Não foi possível excluir a foto'), 'error');
-                    }
-                  }}
-                >
-                  ×
-                </button>
-              </figure>
-            ))}
-          </div>
-
-          <h2 className="mt-8 mb-3 text-lg font-medium">Áudios</h2>
-          {!error && audios.length === 0 ? <p className="text-sm text-muted">Nenhum áudio ainda.</p> : null}
+          <h2 className="k-section-title">Áudios</h2>
+          {!error && audios.length === 0 ? <EmptyState line title="Nenhum áudio ainda." /> : null}
           <div className="space-y-3">
             {audios.map((audio) => (
               <div key={audio.id} className="card p-4">
                 <div className="flex items-center justify-between">
-                  <p>🎙️ {audio.name}</p>
+                  <p className="flex items-center gap-2">
+                  <Mic size={16} aria-hidden />
+                  {audio.name}
+                </p>
                   <button
                     type="button"
-                    className="text-xs text-[var(--danger)]"
+                    className="text-xs text-[var(--k-danger)]"
                     onClick={async () => {
                       try {
                         await api.delete(`/audios/${audio.id}`);
@@ -256,6 +346,27 @@ export function PhotosScreen() {
           </div>
         </>
       ) : null}
+
+      <MesaViewer
+        open={Boolean(openAlbum || openPhoto)}
+        onClose={mesa.close}
+        label={openAlbum ? `Álbum ${openAlbum.name}` : 'Galeria de fotos'}
+      >
+        {openAlbum ? (
+          <PhotoViewer
+            title={openAlbum.name}
+            photos={(openAlbum.photos ?? []).map(toViewerPhoto)}
+            transitionId={mesa.openId ?? ''}
+          />
+        ) : openPhoto ? (
+          <PhotoViewer
+            title="Galeria"
+            photos={photos.map(toViewerPhoto)}
+            startId={openPhoto.id}
+            transitionId={mesa.openId ?? ''}
+          />
+        ) : null}
+      </MesaViewer>
     </>
   );
 }

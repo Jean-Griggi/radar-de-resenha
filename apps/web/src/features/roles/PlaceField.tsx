@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/Button';
 import { Field, Input } from '@/components/Field';
 import { LocationMap } from '@/features/users/LocationMap';
@@ -24,6 +24,7 @@ export function PlaceField({
   const [searching, setSearching] = useState(false);
   const [message, setMessage] = useState('');
   const abortRef = useRef<AbortController | null>(null);
+  const helpId = useId();
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -60,11 +61,12 @@ export function PlaceField({
   return (
     <div className="space-y-3">
       <Field label="Local">
-        <div className="flex gap-2">
+        <div className="role-place">
           <Input
             value={location}
             maxLength={160}
-            placeholder="Ex.: Praça Alencastro, Cuiabá ou um CEP"
+            placeholder="Praça, bairro ou CEP"
+            aria-describedby={helpId}
             onChange={(e) => onChange({ location: e.target.value, point })}
             onKeyDown={(e) => {
               if (e.key !== 'Enter') return;
@@ -78,15 +80,19 @@ export function PlaceField({
         </div>
       </Field>
 
+      <p id={helpId} className="k-help">
+        Pesquise acima ou clique no mapa para marcar o ponto exato.
+      </p>
+
       {message ? <p className="text-sm text-muted">{message}</p> : null}
 
       {results.length > 0 ? (
-        <ul className="card divide-y divide-[var(--border)] overflow-hidden" aria-label="Resultados da busca">
+        <ul className="card divide-y divide-[var(--k-line)] overflow-hidden" aria-label="Resultados da busca">
           {results.map((place) => (
             <li key={`${place.latitude},${place.longitude},${place.label}`}>
               <button
                 type="button"
-                className="block w-full px-3 py-2 text-left text-sm hover:bg-[var(--overlay)]"
+                className="block w-full px-3 py-2 text-left text-sm hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]"
                 onClick={() => choose(place)}
               >
                 {place.label}
@@ -101,13 +107,15 @@ export function PlaceField({
         point={point}
         avatar={null}
         fallbackView={CUIABA_VIEW}
-        heightClass="h-72"
-        hint="Pesquise acima ou clique no mapa para marcar o ponto exato."
+        heightClass="role-map"
+        hint=""
+        pin="role"
+        guardScroll
         onPick={(picked) => onChange({ location, point: picked })}
       />
 
       {point ? (
-        <div className="flex items-center justify-between gap-2 text-xs text-muted">
+        <div className="flex items-center justify-between gap-2 text-sm text-muted">
           <span>
             Ponto marcado ({point.latitude.toFixed(5)}, {point.longitude.toFixed(5)})
           </span>

@@ -70,7 +70,7 @@ export function FriendsScreen() {
           <Skeleton className="h-32" />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error ? (
         <>
           <section className="card mb-5 p-5">
@@ -107,7 +107,7 @@ export function FriendsScreen() {
             {!error && friends.length === 0 ? <EmptyState title="Você ainda não tem amigos." /> : null}
             <ul className="grid gap-3 sm:grid-cols-2">
               {friends.map((person) => (
-                <li key={person.id} className="flex items-center justify-between rounded-xl bg-[var(--overlay)] p-3">
+                <li key={person.id} className="flex items-center justify-between rounded-none bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)] p-3">
                   <Link href={`/perfil/${person.username}`} className="flex items-center gap-2">
                     <Avatar src={person.avatar} name={person.name} size="sm" />
                     <span>

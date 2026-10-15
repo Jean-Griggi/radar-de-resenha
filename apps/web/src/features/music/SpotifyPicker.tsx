@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { MusicKind, SpotifyAccount, SpotifyPlaylist, SpotifyTrack } from '@resenhometro/shared';
 import { Button } from '@/components/Button';
-import { MediaImage } from '@/components/MediaImage';
+import { Tabs } from '@/components/Tabs';
+import { TrackRow } from '@/components/TrackRow';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
+import { plural } from '@/lib/format';
 
 export type SpotifyChoice = { kind: MusicKind; id: string; title: string; subtitle: string; cover: string | null };
 
@@ -72,54 +74,55 @@ export function SpotifyPicker({
       {!loading && connected === false ? (
         <p className="text-sm text-muted">
           Conecte sua conta do Spotify para escolher música.{' '}
-          <Link href="/music" className="font-semibold text-[var(--primary)] hover:underline">
+          <Link href="/music" className="font-semibold text-[var(--k-brand)] hover:underline">
             Conectar em Música
           </Link>
         </p>
       ) : null}
 
-      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--k-danger)]">{error}</p> : null}
 
       {!loading && connected ? (
         <>
-          <div className="flex gap-2" role="tablist">
-            {(['track', 'playlist'] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                role="tab"
-                aria-selected={tab === value}
-                className={`chip-tab ${tab === value ? 'is-active' : ''}`}
-                onClick={() => setTab(value)}
-              >
-                {value === 'track' ? 'Faixas' : 'Playlists'}
-              </button>
-            ))}
-          </div>
+          <Tabs
+            label="Tipo de busca"
+            items={[
+              { value: 'track', label: 'Faixas' },
+              { value: 'playlist', label: 'Playlists' },
+            ]}
+            value={tab}
+            onChange={setTab}
+          />
 
-          <ul className="max-h-72 space-y-1 overflow-y-auto">
+          <ol className="k-tracks max-h-72 overflow-y-auto">
             {tab === 'track'
-              ? tracks.map((item) => (
-                  <Row
+              ? tracks.map((item, index) => (
+                  <TrackRow
                     key={item.id}
+                    index={index + 1}
                     cover={item.cover}
                     title={item.title}
-                    subtitle={item.artist}
+                    artist={item.artist}
                     disabled={disabled}
-                    onPick={() => onPick({ kind: 'track', id: item.id, title: item.title, subtitle: item.artist, cover: item.cover })}
+                    spotifyUrl={item.url}
+                    actionLabel={`Escolher ${item.title}`}
+                    onSelect={() => onPick({ kind: 'track', id: item.id, title: item.title, subtitle: item.artist, cover: item.cover })}
                   />
                 ))
-              : playlists.map((item) => (
-                  <Row
+              : playlists.map((item, index) => (
+                  <TrackRow
                     key={item.id}
+                    index={index + 1}
                     cover={item.image}
                     title={item.name}
-                    subtitle={`Playlist · ${item.tracks} faixas`}
+                    artist={`Playlist · ${plural(item.tracks, 'faixa', 'faixas')}`}
                     disabled={disabled}
-                    onPick={() => onPick({ kind: 'playlist', id: item.id, title: item.name, subtitle: 'Playlist', cover: item.image })}
+                    spotifyUrl={item.url}
+                    actionLabel={`Escolher ${item.name}`}
+                    onSelect={() => onPick({ kind: 'playlist', id: item.id, title: item.name, subtitle: 'Playlist', cover: item.image })}
                   />
                 ))}
-          </ul>
+          </ol>
           {tab === 'track' && tracks.length === 0 && !error ? (
             <p className="text-sm text-muted">Nenhuma música curtida na sua conta.</p>
           ) : null}
@@ -130,33 +133,3 @@ export function SpotifyPicker({
   );
 }
 
-function Row({
-  cover,
-  title,
-  subtitle,
-  disabled,
-  onPick,
-}: {
-  cover: string | null;
-  title: string;
-  subtitle: string;
-  disabled: boolean;
-  onPick: () => void;
-}) {
-  return (
-    <li>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={onPick}
-        className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-[var(--overlay)] disabled:opacity-50"
-      >
-        <MediaImage src={cover} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" />
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-medium">{title}</span>
-          <span className="block truncate text-xs text-muted">{subtitle}</span>
-        </span>
-      </button>
-    </li>
-  );
-}

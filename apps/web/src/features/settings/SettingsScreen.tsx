@@ -11,7 +11,9 @@ import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { postFile, shrinkImage, IMAGE_ACCEPT } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
+import { CROP, cropImage } from '@/components/ImageCropper';
 import { LocationMap } from '@/features/users/LocationMap';
+import { useTheme, type ThemeChoice } from '@/components/Theme';
 import { PlaceSearch } from '@/features/users/PlaceSearch';
 import {
   clearLocationBody,
@@ -95,7 +97,10 @@ export function SettingsScreen() {
     [],
   );
 
-  function pick(kind: 'avatar' | 'cover', file: File) {
+  async function pick(kind: 'avatar' | 'cover', original: File) {
+    // Personalizar: a pessoa escolhe a parte da imagem antes de ela ir para a prévia.
+    const file = await cropImage(original, CROP[kind]);
+    if (!file) return;
     setPending((current) => {
       if (current[kind]) URL.revokeObjectURL(current[kind].url);
       return { ...current, [kind]: { file, url: URL.createObjectURL(file) } };
@@ -191,9 +196,10 @@ export function SettingsScreen() {
           <Button skeleton />
         </div>
       ) : null}
-      {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="mb-5 text-[var(--k-danger)]">{error}</p> : null}
       {!loading && !error && me ? (
         <div className="grid gap-5">
+          <ThemeSetting />
           <form onSubmit={save} className="card space-y-4 p-6">
             <h2 className="text-lg font-medium">Conta</h2>
             <Field label="Nome">
@@ -234,21 +240,21 @@ export function SettingsScreen() {
                   e.target.value = '';
                 }}
               />
-              <p className="mt-1 text-xs text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
+              <p className="mt-1 text-sm text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
             </Field>
             <Button variant="ghost" onClick={() => removeMedia('cover')}>
               Remover capa
             </Button>
             {pending.avatar || pending.cover ? (
-              <div className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--overlay)] p-4">
+              <div className="space-y-3 rounded-none border border-[var(--k-line)] bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)] p-4">
                 <p className="text-sm font-medium">Prévia: assim vai ficar no seu perfil</p>
-                <div className="overflow-hidden rounded-2xl border border-[var(--border)]">
-                  <div className="h-28 bg-[var(--brand-red-dark)] sm:h-40">
+                <div className="overflow-hidden rounded-none border border-[var(--k-line)]">
+                  <div className="h-28 bg-[var(--k-brand-hover)] sm:h-40">
                     {(pending.cover?.url ?? me.cover) ? (
-                      <img src={pending.cover?.url ?? me.cover ?? ''} alt="" className="h-full w-full object-cover" />
+                      <img src={pending.cover?.url ?? me.cover ?? ''} alt="Capa do perfil" className="h-full w-full object-cover" />
                     ) : null}
                   </div>
-                  <div className="flex items-end gap-3 bg-[var(--bg-elevated)] px-4 pb-4">
+                  <div className="flex items-end gap-3 bg-[var(--k-surface-raised)] px-4 pb-4">
                     <div className="-mt-8">
                       <Avatar src={pending.avatar?.url ?? me.avatar} name={me.name} size="xl" glow />
                     </div>
@@ -258,7 +264,7 @@ export function SettingsScreen() {
                     </div>
                   </div>
                 </div>
-                {mediaError ? <p className="text-sm text-[var(--danger)]">{mediaError}</p> : null}
+                {mediaError ? <p className="text-sm text-[var(--k-danger)]">{mediaError}</p> : null}
                 <div className="flex gap-2">
                   <Button onClick={confirmMedia} disabled={savingMedia}>
                     {savingMedia ? 'Salvando…' : 'Salvar'}
@@ -341,12 +347,47 @@ export function SettingsScreen() {
           <section className="card p-6">
             <h2 className="text-lg font-medium">Música</h2>
             <p className="mt-2 text-sm text-muted">Conecte o Spotify em Música para ver a faixa atual e playlists.</p>
-            <a href="/music" className="mt-3 inline-block text-[var(--accent)]">
+            <a href="/music" className="mt-3 inline-block text-[var(--k-brand)]">
               Ir para música
             </a>
           </section>
         </div>
       ) : null}
     </>
+  );
+}
+
+const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
+  { value: 'system', label: 'Sistema' },
+  { value: 'light', label: 'Claro' },
+  { value: 'dark', label: 'Escuro' },
+];
+
+/** Ficha com as três escolhas. "Sistema" apaga a chave; o botão do cabeçalho continua só claro/escuro. */
+function ThemeSetting() {
+  const { preference, choose } = useTheme();
+  return (
+    <section className="card space-y-4 p-6">
+      <h2 className="text-lg font-medium">Aparência</h2>
+      <div className="k-ficha" role="radiogroup" aria-label="Tema">
+        {THEME_OPTIONS.map((option) => {
+          const active = preference === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              className="k-ficha-row k-ficha-row--mark"
+              onClick={() => choose(option.value)}
+            >
+              <span className={`k-ficha-row__mark${active ? ' k-ficha-row__mark--done' : ''}`} aria-hidden />
+              <span className="k-meta">{option.label}</span>
+              <span>{active ? 'Ativo' : ''}</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }

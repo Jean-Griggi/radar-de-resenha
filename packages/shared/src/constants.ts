@@ -1,4 +1,4 @@
-export const APP_NAME = 'Resenhômetro';
+export const APP_NAME = 'Kina';
 
 export const ROLE_CATEGORIES = [
   'Festa',

@@ -1,7 +1,18 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { ChevronDown, Music, X } from 'lucide-react';
+import { Corners } from '@/components/Corners';
+import { Spinner } from '@/components/Spinner';
 import { parseSpotifyUrl, spotifyEmbedHeight, spotifyEmbedSrc } from '@/lib/spotifyEmbed';
 
 export type PlayerTrack = {
@@ -38,7 +49,10 @@ type LyricsState = { status: 'idle' | 'loading' | 'found' | 'missing'; text: str
 
 /** Tira "(feat. ...)", "- Remastered" etc. e fica só com o primeiro artista: o serviço de letras acha melhor assim. */
 function lyricsQuery(track: PlayerTrack) {
-  const title = track.title.replace(/\s*[([].*?[)\]]/g, '').replace(/\s+-\s+.*$/, '').trim();
+  const title = track.title
+    .replace(/\s*[([].*?[)\]]/g, '')
+    .replace(/\s+-\s+.*$/, '')
+    .trim();
   const artist = track.artist.split(/,|&|\sfeat\.?\s/i)[0]!.trim();
   return { title, artist };
 }
@@ -74,11 +88,13 @@ export function MiniPlayer() {
   const [open, setOpen] = useState(false);
   const [lyrics, setLyrics] = useState<LyricsState>({ status: 'idle', text: '' });
   const [showLyrics, setShowLyrics] = useState(false);
+  const [frameReady, setFrameReady] = useState(false);
 
   // Faixa nova: abre o painel (a pessoa precisa apertar play dentro do player do Spotify) e zera a letra.
   useEffect(() => {
     setOpen(Boolean(track));
     setShowLyrics(false);
+    setFrameReady(false);
     setLyrics({ status: 'idle', text: '' });
     fetchedFor.current = '';
   }, [track?.spotifyUrl, track?.title]);
@@ -112,63 +128,89 @@ export function MiniPlayer() {
   if (!track) return null;
 
   return (
-    <div className="pointer-events-none fixed right-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-[60] flex flex-col items-end gap-2 lg:right-5 lg:bottom-5">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-[60] flex flex-col items-end gap-2 px-3 lg:inset-x-auto lg:right-5 lg:bottom-5 lg:px-0">
       <div
         className={
           open
-            ? 'pointer-events-auto w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-elevated)] shadow-[var(--shadow-lg)]'
+            ? 'pointer-events-auto w-full overflow-hidden border border-[var(--k-line)] bg-[var(--k-surface-raised)] lg:w-[24rem]'
             : 'pointer-events-none fixed top-0 -left-[9999px] w-[22rem]'
         }
         aria-hidden={!open}
       >
-        <div className="flex items-center gap-3 p-3">
-          {track.cover ? (
-            <img src={track.cover} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" />
-          ) : (
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-soft)]">
-              <Music size={22} aria-hidden />
-            </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold">{track.title}</p>
-            <p className="truncate text-sm text-muted">{track.artist}</p>
+        <div className="k-ficha-faixa">
+          <Corners
+            className="k-ficha-faixa__cover"
+            style={{ '--k-corner-offset': '0px' } as CSSProperties}
+          >
+            {track.cover ? (
+              <img src={track.cover} alt="" className="k-cover" width={112} height={112} />
+            ) : (
+              <span className="k-ficha-faixa__nocover" aria-hidden>
+                <Music size={28} />
+              </span>
+            )}
+          </Corners>
+          <div className="k-ficha-faixa__text">
+            <p className="k-ficha-faixa__title k-display">{track.title}</p>
+            <p className="k-ficha-faixa__artist">{track.artist}</p>
             {track.spotifyUrl ? (
-              <a href={track.spotifyUrl} target="_blank" rel="noreferrer" className="text-xs text-[var(--accent)] hover:underline">
-                Abrir no Spotify
+              <a
+                href={track.spotifyUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="k-ficha-faixa__link"
+              >
+                <span className="k-ficha-faixa__dot" aria-hidden />
+                Ouvir no Spotify
               </a>
             ) : null}
           </div>
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label="Recolher player"
-            onClick={() => setOpen(false)}
-          >
-            <ChevronDown size={20} aria-hidden />
-          </button>
-          <button type="button" className="icon-btn" aria-label="Fechar player" onClick={() => setTrack(null)}>
-            <X size={20} aria-hidden />
-          </button>
+          <div className="k-ficha-faixa__actions">
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="Recolher player"
+              onClick={() => setOpen(false)}
+            >
+              <ChevronDown size={20} aria-hidden />
+            </button>
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="Fechar player"
+              onClick={() => setTrack(null)}
+            >
+              <X size={20} aria-hidden />
+            </button>
+          </div>
         </div>
 
         {ref ? (
-          <iframe
-            key={`${ref.kind}:${ref.id}`}
-            title={`Tocando: ${track.title}`}
-            src={spotifyEmbedSrc(ref)}
-            height={spotifyEmbedHeight(ref.kind)}
-            className="block w-full border-0"
-            style={{ colorScheme: 'normal' }}
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="eager"
-          />
+          <div className="k-ficha-faixa__frame" style={{ minHeight: spotifyEmbedHeight(ref.kind) }}>
+            {frameReady ? null : (
+              <span className="k-ficha-faixa__loading">
+                <Spinner />
+              </span>
+            )}
+            <iframe
+              key={`${ref.kind}:${ref.id}`}
+              title={`Tocando: ${track.title}`}
+              src={spotifyEmbedSrc(ref)}
+              height={spotifyEmbedHeight(ref.kind)}
+              className="block w-full border-0"
+              style={{ colorScheme: 'normal' }}
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="eager"
+              onLoad={() => setFrameReady(true)}
+            />
+          </div>
         ) : null}
 
         {!isPlaylist ? (
-          <div className="border-t border-[var(--border)]">
+          <div className="border-t border-[var(--k-line)]">
             <button
               type="button"
-              className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium hover:bg-[var(--overlay)]"
+              className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium hover:bg-[color-mix(in_srgb,var(--k-text)_5%,transparent)]"
               aria-expanded={showLyrics}
               onClick={() => setShowLyrics((value) => !value)}
             >
@@ -177,8 +219,12 @@ export function MiniPlayer() {
             </button>
             {showLyrics ? (
               <div className="max-h-64 overflow-y-auto px-3 pb-3 text-sm whitespace-pre-line">
-                {lyrics.status === 'loading' ? <p className="text-muted">Procurando a letra…</p> : null}
-                {lyrics.status === 'missing' ? <p className="text-muted">Não encontrei a letra desta música.</p> : null}
+                {lyrics.status === 'loading' ? (
+                  <p className="text-muted">Procurando a letra…</p>
+                ) : null}
+                {lyrics.status === 'missing' ? (
+                  <p className="text-muted">Não encontrei a letra desta música.</p>
+                ) : null}
                 {lyrics.status === 'found' ? lyrics.text : null}
               </div>
             ) : null}
@@ -188,7 +234,7 @@ export function MiniPlayer() {
 
       <button
         type="button"
-        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#1DB954] text-black shadow-[var(--shadow-lg)] hover:brightness-110"
+        className="k-spotify-play pointer-events-auto h-12 w-12"
         aria-label={open ? 'Recolher player de música' : `Abrir player de música: ${track.title}`}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
