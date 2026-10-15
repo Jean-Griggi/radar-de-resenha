@@ -1304,11 +1304,6 @@
     color: var(--k-text-muted);
     font-size: var(--k-fs-16);
   }
-  /* Cancelar: sozinho, centrado embaixo, longe do Entrar. */
-  .auth-panel__cancel {
-    display: flex;
-    margin: var(--k-space-2) auto 0;
-  }
   .auth-panel__links {
     display: flex;
     flex-wrap: wrap;
@@ -1317,13 +1312,19 @@
     margin-top: 14px;
     font-size: var(--k-fs-14);
   }
-  .auth-panel__links a {
+  .auth-panel__links a,
+  .auth-panel__links button {
     display: inline-flex;
     align-items: center;
     min-height: var(--k-touch);
     color: var(--k-text);
     text-decoration: underline;
     text-underline-offset: 3px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
   }
   @media (min-width: 1024px) {
     .auth-stage__phrase {

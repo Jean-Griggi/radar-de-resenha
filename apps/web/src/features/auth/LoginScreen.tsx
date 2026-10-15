@@ -335,12 +335,12 @@ export function LoginScreen() {
                     {loading ? 'Entrando...' : 'Entrar'}
                   </Button>
                   <p className="auth-panel__links">
+                    <button type="button" onClick={close}>
+                      Cancelar
+                    </button>
                     <Link href="/esqueci-senha">Esqueci a senha</Link>
                     <Link href="/cadastro">Criar conta</Link>
                   </p>
-                  <Button variant="ghost" onClick={close} className="auth-panel__cancel">
-                    Cancelar
-                  </Button>
                 </form>
               </div>
             </Corners>
