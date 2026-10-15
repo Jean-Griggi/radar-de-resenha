@@ -5,6 +5,14 @@ import { REACTION_EMOJI, type ReactionSummary, type ReactionType } from '@resenh
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { useToast } from '@/components/Toast';
 
+const REACTION_NAME: Record<ReactionType, string> = {
+  heart: 'coração',
+  laugh: 'risada',
+  cry: 'choro',
+  fire: 'fogo',
+  eyes: 'olhos',
+};
+
 export function Reactions({
   targetType,
   targetId,
@@ -34,7 +42,7 @@ export function Reactions({
   }
 
   return (
-    <div className="flex flex-wrap gap-1" role="group" aria-label="Reações">
+    <div className="k-reactions" role="group" aria-label="Reações">
       {(Object.keys(REACTION_EMOJI) as ReactionType[]).map((type) => {
         const current = items.find((item) => item.type === type);
         const reacted = Boolean(current?.reacted);
@@ -47,7 +55,7 @@ export function Reactions({
             onClick={() => toggle(type)}
             className="reaction-btn disabled:opacity-40"
             aria-pressed={reacted}
-            aria-label={`Reagir com ${REACTION_EMOJI[type]}`}
+            aria-label={`Reagir com ${REACTION_NAME[type]}`}
           >
             <span aria-hidden>{REACTION_EMOJI[type]}</span>
             {count > 0 ? <span className="k-meta">{count}</span> : null}

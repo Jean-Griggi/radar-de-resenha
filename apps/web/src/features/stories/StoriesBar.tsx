@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Music, X } from 'lucide-react';
+import { Music, Plus, X } from 'lucide-react';
 import type { StoryRing } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -103,67 +103,82 @@ export function StoriesBar() {
   }
 
   const playableRings = rings.filter((ring) => ring.stories.length > 0);
+  // "Seu story" sempre primeiro; o resto segue a ordem da API.
+  const orderedRings = [...rings].sort(
+    (a, b) => Number(b.author.id === me?.id) - Number(a.author.id === me?.id),
+  );
 
   return (
     <>
       <section className="k-stories" aria-label="Stories">
-        <div className="k-stories__row">
+        <ul className="k-stories__row">
           {loading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="k-stories__item">
+              <li key={i} className="k-stories__item">
                 <div className="skeleton k-stories__bone" />
                 <div className="skeleton h-3 w-12" />
-              </div>
+              </li>
             ))
           ) : (
-            rings.map((ring) => {
+            orderedRings.map((ring) => {
               const isMe = ring.author.id === me?.id;
               const emptyMine = isMe && ring.stories.length === 0;
+              const label = isMe ? 'Seu story' : ring.author.name.split(' ')[0];
+              const avatar = (
+                <span className={emptyMine ? 'k-stories__avatar k-stories__avatar--empty' : 'k-stories__avatar'}>
+                  <Avatar
+                    src={ring.author.avatar}
+                    name={ring.author.name}
+                    size="lg"
+                    glow={!emptyMine && ring.hasUnseen}
+                    seen={!emptyMine && !ring.hasUnseen}
+                  />
+                  {emptyMine ? (
+                    <span className="k-stories__add" aria-hidden>
+                      <Plus size={14} strokeWidth={2.5} />
+                    </span>
+                  ) : null}
+                </span>
+              );
               return (
-                <div key={ring.author.id} className="k-stories__item">
-                  <div className="relative">
+                <li key={ring.author.id} className="k-stories__item">
+                  {/* O item inteiro (avatar + rótulo) é o alvo. */}
+                  <button
+                    type="button"
+                    className="k-stories__hit"
+                    aria-label={
+                      emptyMine
+                        ? 'Adicionar ao seu story'
+                        : ring.hasUnseen
+                          ? `Stories de ${ring.author.name}, não vistos`
+                          : `Stories de ${ring.author.name}`
+                    }
+                    onClick={() => {
+                      if (emptyMine) {
+                        inputRef.current?.click();
+                        return;
+                      }
+                      openRing(ring);
+                    }}
+                  >
+                    {avatar}
+                    <span className="k-stories__label">{label}</span>
+                  </button>
+                  {isMe && !emptyMine ? (
                     <button
                       type="button"
-                      aria-label={
-                        emptyMine
-                          ? 'Adicionar story'
-                          : ring.hasUnseen
-                            ? `Stories de ${ring.author.name}, não vistos`
-                            : `Stories de ${ring.author.name}`
-                      }
-                      onClick={() => {
-                        if (emptyMine) {
-                          inputRef.current?.click();
-                          return;
-                        }
-                        openRing(ring);
-                      }}
+                      className="k-stories__add k-stories__add--button"
+                      aria-label="Adicionar ao seu story"
+                      onClick={() => inputRef.current?.click()}
                     >
-                      <Avatar
-                        src={ring.author.avatar}
-                        name={ring.author.name}
-                        size="lg"
-                        glow={!emptyMine && ring.hasUnseen}
-                        seen={!emptyMine && !ring.hasUnseen}
-                      />
+                      <Plus size={14} strokeWidth={2.5} aria-hidden />
                     </button>
-                    {isMe ? (
-                      <button
-                        type="button"
-                        className="k-stories__add"
-                        aria-label="Adicionar story"
-                        onClick={() => inputRef.current?.click()}
-                      >
-                        +
-                      </button>
-                    ) : null}
-                  </div>
-                  <span className="k-stories__label">{isMe ? 'Seu story' : ring.author.name.split(' ')[0]}</span>
-                </div>
+                  ) : null}
+                </li>
               );
             })
           )}
-        </div>
+        </ul>
         <input
           ref={inputRef}
           type="file"

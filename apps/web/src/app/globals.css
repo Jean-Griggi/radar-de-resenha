@@ -99,10 +99,18 @@
   }
 }
 
-html,
-body {
+/* Uma única barra vertical: só o html corta o excesso horizontal. Com overflow-x: hidden também no body, o
+   overflow-y dele vira "auto" e ele passa a ser um segundo contêiner de rolagem (e quebra o sticky). */
+html {
   min-height: 100%;
   overflow-x: hidden;
+  background: var(--k-bg);
+  color: var(--k-text);
+}
+
+body {
+  min-height: 100%;
+  overflow-x: clip;
   background: var(--k-bg);
   color: var(--k-text);
 }

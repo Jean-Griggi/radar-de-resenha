@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { MusicItem, ReactionSummary } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { TrackList, TrackRow } from '@/components/TrackRow';
@@ -11,6 +11,7 @@ import { Reactions } from './Reactions';
 /**
  * Publicação na variante "sem rolê vinculado" (D3/D4): sem faixa de capa, sem "em …" e sem imagem.
  * Reações continuam as cinco do componente atual (D6). A música, se houver, toca no player global.
+ * É o conteúdo do detalhe (painel da Mesa): o texto aparece COMPLETO, sem corte nem esmaecimento.
  */
 export function Post({
   postId,
@@ -25,6 +26,7 @@ export function Post({
   onReactions,
   comments,
   transitionStyle,
+  bare = false,
 }: {
   postId: string;
   authorName: string;
@@ -39,10 +41,12 @@ export function Post({
   comments?: ReactNode;
   /** Nome da View Transition quando o post abre a partir de um tile de texto da Mesa. */
   transitionStyle?: CSSProperties;
+  /** Detalhe com foto: a moldura (cantoneiras) fica só na foto; o texto vem sem moldura e sem fundo de cartão. */
+  bare?: boolean;
 }) {
   return (
-    <article className="k-post">
-      <div className="k-post__block k-corners" style={transitionStyle}>
+    <article className={bare ? 'k-post k-post--bare' : 'k-post'}>
+      <div className={bare ? 'k-post__block' : 'k-post__block k-corners'} style={transitionStyle}>
         <div className="k-post__avatar">
           <Avatar src={avatar} name={authorName} />
         </div>
@@ -58,7 +62,11 @@ export function Post({
             {formatTimeAgo(createdAt)}
           </time>
         </header>
-        {content ? <Caption text={content} /> : null}
+        {content ? (
+          <div className="k-post__caption">
+            <p className="k-post__body">{content}</p>
+          </div>
+        ) : null}
         <footer className="k-post__foot">
           {music ? (
             <TrackList className="k-post__track">
@@ -70,44 +78,11 @@ export function Post({
                 onSelect={onPlay}
               />
             </TrackList>
-          ) : (
-            <span />
-          )}
+          ) : null}
           <Reactions targetType="post" targetId={postId} items={reactions} onChange={onReactions} />
         </footer>
       </div>
       {comments ? <div className="k-post__comments">{comments}</div> : null}
     </article>
-  );
-}
-
-/** Esmaece a legenda depois de 3 linhas; "ver mais" expande. O esmaecimento só cobre a última linha. */
-function Caption({ text }: { text: string }) {
-  const ref = useRef<HTMLParagraphElement>(null);
-  const [open, setOpen] = useState(false);
-  const [overflows, setOverflows] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || open) return;
-    setOverflows(el.scrollHeight > el.clientHeight + 1);
-  }, [text, open]);
-
-  return (
-    <div className="k-post__caption">
-      <p ref={ref} className={open ? 'k-post__body' : 'k-post__body k-post__body--clamp'}>
-        {text}
-      </p>
-      {overflows ? (
-        <button
-          type="button"
-          className="button button--ghost"
-          aria-expanded={open}
-          onClick={() => setOpen((value) => !value)}
-        >
-          {open ? 'ver menos' : 'ver mais'}
-        </button>
-      ) : null}
-    </div>
   );
 }

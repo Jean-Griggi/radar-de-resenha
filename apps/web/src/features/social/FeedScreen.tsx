@@ -150,9 +150,17 @@ function FeedEntry({
   const image = feedImage(item);
   // Tile com foto: a foto grande recebe o nome da transição. Tile de texto: o bloco do post/card.
   const named = mesaTransitionStyle(item.id);
+  // As cantoneiras envolvem SÓ a foto; o nome da transição fica na <img>, nunca no invólucro das cantoneiras.
   const hero = image ? (
-    <div className="k-mesa-viewer__hero" style={named}>
-      <MediaImage src={image} alt={item.photo?.caption || ''} className="k-mesa-viewer__image" />
+    <div className="k-mesa-viewer__hero">
+      <div className="k-corners k-mesa-viewer__frame">
+        <MediaImage
+          src={image}
+          alt={item.photo?.caption || ''}
+          className="k-mesa-viewer__image"
+          style={named}
+        />
+      </div>
     </div>
   ) : null;
   const fallback = (
@@ -191,8 +199,9 @@ function FeedEntry({
               current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)),
             );
           }}
-          comments={<FeedComments targetType="post" targetId={post.id} />}
+          comments={<FeedComments targetType="post" targetId={post.id} accent />}
           transitionStyle={image ? undefined : named}
+          bare={Boolean(image)}
         />
       </ErrorBoundary>
     );
@@ -202,7 +211,10 @@ function FeedEntry({
   return (
     <ErrorBoundary fallback={fallback}>
       {hero}
-      <article className="card feed-memory k-corners" style={image ? undefined : named}>
+      <article
+        className={image ? 'feed-memory feed-memory--bare' : 'card feed-memory k-corners'}
+        style={image ? undefined : named}
+      >
         <div className="min-w-0 p-4">
           <div className="flex items-start gap-3">
             <Avatar src={item.actor?.avatar} name={item.actor?.name} size="sm" />
@@ -286,7 +298,7 @@ function FeedEntry({
         </div>
         {target ? (
           <div className="border-t border-line px-4 py-3">
-            <FeedComments targetType={target.targetType} targetId={target.targetId} />
+            <FeedComments targetType={target.targetType} targetId={target.targetId} accent />
           </div>
         ) : null}
       </article>
@@ -365,6 +377,7 @@ export function FeedScreen() {
     }
   }
 
+  const composerEmpty = !content.trim() && !music;
   const future = items.filter((item) => item.role?.status === 'upcoming');
   const past = items.filter((item) => item.role?.status !== 'upcoming');
   const openItem = past.find((item) => item.id === mesa.openId);
@@ -497,9 +510,22 @@ export function FeedScreen() {
               Música
             </button>
           </div>
-          <Button type="submit" loading={publishing} disabled={!content.trim() && !music}>
-            Compartilhar
-          </Button>
+          <div className="k-composer__send">
+            <Button
+              type="submit"
+              variant="secondary"
+              loading={publishing}
+              disabled={composerEmpty}
+              aria-describedby={composerEmpty ? 'composer-reason' : undefined}
+            >
+              Compartilhar
+            </Button>
+            {composerEmpty ? (
+              <p id="composer-reason" className="k-reason">
+                Escreva algo para compartilhar.
+              </p>
+            ) : null}
+          </div>
         </div>
       </form>
 

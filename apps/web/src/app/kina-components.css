@@ -950,6 +950,13 @@
     cursor: pointer;
     transition: none;
   }
+  /* Alinhadas à esquerda, no recuo do nome do autor: o emoji (centrado no alvo de 44 px) cai na borda do texto. */
+  .k-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--k-space-1);
+    margin-inline-start: -12px;
+  }
   .reaction-btn:hover:not(:disabled) {
     color: var(--k-text);
   }
@@ -1876,30 +1883,34 @@
     font-size: var(--k-fs-16);
     line-height: 1.5;
   }
-  .k-post__body--clamp {
-    max-height: calc(3 * 1.5em);
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(var(--k-text) 60%, transparent);
-    mask-image: linear-gradient(var(--k-text) 60%, transparent);
-  }
-  .k-post__caption .button {
-    min-height: var(--k-touch);
-    margin-top: 4px;
+  .k-post__body {
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
   }
   .k-post__foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px 16px;
+    display: grid;
+    gap: var(--k-space-2);
     margin-top: 16px;
     padding-top: 12px;
     border-top: 1px solid var(--k-line);
   }
   .k-post__track {
     min-width: 0;
-    flex: 1 1 180px;
     border-top: 0;
+  }
+  /* Detalhe com foto: o texto vem sem moldura e sem fundo de cartão (presente não tem moldura). */
+  .k-post--bare .k-post__block {
+    background: none;
+  }
+  .feed-memory--bare {
+    padding: 0;
+  }
+  /* Motivo de um botão desabilitado: texto de 14 px ligado por aria-describedby (estado nunca só por cor). */
+  .k-reason {
+    margin: var(--k-space-1) 0 0;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    line-height: 1.4;
   }
   .k-post__comments {
     padding: 12px 16px 0;
@@ -1933,53 +1944,96 @@
     overflow-wrap: anywhere;
   }
   /* Stories: pontos de 58 px. Não visto = anel de 2 px da marca (o `glow` do Avatar). */
+  /* Faixa horizontal: rolagem sem barra visível, com encaixe suave (o foco ganha 4 px de respiro). */
   .k-stories__row {
     display: flex;
     gap: 16px;
     margin: 0;
-    padding: 0 0 4px;
+    padding: 6px 4px;
     overflow-x: auto;
+    overflow-y: hidden;
     list-style: none;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+  .k-stories__row::-webkit-scrollbar {
+    display: none;
   }
   .k-stories__item {
+    position: relative;
     display: flex;
     width: 72px;
     flex: none;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    scroll-snap-align: start;
+  }
+  .k-stories__hit {
+    display: flex;
+    width: 100%;
+    min-height: var(--k-touch);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--k-space-2);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-stories__avatar {
+    position: relative;
+    display: inline-flex;
   }
   .k-stories__item .k-avatar--lg {
     --k-avatar: 58px;
   }
+  /* Sem story: fio de 1 px, não o anel da marca. */
+  .k-stories__avatar--empty .k-avatar__face {
+    outline: 1px solid var(--k-line-strong);
+    outline-offset: 3px;
+  }
+  /* Uma linha só; as reticências valem só para o rótulo. */
   .k-stories__label {
-    display: -webkit-box;
+    display: block;
     width: 100%;
     overflow: hidden;
     color: var(--k-text);
-    font-size: var(--k-fs-14);
+    font-family: var(--k-font-mono);
+    font-size: var(--k-fs-12);
+    letter-spacing: var(--k-meta-tracking);
     line-height: 1.2;
     text-align: center;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow-wrap: anywhere;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
+  /* Selo "+" de 20x20, raio 2 px, no canto inferior direito do avatar: não cobre iniciais nem rótulo. */
   .k-stories__add {
     position: absolute;
-    right: -10px;
-    bottom: -10px;
-    display: flex;
-    width: var(--k-touch);
-    height: var(--k-touch);
-    align-items: center;
-    justify-content: center;
+    right: -4px;
+    bottom: -4px;
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    padding: 0;
     border: 0;
     border-radius: var(--k-radius-control);
-    background: var(--k-brand);
-    color: var(--k-on-brand);
-    font-size: var(--k-fs-16);
-    font-weight: 600;
+    background: var(--k-text);
+    color: var(--k-bg);
+  }
+  /* Quando já há story, "+" é um botão à parte; a área de toque de 44 px vem do pseudo-elemento. */
+  .k-stories__add--button {
+    right: 5px;
+    bottom: auto;
+    top: 44px;
     cursor: pointer;
+  }
+  .k-stories__add--button::after {
+    position: absolute;
+    inset: -12px;
+    content: "";
   }
   .k-stories__bone {
     width: 58px;
@@ -2388,12 +2442,19 @@
     margin-inline: auto;
     padding: var(--k-space-6) var(--k-space-4) var(--k-space-12);
   }
+  /* Foto do detalhe: cantoneiras (6 px para fora) só ao redor dela; a proporção é reservada (sem layout shift)
+     e a foto nunca é cortada (contain sobre o fundo rebaixado). O nome da transição vive na <img>. */
+  .k-mesa-viewer__frame {
+    width: 100%;
+    max-height: min(70dvh, 720px);
+    aspect-ratio: 4 / 3;
+    background: var(--k-bg-sunken);
+  }
   .k-mesa-viewer__image {
     display: block;
     width: 100%;
-    height: auto;
-    max-height: 70vh;
-    object-fit: cover;
+    height: 100%;
+    object-fit: contain;
     background: var(--k-bg-sunken);
   }
 }

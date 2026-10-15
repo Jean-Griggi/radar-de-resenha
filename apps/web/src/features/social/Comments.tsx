@@ -14,16 +14,21 @@ export function Comments({
   onSubmit,
   onChanged,
   compact = false,
+  accent = !compact,
 }: {
   comments: CommentType[];
   onSubmit: (content: string, parentId?: string) => Promise<void>;
   onChanged?: () => void;
   compact?: boolean;
+  /** "Enviar" fica sódio SÓ com texto (tela de detalhe, onde é a ação principal); no feed é sempre secundário. */
+  accent?: boolean;
 }) {
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const fieldId = useId();
+  const reasonId = useId();
   const me = getUser();
+  const empty = !text.trim();
 
   async function submit(event: FormEvent, parentId?: string) {
     event.preventDefault();
@@ -48,6 +53,7 @@ export function Comments({
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? 'Responder…' : 'Comentar…'}
               className="input"
+              aria-describedby={empty ? reasonId : undefined}
             />
           ) : (
             <textarea
@@ -56,20 +62,34 @@ export function Comments({
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? 'Escreva uma resposta...' : 'Escreva um comentário...'}
               className="input min-h-20"
+              aria-describedby={empty ? reasonId : undefined}
             />
           )}
           <div className="mt-2 flex items-center gap-2">
-            <Button type="submit">{compact ? 'Enviar' : 'Publicar'}</Button>
+            {/* Sódio só com texto (a ação principal da tela); vazio = secundário e desabilitado, com o motivo em texto. */}
+            <Button
+              type="submit"
+              variant={accent && !empty ? 'primary' : 'secondary'}
+              disabled={empty}
+              aria-describedby={empty ? reasonId : undefined}
+            >
+              {compact ? 'Enviar' : 'Publicar'}
+            </Button>
             {replyTo ? (
               <button type="button" className="text-xs text-muted" onClick={() => setReplyTo(null)}>
                 Cancelar resposta
               </button>
             ) : null}
           </div>
+          {empty ? (
+            <p id={reasonId} className="k-reason">
+              Escreva um comentário.
+            </p>
+          ) : null}
         </div>
       </form>
       <ul className={compact ? 'max-h-52 space-y-3 overflow-y-auto pr-1' : 'space-y-4'}>
-        {comments.length === 0 ? <li className="text-xs text-muted">Seja o primeiro a comentar.</li> : null}
+        {comments.length === 0 ? <li className="k-reason">Seja o primeiro a comentar.</li> : null}
         {comments.map((comment) => (
           <li key={comment.id} className="space-y-3">
             <CommentItem comment={comment} compact={compact} onReply={() => setReplyTo(comment.id)} onChanged={onChanged} />
@@ -89,7 +109,15 @@ export function Comments({
   );
 }
 
-export function FeedComments({ targetType, targetId }: { targetType: string; targetId: string }) {
+export function FeedComments({
+  targetType,
+  targetId,
+  accent = false,
+}: {
+  targetType: string;
+  targetId: string;
+  accent?: boolean;
+}) {
   const [comments, setComments] = useState<CommentType[]>([]);
   const [error, setError] = useState('');
 
@@ -114,6 +142,7 @@ export function FeedComments({ targetType, targetId }: { targetType: string; tar
       {error ? <p className="mb-2 text-xs text-[var(--k-danger)]">{error}</p> : null}
       <Comments
         compact
+        accent={accent}
         comments={comments}
         onSubmit={async (content, parentId) => {
           const { data } = await api.post<CommentType[]>('/comments', { targetType, targetId, content, parentId });
