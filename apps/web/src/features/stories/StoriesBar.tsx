@@ -105,13 +105,13 @@ export function StoriesBar() {
 
   return (
     <>
-      <section className="card -mx-1 overflow-hidden p-3">
-        <div className="flex gap-4 overflow-x-auto pb-1">
+      <section className="k-stories" aria-label="Stories">
+        <div className="k-stories__row">
           {loading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex w-16 shrink-0 flex-col items-center gap-2">
-                <div className="h-14 w-14 animate-pulse rounded-full bg-overlay" />
-                <div className="h-3 w-12 animate-pulse rounded-none bg-overlay" />
+              <div key={i} className="k-stories__item">
+                <div className="skeleton k-stories__bone" />
+                <div className="skeleton h-3 w-12" />
               </div>
             ))
           ) : (
@@ -119,7 +119,7 @@ export function StoriesBar() {
               const isMe = ring.author.id === me?.id;
               const emptyMine = isMe && ring.stories.length === 0;
               return (
-                <div key={ring.author.id} className="flex w-16 shrink-0 flex-col items-center gap-1.5">
+                <div key={ring.author.id} className="k-stories__item">
                   <div className="relative">
                     <button
                       type="button"
@@ -138,29 +138,18 @@ export function StoriesBar() {
                         openRing(ring);
                       }}
                     >
-                      <span
-                        className={`relative block rounded-full ${
-                          emptyMine
-                            ? 'bg-[var(--line)] p-[2px]'
-                            : ring.hasUnseen
-                              ? 'story-ring-unseen bg-[var(--brand-red)] p-[3px]'
-                              : isMe
-                                ? 'bg-[var(--accent)] p-[2px]'
-                                : 'bg-[var(--line)] p-[2px]'
-                        }`}
-                      >
-                        {ring.hasUnseen && !isMe ? (
-                          <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[var(--accent)] ring-2 ring-[var(--card)]" aria-hidden />
-                        ) : null}
-                        <span className="block rounded-full bg-[var(--card)] p-[2px]">
-                          <Avatar src={ring.author.avatar} name={ring.author.name} size="lg" />
-                        </span>
-                      </span>
+                      <Avatar
+                        src={ring.author.avatar}
+                        name={ring.author.name}
+                        size="lg"
+                        glow={!emptyMine && ring.hasUnseen}
+                        seen={!emptyMine && !ring.hasUnseen}
+                      />
                     </button>
                     {isMe ? (
                       <button
                         type="button"
-                        className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-bold text-[var(--paper)]"
+                        className="k-stories__add"
                         aria-label="Adicionar story"
                         onClick={() => inputRef.current?.click()}
                       >
@@ -168,9 +157,7 @@ export function StoriesBar() {
                       </button>
                     ) : null}
                   </div>
-                  <span className="w-full truncate text-center text-xs text-muted">
-                    {isMe ? 'Seu story' : ring.author.name.split(' ')[0]}
-                  </span>
+                  <span className="k-stories__label">{isMe ? 'Seu story' : ring.author.name.split(' ')[0]}</span>
                 </div>
               );
             })
@@ -189,60 +176,52 @@ export function StoriesBar() {
       </section>
 
       {draft ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-zinc-950/90 p-3 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-3">
-            <StoryPhone>
-              {draft.isVideo ? (
-                <video src={draft.preview} className="h-full w-full object-cover object-center" autoPlay loop muted playsInline />
-              ) : (
-                <img src={draft.preview} alt="Prévia" className="h-full w-full object-cover object-center" />
-              )}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-7 pt-10">
-                <input
-                  value={caption}
-                  onChange={(event) => setCaption(event.target.value)}
-                  maxLength={200}
-                  placeholder="Legenda (opcional)"
-                  className="w-full rounded-[var(--k-radius-control)] border border-white/20 bg-black/40 px-4 py-2 text-sm text-white outline-none"
-                />
-                {music ? (
-                  <div className="mt-2 flex items-center gap-2 rounded-[var(--k-radius-control)] bg-black/50 px-3 py-1.5 text-xs text-white">
-                    <span aria-hidden>♪</span>
-                    <span className="min-w-0 flex-1 truncate">
-                      {music.title} · {music.subtitle}
-                    </span>
-                    <button type="button" className="text-white/70" aria-label="Tirar música" onClick={() => setMusic(null)}>
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="mt-2 rounded-[var(--k-radius-control)] border border-white/25 px-3 py-1.5 text-xs text-white"
-                    onClick={() => setPickingMusic(true)}
-                  >
-                    ♪ Adicionar música
-                  </button>
-                )}
-                <div className="mt-3 flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => {
-                      URL.revokeObjectURL(draft.preview);
-                      setDraft(null);
-                      setMusic(null);
-                      setPickingMusic(false);
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="button" disabled={publishing} onClick={publish}>
-                    {publishing ? 'Publicando…' : 'Publicar'}
-                  </Button>
-                </div>
+        <StoryPhone>
+          {draft.isVideo ? (
+            <video src={draft.preview} className="h-full w-full object-cover object-center" autoPlay loop muted playsInline />
+          ) : (
+            <img src={draft.preview} alt="Prévia" className="h-full w-full object-cover object-center" />
+          )}
+          <div className="k-stage__reply">
+            <input
+              value={caption}
+              onChange={(event) => setCaption(event.target.value)}
+              maxLength={200}
+              placeholder="Legenda (opcional)"
+              className="k-stage__field"
+            />
+            {music ? (
+              <div className="mt-2 flex items-center gap-2">
+                <span aria-hidden>♪</span>
+                <span className="min-w-0 flex-1 truncate">
+                  {music.title} · {music.subtitle}
+                </span>
+                <button type="button" className="k-stage__icon" aria-label="Tirar música" onClick={() => setMusic(null)}>
+                  ✕
+                </button>
               </div>
-            </StoryPhone>
+            ) : (
+              <button type="button" className="k-stage__textbtn" onClick={() => setPickingMusic(true)}>
+                ♪ Adicionar música
+              </button>
+            )}
+            <div className="mt-3 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  URL.revokeObjectURL(draft.preview);
+                  setDraft(null);
+                  setMusic(null);
+                  setPickingMusic(false);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="button" disabled={publishing} onClick={publish}>
+                {publishing ? 'Publicando…' : 'Publicar'}
+              </Button>
+            </div>
           </div>
           {pickingMusic ? (
             <div className="absolute inset-x-3 bottom-3 z-10 mx-auto max-w-md">
@@ -255,7 +234,7 @@ export function StoriesBar() {
               />
             </div>
           ) : null}
-        </div>
+        </StoryPhone>
       ) : null}
 
       {viewer && playableRings.length > 0 ? (

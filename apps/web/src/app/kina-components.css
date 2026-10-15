@@ -1612,6 +1612,201 @@
     margin: 4px 0;
     font-size: 22px;
   }
+  /* Stories: pontos de 58 px. Não visto = anel de 2 px da marca (o `glow` do Avatar). */
+  .k-stories__row {
+    display: flex;
+    gap: 16px;
+    margin: 0;
+    padding: 0 0 4px;
+    overflow-x: auto;
+    list-style: none;
+  }
+  .k-stories__item {
+    display: flex;
+    width: 72px;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .k-stories__item .k-avatar--lg {
+    --k-avatar: 58px;
+  }
+  .k-stories__label {
+    width: 100%;
+    overflow: hidden;
+    color: var(--k-text);
+    font-size: var(--k-fs-14);
+    line-height: 1.2;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .k-stories__add {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    display: flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--k-radius-control);
+    background: var(--k-brand);
+    color: var(--k-on-brand);
+    font-size: var(--k-fs-16);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .k-stories__bone {
+    width: 58px;
+    height: 58px;
+    border-radius: var(--k-radius-person);
+  }
+
+  /* Palco do story: tela cheia, sem moldura, escuro nos dois temas. */
+  .k-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    overflow: hidden;
+    background: var(--k-stage-bg);
+    color: var(--k-stage-text);
+  }
+  .k-stage__media {
+    position: absolute;
+    inset: 0;
+    background: var(--k-stage-bg);
+  }
+  .k-stage__media img,
+  .k-stage__media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .k-stage__chrome {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    padding: 16px 12px 24px;
+    background: color-mix(in srgb, var(--k-stage-bg) 72%, transparent);
+    color: var(--k-stage-text);
+  }
+  .k-stage__bars {
+    display: flex;
+    gap: 4px;
+  }
+  .k-stage__bar {
+    height: 2px;
+    flex: 1;
+    overflow: hidden;
+    background: var(--k-stage-progress);
+  }
+  .k-stage__bar > i {
+    display: block;
+    height: 100%;
+    background: var(--k-stage-text);
+  }
+  .k-stage__who {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .k-stage__who .k-meta {
+    color: var(--k-stage-text);
+  }
+  .k-stage__caption {
+    margin: 2px 0 0;
+    color: var(--k-stage-text);
+    font-size: var(--k-fs-14);
+  }
+  .k-stage__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .k-stage__icon {
+    display: flex;
+    width: var(--k-touch);
+    height: var(--k-touch);
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: none;
+    color: var(--k-stage-text);
+    font-size: var(--k-fs-16);
+    cursor: pointer;
+  }
+  .k-stage__textbtn {
+    min-height: var(--k-touch);
+    border: 0;
+    background: none;
+    color: var(--k-stage-text);
+    font-size: var(--k-fs-14);
+    cursor: pointer;
+  }
+  .k-stage__textbtn--danger {
+    color: var(--k-danger);
+  }
+  .k-stage__reply {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: 24px 12px 28px;
+    background: color-mix(in srgb, var(--k-stage-bg) 72%, transparent);
+  }
+  .k-stage__reply .input,
+  .k-stage__field {
+    width: 100%;
+    min-height: var(--k-touch);
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-control);
+    background: var(--k-stage-bg);
+    color: var(--k-stage-text);
+    font: inherit;
+    font-size: var(--k-fs-14);
+    padding: 8px 16px;
+  }
+  .k-stage__error {
+    margin: 8px 0 0;
+    color: var(--k-danger);
+    font-size: var(--k-fs-14);
+  }
+  .k-stage__sheet {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    max-height: 55%;
+    overflow-y: auto;
+    padding: 16px 16px 32px;
+    background: var(--k-stage-bg);
+    color: var(--k-stage-text);
+  }
+  .k-stage__pause {
+    display: flex;
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--k-stage-bg) 72%, transparent);
+    color: var(--k-stage-text);
+    font-size: 24px;
+  }
+  .k-stage .k-track,
+  .music-on-stage {
+    color: var(--k-stage-text);
+  }
+  .music-on-stage {
+    background: color-mix(in srgb, var(--k-stage-bg) 72%, transparent);
+  }
+  .k-stage .button--ghost {
+    color: var(--k-stage-text);
+  }
+
   .feed-error {
     margin: 0;
     color: var(--k-danger);

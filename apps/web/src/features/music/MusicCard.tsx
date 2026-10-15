@@ -62,9 +62,9 @@ export function MusicCard({
   }, [autoplay, open, ref?.kind, ref?.id]);
   const canPlay = Boolean(onSelect) || (inline && Boolean(ref));
   const onMedia = tone === 'story';
-  const surface = onMedia ? 'bg-black/45 backdrop-blur-sm' : 'bg-[var(--overlay)]';
-  const titleColor = onMedia ? 'text-white' : '';
-  const mutedColor = onMedia ? 'text-white/70' : 'text-muted';
+  const surface = onMedia ? 'music-on-stage' : 'bg-[var(--overlay)]';
+  const titleColor = onMedia ? 'text-[var(--k-stage-text)]' : '';
+  const mutedColor = onMedia ? 'text-[var(--k-stage-text)]' : 'text-muted';
 
   function play() {
     if (inline) {
