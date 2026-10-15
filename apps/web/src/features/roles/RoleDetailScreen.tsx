@@ -11,7 +11,8 @@ import { Ficha, FichaRow } from '@/components/FichaRow';
 import { Field, Input, Textarea } from '@/components/Field';
 import { MediaImage } from '@/components/MediaImage';
 import { usePlayer } from '@/components/Player';
-import { MusicCard, SpotifyPicker } from '@/features/music';
+import { SpotifyPicker } from '@/features/music';
+import { TrackList, TrackRow } from '@/components/TrackRow';
 import { LocationMap } from '@/features/users/LocationMap';
 import { Comments, Reactions } from '@/features/social';
 import { Skeleton } from '@/components/Card';
@@ -239,16 +240,24 @@ export function RoleDetailScreen() {
         ) : null}
         <section className="space-y-3">
           <h2 className="k-meta role-view__side-title">Trilha</h2>
-          {role.music.length === 0 ? <p>Nenhuma música colocada ainda.</p> : null}
-          {role.music.map((track) => (
-            <MusicCard
-              key={track.id}
-              item={track}
-              onSelect={() =>
-                setTrack({ title: track.title, artist: track.artist ?? 'Playlist', cover: track.cover, spotifyUrl: track.spotifyUrl })
-              }
-            />
-          ))}
+          {role.music.length === 0 ? <p>Nenhuma música colocada ainda.</p> : (
+            <TrackList>
+              {role.music.map((track, index) => (
+                <TrackRow
+                  key={track.id}
+                  index={index + 1}
+                  cover={track.cover}
+                  title={track.title}
+                  artist={`${track.artist ?? 'Playlist'} · ${track.addedBy.name}`}
+                  showPlay
+                  spotifyUrl={track.spotifyUrl}
+                  onSelect={() =>
+                    setTrack({ title: track.title, artist: track.artist ?? 'Playlist', cover: track.cover, spotifyUrl: track.spotifyUrl })
+                  }
+                />
+              ))}
+            </TrackList>
+          )}
           {picking ? (
             <SpotifyPicker
               disabled={addingMusic}

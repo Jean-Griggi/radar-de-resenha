@@ -218,7 +218,7 @@ export function FeedScreen() {
           </div>
           {music ? (
             <div className="mt-3 flex items-center gap-3 border border-[var(--k-line)] p-2">
-              <MediaImage src={music.cover} alt="" className="h-12 w-12 shrink-0 object-cover" />
+              <MediaImage src={music.cover} alt="" className="k-cover h-10 w-10 shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{music.title}</p>
                 <p className="k-meta truncate">{music.subtitle}</p>

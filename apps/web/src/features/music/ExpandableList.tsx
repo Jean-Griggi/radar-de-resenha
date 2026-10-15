@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { cloneElement, isValidElement, useState, type ReactNode } from 'react';
 import { INITIAL_VISIBLE, splitVisible } from './expandable';
 
 /**
@@ -17,7 +17,7 @@ export function ExpandableList<T>({
   items: T[];
   initial?: number;
   itemKey: (item: T) => string;
-  render: (item: T) => ReactNode;
+  render: (item: T, index: number) => ReactNode;
   /** Plural usado no botão: "Ver mais 12 músicas". */
   label?: string;
 }) {
@@ -26,11 +26,12 @@ export function ExpandableList<T>({
 
   return (
     <div className="space-y-2">
-      <ul className="grid gap-2 sm:grid-cols-2">
-        {visible.map((item) => (
-          <li key={itemKey(item)}>{render(item)}</li>
-        ))}
-      </ul>
+      <ol className="k-tracks">
+        {visible.map((item) => {
+          const node = render(item, items.indexOf(item));
+          return isValidElement(node) ? cloneElement(node, { key: itemKey(item) }) : node;
+        })}
+      </ol>
       {hidden > 0 ? (
         <button
           type="button"

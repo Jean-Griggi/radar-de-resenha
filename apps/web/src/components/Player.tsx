@@ -116,14 +116,14 @@ export function MiniPlayer() {
       <div
         className={
           open
-            ? 'pointer-events-auto w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-none border border-[var(--border)] bg-[var(--surface-elevated)] shadow-[var(--shadow-lg)]'
+            ? 'pointer-events-auto w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden border border-[var(--border)] bg-[var(--surface-elevated)]'
             : 'pointer-events-none fixed top-0 -left-[9999px] w-[22rem]'
         }
         aria-hidden={!open}
       >
         <div className="flex items-center gap-3 p-3">
           {track.cover ? (
-            <img src={track.cover} alt="" className="h-14 w-14 shrink-0 rounded-none object-cover" />
+            <img src={track.cover} alt="" className="k-cover h-10 w-10 shrink-0" width={40} height={40} />
           ) : (
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-none bg-[var(--accent-soft)]">
               <Music size={22} aria-hidden />
@@ -133,8 +133,8 @@ export function MiniPlayer() {
             <p className="truncate font-semibold">{track.title}</p>
             <p className="truncate text-sm text-muted">{track.artist}</p>
             {track.spotifyUrl ? (
-              <a href={track.spotifyUrl} target="_blank" rel="noreferrer" className="text-xs text-[var(--accent)] hover:underline">
-                Abrir no Spotify
+              <a href={track.spotifyUrl} target="_blank" rel="noreferrer" className="k-spotify-credit">
+                Spotify
               </a>
             ) : null}
           </div>
@@ -188,7 +188,7 @@ export function MiniPlayer() {
 
       <button
         type="button"
-        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-[var(--k-radius-control)] bg-[#1DB954] text-black shadow-[var(--shadow-lg)] hover:brightness-110"
+        className="k-spotify-play pointer-events-auto h-12 w-12"
         aria-label={open ? 'Recolher player de música' : `Abrir player de música: ${track.title}`}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}

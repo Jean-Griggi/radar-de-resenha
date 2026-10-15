@@ -5,14 +5,13 @@ import type { RoleMusic, SpotifyAccount, SpotifyPlaylist, SpotifySearchResults, 
 import { Button } from '@/components/Button';
 import { Skeleton } from '@/components/Card';
 import { Input } from '@/components/Field';
-import { MediaImage } from '@/components/MediaImage';
 import { usePlayer, type PlayerTrack } from '@/components/Player';
+import { TrackList, TrackRow } from '@/components/TrackRow';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { plural } from '@/lib/format';
 import { setCachedSpotifyStatus, setSpotifyConnectedFlag } from '@/lib/shellCache';
 import { ExpandableList } from './ExpandableList';
-import { MusicCard } from './MusicCard';
 
 type Status = SpotifyAccount & { configured?: boolean };
 
@@ -189,17 +188,27 @@ export function MusicScreen() {
         <>
           <section className="card p-6">
             <h2 className="text-lg font-medium">Spotify</h2>
+            <p className="k-meta">
+              <a href="https://www.spotify.com" target="_blank" rel="noreferrer">
+                Conteúdo do Spotify
+              </a>
+            </p>
             {status?.connected ? (
               <div className="mt-3 space-y-3">
-                <p>Conectado como {status.displayName}</p>
+                <p className="k-meta">Conectado como {status.displayName}</p>
                 {status.nowPlaying ? (
-                  <Tile
-                    cover={status.nowPlaying.cover}
-                    title={status.nowPlaying.title}
-                    subtitle={`${status.nowPlaying.artist} · tocando agora no Spotify`}
-                    active={isPlaying(playing, status.nowPlaying.spotifyUrl)}
-                    onPlay={() => setTrack(status.nowPlaying!)}
-                  />
+                  <TrackList>
+                    <TrackRow
+                      index={1}
+                      cover={status.nowPlaying.cover}
+                      title={status.nowPlaying.title}
+                      artist={`${status.nowPlaying.artist} · tocando agora`}
+                      current={isPlaying(playing, status.nowPlaying.spotifyUrl)}
+                      showPlay
+                      spotifyUrl={status.nowPlaying.spotifyUrl}
+                      onSelect={() => setTrack(status.nowPlaying!)}
+                    />
+                  </TrackList>
                 ) : (
                   <p className="text-sm text-muted">Nenhuma faixa tocando agora.</p>
                 )}
@@ -268,13 +277,16 @@ export function MusicScreen() {
                         items={results.tracks}
                         label="músicas"
                         itemKey={(item) => item.id}
-                        render={(item) => (
-                          <Tile
+                        render={(item, index) => (
+                          <TrackRow
+                            index={index + 1}
                             cover={item.cover}
                             title={item.title}
-                            subtitle={item.artist}
-                            active={isPlaying(playing, item.url)}
-                            onPlay={() => setTrack({ title: item.title, artist: item.artist, cover: item.cover, spotifyUrl: item.url })}
+                            artist={item.artist}
+                            current={isPlaying(playing, item.url)}
+                            showPlay
+                            spotifyUrl={item.url}
+                            onSelect={() => setTrack({ title: item.title, artist: item.artist, cover: item.cover, spotifyUrl: item.url })}
                           />
                         )}
                       />
@@ -286,13 +298,16 @@ export function MusicScreen() {
                         items={results.playlists}
                         label="playlists"
                         itemKey={(item) => item.id}
-                        render={(list) => (
-                          <Tile
+                        render={(list, index) => (
+                          <TrackRow
+                            index={index + 1}
                             cover={list.image}
                             title={list.name}
-                            subtitle={`Playlist · ${plural(list.tracks, 'faixa', 'faixas')}`}
-                            active={isPlaying(playing, list.url)}
-                            onPlay={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
+                            artist={`Playlist · ${plural(list.tracks, 'faixa', 'faixas')}`}
+                            current={isPlaying(playing, list.url)}
+                            showPlay
+                            spotifyUrl={list.url}
+                            onSelect={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
                           />
                         )}
                       />
@@ -319,13 +334,16 @@ export function MusicScreen() {
                   items={saved}
                   label="músicas"
                   itemKey={(item) => item.id}
-                  render={(item) => (
-                    <Tile
+                  render={(item, index) => (
+                    <TrackRow
+                      index={index + 1}
                       cover={item.cover}
                       title={item.title}
-                      subtitle={item.artist}
-                      active={isPlaying(playing, item.url)}
-                      onPlay={() => setTrack({ title: item.title, artist: item.artist, cover: item.cover, spotifyUrl: item.url })}
+                      artist={item.artist}
+                      current={isPlaying(playing, item.url)}
+                      showPlay
+                      spotifyUrl={item.url}
+                      onSelect={() => setTrack({ title: item.title, artist: item.artist, cover: item.cover, spotifyUrl: item.url })}
                     />
                   )}
                 />
@@ -338,13 +356,16 @@ export function MusicScreen() {
                   items={playlists}
                   label="playlists"
                   itemKey={(list) => list.id}
-                  render={(list) => (
-                    <Tile
+                  render={(list, index) => (
+                    <TrackRow
+                      index={index + 1}
                       cover={list.image}
                       title={list.name}
-                      subtitle={`Playlist · ${plural(list.tracks, 'faixa', 'faixas')}`}
-                      active={isPlaying(playing, list.url)}
-                      onPlay={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
+                      artist={`Playlist · ${plural(list.tracks, 'faixa', 'faixas')}`}
+                      current={isPlaying(playing, list.url)}
+                      showPlay
+                      spotifyUrl={list.url}
+                      onSelect={() => setTrack({ title: list.name, artist: 'Playlist', cover: list.image, spotifyUrl: list.url })}
                     />
                   )}
                 />
@@ -355,18 +376,22 @@ export function MusicScreen() {
           <section className="mt-5 card p-6">
             <h2 className="mb-3 font-medium">Músicas associadas a rolês</h2>
             {tracks.length === 0 ? <p className="text-sm text-muted">Nenhuma música associada ainda.</p> : null}
-            <ul className="space-y-2">
-              {tracks.map((track) => (
-                <li key={track.id}>
-                  <MusicCard
-                    item={track}
-                    onSelect={() =>
-                      setTrack({ title: track.title, artist: track.artist ?? 'Playlist', cover: track.cover, spotifyUrl: track.spotifyUrl })
-                    }
-                  />
-                </li>
+            <TrackList>
+              {tracks.map((track, index) => (
+                <TrackRow
+                  key={track.id}
+                  index={index + 1}
+                  cover={track.cover}
+                  title={track.title}
+                  artist={track.artist ?? 'Playlist'}
+                  showPlay
+                  spotifyUrl={track.spotifyUrl}
+                  onSelect={() =>
+                    setTrack({ title: track.title, artist: track.artist ?? 'Playlist', cover: track.cover, spotifyUrl: track.spotifyUrl })
+                  }
+                />
               ))}
-            </ul>
+            </TrackList>
           </section>
         </>
       ) : null}
@@ -376,43 +401,4 @@ export function MusicScreen() {
 
 function isPlaying(current: PlayerTrack | null, url: string | null | undefined) {
   return Boolean(current?.spotifyUrl && url && current.spotifyUrl === url);
-}
-
-/** Linha clicável com capa: escolher = tocar no player do rodapé. */
-function Tile({
-  cover,
-  title,
-  subtitle,
-  active,
-  onPlay,
-}: {
-  cover: string | null | undefined;
-  title: string;
-  subtitle: string;
-  active: boolean;
-  onPlay: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onPlay}
-      aria-label={`Tocar ${title}`}
-      aria-pressed={active}
-      className={`flex w-full items-center gap-3 rounded-none p-2 text-left transition-colors hover:bg-[var(--overlay)] ${
-        active ? 'bg-[var(--overlay)] ring-2 ring-[#1DB954]' : ''
-      }`}
-    >
-      <MediaImage src={cover} alt={`Capa de ${title}`} className="h-14 w-14 shrink-0 rounded-none object-cover" />
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium">{title}</span>
-        <span className="block truncate text-xs text-muted">{subtitle}</span>
-      </span>
-      <span
-        aria-hidden
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--k-radius-control)] bg-[#1DB954] text-black"
-      >
-        {active ? '♪' : '▶'}
-      </span>
-    </button>
-  );
 }

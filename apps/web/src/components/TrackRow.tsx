@@ -10,7 +10,7 @@ export function TrackList({ children, className = '' }: { children: ReactNode; c
  * Linha de encarte: `[nº mono] [capa 40 px] [título + artista] [duração mono]`.
  * A capa é quadrada, sem raio e sem filtro. Faixa tocando/selecionada: título em 600 na cor da marca.
  * `compact` (dentro de Post/Perfil): sem número, com o rótulo "Trilha do rolê" à direita.
- * A atribuição ao Spotify segue as diretrizes e fica a cargo de quem usa (Fase 4.3).
+ * `spotifyUrl` é o link de atribuição (a capa não leva para fora; o toque continua o de quem chama).
  */
 export function TrackRow({
   index,
@@ -22,6 +22,10 @@ export function TrackRow({
   compact = false,
   label = 'Trilha do rolê',
   onSelect,
+  actionLabel,
+  disabled = false,
+  showPlay = false,
+  spotifyUrl,
 }: {
   index?: number;
   cover?: string | null;
@@ -33,6 +37,11 @@ export function TrackRow({
   label?: string;
   /** Quando existe, a linha vira o botão de tocar (o player continua o de quem chama). */
   onSelect?: () => void;
+  actionLabel?: string;
+  disabled?: boolean;
+  /** Marca verde do Spotify à direita, no lugar da duração. */
+  showPlay?: boolean;
+  spotifyUrl?: string | null;
 }) {
   const cls = `k-track${current ? ' k-track--current' : ''}${compact ? ' k-track--compact' : ''}`;
   const cells = (
@@ -49,18 +58,34 @@ export function TrackRow({
         <span className="k-track__title block truncate">{title}</span>
         <span className="k-track__artist block truncate">{artist}</span>
       </span>
-      {compact ? <span className="k-meta">{label}</span> : duration ? <span className="k-track__d">{duration}</span> : <span />}
+      {compact ? (
+        <span className="k-meta">{label}</span>
+      ) : showPlay ? (
+        <span className="k-spotify-play" aria-hidden>
+          {current ? '♪' : '▶'}
+        </span>
+      ) : duration ? (
+        <span className="k-track__d">{duration}</span>
+      ) : (
+        <span />
+      )}
     </>
+  );
+  const body = onSelect ? (
+    <button type="button" className="k-track__play" onClick={onSelect} disabled={disabled} aria-label={actionLabel ?? `Tocar ${title}`}>
+      {cells}
+    </button>
+  ) : (
+    cells
   );
   return (
     <li className={cls} aria-current={current ? 'true' : undefined}>
-      {onSelect ? (
-        <button type="button" className="k-track__play" onClick={onSelect} aria-label={`Tocar ${title}`}>
-          {cells}
-        </button>
-      ) : (
-        cells
-      )}
+      {body}
+      {spotifyUrl ? (
+        <a className="k-spotify-credit" href={spotifyUrl} target="_blank" rel="noreferrer">
+          Spotify
+        </a>
+      ) : null}
     </li>
   );
 }
