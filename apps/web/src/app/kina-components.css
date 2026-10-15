@@ -2147,6 +2147,21 @@
     padding: var(--k-space-1) var(--k-space-2);
     background: var(--k-bg);
   }
+  /* Controle irmão do tile (excluir): alvo de 44 px no canto, fora do <button> do tile. */
+  .k-mesa__action {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius-control);
+    background: var(--k-bg);
+    color: var(--k-text);
+    cursor: pointer;
+  }
   .k-mesa__ghost {
     position: relative;
   }

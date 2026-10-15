@@ -46,3 +46,20 @@
 - Em tile de **texto** (a maioria hoje, pois post não tem foto), o que viaja é o instantâneo do tile até o bloco do post, com o mesmo `cover`; funciona como "zoom", mas não é a mesma imagem nos dois lados.
 - Ao fechar, sem View Transition o painel some na hora (só a entrada tem fade).
 - `view-transition-class` só existe em Chromium recente; onde falta, a transição ainda roda, mas sem o `cover` (a imagem pode esticar durante a animação).
+
+---
+
+## Etapa C — Mesa em perfil, fotos e álbuns (D20)
+
+**O que existia.** `PhotosScreen` (`/photos`): álbuns como cartões (capa, nome, contagem, "Excluir") e galeria como grade 2×3 com um `×` para excluir. Perfil: aba **Fotos** com miniaturas e cantoneiras, sem abrir nada. **Não existe aba de publicações no perfil**, nem rota de álbum ou de foto.
+
+**O que mudou** (reaproveitando o `Mesa`, `MesaViewer` e `useMesaViewer` da Etapa A, sem duplicar):
+- `/photos`: álbuns e galeria viram Mesa. Álbum sem capa usa a primeira foto; sem nenhuma, vira tile de texto com o nome. Tocar abre o painel com a mesma transição da Etapa B.
+- Aba **Fotos** do perfil: Mesa; tocar abre o painel.
+- "Excluir" (álbum, com o mesmo `confirm`) e `×` (foto) continuam, com as mesmas chamadas de API, num botão irmão de 44 px no canto do tile (`.k-mesa__action`), porque não pode haver botão dentro do botão do tile.
+- `features/media/PhotoViewer.tsx` (novo): conteúdo do painel. Nesta etapa mostra uma foto grande e a legenda; a Etapa D troca isso pelo carrossel.
+
+**Limitações / o que ficou de fora.**
+- **Publicações do perfil:** não há aba nem lista de posts no perfil, então não há o que converter. Não criei (G3).
+- **Aba Rolês do perfil:** continua como estava. Tile de rolê é navegação para a rota `/roles/{id}`, e a transição de tile para rota não foi pedida (e exigiria mexer em rota).
+- Tiles de foto sem autor na resposta (perfil só devolve `id` e `url`) mostram o avatar do dono do perfil e nenhuma data.

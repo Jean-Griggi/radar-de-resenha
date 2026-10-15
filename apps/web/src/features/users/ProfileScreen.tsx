@@ -10,6 +10,8 @@ import { EmptyState, Skeleton } from '@/components/Card';
 import { Corners } from '@/components/Corners';
 import { Tabs } from '@/components/Tabs';
 import { MediaImage } from '@/components/MediaImage';
+import { Mesa, MesaViewer, useMesaViewer, type MesaEntry } from '@/components/Mesa';
+import { PhotoViewer } from '@/features/media/PhotoViewer';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser, setUser } from '@/lib/auth';
@@ -23,6 +25,7 @@ export function ProfileScreen() {
   const params = useParams<{ username: string }>();
   const router = useRouter();
   const toast = useToast();
+  const mesa = useMesaViewer();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [tab, setTab] = useState<(typeof TABS)[number]>('Resumo');
   const [content, setContent] = useState<Record<string, unknown> | null>(null);
@@ -158,6 +161,18 @@ export function ProfileScreen() {
 
   function unfriend() {
     return runFriend(() => api.delete(`/friends/${profile!.friendship!.id}`));
+  }
+
+  const profilePhotos = (content?.photos as { id: string; url: string }[] | undefined) ?? [];
+  const openPhoto = profilePhotos.find((photo) => `photo-${photo.id}` === mesa.openId);
+
+  function photoEntry(photo: { id: string; url: string }): MesaEntry {
+    return {
+      id: `photo-${photo.id}`,
+      label: `Foto de ${profile!.name}`,
+      image: photo.url,
+      avatar: { src: profile!.avatar, name: profile!.name },
+    };
   }
 
   return (
@@ -331,13 +346,11 @@ export function ProfileScreen() {
           </ul>
         ) : null}
         {tab === 'Fotos' ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {((content?.photos as { id: string; url: string }[]) ?? []).map((photo) => (
-              <Corners key={photo.id} size={16} className="profile-tile profile-tile--photo">
-                <MediaImage src={photo.url} alt="" className="profile-tile__photo" />
-              </Corners>
-            ))}
-          </div>
+          profilePhotos.length > 0 ? (
+            <Mesa label={`Fotos de ${profile.name}`} entries={profilePhotos.map(photoEntry)} onOpen={mesa.open} />
+          ) : (
+            <EmptyState title="Nenhuma foto neste perfil." />
+          )
         ) : null}
         {tab === 'Áudios' ? (
           <div className="space-y-3">
@@ -364,6 +377,17 @@ export function ProfileScreen() {
           </Button>
         ) : null}
       </div>
+
+      <MesaViewer open={Boolean(openPhoto)} onClose={mesa.close} label={`Fotos de ${profile.name}`}>
+        {openPhoto ? (
+          <PhotoViewer
+            title={`Fotos de ${profile.name}`}
+            photos={profilePhotos.map((photo) => ({ id: photo.id, url: photo.url, authorName: profile.name }))}
+            startId={openPhoto.id}
+            transitionId={mesa.openId ?? ''}
+          />
+        ) : null}
+      </MesaViewer>
     </>
   );
 }

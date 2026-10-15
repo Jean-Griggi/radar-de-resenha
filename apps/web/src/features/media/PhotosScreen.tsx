@@ -2,17 +2,20 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { Album, AudioClip, Photo } from '@resenhometro/shared';
+import { X } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { EmptyState, Skeleton } from '@/components/Card';
 import { Field, Input } from '@/components/Field';
-import { MediaImage } from '@/components/MediaImage';
+import { Mesa, useMesaViewer, MesaViewer, type MesaEntry } from '@/components/Mesa';
 import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
-import { plural } from '@/lib/format';
+import { formatMeta, plural } from '@/lib/format';
+import { PhotoViewer, type ViewerPhoto } from './PhotoViewer';
 import { IMAGE_ACCEPT, postFile } from '@/lib/upload';
 
 export function PhotosScreen() {
   const toast = useToast();
+  const mesa = useMesaViewer();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [audios, setAudios] = useState<AudioClip[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -102,6 +105,62 @@ export function PhotosScreen() {
     }
   }
 
+  async function deleteAlbum(albumId: string) {
+    if (!confirm('Excluir álbum?')) return;
+    try {
+      await api.delete(`/albums/${albumId}`);
+      await load();
+    } catch (err) {
+      if (isApiCanceled(err)) return;
+      toast.push(apiErrorMessage(err, 'Não foi possível excluir o álbum'), 'error');
+    }
+  }
+
+  async function deletePhoto(photoId: string) {
+    try {
+      await api.delete(`/photos/${photoId}`);
+      await load();
+    } catch (err) {
+      if (isApiCanceled(err)) return;
+      toast.push(apiErrorMessage(err, 'Não foi possível excluir a foto'), 'error');
+    }
+  }
+
+  function albumEntry(album: Album): MesaEntry {
+    return {
+      id: `album-${album.id}`,
+      label: `Álbum ${album.name}, ${plural(album.photos?.length ?? 0, 'foto', 'fotos')}`,
+      image: album.cover ?? album.photos?.[0]?.url ?? null,
+      text: album.name,
+      meta: plural(album.photos?.length ?? 0, 'foto', 'fotos'),
+    };
+  }
+
+  function photoEntry(photo: Photo): MesaEntry {
+    return {
+      id: `photo-${photo.id}`,
+      label: photo.author?.name ? `Foto de ${photo.author.name}` : 'Foto',
+      image: photo.url,
+      text: photo.caption || undefined,
+      avatar: photo.author ? { src: photo.author.avatar, name: photo.author.name } : undefined,
+      meta: formatMeta(photo.createdAt),
+      dateTime: photo.createdAt,
+    };
+  }
+
+  function toViewerPhoto(photo: Photo): ViewerPhoto {
+    return {
+      id: photo.id,
+      url: photo.url,
+      caption: photo.caption,
+      authorName: photo.author?.name,
+      createdAt: photo.createdAt,
+    };
+  }
+
+  const openAlbum = mesa.openId?.startsWith('album-') ? albums.find((album) => `album-${album.id}` === mesa.openId) : undefined;
+  const openPhoto = mesa.openId?.startsWith('photo-') ? photos.find((photo) => `photo-${photo.id}` === mesa.openId) : undefined;
+
   function stopRecording() {
     clearLimitTimer();
     const recorder = mediaRef.current;
@@ -175,58 +234,45 @@ export function PhotosScreen() {
         <>
           <h2 className="mb-3 text-lg font-medium">Álbuns</h2>
           {!error && albums.length === 0 ? <p className="mb-6 text-sm text-muted">Nenhum álbum ainda.</p> : null}
-          <div className="mb-6 grid gap-3 sm:grid-cols-3">
-            {albums.map((album) => (
-              <div key={album.id} className="card p-4">
-                {album.cover ? (
-                  <MediaImage src={album.cover} alt={album.name} className="mb-2 h-24 w-full rounded-none object-cover" />
-                ) : null}
-                <p>{album.name}</p>
-                <p className="text-xs text-muted">{plural(album.photos?.length ?? 0, 'foto', 'fotos')}</p>
-                <button
-                  type="button"
-                  className="mt-2 text-xs text-[var(--k-danger)]"
-                  onClick={async () => {
-                    if (!confirm('Excluir álbum?')) return;
-                    try {
-                      await api.delete(`/albums/${album.id}`);
-                      await load();
-                    } catch (err) {
-                      if (isApiCanceled(err)) return;
-                      toast.push(apiErrorMessage(err, 'Não foi possível excluir o álbum'), 'error');
-                    }
-                  }}
-                >
-                  Excluir
-                </button>
-              </div>
-            ))}
-          </div>
+          {albums.length > 0 ? (
+            <div className="mb-6">
+              <Mesa
+                label="Álbuns"
+                entries={albums.map(albumEntry)}
+                onOpen={mesa.open}
+                renderExtra={(id) => (
+                  <button
+                    type="button"
+                    className="k-mesa__action"
+                    aria-label="Excluir álbum"
+                    onClick={() => deleteAlbum(id.replace(/^album-/, ''))}
+                  >
+                    <X size={18} aria-hidden />
+                  </button>
+                )}
+              />
+            </div>
+          ) : null}
 
           <h2 className="mb-3 text-lg font-medium">Galeria</h2>
           {!error && photos.length === 0 ? <EmptyState title="Nenhuma foto ainda." /> : null}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {photos.map((photo) => (
-              <figure key={photo.id} className="relative">
-                <MediaImage src={photo.url} alt={photo.caption || 'Foto'} className="h-28 w-full rounded-none object-cover sm:h-40" />
+          {photos.length > 0 ? (
+            <Mesa
+              label="Galeria"
+              entries={photos.map(photoEntry)}
+              onOpen={mesa.open}
+              renderExtra={(id) => (
                 <button
                   type="button"
-                  className="k-meta absolute top-2 right-2 bg-[color-mix(in_srgb,var(--k-stage-bg)_60%,transparent)] px-2 text-[var(--k-stage-text)]"
-                  onClick={async () => {
-                    try {
-                      await api.delete(`/photos/${photo.id}`);
-                      await load();
-                    } catch (err) {
-                      if (isApiCanceled(err)) return;
-                      toast.push(apiErrorMessage(err, 'Não foi possível excluir a foto'), 'error');
-                    }
-                  }}
+                  className="k-mesa__action"
+                  aria-label="Excluir foto"
+                  onClick={() => deletePhoto(id.replace(/^photo-/, ''))}
                 >
-                  ×
+                  <X size={18} aria-hidden />
                 </button>
-              </figure>
-            ))}
-          </div>
+              )}
+            />
+          ) : null}
 
           <h2 className="mt-8 mb-3 text-lg font-medium">Áudios</h2>
           {!error && audios.length === 0 ? <p className="text-sm text-muted">Nenhum áudio ainda.</p> : null}
@@ -257,6 +303,27 @@ export function PhotosScreen() {
           </div>
         </>
       ) : null}
+
+      <MesaViewer
+        open={Boolean(openAlbum || openPhoto)}
+        onClose={mesa.close}
+        label={openAlbum ? `Álbum ${openAlbum.name}` : 'Galeria de fotos'}
+      >
+        {openAlbum ? (
+          <PhotoViewer
+            title={openAlbum.name}
+            photos={(openAlbum.photos ?? []).map(toViewerPhoto)}
+            transitionId={mesa.openId ?? ''}
+          />
+        ) : openPhoto ? (
+          <PhotoViewer
+            title="Galeria"
+            photos={photos.map(toViewerPhoto)}
+            startId={openPhoto.id}
+            transitionId={mesa.openId ?? ''}
+          />
+        ) : null}
+      </MesaViewer>
     </>
   );
 }
