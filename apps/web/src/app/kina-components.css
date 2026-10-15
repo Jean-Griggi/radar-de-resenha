@@ -2703,4 +2703,168 @@
       height: 112px;
     }
   }
+
+  /* ===================== Chat: lista em acordeão exclusivo (D24) =====================
+   * `<details name="chat-lista">` nativo: só um aberto por vez, sem JS. Sem suporte ao `name`, cada linha abre
+   * e fecha sozinha. O conteúdo aberto entra só com opacidade; nada anima altura. */
+  .k-chat-list {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--k-line);
+    list-style: none;
+  }
+  .k-chat-list > li {
+    border-bottom: 1px solid var(--k-line);
+  }
+  .k-chat-row summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--k-space-3);
+    min-height: 64px;
+    padding: var(--k-space-2) 0;
+    cursor: pointer;
+    list-style: none;
+  }
+  .k-chat-row summary::-webkit-details-marker {
+    display: none;
+  }
+  .k-chat-row__main {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .k-chat-row__name {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    min-width: 0;
+  }
+  .k-chat-row__dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    background: var(--k-brand);
+  }
+  .k-chat-row__title {
+    overflow: hidden;
+    font-size: var(--k-fs-20);
+    line-height: 1.15;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+  .k-chat-row__title--unread {
+    font-weight: 600;
+  }
+  .k-chat-row__last {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-1);
+    overflow: hidden;
+    color: var(--k-text-muted);
+    font-size: var(--k-fs-14);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .k-chat-row__side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .k-chat-row__count {
+    color: var(--k-text);
+    font-weight: 600;
+  }
+  .k-chat-plus {
+    flex: none;
+    transition: transform var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  details[open] > summary .k-chat-plus {
+    transform: rotate(45deg);
+  }
+  .k-chat-row__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--k-space-2);
+    padding: 0 0 var(--k-space-4);
+    animation: k-fade-in var(--k-dur-quick) var(--k-ease-arrive);
+  }
+  .k-chat-row__text {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-1);
+    margin: 0;
+    font-size: var(--k-fs-16);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  .k-chat-row__open {
+    margin-top: var(--k-space-2);
+  }
+  .k-chat-row__skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-3);
+    min-height: 64px;
+    border-bottom: 1px solid var(--k-line);
+  }
+
+  /* ===================== Chat: conversa (só tokens, layout igual) ===================== */
+  .k-chat-thread {
+    display: flex;
+    height: 60vh;
+    flex-direction: column;
+    gap: var(--k-space-2);
+    overflow-y: auto;
+    padding: var(--k-space-4);
+  }
+  .k-bubble-row {
+    display: flex;
+    justify-content: flex-start;
+  }
+  .k-bubble-row--mine {
+    justify-content: flex-end;
+  }
+  .k-bubble {
+    max-width: 80%;
+    padding: var(--k-space-2) var(--k-space-3);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  .k-bubble--theirs {
+    border: 1px solid transparent;
+    background: var(--k-bg-sunken);
+  }
+  .k-bubble--mine {
+    border: 1px solid var(--k-line-strong);
+    text-align: right;
+  }
+  .k-bubble__text {
+    margin: 0;
+    font-size: var(--k-fs-16);
+  }
+  .k-bubble__image {
+    display: block;
+    width: 100%;
+    max-height: 18rem;
+    margin: var(--k-space-1) 0;
+    object-fit: cover;
+  }
+  .k-bubble__time {
+    display: block;
+    margin-top: var(--k-space-1);
+    text-align: right;
+  }
+  /* Movimento reduzido: o Plus não gira. */
+  @media (prefers-reduced-motion: reduce) {
+    details[open] > summary .k-chat-plus {
+      transform: none;
+    }
+    .k-chat-plus {
+      transition: none;
+    }
+  }
 }

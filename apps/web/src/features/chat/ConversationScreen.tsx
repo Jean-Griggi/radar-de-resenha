@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { ImagePlus, X } from 'lucide-react';
+import { ArrowLeft, CircleAlert, ImagePlus, X } from 'lucide-react';
 import type { PublicUser } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -58,7 +58,10 @@ export function ConversationScreen() {
       try {
         const { data } = await api.get<{ user: PublicUser | null; messages: ChatMessage[] }>(
           `/chat/${username}/messages`,
-          { signal: controller.signal, params: lastRef.current ? { after: lastRef.current } : undefined },
+          {
+            signal: controller.signal,
+            params: lastRef.current ? { after: lastRef.current } : undefined,
+          },
         );
         if (controller.signal.aborted) return;
         if (data.user) setPeer(data.user);
@@ -129,7 +132,7 @@ export function ConversationScreen() {
     <div className="mx-auto flex max-w-2xl flex-col">
       <div className="mb-3 flex items-center gap-3">
         <Link href="/chat" className="icon-btn" aria-label="Voltar para as mensagens">
-          ←
+          <ArrowLeft size={20} aria-hidden />
         </Link>
         {peer ? (
           <Link href={`/perfil/${peer.username}`} className="flex min-w-0 items-center gap-3">
@@ -144,7 +147,7 @@ export function ConversationScreen() {
         )}
       </div>
 
-      <div className="card flex h-[60vh] flex-col gap-2 overflow-y-auto p-4" aria-live="polite">
+      <div className="card k-chat-thread" aria-live="polite">
         {loading ? <Skeleton className="h-16" /> : null}
         {!loading && messages.length === 0 && !error ? (
           <p className="m-auto text-sm text-muted">Nenhuma mensagem ainda. Diga oi!</p>
@@ -152,21 +155,20 @@ export function ConversationScreen() {
         {messages.map((message) => {
           const mine = message.senderId !== peer?.id;
           return (
-            <div key={message.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-              <div
-                className={`max-w-[80%] whitespace-pre-wrap break-words rounded-none px-3 py-2 text-sm ${
-                  mine ? 'bg-[var(--k-brand)] text-[var(--k-on-brand)]' : 'bg-[var(--k-bg-sunken)] text-fg'
-                }`}
-              >
+            <div key={message.id} className={`k-bubble-row${mine ? ' k-bubble-row--mine' : ''}`}>
+              <div className={`k-bubble ${mine ? 'k-bubble--mine' : 'k-bubble--theirs'}`}>
+                <p className="k-meta">{mine ? 'Você' : (peer?.name ?? username)}</p>
                 {message.image ? (
                   <a href={message.image} target="_blank" rel="noreferrer">
-                    <img src={message.image} alt="Foto enviada na conversa" className="mb-1 max-h-72 w-full rounded-none object-cover" />
+                    <img
+                      src={message.image}
+                      alt="Foto enviada na conversa"
+                      className="k-bubble__image"
+                    />
                   </a>
                 ) : null}
-                {message.content}
-                <span className={`mt-1 block text-right text-sm ${mine ? 'text-[color-mix(in_srgb,var(--k-on-brand)_70%,transparent)]' : 'text-muted'}`}>
-                  {timeLabel(message.createdAt)}
-                </span>
+                {message.content ? <p className="k-bubble__text">{message.content}</p> : null}
+                <span className="k-meta k-bubble__time">{timeLabel(message.createdAt)}</span>
               </div>
             </div>
           );
@@ -174,11 +176,16 @@ export function ConversationScreen() {
         <div ref={endRef} />
       </div>
 
-      {error ? <p className="mt-2 text-sm text-[var(--k-danger)]">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="k-msg k-msg--error mt-2">
+          <CircleAlert size={16} aria-hidden />
+          {error}
+        </p>
+      ) : null}
 
       {photo ? (
-        <div className="mt-3 flex items-center gap-3 rounded-none border border-[var(--k-line)] p-2">
-          <img src={photo.url} alt="Prévia da foto a enviar" className="h-16 w-16 rounded-none object-cover" />
+        <div className="mt-3 flex items-center gap-3 border border-[var(--k-line)] p-2">
+          <img src={photo.url} alt="Prévia da foto a enviar" className="h-16 w-16 object-cover" />
           <p className="min-w-0 flex-1 truncate text-sm text-muted">{photo.file.name}</p>
           <button type="button" className="icon-btn" aria-label="Tirar a foto" onClick={dropPhoto}>
             <X size={18} aria-hidden />
@@ -198,7 +205,12 @@ export function ConversationScreen() {
             e.target.value = '';
           }}
         />
-        <button type="button" className="icon-btn" aria-label="Enviar foto" onClick={() => fileRef.current?.click()}>
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label="Enviar foto"
+          onClick={() => fileRef.current?.click()}
+        >
           <ImagePlus size={20} aria-hidden />
         </button>
         <Input

@@ -131,3 +131,21 @@
 - Mantidos como estavam: iframe sempre montado, letra (LRCLIB), rotas e estado do `PlayerProvider`. Escopos do Spotify não mudaram.
 
 **Limitações.** Atribuição conforme as diretrizes de marca do Spotify **não foi conferida online** (sem acesso a rede nesta tarefa): conferir se o link com o quadrado verde atende ao guia vigente. O botão "Recolher" ainda não é uma folha arrastável. Nada visto no navegador.
+
+## Etapa G — chat em acordeão (D24)
+
+**O que existia.** `ChatListScreen` (`/chat`): busca de pessoa, lista de conversas em cartão (`<Link>` por linha, 1 conversa por pessoa) e atalhos "Começar uma conversa". A resposta de `GET /chat/conversations` traz, por conversa, **`user`, `last` (só a última mensagem) e `unread`**. **Não há grupo** (só 1 a 1) e **não há mais de uma mensagem na lista**. A conversa (`ConversationScreen`, `/chat/{username}`) faz polling de 4 s (não há WebSocket; a API é serverless). Nada disso foi alterado.
+
+**O que mudou.**
+- Lista: `<details name="chat-lista" class="k-chat-row">` por conversa, sem JS. `<summary>` sempre visível, mín. 64 px, avatar 40 px redondo, nome em Fraunces 20 px, última mensagem (uma linha, reticências, só no texto da mensagem), hora em `.k-meta` (hoje `18:30`, `ONTEM`, `SEG`, `12 OUT`; função nova `formatChatTime` em `lib/format.ts`) e `Plus` à direita. Fio de 1 px entre linhas, raio 0, sem sombra.
+- Não lida: quadrado sódio de 8 px antes do nome, contagem em `.k-meta`, nome em peso 600. Nome acessível do summary: "Conversa com {nome}, {n} não lidas, última mensagem {hora}".
+- Aberto: remetente em `.k-meta`, **a última mensagem** (única disponível, sem requisição nova) em 16 px e **uma** ação sódio "Abrir conversa" (link para `/chat/{username}`, 44 px). O `Plus` gira 45° (`transform`, `--k-dur-quick`, `--k-ease-arrive`); o corpo entra só com `opacity`; sem animar altura. Movimento reduzido: sem rotação.
+- Nenhuma linha vem aberta: a lista fica em `/chat`, que não é a rota de nenhuma conversa.
+- Estados: vazio "Ninguém chegou ainda." (com a mesma explicação e os atalhos de começar conversa que já existiam), carregando com fios e pontos, erro com `CircleAlert` + texto. O emoji de câmera virou ícone `Camera` (lucide) + "Foto".
+- Tela da conversa, mesmo layout: mensagens com raio 0; recebidas em `--k-bg-sunken`, enviadas com borda de 1 px `--k-line-strong` (antes: fundo sódio); remetente identificado por **alinhamento e rótulo "Você"/nome** em `.k-meta`, hora em `.k-meta`; `aria-live="polite"` mantido; seta de voltar virou `ArrowLeft`; erro com ícone. Sem `rounded-*`, sombra, gradiente ou hex nessa tela. Campo e botão de envio já eram `Input`/`Button` da Kina.
+
+**Limitações.**
+- A prévia aberta mostra **1 mensagem**, não 3: a lista só recebe a última. Mostrar mais exigiria uma requisição por conversa, proibida nesta etapa.
+- Sem suporte a `<details name>` (Firefox antigo, Safari < 17.2), cada linha abre e fecha de forma independente.
+- `ChatPreview` (atalho do feed e da agenda) não foi redesenhado; só entra na varredura da Etapa H.
+- Nada visto no navegador.

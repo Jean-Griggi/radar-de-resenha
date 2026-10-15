@@ -1,6 +1,8 @@
 function parseDay(value?: string | null) {
   if (!value) return null;
-  const date = /^\d{4}-\d{2}-\d{2}/.test(value) ? new Date(`${value.slice(0, 10)}T12:00:00`) : new Date(value);
+  const date = /^\d{4}-\d{2}-\d{2}/.test(value)
+    ? new Date(`${value.slice(0, 10)}T12:00:00`)
+    : new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
@@ -26,6 +28,21 @@ export function formatTimeAgo(value: string) {
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
   return new Date(value).toLocaleDateString('pt-BR');
+}
+
+/**
+ * Hora curta de uma conversa: hoje "18:30", ontem "Ontem", nos últimos 6 dias o dia da semana ("Seg"),
+ * antes disso a data ("12 out"). O CSS (`.k-meta`) põe em caixa alta.
+ */
+export function formatChatTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.round((startOfDay(new Date()) - startOfDay(date)) / 86_400_000);
+  if (days <= 0) return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (days === 1) return 'Ontem';
+  if (days < 7) return date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
 }
 
 export function initials(name?: string | null) {
