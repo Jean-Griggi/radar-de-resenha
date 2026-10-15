@@ -94,3 +94,25 @@
 - **Nada foi visto em navegador.** Pendentes de olho humano: transição tile ⇄ painel (foto e texto), caimento em fade sem View Transition, carrossel (swipe, teclado, revelação), nomes longos, 360/390/768/1024/1280 px, claro e escuro, safe-area.
 - Itens que dependem de decisão futura: paginação do feed (a API não pagina); aba de publicações no perfil (não existe); título do rolê na foto (a API só dá `roleId`); entrada extra no histórico quando um link interno do painel troca de rota.
 - Arquivo `apps/api/tmp-open-pglite.mjs` (script solto, não é meu) ficou sem commit.
+
+---
+
+# Parte 2: etapas E a H
+
+## Etapa E — perfil com capa que vira barra (D22)
+
+**O que existia.** `ProfileScreen` já tinha capa de 40vh (70vh no desktop), bloco de identidade com cantoneiras sobrepondo a capa, avatar saindo do bloco e abas. O parallax era JS (`scroll` + `requestAnimationFrame`) e deslocava a mídia para baixo deixando uma fresta no topo. Campos reais: capa, avatar, nome, `@username`, cidade, bio, cinco contagens (rolês, resenhas, amigos, seguidores, seguindo), ações (editar perfil; mensagem, amizade e seguir quando é outra pessoa) e sete abas. **Não há trilha no perfil nem aba "Publicações"** (ver Etapa C). Não há menu "...".
+
+**O que mudou.**
+- `.k-profile` (wrapper) com: barra fina sticky de 56 px (`aria-hidden`, fio + nome em Fraunces 20 px), capa `clamp(280px, 40vh, 420px)`, bloco de identidade (nome 34 px no celular, 52 px a partir de 768 px, até duas linhas), avatar (80 px / 96 px) e abas sticky sob a barra.
+- Animação **só em CSS**, dentro de `@supports (animation-timeline: scroll())` e `prefers-reduced-motion: no-preference`: capa sobe a 60% da velocidade (`translateY` a 0,4 × a faixa), camada sólida `--k-stage-bg` de 0 a 0,6 de opacidade, avatar com `translate + scale` até a posição da barra, e nome, fundo e fio da barra com `opacity` no último 40% da faixa. A faixa (`--k-profile-range: 240px`) está declarada uma vez no `:root`. O JS de parallax foi removido.
+- Sem suporte ou com movimento reduzido: barra fina fixa já visível (só fio e nome), avatar grande estático por cima do bloco.
+- Avatar é um elemento irmão do bloco (não filho) para ficar **acima** da barra enquanto o bloco passa **por baixo** dela.
+- Carregando: esqueleto de contorno e fios na altura da capa. Erro: `CircleAlert` + texto.
+- "Voltar" sobre a capa (44 px, fundo sólido): usa `router.back()` e cai para `/` sem histórico. **Menu "..." não criado**: não há ação para pôr nele (G3).
+
+**Limitações / decisões conservadoras.**
+- A barra encosta embaixo do cabeçalho do app (que é sticky) usando `--k-profile-header` (62 px celular, 70 px ≥ 640 px), valor estimado da altura do cabeçalho. Se o cabeçalho mudar de altura, ajustar essa variável.
+- O destino do avatar na barra é calculado por variáveis CSS (capa, sobreposição, faixa), sem JS. Se alguém mudar a altura da capa ou a sobreposição do bloco, atualizar `--k-profile-cover` / `--k-profile-overlap`.
+- O cartão "Localização" continua entre o bloco e as abas (já existia); a ordem do DOM pedida (capa, nome, ações, abas, conteúdo) vale com essa exceção.
+- Nada visto no navegador.
