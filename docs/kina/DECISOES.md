@@ -88,8 +88,21 @@ Só estas. Qualquer outra precisa de justificativa no PR.
 
 - Álbum e visualizador de fotos viram **carrossel de UMA foto por vez**. A grade/Mesa continua como índice.
 
+### D22 — Perfil com capa que vira barra (decisão do dono do projeto)
+
+- Perfil com capa que sobe devagar e escurece, e avatar que encolhe para dentro de uma barra fina. Animação guiada pela rolagem, **CSS puro** (`animation-timeline: scroll()`), só `transform` e `opacity`. Sem suporte ou com movimento reduzido: perfil estático e legível.
+
+### D23 — Ficha de faixa e barra de progresso ondulada (decisão do dono do projeto)
+
+- Ficha de faixa / "tocando agora" com barra de progresso **ondulada**, **somente se houver player com progresso real**. Sem isso, só a ficha de faixa com "Ouvir no Spotify".
+
+### D24 — Lista de conversas em acordeão exclusivo (decisão do dono do projeto)
+
+- A lista de conversas do chat é um acordeão exclusivo (`<details name="chat-lista">`): abrir uma linha fecha a outra. Sem requisição nova, sem mudar tempo real.
+
 ### Exceções anteriores que continuam valendo (não remover)
 
+- D20 a D24 não podem ser removidas por varreduras futuras.
 - D18 (`.k-glass`) e D19 (`.k-entry-scrim`), apenas na tela de entrada.
 - Hex permitidos: `--k-spotify`, valores do MapLibre lidos dos tokens, e-mail HTML e `themeColor`.
 

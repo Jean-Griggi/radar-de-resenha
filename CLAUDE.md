@@ -47,3 +47,9 @@ Decisões revisadas: docs/kina/DECISOES.md (prioridade sobre o plano).
 - **D20:** o feed é a "Mesa" (fotos espalhadas, estilo exposé); tocar numa foto a faz crescer até o post e sair do post volta ao lugar com a animação inversa. A Mesa é a ÚNICA visão do feed (sem seletor Lista|Mesa). Revoga "navegação não muda" SÓ para a lista de posts do feed. Vale também para publicações do perfil, fotos e álbuns (índices).
 - **D21:** álbum e visualizador de fotos são carrossel de UMA foto por vez (a grade/Mesa continua como índice).
 - Continuam valendo e NÃO podem ser removidas: D18 (`.k-glass`) e D19 (`.k-entry-scrim`), só na tela de entrada. Hex permitidos: `--k-spotify`, valores do MapLibre lidos dos tokens, e-mail HTML, `themeColor`.
+
+## D22 a D24 — perfil, ficha de faixa e chat
+- D22: perfil com capa que sobe devagar e escurece, avatar que encolhe para dentro de uma barra fina (animação guiada pela rolagem, CSS puro, só transform/opacity).
+- D23: ficha de faixa / "tocando agora" com barra de progresso ONDULADA (só se houver player com progresso real).
+- D24: lista de conversas do chat em acordeão exclusivo (`<details name="chat-lista">`).
+- D18 (`.k-glass`), D19 (`.k-entry-scrim`), D20 e D21 continuam valendo; varreduras futuras não podem desfazê-las.
