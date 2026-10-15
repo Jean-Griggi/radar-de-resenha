@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useEffect, useState } from 'react';
+import { Dispatch, FormEvent, SetStateAction, useEffect, useState } from 'react';
 import { CalendarPlus, Image as ImageIcon, Link2, Music, X } from 'lucide-react';
 import type { FeedItem, ReactionSummary } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { usePlayer } from '@/components/Player';
 import { Button } from '@/components/Button';
-import { EmptyState, Skeleton } from '@/components/Card';
+import { EmptyState } from '@/components/Card';
+import { Mesa, MesaSkeleton, MesaViewer, useMesaViewer, type MesaEntry } from '@/components/Mesa';
 import { FeedComments } from './Comments';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { MediaImage } from '@/components/MediaImage';
@@ -20,7 +21,12 @@ import { useToast } from '@/components/Toast';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { getUser } from '@/lib/auth';
 import { formatMeta, formatTimeAgo, plural } from '@/lib/format';
-import { peekUpcomingRoles, setCachedUpcomingRoles, withInflight, type RailRole } from '@/lib/shellCache';
+import {
+  peekUpcomingRoles,
+  setCachedUpcomingRoles,
+  withInflight,
+  type RailRole,
+} from '@/lib/shellCache';
 
 const LABELS: Record<string, string> = {
   role_created: 'criou um novo rolê',
@@ -85,6 +91,194 @@ function commentTarget(item: FeedItem) {
   return null;
 }
 
+/** Foto do tile: a foto do item ou a capa do rolê. A capa do Spotify nunca vira foto de tile (não se recorta capa de álbum). */
+function feedImage(item: FeedItem) {
+  return item.photo?.url ?? item.role?.coverPhoto ?? null;
+}
+
+function entryLabel(item: FeedItem) {
+  const name = item.actor?.name ?? item.post?.author?.name ?? '';
+  return `Post de ${name}${item.role ? `, em ${item.role.title}` : ''}`;
+}
+
+function feedEntry(item: FeedItem): MesaEntry {
+  const name = item.actor?.name ?? item.post?.author?.name;
+  return {
+    id: item.id,
+    label: entryLabel(item),
+    image: feedImage(item),
+    text:
+      item.post?.content ||
+      item.review?.title ||
+      item.role?.title ||
+      item.post?.music?.title ||
+      LABELS[item.type] ||
+      '',
+    avatar: { src: item.actor?.avatar ?? item.post?.author?.avatar, name },
+    meta: formatTimeAgo(item.createdAt),
+    dateTime: item.createdAt,
+  };
+}
+
+/** O item inteiro, aberto a partir da Mesa: o mesmo conteúdo, reações e comentários que a lista antiga mostrava. */
+function FeedEntry({
+  item,
+  setItems,
+  onBora,
+  onSaveLink,
+  onPlay,
+}: {
+  item: FeedItem;
+  setItems: Dispatch<SetStateAction<FeedItem[]>>;
+  onBora: (roleId: string) => void;
+  onSaveLink: (path: string) => void;
+  onPlay: (track: {
+    title: string;
+    artist: string;
+    cover?: string | null;
+    spotifyUrl?: string | null;
+  }) => void;
+}) {
+  const image = feedImage(item);
+  const hero = image ? (
+    <MediaImage src={image} alt={item.photo?.caption || ''} className="k-mesa-viewer__image" />
+  ) : null;
+  const fallback = (
+    <article className="card p-5">
+      <p className="text-sm text-muted">Este item do feed não pôde ser exibido.</p>
+    </article>
+  );
+
+  if (item.type === 'post_created' && item.post) {
+    const post = item.post;
+    return (
+      <ErrorBoundary fallback={fallback}>
+        {hero}
+        <Post
+          postId={post.id}
+          authorName={item.actor?.name ?? post.author?.name ?? ''}
+          username={item.actor?.username ?? post.author?.username}
+          avatar={item.actor?.avatar ?? post.author?.avatar}
+          createdAt={item.createdAt}
+          content={post.content}
+          music={post.music}
+          onPlay={
+            post.music
+              ? () =>
+                  onPlay({
+                    title: post.music!.title,
+                    artist: post.music!.artist ?? 'Playlist',
+                    cover: post.music!.cover,
+                    spotifyUrl: post.music!.spotifyUrl,
+                  })
+              : undefined
+          }
+          reactions={item.reactions ?? []}
+          onReactions={(reactions: ReactionSummary[]) => {
+            setItems((current) =>
+              current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)),
+            );
+          }}
+          comments={<FeedComments targetType="post" targetId={post.id} />}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  const target = commentTarget(item);
+  return (
+    <ErrorBoundary fallback={fallback}>
+      {hero}
+      <article className="card feed-memory k-corners">
+        <div className="min-w-0 p-4">
+          <div className="flex items-start gap-3">
+            <Avatar src={item.actor?.avatar} name={item.actor?.name} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm leading-5">
+                <Link
+                  href={`/perfil/${item.actor?.username}`}
+                  className="font-semibold text-fg hover:underline"
+                >
+                  {item.actor?.name}
+                </Link>{' '}
+                <span className="text-muted">{LABELS[item.type] ?? item.type}</span>
+              </p>
+              <p className="k-meta">{formatTimeAgo(item.createdAt)}</p>
+              {item.role ? (
+                <Link
+                  href={`/roles/${item.role.id}`}
+                  className="mt-3 block border border-[var(--k-line)] p-3"
+                >
+                  <p className="k-meta">{formatMeta(item.role.date, item.role.time)}</p>
+                  <h2 className="k-display feed-memory__title">{item.role.title}</h2>
+                  <p>{item.role.location || 'Local a combinar'}</p>
+                  <p className="k-meta">
+                    {plural(item.role.goingCount, 'pessoa confirmou', 'pessoas confirmaram')}
+                  </p>
+                </Link>
+              ) : null}
+              {item.review ? (
+                <Link
+                  href={`/reviews/${item.review.id}`}
+                  className="mt-3 block border border-[var(--k-line)] p-3"
+                >
+                  <p className="text-[var(--k-brand)]">{'★'.repeat(item.review.rating)}</p>
+                  <h2 className="text-base font-semibold text-fg">{item.review.title}</h2>
+                  <p className="mt-1 line-clamp-2 text-sm text-muted">{item.review.content}</p>
+                </Link>
+              ) : null}
+              <div className="mt-3 flex flex-wrap items-center gap-1">
+                {item.role ? (
+                  <button
+                    type="button"
+                    className="button button--primary h-11 px-4"
+                    onClick={() => onBora(item.role!.id)}
+                  >
+                    Bora
+                  </button>
+                ) : null}
+                {item.role || item.review ? (
+                  <button
+                    type="button"
+                    className="button button--ghost gap-1.5"
+                    onClick={() =>
+                      onSaveLink(
+                        item.role ? `/roles/${item.role.id}` : `/reviews/${item.review!.id}`,
+                      )
+                    }
+                  >
+                    <Link2 size={16} strokeWidth={2} aria-hidden />
+                    Salvar
+                  </button>
+                ) : null}
+              </div>
+              <div className="mt-1">
+                <Reactions
+                  targetType={item.role ? 'role' : item.review ? 'review' : 'post'}
+                  targetId={item.role?.id || item.review?.id || item.post?.id || item.id}
+                  items={item.reactions ?? []}
+                  onChange={(reactions: ReactionSummary[]) => {
+                    setItems((current) =>
+                      current.map((entry) =>
+                        entry.id === item.id ? { ...entry, reactions } : entry,
+                      ),
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        {target ? (
+          <div className="border-t border-line px-4 py-3">
+            <FeedComments targetType={target.targetType} targetId={target.targetId} />
+          </div>
+        ) : null}
+      </article>
+    </ErrorBoundary>
+  );
+}
+
 export function FeedScreen() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,6 +290,7 @@ export function FeedScreen() {
   const { setTrack } = usePlayer();
   const toast = useToast();
   const me = getUser();
+  const mesa = useMesaViewer();
 
   async function load(signal?: AbortSignal) {
     try {
@@ -157,6 +352,7 @@ export function FeedScreen() {
 
   const future = items.filter((item) => item.role?.status === 'upcoming');
   const past = items.filter((item) => item.role?.status !== 'upcoming');
+  const openItem = past.find((item) => item.id === mesa.openId);
 
   return (
     <div className="feed">
@@ -166,12 +362,22 @@ export function FeedScreen() {
             item.role ? (
               <article key={item.id} className="feed-future">
                 <div className="feed-future__when">
-                  <span className="feed-future__day">{item.role.date ? item.role.date.slice(8, 10) : '—'}</span>
+                  <span className="feed-future__day">
+                    {item.role.date ? item.role.date.slice(8, 10) : '—'}
+                  </span>
                   <span className="k-meta">{formatMeta(item.role.date, item.role.time)}</span>
                 </div>
                 <div>
-                  {item.role.coverPhoto ? <MediaImage src={item.role.coverPhoto} alt="" className="feed-future__cover" /> : null}
-                  {item.photo ? <MediaImage src={item.photo.url} alt={item.photo.caption || 'Foto'} className="feed-future__cover" /> : null}
+                  {item.role.coverPhoto ? (
+                    <MediaImage src={item.role.coverPhoto} alt="" className="feed-future__cover" />
+                  ) : null}
+                  {item.photo ? (
+                    <MediaImage
+                      src={item.photo.url}
+                      alt={item.photo.caption || 'Foto'}
+                      className="feed-future__cover"
+                    />
+                  ) : null}
                   <p>
                     <Link href={`/perfil/${item.actor?.username}`}>{item.actor?.name}</Link>{' '}
                     <span>{LABELS[item.type] ?? item.type}</span>
@@ -182,7 +388,11 @@ export function FeedScreen() {
                   <p className="feed-future__place">{item.role.location || 'Local a combinar'}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button onClick={() => bora(item.role!.id)}>Bora</Button>
-                    <button type="button" className="button button--ghost" onClick={() => saveLink(`/roles/${item.role!.id}`)}>
+                    <button
+                      type="button"
+                      className="button button--ghost"
+                      onClick={() => saveLink(`/roles/${item.role!.id}`)}
+                    >
                       Salvar
                     </button>
                   </div>
@@ -191,11 +401,18 @@ export function FeedScreen() {
                     targetId={item.role.id}
                     items={item.reactions ?? []}
                     onChange={(reactions: ReactionSummary[]) => {
-                      setItems((current) => current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)));
+                      setItems((current) =>
+                        current.map((entry) =>
+                          entry.id === item.id ? { ...entry, reactions } : entry,
+                        ),
+                      );
                     }}
                   />
                   {commentTarget(item) ? (
-                    <FeedComments targetType={commentTarget(item)!.targetType} targetId={commentTarget(item)!.targetId} />
+                    <FeedComments
+                      targetType={commentTarget(item)!.targetType}
+                      targetId={commentTarget(item)!.targetId}
+                    />
                   ) : null}
                 </div>
               </article>
@@ -207,203 +424,101 @@ export function FeedScreen() {
       <ChatPreview placement="feed" />
 
       <form onSubmit={publish} className="card p-4">
-          <div className="flex gap-3">
-            <Avatar src={me?.avatar} name={me?.name} />
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="O que está acontecendo?"
-              className="min-h-20 min-w-0 flex-1 resize-none bg-transparent text-sm text-fg outline-none placeholder:text-muted"
+        <div className="flex gap-3">
+          <Avatar src={me?.avatar} name={me?.name} />
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="O que está acontecendo?"
+            className="min-h-20 min-w-0 flex-1 resize-none bg-transparent text-sm text-fg outline-none placeholder:text-muted"
+          />
+        </div>
+        {music ? (
+          <div className="mt-3 flex items-center gap-3 border border-[var(--k-line)] p-2">
+            <MediaImage src={music.cover} alt="" className="k-cover h-10 w-10 shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{music.title}</p>
+              <p className="k-meta truncate">{music.subtitle}</p>
+            </div>
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="Tirar a música"
+              onClick={() => setMusic(null)}
+            >
+              <X size={18} aria-hidden />
+            </button>
+          </div>
+        ) : null}
+        {pickingMusic ? (
+          <div className="mt-3">
+            <SpotifyPicker
+              disabled={publishing}
+              onClose={() => setPickingMusic(false)}
+              onPick={(choice) => {
+                setMusic(choice);
+                setPickingMusic(false);
+              }}
             />
           </div>
-          {music ? (
-            <div className="mt-3 flex items-center gap-3 border border-[var(--k-line)] p-2">
-              <MediaImage src={music.cover} alt="" className="k-cover h-10 w-10 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{music.title}</p>
-                <p className="k-meta truncate">{music.subtitle}</p>
-              </div>
-              <button type="button" className="icon-btn" aria-label="Tirar a música" onClick={() => setMusic(null)}>
-                <X size={18} aria-hidden />
-              </button>
-            </div>
-          ) : null}
-          {pickingMusic ? (
-            <div className="mt-3">
-              <SpotifyPicker
-                disabled={publishing}
-                onClose={() => setPickingMusic(false)}
-                onPick={(choice) => {
-                  setMusic(choice);
-                  setPickingMusic(false);
-                }}
-              />
-            </div>
-          ) : null}
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
-            <div className="flex flex-wrap gap-1.5">
-              <Link href="/roles/new" className="composer-chip">
-                <CalendarPlus size={16} strokeWidth={2} aria-hidden />
-                Criar rolê
-              </Link>
-              <Link href="/photos" className="composer-chip">
-                <ImageIcon size={16} strokeWidth={2} aria-hidden />
-                Foto
-              </Link>
-              <button type="button" className="composer-chip" aria-pressed={pickingMusic} onClick={() => setPickingMusic((open) => !open)}>
-                <Music size={16} strokeWidth={2} aria-hidden />
-                Música
-              </button>
-            </div>
-            <Button type="submit" loading={publishing} disabled={!content.trim() && !music}>
-              Compartilhar
-            </Button>
-          </div>
-        </form>
-
-        {loading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-          </div>
         ) : null}
-        {error ? <p className="feed-error">{error}</p> : null}
-        {!loading && !error && items.length === 0 ? (
-          <EmptyState
-            title="Ninguém marcou nada ainda."
-            action={
-              <Link href="/roles/new" className="button button--primary">
-                Marcar um rolê
-              </Link>
-            }
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
+          <div className="flex flex-wrap gap-1.5">
+            <Link href="/roles/new" className="composer-chip">
+              <CalendarPlus size={16} strokeWidth={2} aria-hidden />
+              Criar rolê
+            </Link>
+            <Link href="/photos" className="composer-chip">
+              <ImageIcon size={16} strokeWidth={2} aria-hidden />
+              Foto
+            </Link>
+            <button
+              type="button"
+              className="composer-chip"
+              aria-pressed={pickingMusic}
+              onClick={() => setPickingMusic((open) => !open)}
+            >
+              <Music size={16} strokeWidth={2} aria-hidden />
+              Música
+            </button>
+          </div>
+          <Button type="submit" loading={publishing} disabled={!content.trim() && !music}>
+            Compartilhar
+          </Button>
+        </div>
+      </form>
+
+      {loading ? <MesaSkeleton /> : null}
+      {error ? <p className="feed-error">{error}</p> : null}
+      {!loading && !error && items.length === 0 ? (
+        <EmptyState
+          title="Ninguém marcou nada ainda."
+          action={
+            <Link href="/roles/new" className="button button--primary">
+              Marcar um rolê
+            </Link>
+          }
+        />
+      ) : null}
+
+      {!loading && !error && past.length > 0 ? (
+        <Mesa label="Publicações e rolês" entries={past.map(feedEntry)} onOpen={mesa.open} />
+      ) : null}
+      <MesaViewer
+        open={Boolean(openItem)}
+        onClose={mesa.close}
+        label={openItem ? entryLabel(openItem) : 'Publicação'}
+      >
+        {openItem ? (
+          <FeedEntry
+            item={openItem}
+            setItems={setItems}
+            onBora={bora}
+            onSaveLink={saveLink}
+            onPlay={setTrack}
           />
         ) : null}
-
-        {!loading
-          ? past.map((item) => {
-              if (item.type === 'post_created' && item.post) {
-                const post = item.post;
-                return (
-                  <ErrorBoundary
-                    key={item.id}
-                    fallback={
-                      <article className="card p-5">
-                        <p className="text-sm text-muted">Este item do feed não pôde ser exibido.</p>
-                      </article>
-                    }
-                  >
-                    <Post
-                      postId={post.id}
-                      authorName={item.actor?.name ?? post.author?.name ?? ''}
-                      username={item.actor?.username ?? post.author?.username}
-                      avatar={item.actor?.avatar ?? post.author?.avatar}
-                      createdAt={item.createdAt}
-                      content={post.content}
-                      music={post.music}
-                      onPlay={
-                        post.music
-                          ? () =>
-                              setTrack({
-                                title: post.music!.title,
-                                artist: post.music!.artist ?? 'Playlist',
-                                cover: post.music!.cover,
-                                spotifyUrl: post.music!.spotifyUrl,
-                              })
-                          : undefined
-                      }
-                      reactions={item.reactions ?? []}
-                      onReactions={(reactions: ReactionSummary[]) => {
-                        setItems((current) => current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)));
-                      }}
-                      comments={<FeedComments targetType="post" targetId={post.id} />}
-                    />
-                  </ErrorBoundary>
-                );
-              }
-              const target = commentTarget(item);
-              return (
-              <ErrorBoundary
-                key={item.id}
-                fallback={
-                  <article className="card p-5">
-                    <p className="text-sm text-muted">Este item do feed não pôde ser exibido.</p>
-                  </article>
-                }
-              >
-                <article className="card feed-memory k-corners">
-                  <div className="min-w-0 p-4">
-                    <div className="flex items-start gap-3">
-                      <Avatar src={item.actor?.avatar} name={item.actor?.name} size="sm" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm leading-5">
-                          <Link href={`/perfil/${item.actor?.username}`} className="font-semibold text-fg hover:underline">
-                            {item.actor?.name}
-                          </Link>{' '}
-                          <span className="text-muted">{LABELS[item.type] ?? item.type}</span>
-                        </p>
-                        <p className="k-meta">{formatTimeAgo(item.createdAt)}</p>
-                        {item.role ? (
-                          <Link href={`/roles/${item.role.id}`} className="mt-3 block border border-[var(--k-line)] p-3">
-                            <p className="k-meta">{formatMeta(item.role.date, item.role.time)}</p>
-                            <h2 className="k-display feed-memory__title">{item.role.title}</h2>
-                            <p>{item.role.location || 'Local a combinar'}</p>
-                            <p className="k-meta">{plural(item.role.goingCount, 'pessoa confirmou', 'pessoas confirmaram')}</p>
-                          </Link>
-                        ) : null}
-                        {item.review ? (
-                          <Link href={`/reviews/${item.review.id}`} className="mt-3 block border border-[var(--k-line)] p-3">
-                            <p className="text-[var(--k-brand)]">{'★'.repeat(item.review.rating)}</p>
-                            <h2 className="text-base font-semibold text-fg">{item.review.title}</h2>
-                            <p className="mt-1 line-clamp-2 text-sm text-muted">{item.review.content}</p>
-                          </Link>
-                        ) : null}
-                        {item.photo ? (
-                          <MediaImage
-                            src={item.photo.url}
-                            alt={item.photo.caption || 'Foto'}
-                            className="mt-3 h-48 w-full object-cover"
-                          />
-                        ) : null}
-                        <div className="mt-3 flex flex-wrap items-center gap-1">
-                          {item.role ? (
-                            <button type="button" className="button button--primary h-11 px-4" onClick={() => bora(item.role!.id)}>
-                              Bora
-                            </button>
-                          ) : null}
-                          {item.role || item.review ? (
-                            <button
-                              type="button"
-                              className="button button--ghost gap-1.5"
-                              onClick={() => saveLink(item.role ? `/roles/${item.role.id}` : `/reviews/${item.review!.id}`)}
-                            >
-                              <Link2 size={16} strokeWidth={2} aria-hidden />
-                              Salvar
-                            </button>
-                          ) : null}
-                        </div>
-                        <div className="mt-1">
-                          <Reactions
-                            targetType={item.role ? 'role' : item.review ? 'review' : 'post'}
-                            targetId={item.role?.id || item.review?.id || item.post?.id || item.id}
-                            items={item.reactions ?? []}
-                            onChange={(reactions: ReactionSummary[]) => {
-                              setItems((current) => current.map((entry) => (entry.id === item.id ? { ...entry, reactions } : entry)));
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {target ? (
-                    <div className="border-t border-line px-4 py-3">
-                      <FeedComments targetType={target.targetType} targetId={target.targetId} />
-                    </div>
-                  ) : null}
-                </article>
-              </ErrorBoundary>
-              );
-            })
-          : null}
-      </div>
+      </MesaViewer>
+    </div>
   );
 }

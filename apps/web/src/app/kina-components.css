@@ -2081,3 +2081,139 @@
     animation: none !important;
   }
 }
+
+@layer components {
+  /* ===================== Mesa (D20): fotos espalhadas, estilo exposé ===================== */
+  .k-mesa {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: var(--k-space-4);
+    margin: 0;
+    padding: var(--k-space-2);
+    list-style: none;
+  }
+  .k-mesa__item {
+    position: relative;
+    grid-column: span var(--span-m);
+    min-width: 0;
+  }
+  @media (min-width: 768px) {
+    .k-mesa {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--k-space-6);
+    }
+    .k-mesa__item {
+      grid-column: span var(--span-d);
+    }
+  }
+  .k-mesa__tile {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: var(--k-bg-sunken);
+    color: var(--k-text);
+    text-align: left;
+    cursor: pointer;
+    transition: transform var(--k-dur-instant) var(--k-ease-arrive);
+  }
+  .k-mesa__tile:active {
+    transform: scale(0.98);
+  }
+  .k-mesa__media {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Tile de texto: o trecho corta sem reticências; a faixa da base fica livre. */
+  .k-mesa__text {
+    padding: var(--k-space-4) var(--k-space-4) 52px;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    font-size: var(--k-fs-20);
+    line-height: 1.2;
+    background: var(--k-bg-sunken);
+  }
+  .k-mesa__strip {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    min-height: 36px;
+    padding: var(--k-space-1) var(--k-space-2);
+    background: var(--k-bg);
+  }
+  .k-mesa__ghost {
+    position: relative;
+  }
+  .k-mesa__ghost .skeleton--dot {
+    position: absolute;
+    bottom: var(--k-space-2);
+    left: var(--k-space-2);
+    width: 24px;
+    height: 24px;
+  }
+  .k-mesa__ghost .skeleton--line {
+    position: absolute;
+    bottom: var(--k-space-4);
+    left: 44px;
+    width: 40%;
+  }
+
+  /* Item aberto a partir da Mesa: tela cheia na cor do fundo, sem sombra e sem desfoque. */
+  .k-mesa-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--k-z-overlay);
+    overflow-y: auto;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--k-bg);
+    color: var(--k-text);
+    animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive);
+  }
+  .k-mesa-viewer__bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    padding: 0 var(--k-space-4);
+    padding-top: env(safe-area-inset-top);
+    border-bottom: 1px solid var(--k-line);
+    background: var(--k-bg);
+  }
+  .k-mesa-viewer__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--k-space-2);
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 var(--k-space-3);
+    border: 0;
+    background: none;
+    color: var(--k-text);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .k-mesa-viewer__body {
+    display: grid;
+    gap: var(--k-space-4);
+    width: 100%;
+    max-width: 680px;
+    margin-inline: auto;
+    padding: var(--k-space-6) var(--k-space-4) var(--k-space-12);
+  }
+  .k-mesa-viewer__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: cover;
+    background: var(--k-bg-sunken);
+  }
+}
