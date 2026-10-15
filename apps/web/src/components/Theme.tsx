@@ -5,10 +5,15 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Moon, Sun } from 'lucide-react';
 
 type Theme = 'light' | 'dark';
+export type ThemeChoice = 'system' | Theme;
 
 type ThemeContextValue = {
+  /** Tema já resolvido (claro ou escuro), para o ícone do cabeçalho. */
   theme: Theme;
+  /** O que a pessoa escolheu. "Sistema" = chave ausente no armazenamento. */
+  preference: ThemeChoice;
   toggle: (event?: MouseEvent<HTMLButtonElement>) => void;
+  choose: (choice: ThemeChoice) => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -19,6 +24,11 @@ const STORAGE_KEY = 'resenhometro_theme';
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
   localStorage.setItem(STORAGE_KEY, theme);
+}
+
+function applySystemTheme() {
+  delete document.documentElement.dataset.theme;
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 function storedTheme(): Theme | null {
@@ -36,10 +46,13 @@ function prefersReducedMotion() {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
+  const [preference, setPreference] = useState<ThemeChoice>('system');
 
   // Só lê (sem gravar): o tema "resolvido" serve ao ícone do botão. Sem escolha salva, acompanha o sistema.
   useEffect(() => {
-    setTheme(storedTheme() ?? systemTheme());
+    const stored = storedTheme();
+    setPreference(stored ?? 'system');
+    setTheme(stored ?? systemTheme());
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const onSystemChange = () => {
       if (storedTheme() === null) setTheme(systemTheme());
@@ -59,6 +72,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const commit = () => {
       applyTheme(next);
       setTheme(next);
+      setPreference(next);
     };
 
     const doc = document as Document & {
@@ -74,14 +88,26 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     commit();
   }, [theme]);
 
-  const value = useMemo(() => ({ theme, toggle }), [theme, toggle]);
+  const choose = useCallback((choice: ThemeChoice) => {
+    if (choice === 'system') {
+      applySystemTheme();
+      setPreference('system');
+      setTheme(systemTheme());
+      return;
+    }
+    applyTheme(choice);
+    setPreference(choice);
+    setTheme(choice);
+  }, []);
+
+  const value = useMemo(() => ({ theme, preference, toggle, choose }), [theme, preference, toggle, choose]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
   const ctx = useContext(ThemeContext);
-  if (!ctx) return { theme: 'light' as Theme, toggle: () => undefined };
+  if (!ctx) return { theme: 'light' as Theme, preference: 'system' as ThemeChoice, toggle: () => undefined, choose: () => undefined };
   return ctx;
 }
 

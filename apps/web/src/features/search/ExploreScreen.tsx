@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import type { SearchResults } from '@resenhometro/shared';
 import { Avatar } from '@/components/Avatar';
 import { EmptyState, Skeleton } from '@/components/Card';
+import { Tag } from '@/components/Tag';
 import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 
 type ExploreData = {
@@ -103,6 +104,7 @@ export function ExploreScreen() {
               </Link>
             ))}
           </Section>
+          <Section title="Lugares">{search.places.map((place) => <span key={place}>{place}</span>)}</Section>
           <Section title="Resenhas">
             {search.reviews.map((review) => (
               <Link key={review.id} href={`/reviews/${review.id}`} className="card p-3">
@@ -110,9 +112,7 @@ export function ExploreScreen() {
               </Link>
             ))}
           </Section>
-          <Section title="Tags">{search.tags.map((tag) => <span key={tag}>#{tag}</span>)}</Section>
-          <Section title="Lugares">{search.places.map((place) => <span key={place}>{place}</span>)}</Section>
-          <Section title="Músicas">
+          <Section title="Música">
             {search.music.map((track) => (
               <p key={track.id}>
                 {track.title}
@@ -120,6 +120,7 @@ export function ExploreScreen() {
               </p>
             ))}
           </Section>
+          <Section title="Tags">{search.tags.map((tag) => <span key={tag}>#{tag}</span>)}</Section>
         </div>
       ) : null}
       {!loading && !error && !q && explore ? (
@@ -128,7 +129,7 @@ export function ExploreScreen() {
             {explore.featuredRoles.map((role) => (
               <Link key={role.id} href={`/roles/${role.id}`} className="card block p-4">
                 <p>{role.title}</p>
-                <p className="text-xs text-muted">
+                <p className="k-meta">
                   {role.category} · {role.location}
                 </p>
               </Link>
@@ -151,9 +152,7 @@ export function ExploreScreen() {
           </Section>
           <Section title="Categorias">
             {explore.categories.map((item) => (
-              <span key={item.name} className="rounded-[var(--k-radius-control)] bg-[var(--overlay)] px-3 py-1 text-sm">
-                {item.name} · {item.count}
-              </span>
+              <Tag key={item.name}>{item.name} · {item.count}</Tag>
             ))}
           </Section>
           <Section title="Tags">

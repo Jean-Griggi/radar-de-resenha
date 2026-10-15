@@ -12,6 +12,7 @@ import { api, apiErrorMessage, isApiCanceled } from '@/lib/api';
 import { postFile, shrinkImage, IMAGE_ACCEPT } from '@/lib/upload';
 import { setUser, type AuthUser } from '@/lib/auth';
 import { LocationMap } from '@/features/users/LocationMap';
+import { useTheme, type ThemeChoice } from '@/components/Theme';
 import { PlaceSearch } from '@/features/users/PlaceSearch';
 import {
   clearLocationBody,
@@ -194,6 +195,7 @@ export function SettingsScreen() {
       {error ? <p className="mb-5 text-[var(--danger)]">{error}</p> : null}
       {!loading && !error && me ? (
         <div className="grid gap-5">
+          <ThemeSetting />
           <form onSubmit={save} className="card space-y-4 p-6">
             <h2 className="text-lg font-medium">Conta</h2>
             <Field label="Nome">
@@ -234,7 +236,7 @@ export function SettingsScreen() {
                   e.target.value = '';
                 }}
               />
-              <p className="mt-1 text-xs text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
+              <p className="mt-1 text-sm text-muted">JPEG, PNG, WebP ou HEIC. No iPhone, se não abrir, envie JPEG.</p>
             </Field>
             <Button variant="ghost" onClick={() => removeMedia('cover')}>
               Remover capa
@@ -348,5 +350,40 @@ export function SettingsScreen() {
         </div>
       ) : null}
     </>
+  );
+}
+
+const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
+  { value: 'system', label: 'Sistema' },
+  { value: 'light', label: 'Claro' },
+  { value: 'dark', label: 'Escuro' },
+];
+
+/** Ficha com as três escolhas. "Sistema" apaga a chave; o botão do cabeçalho continua só claro/escuro. */
+function ThemeSetting() {
+  const { preference, choose } = useTheme();
+  return (
+    <section className="card space-y-4 p-6">
+      <h2 className="text-lg font-medium">Aparência</h2>
+      <div className="k-ficha" role="radiogroup" aria-label="Tema">
+        {THEME_OPTIONS.map((option) => {
+          const active = preference === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              className="k-ficha-row k-ficha-row--mark"
+              onClick={() => choose(option.value)}
+            >
+              <span className={`k-ficha-row__mark${active ? ' k-ficha-row__mark--done' : ''}`} aria-hidden />
+              <span className="k-meta">{option.label}</span>
+              <span>{active ? 'Ativo' : ''}</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }

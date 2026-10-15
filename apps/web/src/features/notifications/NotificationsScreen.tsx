@@ -82,7 +82,7 @@ export function NotificationsScreen() {
                 ) : (
                   <p className="text-sm">{item.message}</p>
                 )}
-                <p className="text-xs text-muted">{formatTimeAgo(item.createdAt)}</p>
+                <p className="k-meta">{formatTimeAgo(item.createdAt)}</p>
               </div>
               {!item.read ? (
                 <Button variant="ghost" disabled={acting !== null} onClick={() => run(item.id, () => api.put(`/notifications/${item.id}/read`))}>
