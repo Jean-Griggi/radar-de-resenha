@@ -42,3 +42,8 @@ os tokens em `docs/kina/design/tokens.css`; a referência visual em `docs/kina/d
 
 ## Decisões revisadas
 Decisões revisadas: docs/kina/DECISOES.md (prioridade sobre o plano).
+
+## Decisões D20 e D21 (dono do projeto)
+- **D20:** o feed é a "Mesa" (fotos espalhadas, estilo exposé); tocar numa foto a faz crescer até o post e sair do post volta ao lugar com a animação inversa. A Mesa é a ÚNICA visão do feed (sem seletor Lista|Mesa). Revoga "navegação não muda" SÓ para a lista de posts do feed. Vale também para publicações do perfil, fotos e álbuns (índices).
+- **D21:** álbum e visualizador de fotos são carrossel de UMA foto por vez (a grade/Mesa continua como índice).
+- Continuam valendo e NÃO podem ser removidas: D18 (`.k-glass`) e D19 (`.k-entry-scrim`), só na tela de entrada. Hex permitidos: `--k-spotify`, valores do MapLibre lidos dos tokens, e-mail HTML, `themeColor`.

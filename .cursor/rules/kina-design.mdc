@@ -50,3 +50,8 @@ Referência visual: docs/kina/design/reference/ (PDF e mockups HTML).
 ## Exceção D19 — vidro líquido
 - `.k-glass` (vidro: `backdrop-filter`, borda clara, brilho interno) é permitido **apenas no card das telas de entrada e no botão "Entrar" da tela inicial** (login, cadastro, esqueci/redefinir senha e a folha de login do celular). Proibido em qualquer outro lugar.
 - Só tokens `--k-*`; `prefers-reduced-transparency` → fundo sólido; não animar o filtro. Ver `docs/kina/DECISOES.md` D19.
+
+## D20 e D21 — Mesa e carrossel
+- D20: o feed é a "Mesa" (fotos espalhadas); tocar na foto a faz crescer até o post, e sair volta com a animação inversa. É a ÚNICA visão do feed (sem seletor Lista|Mesa). Vale também para perfil, fotos e álbuns (índices). Revoga "navegação não muda" só para a lista de posts do feed.
+- D21: álbum e visualizador de fotos são carrossel de UMA foto por vez.
+- D18 (`.k-glass`) e D19 (`.k-entry-scrim`) continuam valendo, só na tela de entrada. Hex permitidos: `--k-spotify`, MapLibre lido dos tokens, e-mail HTML, `themeColor`.

@@ -74,6 +74,25 @@ Só estas. Qualquer outra precisa de justificativa no PR.
 - Acessibilidade: contraste do texto ≥ 4,5:1 nos dois temas (se faltar, subir `--k-glass-tint`); `prefers-reduced-transparency: reduce` → fundo sólido `--k-surface-raised`, sem `backdrop-filter`; o filtro não anima.
 - **Fase 5:** `.k-glass` é exceção permitida. A varredura de `backdrop-filter` e `box-shadow` deve ignorá-la (e o `Sheet` com `k-glass`).
 
+### D20 — A Mesa do feed (decisão do dono do projeto)
+
+**Revoga a regra "navegação não muda" SÓ para a lista de posts do feed.**
+
+- O feed deixa de ser lista vertical e vira a **"Mesa"**: fotos espalhadas, estilo exposé. Tocar numa foto a faz crescer até o post; sair do post volta a foto ao lugar com a animação inversa.
+- A Mesa é a **única** visão do feed. Sem seletor Lista|Mesa; qualquer resquício de tentativa anterior deve ser removido.
+- A mesma Mesa vale para publicações do perfil, fotos e álbuns (índices), sem mudar rotas nem API.
+- Stories, faixa "Próximos", cabeçalho, barra inferior e botão "Criar" não mudam.
+- Implementação: grade CSS (12 colunas no desktop, 4 no celular, `grid-auto-flow: dense`) com padrão determinístico por índice; transição com View Transitions API, com queda para fade de 160 ms.
+
+### D21 — Álbum e visualizador em carrossel (decisão do dono do projeto)
+
+- Álbum e visualizador de fotos viram **carrossel de UMA foto por vez**. A grade/Mesa continua como índice.
+
+### Exceções anteriores que continuam valendo (não remover)
+
+- D18 (`.k-glass`) e D19 (`.k-entry-scrim`), apenas na tela de entrada.
+- Hex permitidos: `--k-spotify`, valores do MapLibre lidos dos tokens, e-mail HTML e `themeColor`.
+
 ---
 
 ## 5. Navegação (Fase 3.1)
