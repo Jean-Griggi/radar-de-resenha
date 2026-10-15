@@ -63,3 +63,34 @@
 - **Publicações do perfil:** não há aba nem lista de posts no perfil, então não há o que converter. Não criei (G3).
 - **Aba Rolês do perfil:** continua como estava. Tile de rolê é navegação para a rota `/roles/{id}`, e a transição de tile para rota não foi pedida (e exigiria mexer em rota).
 - Tiles de foto sem autor na resposta (perfil só devolve `id` e `url`) mostram o avatar do dono do perfil e nenhuma data.
+
+---
+
+## Etapa D — visualizador de álbum em carrossel (D21)
+
+**O que existia.** Nenhuma tela de álbum nem visualizador: álbum era um cartão sem ação e a foto, uma miniatura. Dados de cada foto no cliente: `url`, `caption`, `createdAt`, `author` (opcional), `albumId`, `roleId`. **Não há título do rolê na foto** (só `roleId`), então a linha "rolê de origem" não aparece (o componente aceita `roleTitle`, mas nada o preenche; não busquei dado novo).
+
+**O que mudou.**
+- `components/PhotoCarousel.tsx` (novo) e `features/media/PhotoViewer.tsx` (agora só o adaptador que escolhe a foto inicial e dá o nome da transição). O carrossel abre dentro do painel da Mesa, nos três lugares: álbum e galeria em `/photos` e aba Fotos do perfil.
+- Desktop (≥ 768 px): foto em 10/12 (colunas 3 a 12), 60 vh, `.k-corners` de 16 px; título do álbum em Fraunces 39 px numa caixa `--k-bg` que ocupa as colunas 1 a 4 (metade fora, metade sobre a foto), centrada na vertical para não cobrir as cantoneiras; legenda (só se existir) e `.k-meta` com autor, data e rolê abaixo; dois botões 56×56 colados, raio 0, borda `--k-line-strong`, no canto inferior direito, com contador `03 / 12` (numerais tabulares, `aria-live="polite"`). Celular: título acima, foto em largura total (4/5), controles embaixo.
+- Todas as fotos no DOM, só a atual visível (`visibility`/`opacity`, nunca `display: none`), circular. Revelação: painel `--k-bg` em `scaleX` (`transform-origin: right`, `--k-dur-scene`); legenda e meta entram com `opacity` + `translateX(16px)`, `--k-dur-base`, com atraso de `--k-dur-quick`.
+- Teclado: setas, `Home`, `End`; `Esc` fecha o painel (volta ao índice, foco no tile). Toque: arrastar na horizontal, limite de 40 px; mouse não arrasta. Pré-carga: a próxima e a anterior `eager`, as demais `lazy`; proporção reservada pelo palco (sem layout shift).
+- A11y: `aria-roledescription="carrossel"` e `aria-label` com o nome do álbum; cada foto `role="group"` `aria-label="3 de 12"`; alt = legenda, ou "Foto de {autor}"; fora de vista com `aria-hidden` e `inert`.
+- Estados: álbum vazio ("Nenhuma foto por aqui."), carregando (contorno de 1 px pulsando por foto até o `load`) e foto que falhou (ícone + "Não foi possível carregar a foto."). Movimento reduzido: sem painel e sem deslocamento, só fade.
+
+**Decisão de implementação:** o painel de revelação só passa a existir **depois da primeira troca**. Na abertura a foto aparece inteira; senão a View Transition da Etapa B fotografaria o painel cobrindo a foto.
+
+**Limitações.**
+- Não vi o carrossel num navegador: o título sobreposto, a revelação e o toque precisam do roteiro (dois temas, 360 e 1280 px, nomes longos).
+- O título tem `overflow: hidden` com altura máxima (palco − 96 px) para nunca cobrir uma cantoneira; um nome enorme (mais de ~4 linhas em 39 px) seria cortado.
+- Em `/photos` o carrossel da **galeria** reúne todas as fotos do usuário (não só as de um álbum), na ordem da lista.
+- Sem "arrastar com mouse", por decisão sua.
+
+---
+
+## Fechamento da Parte 1
+
+- Portão final (`pnpm lint && pnpm typecheck && pnpm --filter @resenhometro/web build`): passou em todas as quatro etapas, na primeira tentativa. Nenhuma etapa foi desfeita.
+- **Nada foi visto em navegador.** Pendentes de olho humano: transição tile ⇄ painel (foto e texto), caimento em fade sem View Transition, carrossel (swipe, teclado, revelação), nomes longos, 360/390/768/1024/1280 px, claro e escuro, safe-area.
+- Itens que dependem de decisão futura: paginação do feed (a API não pagina); aba de publicações no perfil (não existe); título do rolê na foto (a API só dá `roleId`); entrada extra no histórico quando um link interno do painel troca de rota.
+- Arquivo `apps/api/tmp-open-pglite.mjs` (script solto, não é meu) ficou sem commit.

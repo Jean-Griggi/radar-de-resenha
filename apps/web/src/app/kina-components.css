@@ -2266,3 +2266,194 @@
     }
   }
 }
+
+@layer components {
+  /* ===================== Carrossel de fotos (D21): uma foto por vez ===================== */
+  .k-mesa-viewer__body:has(.k-carousel) {
+    max-width: 1100px;
+  }
+  .k-carousel {
+    display: grid;
+    gap: var(--k-space-4);
+    padding: var(--k-space-2);
+    outline-offset: 4px;
+  }
+  .k-carousel__title {
+    margin: 0;
+    font-size: var(--k-fs-31);
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+  .k-carousel__stage {
+    --k-corner-size: 16px;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    max-height: 70vh;
+    background: var(--k-bg-sunken);
+    touch-action: pan-y;
+  }
+  .k-carousel__slide {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity var(--k-dur-base) var(--k-ease-leave),
+      visibility 0s linear var(--k-dur-base);
+  }
+  .k-carousel__slide.is-current {
+    z-index: 1;
+    visibility: visible;
+    opacity: 1;
+    transition:
+      opacity var(--k-dur-quick) var(--k-ease-arrive),
+      visibility 0s;
+  }
+  .k-carousel__photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .k-carousel__loading {
+    position: absolute;
+    inset: 0;
+  }
+  .k-carousel__failed {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--k-space-3);
+    height: 100%;
+    padding: var(--k-space-6);
+    color: var(--k-text-muted);
+    text-align: center;
+  }
+  /* Revelação: um painel da cor do fundo encolhe em scaleX sobre a foto. */
+  .k-carousel__veil {
+    position: absolute;
+    inset: 0;
+    background: var(--k-bg);
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+  .k-carousel__slide.is-current .k-carousel__veil {
+    animation: k-reveal var(--k-dur-scene) var(--k-ease-arrive) forwards;
+  }
+  @keyframes k-reveal {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0);
+    }
+  }
+  .k-carousel__info {
+    display: grid;
+    gap: var(--k-space-2);
+    animation: k-carousel-info var(--k-dur-base) var(--k-ease-arrive) var(--k-dur-quick) both;
+  }
+  @keyframes k-carousel-info {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+  }
+  .k-carousel__caption {
+    margin: 0;
+    font-size: var(--k-fs-16);
+  }
+  .k-carousel__info .k-meta {
+    margin: 0;
+  }
+  .k-carousel__info .k-meta > * + *::before {
+    content: ' · ';
+  }
+  .k-carousel__role {
+    font-family: var(--k-font-display);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--k-brand-text);
+  }
+  .k-carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--k-space-4);
+  }
+  .k-carousel__controls .k-meta {
+    margin: 0;
+  }
+  .k-carousel__buttons {
+    display: flex;
+  }
+  .k-carousel__buttons button {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--k-line-strong);
+    border-radius: 0;
+    background: var(--k-bg);
+    color: var(--k-text);
+    cursor: pointer;
+  }
+  .k-carousel__buttons button + button {
+    margin-left: -1px;
+  }
+  .k-carousel__buttons button:hover {
+    background: var(--k-bg-sunken);
+  }
+  .k-carousel__buttons button:active {
+    transform: scale(0.98);
+  }
+  @media (min-width: 768px) {
+    .k-carousel {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 0;
+      row-gap: var(--k-space-4);
+    }
+    /* Foto em 10/12 (colunas 3 a 12), ~60vh; o título ocupa 4 colunas: metade fora, metade sobre a foto. */
+    .k-carousel__stage {
+      grid-column: 3 / -1;
+      grid-row: 1;
+      aspect-ratio: auto;
+      height: 60vh;
+      min-height: 320px;
+      max-height: none;
+    }
+    .k-carousel__title {
+      grid-column: 1 / 5;
+      grid-row: 1;
+      z-index: 2;
+      align-self: center;
+      max-height: calc(100% - 96px);
+      overflow: hidden;
+      padding: var(--k-space-6);
+      background: var(--k-bg);
+      font-size: var(--k-fs-39);
+    }
+    .k-carousel__info {
+      grid-column: 3 / -1;
+    }
+    .k-carousel__controls {
+      grid-column: 3 / -1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* Sem painel nem deslocamento: só fade. */
+    .k-carousel__veil {
+      display: none;
+    }
+    .k-carousel__info {
+      animation: k-fade-in var(--k-dur-base) var(--k-ease-arrive) both;
+    }
+    .k-carousel__buttons button:active {
+      transform: none;
+    }
+  }
+}
