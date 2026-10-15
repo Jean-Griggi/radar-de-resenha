@@ -170,3 +170,104 @@
 - `apps/api/tmp-open-pglite.mjs` continua solto e sem commit (não é meu).
 
 **Telas que ficaram de fora.** `ChatPreview` (atalho no feed e na agenda) segue no estilo anterior, só com o emoji trocado por ícone; `text-xs` restante em telas fora do PDF (G4); aba Rolês do perfil e rotas de rolê sem transição de tile.
+
+---
+
+# Parte 3: etapas I a O (correções do teste, navegação D25, layout D26, formulário de rolê)
+
+> Branch `redesign/kina`. Cada etapa passou em `pnpm lint && pnpm typecheck && pnpm --filter @resenhometro/web build` (na primeira tentativa; nenhuma foi desfeita). **Nada foi visto num navegador**: este ambiente só roda lint, tipos e build. Quem precisa conferir com os olhos: `TESTE-FINAL.md` (itens 8, 10, 16, 19, 24 reescritos e 25 a 30 novos).
+> Antes de começar: branch `redesign/kina` confirmada; árvore limpa, exceto `apps/api/tmp-open-pglite.mjs` (script solto de antes, não é desta parte) que **não** entrou em nenhum commit.
+> Não li o PDF do plano (sem leitor de PDF neste ambiente); segui `DECISOES.md`, `components-spec.md`, as Partes 1 e 2 e o texto do pedido.
+
+## Etapa I — detalhe de post, stories e rolagem
+
+**Achado de contexto.** Não existe rota de "detalhe de post": o detalhe é o painel da Mesa (`MesaViewer` + `FeedEntry`). Os itens de "detalhe" foram aplicados ali.
+
+- **Foto.** Cantoneiras só em volta da foto (invólucro `.k-corners` com a proporção 4:3 reservada, `max-height: min(70dvh, 720px)`, `object-fit: contain` sobre `--k-bg-sunken`). O nome da View Transition passou do invólucro para a própria `<img>` (`MediaImage` ganhou a prop `style`). O bloco de texto (`Post` com `bare`, e o card de memória sem `.card`) fica sem moldura e sem fundo.
+- **Texto.** Detalhe mostra o texto completo: `Caption`, `line-clamp` do detalhe e o `mask-image` por gradiente foram removidos (era a única máscara do app).
+- **Reações.** Novo `.k-reactions`: alinhadas à esquerda (margem de −12 px para o emoji cair no recuo do nome). Já eram 44x44, com `aria-pressed` e fio de 2 px; o `aria-label` agora é "Reagir com coração/risada/choro/fogo/olhos" (antes era o emoji).
+- **"Seu story".** Item inteiro é um botão (avatar de 58 px + rótulo, 8 px de respiro), "+" virou selo de 20x20 (raio 2 px) no canto do avatar, sem cobrir iniciais. Sem story: fio de 1 px `--k-line-strong`. Quando a pessoa já tem story, o "+" é um botão à parte (a área de 44 px vem de um pseudo-elemento), porque o item inteiro passa a abrir o visualizador.
+- **Rolagem.** Causa: `html, body { overflow-x: hidden }` — com os dois, o `overflow-y` do body vira `auto` e ele vira um segundo contêiner de rolagem. Agora só `html` corta (`overflow-x: hidden`) e o `body` usa `overflow-x: clip` (não cria contêiner, não quebra o sticky).
+- **Botões.** Comentário: sódio só com texto (no detalhe), vazio = secundário e desabilitado com "Escreva um comentário." (`aria-describedby`). No feed o "Enviar" é sempre secundário (prop `accent` em `Comments`/`FeedComments`). Composer: "Compartilhar" sempre secundário, com "Escreva algo para compartilhar." quando vazio. A validação não mudou (o submit já ignorava vazio): só estilo.
+- **Pulado/anotado.** O token `--k-ink` pedido para o selo "+" **não existe**: usei `--k-text` (é a tinta).
+
+## Etapa J — perfil e "Fotos e áudios"
+
+**Perfil.**
+- Nome sem `line-clamp`/reticências, `clamp(28px, 4vw, 52px)`, `overflow-wrap: anywhere`. Ações saíram do lado do nome: ordem nome, @ e cidade, bio, ações, contadores. "Seguir" (sódio) primeiro, depois as secundárias, todas com 44 px e `flex-wrap` com 8 px; no celular a principal ocupa a linha. Quando já se segue, o botão vira "Seguindo" secundário (com `aria-pressed`), para não haver duas ações sódio. "Editar perfil" (próprio perfil) passou a secundário.
+- Contadores: sem caixa e sem fundo, ficha com fio de 1 px acima, valor em Plex Mono 20 px, rótulo `.k-meta`, fios verticais (3 colunas em 360 px, flex com quebra a partir de 640 px). O `.profile-stat` antigo (fundo preenchido) foi removido do `globals.css`.
+- Abas: o `.k-tabs` rolava na horizontal mas aparecia barra vertical (`overflow-y` virava `auto`). Agora `overflow-y: hidden`, 4 px de respiro, `scroll-snap-type: x proximity`, sem gradiente. O fio do contêiner passou para um invólucro (`.k-tabs-wrap`) para o respiro não afastar o sublinhado do fio; foco da aba com `outline-offset: -2px` (para o `overflow` não cortar). `role=tablist/tab`, `aria-selected` e setas já existiam.
+- Avatar: recuo interno do bloco de identidade passou de 1,25 rem para 2 rem (`--k-profile-pad`), então o avatar fica a 32 px da cantoneira superior esquerda (pedido: ≥ 24 px).
+- Animação da Etapa E: conferida por leitura do CSS (`@supports (animation-timeline: scroll())` + `no-preference`, estática sem suporte). Sem defeito encontrado; só ajustei as variáveis que dependem do recuo e da sangria.
+
+**Fotos e áudios.**
+- Cada `<input type="file">` real, com `<label for>`, sem `display: none`; `::file-selector-button` no visual da Kina (44 px, borda 1 px, raio 2 px, Schibsted 600); o nome do arquivo escolhido herda o estilo mono. Painel sem fundo: grupos separados por fio de 1 px e 24 px, mesma ordem e grade de 2 colunas. "Gravar história" alinhado ao campo de áudio; "Criar álbum" ao lado do campo "Nome do álbum" (`flex 1`, até 320 px). Ajuda "JPEG, PNG…" em 14 px ligada ao campo por `aria-describedby`.
+- Títulos "Álbuns/Galeria/Áudios" em Fraunces 25 px; vazios unificados (`EmptyState line`: sem fundo, à esquerda, Fraunces 20 px, fio acima), mesmos textos.
+- **Item 13:** "Criar álbum" **não** desabilita com o campo vazio (usa o `required` nativo): não mudei a lógica, então não há texto de motivo. **Item 14:** a Etapa C está ativa (álbuns e fotos aparecem em Mesa e abrem no carrossel); nada a aplicar.
+- Sugestão (não feita): trocar o campo "uuid do rolê" por um seletor de rolê é funcionalidade nova.
+
+## Etapa K — feed "Hoje na Kina"
+
+Onde está cada coisa: página do feed `features/social/FeedScreen.tsx`; card de rolê (agora `InviteCard`, no mesmo arquivo); `StoriesBar`; composer (no `FeedScreen`); Mesa (`components/Mesa.tsx`); coluna direita `DefaultRail` em `components/AppShell.tsx`.
+
+- Título `h1` "Hoje na Kina" (Fraunces 39 px) com a data de hoje em `.k-meta`, calculada só no cliente depois de montar (sem diferença entre servidor e navegador). Ordem: título, stories, convites, composer, Mesa, separados por 48 + 48 px com fio de 1 px (`.feed > * + *`). Os atalhos "Próximos" (celular) e "Mensagens" (celular) continuam entre os convites e o composer, onde já estavam; não criei rótulos de seção.
+- `InviteCard`: linha do autor com avatar de 24 px, data à esquerda (dia em Plex Mono 49 px, dia da semana ao lado, uma linha "OUT · 20H" **sem repetir o dia**, mais "em N dias" calculado da data), título em Fraunces 31 px, local em 16 px, "Bora" e "Salvar" (44 px), reações, **comentários recolhidos** (`<details class="k-comments">`, resumo de 44 px, contagem em `.k-meta` depois de carregar, "Seja o primeiro a comentar." só aberto). Cards separados por fio e 32 px, sem fundo. Os convites passaram a ser ordenados do rolê mais próximo para o mais distante (a API não garante isso); só o primeiro tem "Bora" em sódio.
+- **Pulado:** estado "confirmado" do "Bora" (Check + texto): **não existe** no feed (hoje só aparece o aviso "Presença confirmada"); criar o estado seria mudar lógica.
+- Stories: faixa horizontal sem barra visível, `scroll-snap`, rótulo mono de uma linha com reticências, "Seu story" sempre primeiro, anel sódio de 2 px no não visto.
+- Composer: campo com `--k-bg-sunken`, textarea de no mínimo 64 px com `<label>` oculto, fio de 1 px acima da barra, ações com ícones de 20 px e 44 px de alvo.
+- Coluna direita: 5 sugestões + `<details>` "Ver mais (N)", "Seguir" secundário de 44 px, nome sem reticências; agenda com linhas de 56 px; sem `position: sticky`.
+- Testar com 0, 1 e 5 rolês: a estrutura trata os três casos (lista vazia não renderiza o bloco), mas não rodei.
+
+## Etapa L — conversa
+
+- `ConversationScreen` reescrita só na camada visual: cabeçalho (Voltar de 44 px, avatar de 40 px, nome em Fraunces 25 px que quebra, @ em `.k-meta`), lista com `role="log"` e `aria-live="polite"`, mensagens ancoradas embaixo (`margin-top: auto` no primeiro filho em vez de `justify-content: flex-end`, que cortaria o topo da rolagem), altura fluida (100dvh menos cabeçalho, barra de áreas e respiros do shell) com uma só rolagem; rola ao fim ao abrir e a cada mensagem (sem `smooth` com movimento reduzido); foco inicial no campo.
+- Mensagem: raio 0, `fit-content`, mín. 96 px, máx. 72%, "VOCÊ · 11:12" nas enviadas e só a hora nas recebidas, `sr-only` "Você:"/"{nome}:", 4 px entre mensagens do mesmo remetente e 16 px na troca.
+- Envio: `Anexar foto` (44x44), campo de 44 px com label oculto "Mensagem", "Enviar" sódio só com algo a enviar (texto ou foto), senão secundário e desabilitado com "Escreva uma mensagem.". Enter continua enviando (o campo segue sendo um `<input>`), sem mudança.
+- Estados: vazio "Mande a primeira mensagem."; falha de envio agora mostra sempre "Não enviou. Tente de novo." (antes mostrava a mensagem da API); carregando com ponto e fios.
+- **Item 7 (coluna "Mensagens" da lateral dizendo "Nenhuma conversa ainda").** Causa: a lateral (`ChatPreview`) busca as conversas ao montar e a cada 20 s; ao mandar a primeira mensagem ela ficava até 20 s com a lista antiga (vazia). Correção de poucas linhas: a conversa dispara um evento (`kina:chat-changed`, em `features/chat/events.ts`) e a lateral refaz a **mesma** consulta que já tinha. Nenhuma lógica de estado mudou.
+- Pendente: o campo fixo na base usa a altura do viewport menos o cabeçalho; num teclado virtual de celular a altura em `dvh` muda e a lista pode precisar de ajuste fino — conferir em aparelho.
+
+## Etapa M — navegação em barra de áreas e painel (D25)
+
+- Registrada em `DECISOES.md`, `CLAUDE.md` (raiz e `docs/kina`) e `kina-design.mdc` (raiz e `docs/kina`), como **ampliação** da regra de navegação.
+- `components/AreasNav.tsx` (novo): `AreasBar` e `AccountPanel`. Barra de áreas dentro do cabeçalho sticky (≥ 1024 px, 48 px, mesmo contêiner), links irmãos diretos (os seletores `+`/`:has` do "marcador de página" exigem isso), ponto sódio + peso 600 + `aria-current` no ativo, ícones lucide de 20 px. O hover usa exatamente o CSS pedido (`--k-drop`, `--k-lerp-*` com `sin()`), só `transform`, só ponteiro fino e sem movimento reduzido; o foco por teclado tem o mesmo efeito. Não precisei cair no hover padrão.
+- Painel (< 1024 px): o avatar vira `<button aria-label="Menu" aria-haspopup aria-expanded aria-controls>` (sem checkbox), painel de largura total sob o cabeçalho, ÁREAS e CONTA em linhas de 56 px com `ArrowRight` (opacidade 0 em repouso; opacidade + 4 px no hover/foco; sempre visível no ativo), "Sair" em `--k-danger` com `LogOut` e texto. Entrada: −8 px + opacidade (240 ms); saída só opacidade (160 ms). Esc devolve o foco ao botão; clique fora, escolha de linha e mudança de rota fecham; sem trava de foco e sem travar a rolagem. Rolável quando a altura não couber (limitado acima da barra inferior).
+- Menu de conta (≥ 1024 px): o `Menu` existente agora mostra só Perfil, Configurações e Sair, com ícone, `current` (ponto sódio + `aria-current`), entrada 8 px + opacidade (240 ms) e saída só opacidade (160 ms, o painel fica montado até o fade acabar).
+- Cabeçalho: altura explícita (`--k-header-h` 62/70 px) e `--k-areas-h` (0/48 px); o perfil e a conversa usam essas variáveis (antes eram valores estimados).
+- Contador de não lidas em Mensagens: **não feito**, o dado não existe no cabeçalho (o total do chat só é calculado na lateral).
+- Entre 1024 e 1099 px as abas inativas escondem o rótulo (ficam só com ícone, `title` e nome acessível), como rede de segurança; pela conta, as 7 abas cabem com rótulo em 1024 px.
+- A vitrine ganhou a seção "Navegação (D25)" (barra de áreas, painel e menu de conta).
+
+## Etapa N — layout largo e alinhado (D26)
+
+- Registrada em `DECISOES.md`, `CLAUDE.md` e `kina-design.mdc` (e `D20 a D26` na lista das exceções que varreduras não podem desfazer). Tokens `--k-gutter`, `--k-container`, `--k-rail`, `--k-measure` e `.k-container` no `kina-tokens.css` e no `docs/kina/design/tokens.css`.
+- Achado: o corpo do shell tinha duas famílias de larguras (`680px + 22.5rem` só em `/` e `max-w-7xl` nas demais, mais um `px-3/px-4`). Foram substituídas por `.k-container .k-layout` (feed fluido + `--k-rail`), no **mesmo** `.k-container` do cabeçalho e da barra de áreas.
+- A coluna direita passou a aparecer a partir de **1024 px** (antes 1280 px). Abaixo de 1024 px ela continua escondida; nesse caso os atalhos "Próximos" e "Mensagens" (que o `ChatPreview` mostrava só abaixo de `xl`) agora aparecem abaixo de `lg`. Sem sticky na coluna direita.
+- Busca centralizada (`max-width: 560px`) e ações coladas na borda direita. Texto de leitura (post, descrição do rolê, comentários, bio) com `max-width: var(--k-measure)`; mídia na largura da coluna. Mesa: tile com teto de 520 px. Capa de convite 3:2 até 420 px (sem placeholder). A sangria lateral da capa do perfil passou a usar `--k-gutter`.
+- Telas com largura própria (conversa, lista de conversas, painel da Mesa, carrossel) não mudaram de comportamento. O mapa e a entrada não dependiam do padding antigo do shell.
+
+## Etapa O — "Marcar um rolê"
+
+- "Editar rolê" **não** usava o mesmo componente (eram duas cópias do JSX). Criei `features/roles/RoleFormView.tsx` (só apresentação) e as duas telas passaram a usá-lo; estado, validação, envio e rotas ficaram nas telas. O `minLength` do nome continua só na criação.
+- Casca: nas rotas de formulário (`/roles/new` e `/roles/<id>/editar`) o shell não renderiza a coluna direita (decidido pela rota no `AppShell`, `data-page="form"`); coluna única de até 1100 px alinhada ao contêiner.
+- Título `h1` ("Marcar um rolê"/"Editar rolê"), grade 5/12 + 7/12 a partir de 768 px com a capa sticky; capa é UM controle (o `<label>` da área 3:2 envolve o `<input type="file">`, `sr-only`, foco por `:focus-within`, cantoneiras 6 px por fora, nome do arquivo em mono). O botão duplicado "Escolher imagem"/"Trocar imagem" saiu (não tinha função extra); "Remover" ficou.
+- Nome em Fraunces `clamp(28px, 4vw, 39px)`, `textarea` de 1 linha que cresce (CSS `field-sizing` + ajuste de altura por JS onde não há), Enter não insere quebra de linha nem envia (antes o Enter no input enviava o formulário). Ficha: rótulo mono de 120 px, linhas de 56 px, fios, sem cartão; no celular o rótulo fica acima do valor. "Local", "Descrição" e "Banner" no mesmo estilo mono.
+- **Caixinhas à esquerda: caso (a)** — eram só indicadores derivados do valor (nem eram `<input>`). Viraram ponto de 10 px redondo (cheio sódio = preenchido, anel de 1,5 px = vazio) com texto `sr-only` "preenchido"/"vazio". Grupos "Quando" e "Onde" em `<fieldset>` com `<legend>` `sr-only` (o rótulo visível continua o mono).
+- Campos: 44 px, raio 2 px, fundo rebaixado, fio inferior (2 px no foco); `date`/`time` nativos com área de 44 px no seletor; `<select>` nativo com `appearance: none` e `ChevronDown` (`pointer-events: none`). Placeholders: Tags já tinha ("sexta, festa, bar"); **Custo** ganhou "Ex.: 20 (em reais)" em vez de "Ex.: R$ 20 ou grátis", porque o campo é numérico e não aceita "grátis"; **Local** "Praça, bairro ou CEP" (mudou). Ajuda do local em 14 px com `aria-describedby`; "Pesquisar" na mesma linha (desce abaixo de 480 px).
+- Mapa: mesmos tiles OSM, raio 0, fio `--k-line-strong`, altura `clamp(240px, 36vh, 360px)`, controles retangulares de 44 px com fundo `--k-bg`, atribuição visível; **gestos cooperativos ligados só neste mapa** (nova opção `guardScroll` em `mountLocationMap`/`LocationMap`), para a rolagem da página não ficar presa; o teclado continua pelo campo de busca. Marcador `pin="role"` (como na Fase 4D).
+- Descrição dentro de `<details>` fechado, que abre sozinho uma vez quando já há conteúdo (edição). Barra de ação sticky com fio no topo, safe-area, "Publicar"/"Salvar" sódio (única ação principal) e, desabilitado, o motivo derivado da condição que já existia ("O nome precisa de pelo menos 3 caracteres", "Falta o nome"). "Cancelar" não existia e não foi criado. Erro do envio: continua o toast e ganhou um `role="alert"` no topo da barra (guarda a mensagem num estado local novo).
+- Pulado: "foco vai para o campo com erro" (não há erros por campo; a validação é a nativa do navegador, que já foca o campo).
+
+## Fechamento
+
+- `TESTE-FINAL.md`: 30 itens (limite). Itens 8, 10, 16, 19 e 24 reescritos; 25 a 30 novos (barra de áreas e menu de conta, painel, detalhe de post, conversa, fotos e áudios, layout largo).
+- Re-varredura dos 30 arquivos tocados na Parte 3 (hex, `rounded-*`, sombras, gradientes, `backdrop-filter`/`filter`, `keyCode`, `console.log`, durações/easings soltos, `localStorage`, larguras fixas, `sticky` na coluna direita, rótulos de seção no feed): nada novo fora das exceções (`.k-glass`/`.k-entry-scrim` e os tokens de gradiente de foto que já existiam). Corrigi um `text-xs` que passei a tocar (`LocationMap`, agora `k-help`). Os únicos tempos escritos em JS são os temporizadores de segurança de 240 ms do fade de saída do menu e do painel; as durações visuais vêm dos tokens.
+
+## Limitações por navegador
+
+- `animation-timeline: scroll()` (perfil), View Transitions (Mesa) e `<details name>` (chat): como nas Partes 1 e 2.
+- `sin()` em `calc()` e `:has()` (marcador de página da barra de áreas): navegadores sem suporte mostram a barra sem o efeito (os links continuam funcionando, sem `transform`).
+- `field-sizing: content` (nome do rolê): sem suporte, a altura é ajustada pelo JS.
+- `::file-selector-button` e `::-webkit-calendar-picker-indicator`: o seletor do calendário só existe em navegadores baseados em Chromium/WebKit; no Firefox o campo de data usa o controle nativo, sem o ajuste de 44 px.
+- Gestos cooperativos do MapLibre (mapa do formulário): o texto de aviso é o padrão do MapLibre.
+- Nada disto foi visto em navegador. Pendências para o olho humano: hover/foco da barra de áreas em 1024 px, painel em 360 px com a tela baixa, nome comprido no perfil e no formulário, mapa do formulário no teclado, teclado virtual na conversa, 1920 e 2560 px (alinhamento do cabeçalho com o conteúdo).

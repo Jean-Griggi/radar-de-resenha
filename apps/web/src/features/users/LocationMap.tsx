@@ -108,7 +108,7 @@ export function LocationMap({
         aria-label={interactive ? 'Minimapa para escolher a localização' : 'Mapa da localização'}
       />
       {failed ? <p className="mt-2 text-sm text-[var(--k-danger)]">Não foi possível abrir o mapa.</p> : null}
-      {interactive && !failed && hint ? <p className="mt-2 text-xs text-muted">{hint}</p> : null}
+      {interactive && !failed && hint ? <p className="k-help mt-2">{hint}</p> : null}
     </div>
   );
 }

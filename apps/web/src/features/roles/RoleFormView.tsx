@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ROLE_CATEGORIES } from '@resenhometro/shared';
 import { ChevronDown, CircleAlert } from 'lucide-react';
 import { Button } from '@/components/Button';
@@ -60,6 +60,15 @@ export function RoleFormView({
   const nameId = useId();
   const [descOpen, setDescOpen] = useState(false);
   const autoOpened = useRef(false);
+  const nameRef = useRef<HTMLTextAreaElement>(null);
+
+  // O nome cresce com o texto (onde não há `field-sizing: content`, o ajuste de altura vem daqui).
+  useLayoutEffect(() => {
+    const el = nameRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight + (el.offsetHeight - el.clientHeight)}px`;
+  }, [form.title]);
 
   // Edição: se o rolê já tem descrição, o bloco abre uma vez; depois a pessoa manda.
   useEffect(() => {
@@ -89,6 +98,7 @@ export function RoleFormView({
             {/* Textarea de 1 linha que cresce: nome longo quebra em linhas, sem reticências. */}
             <textarea
               id={nameId}
+              ref={nameRef}
               className="role-name__input"
               rows={1}
               value={form.title}
