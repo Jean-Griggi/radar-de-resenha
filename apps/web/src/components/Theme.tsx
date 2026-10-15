@@ -65,7 +65,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       startViewTransition?: (update: () => void) => { finished: Promise<void> };
     };
 
-    if (!prefersReducedMotion() && typeof doc.startViewTransition === 'function') {
+    // `themeFx` é marcado pela grade das telas de conta, que anima a troca por blocos no lugar do círculo.
+    if (!prefersReducedMotion() && root.dataset.themeFx !== 'blocks' && typeof doc.startViewTransition === 'function') {
       doc.startViewTransition(commit);
       return;
     }

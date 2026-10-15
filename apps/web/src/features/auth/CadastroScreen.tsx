@@ -45,7 +45,7 @@ export function CadastroScreen() {
 
   return (
     <AuthStage>
-      <Corners size={22} className={`auth-panel${error ? ' auth-panel--error' : ''}`}>
+      <Corners size={22} className={`auth-panel k-glass${error ? ' auth-panel--error' : ''}`}>
         <h1 className="auth-panel__title k-display">Crie seu perfil.</h1>
         <p className="auth-panel__lead">Registre rolês, fotos, áudios e a trilha da noite.</p>
         <form onSubmit={onSubmit} className="space-y-4">

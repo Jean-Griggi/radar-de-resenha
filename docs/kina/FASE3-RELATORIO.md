@@ -59,3 +59,17 @@ Suba com `pnpm dev` na raiz (web em `http://localhost:3000`). Olhe nos dois tema
 **O que mudou:** `.auth-stage` virou flex centrado (`min-height: 100dvh`, padding de respiro, a página rola se a altura não couber) e `isolation: isolate`. Grade e fios ficam em `z-index: 0` e `pointer-events: none`, atrás do conteúdo (z 2). Painel no fluxo, com `--k-corner-offset: 0` para as cantoneiras encostarem nos cantos. Botão de tema com 44×44, raio 2 px, `aria-label="Alternar tema"` e borda em hover/foco. O botão “Entrar” não recebe mais foco programático na montagem (o anel só aparece por teclado). Respiro entre frase e botão agora usa `--k-space-8`.
 
 **Para você decidir (item 8):** a tela de login com só o título “Te vejo na Kina.” e o botão “Entrar” **tem base** no mockup (`kina.html`, seção 6.2 “Chegar na quina”: grade, fios em cruz, botão no cruzamento) e no D1/AUDITORIA 3.2. Não removi nada. A mira (fios em cruz) é decoração de fundo no mockup, por isso foi mantida atrás do conteúdo. A frase grande sobre o botão vem da landing (6.1), que o D1 mandou não fazer; ela está no login por decisão registrada no item 2 da seção 2 acima.
+
+## 6. Vidro líquido no card das telas de entrada (D19)
+
+Decisão do dono do projeto, registrada em `DECISOES.md` (D19; o D18 já era Manifest/PWA). Implementado em `.k-glass` (`kina-components.css`) e `GlassFilter.tsx`, aplicado no card de login, cadastro, esqueci e redefinir senha, e na folha de login do celular (`Sheet glass`). O botão "Entrar" segue sódio sólido.
+
+**Limitações e desvios (o que não foi verificado no navegador):**
+- **Nada foi visto num navegador.** O portão (lint do `src`, typecheck, build) passou; a refração e o contraste precisam do olho humano nos dois temas, em 1280×720 e 360×640.
+- **Tokens:** o pedido citava `--k-surface` e `--k-ink`, que não existem. Usei `--k-surface-raised` e `--k-text`.
+- **Opacidade:** 12% no card (você pediu para baixar mais). Se algum texto perder contraste sobre a mira, suba `--k-glass-tint`.
+- **Refração só no Chromium.** Firefox/Safari recebem o desfoque comum. A marca `data-glass-refract` vem de `navigator.userAgentData` (só Chromium) em vez de só `@supports`, porque o Firefox aceita a sintaxe `url()` no `backdrop-filter` mas não renderiza o filtro SVG.
+- **Mapa de deslocamento:** versão com `feImage` + dois gradientes (vermelho em X, verde em Y, combinados com `screen`), sem fallback para `feTurbulence`. O sinal (puxa de dentro para fora ou o contrário) e o `scale` de 40 podem pedir ajuste fino olhando.
+- **Folha do celular:** atrás dela fica o escurecimento do overlay, que derrubaria o contraste com 12%. Por isso `.k-sheet.k-glass` usa tinta de 80%: é vidro bem mais discreto.
+- **Escopo ampliado:** o pedido falava em login e tela inicial. Apliquei também em cadastro/esqueci/redefinir (mesmo card), para as telas de entrada ficarem iguais; é só remover a classe se não quiser.
+- A splash em si (só título e botão) não tem card, então não recebeu vidro.

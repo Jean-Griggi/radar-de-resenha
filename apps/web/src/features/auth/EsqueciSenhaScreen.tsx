@@ -30,7 +30,7 @@ export function EsqueciSenhaScreen() {
 
   return (
     <AuthStage>
-      <Corners size={22} className={`auth-panel${error ? ' auth-panel--error' : ''}`}>
+      <Corners size={22} className={`auth-panel k-glass${error ? ' auth-panel--error' : ''}`}>
         <h1 className="auth-panel__title k-display">Esqueceu a senha?</h1>
         <p className="auth-panel__lead">Informe o e-mail da conta e peça o link de redefinição.</p>
         {done ? (

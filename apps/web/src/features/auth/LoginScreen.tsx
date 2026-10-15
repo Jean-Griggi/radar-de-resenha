@@ -136,7 +136,7 @@ export function LoginScreen() {
   return (
     <AuthStage phrase suppressPhrase={panel || sheet}>
       {panel ? (
-        <Corners size={22} className={`auth-panel auth-panel--quina${error ? ' auth-panel--error' : ''}`}>
+        <Corners size={22} className={`auth-panel auth-panel--quina k-glass${error ? ' auth-panel--error' : ''}`}>
           <div className="auth-panel__scroll">{form}</div>
         </Corners>
       ) : (
@@ -149,7 +149,7 @@ export function LoginScreen() {
           </div>
         </div>
       )}
-      <Sheet open={sheet} onClose={() => setSheet(false)} title="Entrar">
+      <Sheet open={sheet} onClose={() => setSheet(false)} title="Entrar" glass>
         <div className={error ? 'auth-panel--error' : undefined}>{panel ? null : form}</div>
       </Sheet>
     </AuthStage>

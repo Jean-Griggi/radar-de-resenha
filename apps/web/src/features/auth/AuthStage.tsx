@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { ThemeToggle } from '@/components/Theme';
+import { AuthGrid } from './AuthGrid';
+import { GlassFilter } from './GlassFilter';
 
 /**
  * Fundo das telas de conta: grade de quarteirões e dois fios de 2 px cruzando no centro.
@@ -18,7 +20,8 @@ export function AuthStage({
 }) {
   return (
     <main className="auth-stage">
-      <div className="k-street-grid auth-stage__grid" aria-hidden />
+      <GlassFilter />
+      <AuthGrid className="auth-stage__grid" />
       <div className="auth-stage__h" aria-hidden />
       <div className="auth-stage__v" aria-hidden />
       <ThemeToggle className="theme-toggle-corner" />

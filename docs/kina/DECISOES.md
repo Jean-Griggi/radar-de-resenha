@@ -61,6 +61,20 @@ Só estas. Qualquer outra precisa de justificativa no PR.
 | D18 | Manifest/PWA | **Não criar** agora. Atualizar favicon, `apple-icon`, `icon.svg`, metadados e `themeColor`. |
 | T14 | Variante `danger` do `Button` | **Manter.** Visual: igual ao `secondary`, com texto e borda `--k-danger`. Em diálogo de confirmação destrutiva, versão cheia: fundo `--k-danger`, texto `--k-on-brand`. `ghost` e `outline` passam a se comportar como `text` e `secondary`, sem mudar a API do componente. |
 
+### D19 — Vidro líquido nas telas de entrada (decisão do dono do projeto)
+
+> Nota: o D18 já é Manifest/PWA; esta decisão entra como **D19**.
+
+**Sobrepõe a regra "sem vidro/blur" e "sem sombras" SÓ nesta exceção.** Escopo exato: **vidro permitido apenas no card das telas de entrada (`.k-glass`). Proibido em qualquer outro lugar.**
+
+- "Telas de entrada" = o card de login (e a folha de login do celular, `Sheet`) e, por serem o mesmo card, cadastro, esqueci a senha e redefinir senha. A splash "Te vejo na Kina." não tem card; o botão "Entrar" continua sódio sólido.
+- Efeito: refração do fundo (mais forte nas bordas), desfoque leve, borda fina e brilho interno na borda de cima. Não é só blur.
+- Implementação: classe `.k-glass` em `kina-components.css` (só tokens `--k-*`, raio 2 px) + `GlassFilter` (filtro SVG `#k-glass`, só Chromium; Firefox/Safari caem no desfoque comum).
+- Acessibilidade: contraste do texto ≥ 4,5:1 nos dois temas (se faltar, subir `--k-glass-tint`); `prefers-reduced-transparency: reduce` → fundo sólido `--k-surface-raised`, sem `backdrop-filter`; o filtro não anima.
+- **Fase 5:** `.k-glass` é exceção permitida. A varredura de `backdrop-filter` e `box-shadow` deve ignorá-la (e o `Sheet` com `k-glass`).
+
+---
+
 ## 5. Navegação (Fase 3.1)
 
 - **Manter a estrutura atual** em vez de trocar por `NavRail`, porque toda tela depende dela (risco R11).

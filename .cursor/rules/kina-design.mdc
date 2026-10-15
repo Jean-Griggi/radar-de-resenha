@@ -46,3 +46,7 @@ Referência visual: docs/kina/design/reference/ (PDF e mockups HTML).
 
 ## Textos
 "Cola?" (confirmar presença), "Marcar um rolê" (criar), "Ninguém chegou ainda." (vazio), "Essa rua não existe." (404). Nome do produto: Kina.
+
+## Exceção D19 — vidro líquido
+- `.k-glass` (vidro: `backdrop-filter`, borda clara, brilho interno) é permitido **apenas no card das telas de entrada** (login, cadastro, esqueci/redefinir senha e a folha de login do celular). Proibido em qualquer outro lugar.
+- Só tokens `--k-*`; `prefers-reduced-transparency` → fundo sólido; não animar o filtro. Ver `docs/kina/DECISOES.md` D19.

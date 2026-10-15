@@ -262,6 +262,7 @@ Ver `components-spec.md` § Post. Resumo:
 - [ ] `prefers-reduced-motion`: magnetismo, parallax e faixas desligados; transições em fade.
 - [ ] Desempenho: Lighthouse mobile — Acessibilidade ≥ 95, LCP < 2,5 s na landing/login; fontes com subset latin e `font-display: swap`; imagens com `loading="lazy"` e dimensões declaradas.
 - [ ] Responsividade: 360, 390, 768, 1024, 1280, 1440 px; texto ampliado a 200%; nomes longos; listas vazias e muito cheias.
+- [ ] Varreduras de `backdrop-filter` e `box-shadow`: **ignorar `.k-glass`** (exceção D19, só no card das telas de entrada). Qualquer outro uso continua proibido.
 - [ ] Regressão visual (recomendado): screenshots Playwright por rota e tema, antes/depois.
 
 ---

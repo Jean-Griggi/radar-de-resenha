@@ -25,7 +25,7 @@ os tokens em `docs/kina/design/tokens.css`; a referência visual em `docs/kina/d
 - **Pessoas são pontos:** só avatares, presença e o botão “Criar” são redondos. Todo o resto: raio 0 (superfícies, imagens) ou 2 px (controles).
 - **Memória tem moldura, presente não tem:** publicações e rolês passados usam `.k-corners`; stories, convites e rolês futuros não.
 - Quatro peças: canto (`.k-corners`), ponto, fio (1 px `--k-line`), ficha (rótulo mono / valor / fio).
-- Sem cartões com sombra, sem gradientes decorativos, sem vidro, sem pílulas coloridas.
+- Sem cartões com sombra, sem gradientes decorativos, sem vidro, sem pílulas coloridas. **Única exceção (D19): `.k-glass`, vidro líquido só no card das telas de entrada. Proibido em qualquer outro lugar.**
 - Tipografia: Fraunces para nomes de pessoas e rolês e títulos ≥ 20 px (`.k-display`); Schibsted Grotesk para interface; IBM Plex Mono em caixa alta para datas, horas e contagens (`.k-meta`, ex.: `SÁB 18 OUT · 18H`).
 - Uma cor de marca: `--k-brand` (sódio), uma ação principal por tela. `--k-accent` (anil) só para links e “você” no mapa.
 - Tema escuro não é inversão: use os tokens; nunca escreva `dark:` com valores próprios.

@@ -11,6 +11,8 @@ type OverlayProps = {
   title: string;
   description?: string;
   children: ReactNode;
+  /** Vidro líquido (`.k-glass`, DECISOES D19). Só para a folha de login das telas de entrada. */
+  glass?: boolean;
 };
 
 const FOCUSABLE =
@@ -100,6 +102,7 @@ function Dialog({
   title,
   description,
   children,
+  glass,
 }: OverlayProps & { kind: 'modal' | 'sheet' }) {
   const titleId = useId();
   const { phase, panelRef, onKeyDown, onBackdrop } = useOverlay(open, onClose);
@@ -113,7 +116,7 @@ function Dialog({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={kind === 'modal' ? 'k-modal k-corners' : 'k-sheet'}
+        className={`${kind === 'modal' ? 'k-modal k-corners' : 'k-sheet'}${glass ? ' k-glass' : ''}`}
         onKeyDown={onKeyDown}
       >
         {kind === 'sheet' ? <span className="k-sheet__handle" aria-hidden /> : null}
